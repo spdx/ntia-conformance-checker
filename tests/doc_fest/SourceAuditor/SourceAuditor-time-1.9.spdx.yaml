@@ -1,0 +1,4059 @@
+---
+SPDXID: "SPDXRef-DOCUMENT"
+spdxVersion: "SPDX-2.2"
+creationInfo:
+  comment: "Created for the SPDX DocFest"
+  created: "2021-08-30T15:22:07Z"
+  creators:
+  - "Person: Gary O'Neall"
+  - "Tool: Source Auditor Open Source Console"
+  licenseListVersion: "3.14"
+name: "GNU Time Analysis by Source Auditor"
+dataLicense: "CC0-1.0"
+hasExtractedLicensingInfos:
+- licenseId: "LicenseRef-1"
+  extractedText: "% This texinfo.tex file is free software: you can redistribute it\
+    \ and/or\n% modify it under the terms of the GNU General Public License as\n%\
+    \ published by the Free Software Foundation, either version 3 of the\n% License,\
+    \ or (at your option) any later version.\n%\n% This texinfo.tex file is distributed\
+    \ in the hope that it will be\n% useful, but WITHOUT ANY WARRANTY; without even\
+    \ the implied warranty\n% of MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE.\
+    \  See the GNU\n% General Public License for more details.\n%\n% You should have\
+    \ received a copy of the GNU General Public License\n% along with this program.\
+    \  If not, see <https://www.gnu.org/licenses/>.\n%\n% As a special exception,\
+    \ when this file is read by TeX when processing\n% a Texinfo source document,\
+    \ you may use the result without\n% restriction. This Exception is an additional\
+    \ permission under section 7\n% of the GNU General Public License, version 3 (\"\
+    GPLv3\")."
+  name: "GPL 3.0 with texinfo-exception"
+- licenseId: "LicenseRef-2"
+  extractedText: "[WARNING: TRUNCATED]The following is the 'standard copyright' agreed\
+    \ upon by most contributors,\nand is currently the canonical license preferred\
+    \ by the X.Org Foundation.\nThis is a slight variant of the common MIT license\
+    \ form published by the\nOpen Source Initiative at http://www.opensource.org/licenses/mit-license.php\n\
+    \nCopyright holders of new code should use this license statement where\npossible,\
+    \ and insert their name to this list.  Please sort by surname\nfor people, and\
+    \ by the full name for other entities (e.g.  Juliusz\nChroboczek sorts before\
+    \ Intel Corporation sorts before Daniel Stone).\n\nCopyright Â© 2000-2001 Juliusz\
+    \ Chroboczek\nCopyright Â© 1998 Egbert Eich\nCopyright Â© 2006-2007 Intel Corporation\n\
+    Copyright Â© 2006 Nokia Corporation\nCopyright Â© 2006-2008 Peter Hutterer\nCopyright\
+    \ Â© 2006 Adam Jackson\nCopyright Â© 2009-2010 NVIDIA Corporation\nCopyright Â\
+    © 1987, 2003-2006, 2008-2010 Oracle and/or its affiliates.\nCopyright Â© 1999\
+    \ Keith Packard\nCopyright Â© 2007-2009 Red Hat, Inc.\nCopyright Â© 2005-2008\
+    \ Daniel Stone\nCopyright Â© 2006-2009 Simon Thum\nCopyright Â© 2006 Luc Verhaegen\n\
+    \nPermission is hereby granted, free of charge, to any person obtaining a\ncopy\
+    \ of this software and associated documentation files (the \"Software\"),\nto\
+    \ deal in the Software without restriction, including without limitation\nthe\
+    \ rights to use, copy, modify, merge, publish, distribute, sublicense,\nand/or\
+    \ sell copies of the Software, and to permit persons to whom the\nSoftware is\
+    \ furnished to do so, subject to the following conditions:\n\nThe above copyright\
+    \ notice and this permission notice (including the next\nparagraph) shall be included\
+    \ in all copies or substantial portions of the\nSoftware.\n\nTHE SOFTWARE IS PROVIDED\
+    \ \"AS IS\", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR\nIMPLIED, INCLUDING BUT\
+    \ NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,\nFITNESS FOR A PARTICULAR\
+    \ PURPOSE AND NONINFRINGEMENT.  IN NO EVENT SHALL\nTHE AUTHORS OR COPYRIGHT HOLDERS\
+    \ BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER\nLIABILITY, WHETHER IN AN ACTION OF\
+    \ CONTRACT, TORT OR OTHERWISE, ARISING\nFROM, OUT OF OR IN CONNECTION WITH THE\
+    \ SOFTWARE OR THE USE OR OTHER\nDEALINGS IN THE SOFTWARE.\n\n\n\n\nThe following\
+    \ licenses are 'legacy': usually MIT/X11 licenses with the name\nof the copyright\
+    \ holder(s) in the license statement, but also some BSD-like\nlicenses.\n\n\n\
+    Copyright (C) 1994-2003 The XFree86 Project, Inc.  All Rights Reserved.\nCopyright\
+    \ (C) Colin Harrison 2005-2008\n\nPermission is hereby granted, free of charge,\
+    \ to any person obtaining a copy of\nthis software and associated documentation\
+    \ files (the \"Software\"), to deal in\nthe Software without restriction, including\
+    \ without limitation the rights to\nuse, copy, modify, merge, publish, distribute,\
+    \ sublicense, and/or sell copies\nof the Software, and to permit persons to whom\
+    \ the Software is furnished to do\nso, subject to the following conditions:\n\n\
+    The above copyright notice and this permission notice shall be included in all\n\
+    copies or substantial portions of the Software.\n\nTHE SOFTWARE IS PROVIDED \"\
+    AS IS\", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR\nIMPLIED, INCLUDING BUT NOT\
+    \ LIMITED TO THE WARRANTIES OF MERCHANTABILITY, FIT-\nNESS FOR A PARTICULAR PURPOSE\
+    \ AND NONINFRINGEMENT.  IN NO EVENT SHALL THE\nXFREE86 PROJECT BE LIABLE FOR ANY\
+    \ CLAIM, DAMAGES OR OTHER LIABILITY, WHETHER IN\nAN ACTION OF CONTRACT, TORT OR\
+    \ OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION\nWITH THE SOFTWARE OR THE USE\
+    \ OR OTHER DEALINGS IN THE SOFTWARE.\n\nExcept as contained in this notice, the\
+    \ name of the XFree86 Project shall not\nbe used in advertising or otherwise to\
+    \ promote the sale, use or other dealings\nin this Software without prior written\
+    \ authorization from the XFree86 Project.\n\n\nCopyright 1997 by The XFree86 Project,\
+    \ Inc.\n\nPermission to use, copy, modify, distribute, and sell this software\
+    \ and its\ndocumentation for any purpose is hereby granted without fee, provided\
+    \ that\nthe above copyright notice appear in all copies and that both that\ncopyright\
+    \ notice and this permission notice appear in supporting\ndocumentation, and that\
+    \ the name of the XFree86 Project, Inc.\nnot be used in advertising or publicity\
+    \ pertaining to distribution of\nthe software without specific, written prior\
+    \ permission.  The Xfree86\nProject, Inc. makes no representations about the suitability\
+    \ of this\nsoftware for any purpose.  It is provided \"as is\" without express\
+    \ or\nimplied warranty.\n\nTHE XFREE86 PROJECT, INC. DISCLAIMS ALL WARRANTIES\
+    \ WITH REGARD\nTO THIS SOFTWARE, INCLUDING ALL IMPLIED WARRANTIES OF MERCHANTABILITY\
+    \ AND\nFITNESS, IN NO EVENT SHALL OREST ZBOROWSKI OR DAVID WEXELBLAT BE LIABLE\n\
+    FOR ANY SPECIAL, INDIRECT OR CONSEQUENTIAL DAMAGES OR ANY DAMAGES\nWHATSOEVER\
+    \ RESULTING FROM LOSS OF USE, DATA OR PROFITS, WHETHER IN AN\nACTION OF CONTRACT,\
+    \ NEGLIGENCE OR OTHER TORTIOUS ACTION, ARISING OUT OF\nOR IN CONNECTION WITH THE\
+    \ USE OR PERFORMANCE OF THIS SOFTWARE.\n\n\nCopyright 1985-1998, 2001  The Open\
+    \ Group\nCopyright 2002 Red Hat Inc., Durham, North Carolina.\n\nPermission to\
+    \ use, copy, modify, distribute, and sell this software and its\ndocumentation\
+    \ for any purpose is hereby granted without fee, provided that\nthe above copyright\
+    \ notice appear in all copies and that both that\ncopyright notice and this permission\
+    \ notice appear in supporting\ndocumentation.\n\nThe above copyright notice and\
+    \ this permission notice shall be included in\nall copies or substantial portions\
+    \ of the Software.\n\nTHE SOFTWARE IS PROVIDED \"AS IS\", WITHOUT WARRANTY OF\
+    \ ANY KIND, EXPRESS OR\nIMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF\
+    \ MERCHANTABILITY,\nFITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT.  IN\
+    \ NO EVENT SHALL THE\nOPEN GROUP BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER LIABILITY,\
+    \ WHETHER IN\nAN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR\
+    \ IN\nCONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.\n\
+    \nExcept as contained in this notice, the name of The Open Group shall not be\n\
+    used in advertising or otherwise to promote the sale, use or other dealings\n\
+    in this Software without prior written authorization from The Open Group.\n\n\n\
+    Copyright (c) 1987, 1989-1990, 1992-1995  X Consortium\n\nPermission is hereby\
+    \ granted, free of charge, to any person obtaining a copy\nof this software and\
+    \ associated documentation files (the \"Software\"), to deal\nin the Software\
+    \ without restriction, including without limitation the rights\nto use, copy,\
+    \ modify, merge, publish, distribute, sublicense, and/or sell\ncopies of the Software,\
+    \ and to permit persons to whom the Software is\nfurnished to do so, subject to\
+    \ the following conditions:\n\nThe above copyright notice and this permission\
+    \ notice shall be included in\nall copies or substantial portions of the Software.\n\
+    \nTHE SOFTWARE IS PROVIDED \"AS IS\", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR\n\
+    IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,\nFITNESS\
+    \ FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT.  IN NO EVENT SHALL THE\nX CONSORTIUM\
+    \ BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER LIABILITY, WHETHER IN\nAN ACTION OF\
+    \ CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN\nCONNECTION WITH THE\
+    \ SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.\n\nExcept as contained\
+    \ in this notice, the name of the X Consortium shall not be\nused in advertising\
+    \ or otherwise to promote the sale, use or other dealings\nin this Software without\
+    \ prior written authorization from the X Consortium.\n\n\nCopyright Â© 1999-2000\
+    \ SuSE, Inc.\nCopyright Â© 2007 Red Hat, Inc.\n\nPermission to use, copy, modify,\
+    \ distribute, and sell this software and its\ndocumentation for any purpose is\
+    \ hereby granted without fee, provided that\nthe above copyright notice appear\
+    \ in all copies and that both that\ncopyright notice and this permission notice\
+    \ appear in supporting\ndocumentation, and that the name of SuSE not be used in\
+    \ advertising or\npublicity pertaining to distribution of the software without\
+    \ specific,\nwritten prior permission.  SuSE makes no representations about the\n\
+    suitability of this software for any purpose.  It is provided \"as is\"\nwithout\
+    \ express or implied warranty.\n\nSuSE DISCLAIMS ALL WARRANTIES WITH REGARD TO\
+    \ THIS SOFTWARE, INCLUDING ALL\nIMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS,\
+    \ IN NO EVENT SHALL SuSE\nBE LIABLE FOR ANY SPECIAL, INDIRECT OR CONSEQUENTIAL\
+    \ DAMAGES OR ANY DAMAGES\nWHATSOEVER RESULTING FROM LOSS OF USE, DATA OR PROFITS,\
+    \ WHETHER IN AN ACTION\nOF CONTRACT, NEGLIGENCE OR OTHER TORTIOUS ACTION, ARISING\
+    \ OUT OF OR IN\nCONNECTION WITH THE USE OR PERFORMANCE OF THIS SOFTWARE.\n\n\n\
+    Copyright 1987-1991, 1993 by Digital Equipment Corporation, Maynard, Massachusetts.\n\
+    Copyright 1991 Massachusetts Institute of Technology, Cambridge, Massachusetts.\n\
+    Copyright 1991, 1993 Olivetti Research Limited, Cambridge, England.\n\n      \
+    \                  All Rights Reserved\n\nPermission to use, copy, modify, and\
+    \ distribute this software and its\ndocumentation for any purpose and without\
+    \ fee is hereby granted,\nprovided that the above copyright notice appear in all\
+    \ copies and that\nboth that copyright notice and this permission notice appear\
+    \ in\nsupporting documentation, and that the name of Digital not be\nused in advertising\
+    \ or publicity pertaining to distribution of the\nsoftware without specific, written\
+    \ prior permission.\n\nDIGITAL DISCLAIMS ALL WARRANTIES WITH REGARD TO THIS SOFTWARE,\
+    \ INCLUDING\nALL IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS, IN NO EVENT\
+    \ SHALL\nDIGITAL BE LIABLE FOR ANY SPECIAL, INDIRECT OR CONSEQUENTIAL DAMAGES\
+    \ OR\nANY DAMAGES WHATSOEVER RESULTING FROM LOSS OF USE, DATA OR PROFITS,\nWHETHER\
+    \ IN AN ACTION OF CONTRACT, NEGLIGENCE OR OTHER TORTIOUS ACTION,\nARISING OUT\
+    \ OF OR IN CONNECTION WITH THE USE OR PERFORMANCE OF THIS\nSOFTWARE.\n\n\nCopyright\
+    \ 1987 by Digital Equipment Corporation, Maynard, Massachusetts,\nCopyright 1994\
+    \ Quarterdeck Office Systems.\n\n                        All Rights Reserved\n\
+    \nPermission to use, copy, modify, and distribute this software and its\ndocumentation\
+    \ for any purpose and without fee is hereby granted,\nprovided that the above\
+    \ copyright notice appear in all copies and that\nboth that copyright notice and\
+    \ this permission notice appear in\nsupporting documentation, and that the names\
+    \ of Digital and\nQuarterdeck not be used in advertising or publicity pertaining\
+    \ to\ndistribution of the software without specific, written prior\npermission.\n\
+    \nDIGITAL AND QUARTERDECK DISCLAIM ALL WARRANTIES WITH REGARD TO THIS\nSOFTWARE,\
+    \ INCLUDING ALL IMPLIED WARRANTIES OF MERCHANTABILITY AND\nFITNESS, IN NO EVENT\
+    \ SHALL DIGITAL BE LIABLE FOR ANY SPECIAL, INDIRECT\nOR CONSEQUENTIAL DAMAGES\
+    \ OR ANY DAMAGES WHATSOEVER RESULTING FROM LOSS\nOF USE, DATA OR PROFITS, WHETHER\
+    \ IN AN ACTION OF CONTRACT, NEGLIGENCE\nOR OTHER TORTIOUS ACTION, ARISING OUT\
+    \ OF OR IN CONNECTION WITH THE USE\nOR PERFORMANCE OF THIS SOFTWARE.\n\n\nCopyright\
+    \ 1997 Digital Equipment Corporation.\nAll rights reserved.\n\nThis software is\
+    \ furnished under license and may be used and copied only in\naccordance with\
+    \ the following terms and conditions.  Subject to these\nconditions, you may download,\
+    \ copy, install, use, modify and distribute\nthis software in source and/or binary\
+    \ form. No title or ownership is\ntransferred hereby.\n\n1) Any source code used,\
+    \ modified or distributed must reproduce and retain\n   this copyright notice\
+    \ and list of conditions as they appear in the\n   source file.\n\n2) No right\
+    \ is granted to use any trade name, trademark, or logo of Digital\n   Equipment\
+    \ Corporation. Neither the \"Digital Equipment Corporation\"\n   name nor any\
+    \ trademark or logo of Digital Equipment Corporation may be\n   used to endorse\
+    \ or promote products derived from this software without\n   the prior written\
+    \ permission of Digital Equipment Corporation.\n\n3) This software is provided\
+    \ \"AS-IS\" and any express or implied warranties,\n   including but not limited\
+    \ to, any implied warranties of merchantability,\n   fitness for a particular\
+    \ purpose, or non-infringement are disclaimed.\n   In no event shall DIGITAL be\
+    \ liable for any damages whatsoever, and in\n   particular, DIGITAL shall not\
+    \ be liable for special, indirect,\n   consequential, or incidental damages or\
+    \ damages for lost profits, loss\n   of revenue or loss of use, whether such damages\
+    \ arise in contract,\n   negligence, tort, under statute, in equity, at law or\
+    \ otherwise, even\n   if advised of the possibility of such damage.\n\n\nCopyright\
+    \ (c) 1991, 1996-1997 Digital Equipment Corporation, Maynard, Massachusetts.\n\
+    \nPermission is hereby granted, free of charge, to any person obtaining a copy\n\
+    of this software and associated documentation files (the \"Software\"), to deal\n\
+    in the Software without restriction, including without limitation the rights\n\
+    to use, copy, modify, merge, publish, distribute, sublicense, and/or sell\ncopies\
+    \ of the Software.\n\nThe above copyright notice and this permission notice shall\
+    \ be included in\nall copies or substantial portions of the Software.\n\nTHE SOFTWARE\
+    \ IS PROVIDED \"AS IS\", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR\nIMPLIED, INCLUDING\
+    \ BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,\nFITNESS FOR A PARTICULAR\
+    \ PURPOSE AND NONINFRINGEMENT.  IN NO EVENT SHALL\nDIGITAL EQUIPMENT CORPORATION\
+    \ BE LIABLE FOR ANY CLAIM, DAMAGES, INCLUDING,\nBUT NOT LIMITED TO CONSEQUENTIAL\
+    \ OR INCIDENTAL DAMAGES, OR OTHER LIABILITY,\nWHETHER IN AN ACTION OF CONTRACT,\
+    \ TORT OR OTHERWISE, ARISING FROM, OUT OF OR\nIN CONNECTION WITH THE SOFTWARE\
+    \ OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.\n\nExcept as contained in this\
+    \ notice, the name of Digital Equipment Corporation\nshall not be used in advertising\
+    \ or otherwise to promote the sale, use or other\ndealings in this Software without\
+    \ prior written authorization from Digital\nEquipment Corporation.\n\n\nSGI FREE\
+    \ SOFTWARE LICENSE B (Version 2.0, Sept. 18, 2008)\nCopyright (C) 1991-2000 Silicon\
+    \ Graphics, Inc. All Rights Reserved.\n\nPermission is hereby granted, free of\
+    \ charge, to any person obtaining a\ncopy of this software and associated documentation\
+    \ files (the \"Software\"),\nto deal in the Software without restriction, including\
+    \ without limitation\nthe rights to use, copy, modify, merge, publish, distribute,\
+    \ sublicense,\nand/or sell copies of the Software, and to permit persons to whom\
+    \ the\nSoftware is furnished to do so, subject to the following conditions:\n\n\
+    The above copyright notice including the dates of first publication and\neither\
+    \ this permission notice or a reference to\nhttp://oss.sgi.com/projects/FreeB/\n\
+    shall be included in all copies or substantial portions of the Software.\n\nTHE\
+    \ SOFTWARE IS PROVIDED \"AS IS\", WITHOUT WARRANTY OF ANY KIND, EXPRESS\nOR IMPLIED,\
+    \ INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,\nFITNESS FOR\
+    \ A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL\nSILICON GRAPHICS,\
+    \ INC. BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER LIABILITY,\nWHETHER IN AN ACTION\
+    \ OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF\nOR IN CONNECTION WITH\
+    \ THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE\nSOFTWARE.\n\n\nCopyright (c)\
+    \ 1994, 1995  Hewlett-Packard Company\n\nPermission is hereby granted, free of\
+    \ charge, to any person obtaining\na copy of this software and associated documentation\
+    \ files (the\n\"Software\"), to deal in the Software without restriction, including\n\
+    without limitation the rights to use, copy, modify, merge, publish,\ndistribute,\
+    \ sublicense, and/or sell copies of the Software, and to\npermit persons to whom\
+    \ the Software is furnished to do so, subject to\nthe following conditions:\n\n\
+    The above copyright notice and this permission notice shall be included\nin all\
+    \ copies or substantial portions of the Software.\n\nTHE SOFTWARE IS PROVIDED\
+    \ \"AS IS\", WITHOUT WARRANTY OF ANY KIND, EXPRESS\nOR IMPLIED, INCLUDING BUT\
+    \ NOT LIMITED TO THE WARRANTIES OF\nMERCHANTABILITY, FITNESS FOR A PARTICULAR\
+    \ PURPOSE AND NONINFRINGEMENT.\nIN NO EVENT SHALL HEWLETT-PACKARD COMPANY BE LIABLE\
+    \ FOR ANY CLAIM,\nDAMAGES OR OTHER LIABILITY, WHETHER IN AN ACTION OF CONTRACT,\
+    \ TORT OR\nOTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION WITH THE SOFTWARE\
+    \ OR\nTHE USE OR OTHER DEALINGS IN THE SOFTWARE.\n\nExcept as contained in this\
+    \ notice, the name of the Hewlett-Packard\nCompany shall not be used in advertising\
+    \ or otherwise to promote the\nsale, use or other dealings in this Software without\
+    \ prior written\nauthorization from the Hewlett-Packard Company.\n\n\nCopyright\
+    \ 1989 by Hewlett-Packard Company, Palo Alto, California.\nAll Rights Reserved\n\
+    \nPermission to use, copy, modify, and distribute this software and its\ndocumentation\
+    \ for any purpose and without fee is hereby granted,\nprovided that the above\
+    \ copyright notice appear in all copies and that\nboth that copyright notice and\
+    \ this permission notice appear in\nsupporting documentation, and that the name\
+    \ of Hewlett-Packard not be\nused in advertising or publicity pertaining to distribution\
+    \ of the\nsoftware without specific, written prior permission.\n\nHEWLETT-PACKARD\
+    \ DISCLAIMS ALL WARRANTIES WITH REGARD TO THIS SOFTWARE, INCLUDING\nALL IMPLIED\
+    \ WARRANTIES OF MERCHANTABILITY AND FITNESS, IN NO EVENT SHALL\nHEWLETT-PACKARD\
+    \ BE LIABLE FOR ANY SPECIAL, INDIRECT OR CONSEQUENTIAL DAMAGES OR\nANY DAMAGES\
+    \ WHATSOEVER RESULTING FROM LOSS OF USE, DATA OR PROFITS,\nWHETHER IN AN ACTION\
+    \ OF CONTRACT, NEGLIGENCE OR OTHER TORTIOUS ACTION,\nARISING OUT OF OR IN CONNECTION\
+    \ WITH THE USE OR PERFORMANCE OF THIS\nSOFTWARE.\n\n\nCopyright 2001-2004 Red\
+    \ Hat Inc., Durham, North Carolina.\nCopyright (c) 2003 by the XFree86 Project,\
+    \ Inc.\nCopyright 2004-2005 Red Hat Inc., Raleigh, North Carolina.\nAll Rights\
+    \ Reserved.\n\nPermission is hereby granted, free of charge, to any person obtaining\n\
+    a copy of this software and associated documentation files (the\n\"Software\"\
+    ), to deal in the Software without restriction, including\nwithout limitation\
+    \ on the rights to use, copy, modify, merge,\npublish, distribute, sublicense,\
+    \ and/or sell copies of the Software,\nand to permit persons to whom the Software\
+    \ is furnished to do so,\nsubject to the following conditions:\n\nThe above copyright\
+    \ notice and this permission notice (including the\nnext paragraph) shall be included\
+    \ in all copies or substantial\nportions of the Software.\n\nTHE SOFTWARE IS PROVIDED\
+    \ \"AS IS\", WITHOUT WARRANTY OF ANY KIND,\nEXPRESS OR IMPLIED, INCLUDING BUT\
+    \ NOT LIMITED TO THE WARRANTIES OF\nMERCHANTABILITY, FITNESS FOR A PARTICULAR\
+    \ PURPOSE AND\nNON-INFRINGEMENT.  IN NO EVENT SHALL RED HAT AND/OR THEIR SUPPLIERS\n\
+    BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER LIABILITY, WHETHER IN AN\nACTION OF\
+    \ CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF OR IN\nCONNECTION WITH THE\
+    \ SOFTWARE OR THE USE OR OTHER DEALINGS IN THE\nSOFTWARE.\n\n\nCopyright Â© 2008\
+    \ Red Hat, Inc.\nPartly based on code Copyright Â© 2000 SuSE, Inc.\n\nPermission\
+    \ to use, copy, modify, distribute, and sell this software\nand its documentation\
+    \ for any purpose is hereby granted without\nfee, provided that the above copyright\
+    \ notice appear in all copies\nand that both that copyright notice and this permission\
+    \ notice\nappear in supporting documentation, and that the name of Red Hat\nnot\
+    \ be used in advertising or publicity pertaining to distribution\nof the software\
+    \ without specific, written prior permission.  Red\nHat makes no representations\
+    \ about the suitability of this software\nfor any purpose.  It is provided \"\
+    as is\" without express or implied\nwarranty.\n\nRed Hat DISCLAIMS ALL WARRANTIES\
+    \ WITH REGARD TO THIS SOFTWARE,\nINCLUDING ALL IMPLIED WARRANTIES OF MERCHANTABILITY\
+    \ AND FITNESS, IN\nNO EVENT SHALL Red Hat BE LIABLE FOR ANY SPECIAL, INDIRECT\
+    \ OR\nCONSEQUENTIAL DAMAGES OR ANY DAMAGES WHATSOEVER RESULTING FROM LOSS\nOF\
+    \ USE, DATA OR PROFITS, WHETHER IN AN ACTION OF CONTRACT,\nNEGLIGENCE OR OTHER\
+    \ TORTIOUS ACTION, ARISING OUT OF OR IN\nCONNECTION WITH THE USE OR PERFORMANCE\
+    \ OF THIS SOFTWARE.\n\nPermission to use, copy, modify, distribute, and sell this\
+    \ software and its\ndocumentation for any purpose is hereby granted without fee,\
+    \ provided that\nthe above copyright notice appear in all copies and that both\
+    \ that\ncopyright notice and this permission notice appear in supporting\ndocumentation,\
+    \ and that the name of SuSE not be used in advertising or\npublicity pertaining\
+    \ to distribution of the software without specific,\nwritten prior permission.\
+    \  SuSE makes no representations about the\nsuitability of this software for any\
+    \ purpose.  It is provided \"as is\"\nwithout express or implied warranty.\n\n\
+    SuSE DISCLAIMS ALL WARRANTIES WITH REGARD TO THIS SOFTWARE, INCLUDING ALL\nIMPLIED\
+    \ WARRANTIES OF MERCHANTABILITY AND FITNESS, IN NO EVENT SHALL SuSE\nBE LIABLE\
+    \ FOR ANY SPECIAL, INDIRECT OR CONSEQUENTIAL DAMAGES OR ANY DAMAGES\nWHATSOEVER\
+    \ RESULTING FROM LOSS OF USE, DATA OR PROFITS, WHETHER IN AN ACTION\nOF CONTRACT,\
+    \ NEGLIGENCE OR OTHER TORTIOUS ACTION, ARISING OUT OF OR IN\nCONNECTION WITH THE\
+    \ USE OR PERFORMANCE OF THIS SOFTWARE.\n\n\nCopyright Â© 2006  Red Hat, Inc.\n\
+    (C) Copyright 1998-1999 Precision Insight, Inc., Cedar Park, Texas.\nAll Rights\
+    \ Reserved.\n\nPermission is hereby granted, free of charge, to any person obtaining\
+    \ a\ncopy of this software and associated documentation files (the \"Software\"\
+    ),\nto deal in the Software without restriction, including without limitation\n\
+    the rights to use, copy, modify, merge, publish, distribute, sub license,\nand/or\
+    \ sell copies of the Software, and to permit persons to whom the\nSoftware is\
+    \ furnished to do so, subject to the following conditions:\n\nThe above copyright\
+    \ notice and this permission notice (including the next\nparagraph) shall be included\
+    \ in all copies or substantial portions of the\nSoftware.\n\nTHE SOFTWARE IS PROVIDED\
+    \ \"AS IS\", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR\nIMPLIED, INCLUDING BUT\
+    \ NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,\nFITNESS FOR A PARTICULAR\
+    \ PURPOSE AND NON-INFRINGEMENT.  IN NO EVENT SHALL\nRED HAT, INC, OR PRECISION\
+    \ INSIGHT AND/OR THEIR SUPPLIERS BE LIABLE FOR ANY\nCLAIM, DAMAGES OR OTHER LIABILITY,\
+    \ WHETHER IN AN ACTION OF CONTRACT, TORT\nOR OTHERWISE, ARISING FROM, OUT OF OR\
+    \ IN CONNECTION WITH THE SOFTWARE OR\nTHE USE OR OTHER DEALINGS IN THE SOFTWARE.\n\
+    \n\nCopyright (c) 1995  X Consortium\nCopyright 2004 Red Hat Inc., Durham, North\
+    \ Carolina.\nAll Rights Reserved.\n\nPermission is hereby granted, free of charge,\
+    \ to any person obtaining\na copy of this software and associated documentation\
+    \ files (the\n\"Software\"), to deal in the Software without restriction, including\n\
+    without limitation on the rights to use, copy, modify, merge,\npublish, distribute,\
+    \ sublicense, and/or sell copies of the Software,\nand to permit persons to whom\
+    \ the Software is furnished to do so,\nsubject to the following conditions:\n\n\
+    The above copyright notice and this permission notice shall be\nincluded in all\
+    \ copies or substantial portions of the Software.\n\nTHE SOFTWARE IS PROVIDED\
+    \ \"AS IS\", WITHOUT WARRANTY OF ANY KIND,\nEXPRESS OR IMPLIED, INCLUDING BUT\
+    \ NOT LIMITED TO THE WARRANTIES OF\nMERCHANTABILITY, FITNESS FOR A PARTICULAR\
+    \ PURPOSE AND\nNON-INFRINGEMENT.  IN NO EVENT SHALL RED HAT, THE X CONSORTIUM,\n\
+    AND/OR THEIR SUPPLIERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER\nLIABILITY, WHETHER\
+    \ IN AN ACTION OF CONTRACT, TORT OR OTHERWISE,\nARISING FROM, OUT OF OR IN CONNECTION\
+    \ WITH THE SOFTWARE OR THE USE OR\nOTHER DEALINGS IN THE SOFTWARE.\n\nExcept as\
+    \ contained in this notice, the name of the X Consortium\nshall not be used in\
+    \ advertising or otherwise to promote the sale,\nuse or other dealings in this\
+    \ Software without prior written\nauthorization from the X Consortium.\n\n\nCopyright\
+    \ 1998-2000 Precision Insight, Inc., Cedar Park, Texas.\nCopyright 2000 VA Linux\
+    \ Systems, Inc.\nCopyright (c) 2002, 2008, 2009 Apple Computer, Inc.\nCopyright\
+    \ (c) 2003-2004 Torrey T. Lyons.\nAll Rights Reserved.\n\nPermission is hereby\
+    \ granted, free of charge, to any person obtaining a\ncopy of this software and\
+    \ associated documentation files (the\n\"Software\"), to deal in the Software\
+    \ without restriction, including\nwithout limitation the rights to use, copy,\
+    \ modify, merge, publish,\ndistribute, sub license, and/or sell copies of the\
+    \ Software, and to\npermit persons to whom the Software is furnished to do so,\
+    \ subject to\nthe following conditions:\n\nThe above copyright notice and this\
+    \ permission notice (including the\nnext paragraph) shall be included in all copies\
+    \ or substantial portions\nof the Software.\n\nTHE SOFTWARE IS PROVIDED \"AS IS\"\
+    , WITHOUT WARRANTY OF ANY KIND, EXPRESS\nOR IMPLIED, INCLUDING BUT NOT LIMITED\
+    \ TO THE WARRANTIES OF\nMERCHANTABILITY, FITNESS FOR A PARTICULAR PURPOSE AND\
+    \ NON-INFRINGEMENT.\nIN NO EVENT SHALL PRECISION INSIGHT AND/OR ITS SUPPLIERS\
+    \ BE LIABLE FOR\nANY CLAIM, DAMAGES OR OTHER LIABILITY, WHETHER IN AN ACTION OF\
+    \ CONTRACT,\nTORT OR OTHERWISE, ARISING FROM, OUT OF OR IN CONNECTION WITH THE\n\
+    SOFTWARE OR THE USE OR OTHER DEALINGS IN THE SOFTWARE.\n\n\n(C) Copyright IBM\
+    \ Corporation 2003\nAll Rights Reserved.\n\nPermission is hereby granted, free\
+    \ of charge, to any person obtaining a\ncopy of this software and associated documentation\
+    \ files (the \"Software\"),\nto deal in the Software without restriction, including\
+    \ without limitation\non the rights to use, copy, modify, merge, publish, distribute,\
+    \ sub\nlicense, and/or sell copies of the Software, and to permit persons to whom\n\
+    the Software is furnished to do so, subject to the following conditions:\n\nThe\
+    \ above copyright notice and this permission notice (including the next\nparagraph)\
+    \ shall be included in all copies or substantial portions of the\nSoftware.\n\n\
+    THE SOFTWARE IS PROVIDED \"AS IS\", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR\n\
+    IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,\nFITNESS\
+    \ FOR A PARTICULAR PURPOSE AND NON-INFRINGEMENT.  IN NO EVENT SHALL\nVA LINUX\
+    \ SYSTEM, IBM AND/OR THEIR SUPPLIERS BE LIABLE FOR ANY CLAIM,\nDAMAGES OR OTHER\
+    \ LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR\nOTHERWISE, ARISING FROM,\
+    \ OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE\nUSE OR OTHER DEALINGS IN THE\
+    \ SOFTWARE.\n\n\n(C) Copyright IBM Corporation 2004-2005\nAll Rights Reserved.\n\
+    \nPermission is hereby granted, free of charge, to any person obtaining a\ncopy\
+    \ of this software and associated documentation files (the \"Software\"),\nto\
+    \ deal in the Software without restriction, including without limitation\nthe\
+    \ rights to use, copy, modify, merge, publish, distribute, sub license,\nand/or\
+    \ sell copies of the Software, and to permit persons to whom the\nSoftware is\
+    \ furnished to do so, subject to the following conditions:\n\nThe above copyright\
+    \ notice and this permission notice (including the next\nparagraph) shall be included\
+    \ in all copies or substantial portions of the\nSoftware.\n\nTHE SOFTWARE IS PROVIDED\
+    \ \"AS IS\", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR\nIMPLIED, INCLUDING BUT\
+    \ NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,\nFITNESS FOR A PARTICULAR\
+    \ PURPOSE AND NON-INFRINGEMENT.  IN NO EVENT SHALL\nIBM,\nAND/OR THEIR SUPPLIERS\
+    \ BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER LIABILITY,\nWHETHER IN AN ACTION OF\
+    \ CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF\nOR IN CONNECTION WITH THE\
+    \ SOFTWARE OR THE USE OR OTHER DEALINGS IN THE\nSOFTWARE.\n\n\nCopyright (c) 1997\
+    \  Metro Link Incorporated\n\nPermission is hereby granted, free of charge, to\
+    \ any person obtaining a\ncopy of this software and associated documentation files\
+    \ (the \"Software\"),\nto deal in the Software without restriction, including\
+    \ without limitation\nthe rights to use, copy, modify, merge, publish, distribute,\
+    \ sublicense,\nand/or sell copies of the Software, and to permit persons to whom\
+    \ the\nSoftware is furnished to do so, subject to the following conditions:\n\n\
+    The above copyright notice and this permission notice shall be included in\nall\
+    \ copies or substantial portions of the Software.\n\nTHE SOFTWARE IS PROVIDED\
+    \ \"AS IS\", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR\nIMPLIED, INCLUDING BUT\
+    \ NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,\nFITNESS FOR A PARTICULAR\
+    \ PURPOSE AND NONINFRINGEMENT.  IN NO EVENT SHALL\nTHE X CONSORTIUM BE LIABLE\
+    \ FOR ANY CLAIM, DAMAGES OR OTHER LIABILITY,\nWHETHER IN AN ACTION OF CONTRACT,\
+    \ TORT OR OTHERWISE, ARISING FROM, OUT OF\nOR IN CONNECTION WITH THE SOFTWARE\
+    \ OR THE USE OR OTHER DEALINGS IN THE\nSOFTWARE.\n\nExcept as contained in this\
+    \ notice, the name of the Metro Link shall not be\nused in advertising or otherwise\
+    \ to promote the sale, use or other dealings\nin this Software without prior written\
+    \ authorization from Metro Link.\n\n\nCopyright 1995-1998 by Metro Link, Inc.\n\
+    Copyright (c) 1997 Matthieu Herrb\n\nPermission to use, copy, modify, distribute,\
+    \ and sell this software and its\ndocumentation for any purpose is hereby granted\
+    \ without fee, provided that\nthe above copyright notice appear in all copies\
+    \ and that both that\ncopyright notice and this permission notice appear in supporting\n\
+    documentation, and that the name of Metro Link, Inc. not be used in\nadvertising\
+    \ or publicity pertaining to distribution of the software without\nspecific, written\
+    \ prior permission.  Metro Link, Inc. makes no\nrepresentations about the suitability\
+    \ of this software for any purpose.\n It is provided \"as is\" without express\
+    \ or implied warranty.\n\nMETRO LINK, INC. DISCLAIMS ALL WARRANTIES WITH REGARD\
+    \ TO THIS SOFTWARE,\nINCLUDING ALL IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS,\
+    \ IN NO\nEVENT SHALL METRO LINK, INC. BE LIABLE FOR ANY SPECIAL, INDIRECT OR\n\
+    CONSEQUENTIAL DAMAGES OR ANY DAMAGES WHATSOEVER RESULTING FROM LOSS OF USE,\n\
+    DATA OR PROFITS, WHETHER IN AN ACTION OF CONTRACT, NEGLIGENCE OR OTHER\nTORTIOUS\
+    \ ACTION, ARISING OUT OF OR IN CONNECTION WITH THE USE OR\nPERFORMANCE OF THIS\
+    \ SOFTWARE.\n\n\nCopyright 1998 by Metro Link Incorporated\n\nPermission to use,\
+    \ copy, modify, distribute, and sell this software\nand its documentation for\
+    \ any purpose is hereby granted without fee,\nprovided that the above copyright\
+    \ notice appear in all copies and that\nboth that copyright notice and this permission\
+    \ notice appear in\nsupporting documentation, and that the name of Metro Link\n\
+    Incorporated not be used in advertising or publicity pertaining to\ndistribution\
+    \ of the software without specific, written prior\npermission.  Metro Link Incorporated\
+    \ makes no representations\nabout the suitability of this software for any purpose.\
+    \  It is\nprovided \"as is\" without express or implied warranty.\n\nMETRO LINK\
+    \ INCORPORATED DISCLAIMS ALL WARRANTIES WITH REGARD\nTO THIS SOFTWARE, INCLUDING\
+    \ ALL IMPLIED WARRANTIES OF MERCHANTABILITY\nAND FITNESS, IN NO EVENT SHALL METRO\
+    \ LINK INCORPORATED BE\nLIABLE FOR ANY SPECIAL, INDIRECT OR CONSEQUENTIAL DAMAGES\
+    \ OR ANY\nDAMAGES WHATSOEVER RESULTING FROM LOSS OF USE, DATA OR PROFITS,\nWHETHER\
+    \ IN AN ACTION OF CONTRACT, NEGLIGENCE OR OTHER TORTIOUS ACTION,\nARISING OUT\
+    \ OF OR IN CONNECTION WITH THE USE OR PERFORMANCE OF THIS\nSOFTWARE.\n\n\nCopyright\
+    \ (c) 2000 by Conectiva S.A. (http://www.conectiva.com)\n\nPermission is hereby\
+    \ granted, free of charge, to any person obtaining a\ncopy of this software and\
+    \ associated documentation files (the \"Software\"),\nto deal in the Software\
+    \ without restriction, including without limitation\nthe rights to use, copy,\
+    \ modify, merge, publish, distribute, sublicense,\nand/or sell copies of the Software,\
+    \ and to permit persons to whom the\nSoftware is furnished to do so, subject to\
+    \ the following conditions:\n\nThe above copyright notice and this permission\
+    \ notice shall be included in\nall copies or substantial portions of the Software.\n\
+    \nTHE SOFTWARE IS PROVIDED \"AS IS\", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR\n\
+    IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,\nFITNESS\
+    \ FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT.  IN NO EVENT SHALL\nCONECTIVA\
+    \ LINUX BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER LIABILITY,\nWHETHER IN AN ACTION\
+    \ OF CONTRACT, TORT OR OTHERWISE, ARISING FROM, OUT OF\nOR IN CONNECTION WITH\
+    \ THE SOFTWARE OR THE USE OR OTHER DEALINGS IN THE\nSOFTWARE.\n\nExcept as contained\
+    \ in this notice, the name of Conectiva Linux shall\nnot be used in advertising\
+    \ or otherwise to promote the sale, use or other\ndealings in this Software without\
+    \ prior written authorization from\nConectiva Linux.\n\n\nCopyright (c) 2001,\
+    \ Andy Ritger  aritger@nvidia.com\nAll rights reserved.\n\nRedistribution and\
+    \ use in source and binary forms, with or without\nmodification, are permitted\
+    \ provided that the following conditions\nare met:\n\no Redistributions of source\
+    \ code must retain the above copyright\n  notice, this list of conditions and\
+    \ the following disclaimer.\no Redistributions in binary form must reproduce the\
+    \ above copyright\n  notice, this list of conditions and the following disclaimer\n\
+    in the documentation and/or other materials p"
+  name: "X11 (Xfree86) (MIT Style) License"
+documentNamespace: "http://www.spdx.org/spdxdocs/gnu-time/1.9/c816848b-c43b-4255-b18a-70fab629e1a7"
+documentDescribes:
+- "SPDXRef-1"
+packages:
+- SPDXID: "SPDXRef-8"
+  comment: "Package info generated from Source Auditor package database"
+  copyrightText: "NOASSERTION"
+  downloadLocation: "NOASSERTION"
+  filesAnalyzed: false
+  homepage: "https://git.savannah.gnu.org/gitweb/?p=config.git;a=blob_plain;f=config.guess"
+  licenseConcluded: "GPL-3.0-or-later WITH Autoconf-exception-3.0"
+  licenseDeclared: "GPL-3.0-or-later WITH Autoconf-exception-3.0"
+  name: "config_guess"
+- SPDXID: "SPDXRef-3"
+  comment: "Package info generated from Source Auditor package database"
+  copyrightText: "NOASSERTION"
+  downloadLocation: "NOASSERTION"
+  filesAnalyzed: false
+  licenseConcluded: "FSFULLR"
+  licenseDeclared: "FSFULLR"
+  name: "Autoconf Generated File"
+  summary: "Files generated by Autoconf"
+- SPDXID: "SPDXRef-6"
+  comment: "Package info generated from Source Auditor package database"
+  copyrightText: "NOASSERTION"
+  downloadLocation: "NOASSERTION"
+  filesAnalyzed: false
+  homepage: "https://www.gnu.org/software/automake/"
+  licenseConcluded: "GPL-2.0-or-later WITH Autoconf-exception-2.0"
+  licenseDeclared: "GPL-2.0-or-later WITH Autoconf-exception-2.0"
+  name: "Automake"
+- SPDXID: "SPDXRef-1"
+  checksums:
+  - algorithm: "SHA1"
+    checksumValue: "75068c26abbed3ad3980685bae21d7202d288317"
+  copyrightText: "Copyright (C) 1990-2018 Free Software Foundation, Inc."
+  description: "The `time' command runs another program, then displays information\
+    \ about the resources used by that program."
+  downloadLocation: "https://ftp.gnu.org/gnu/time/time-1.9.tar.gz"
+  filesAnalyzed: true
+  hasFiles:
+  - "SPDXRef-4"
+  - "SPDXRef-34"
+  - "SPDXRef-30"
+  - "SPDXRef-40"
+  - "SPDXRef-41"
+  - "SPDXRef-163"
+  - "SPDXRef-164"
+  - "SPDXRef-165"
+  - "SPDXRef-166"
+  - "SPDXRef-2"
+  - "SPDXRef-5"
+  - "SPDXRef-7"
+  - "SPDXRef-9"
+  - "SPDXRef-11"
+  - "SPDXRef-13"
+  - "SPDXRef-14"
+  - "SPDXRef-16"
+  - "SPDXRef-18"
+  - "SPDXRef-20"
+  - "SPDXRef-21"
+  - "SPDXRef-22"
+  - "SPDXRef-23"
+  - "SPDXRef-24"
+  - "SPDXRef-26"
+  - "SPDXRef-27"
+  - "SPDXRef-28"
+  - "SPDXRef-31"
+  - "SPDXRef-32"
+  - "SPDXRef-33"
+  - "SPDXRef-35"
+  - "SPDXRef-36"
+  - "SPDXRef-37"
+  - "SPDXRef-38"
+  - "SPDXRef-39"
+  - "SPDXRef-105"
+  - "SPDXRef-43"
+  - "SPDXRef-44"
+  - "SPDXRef-45"
+  - "SPDXRef-46"
+  - "SPDXRef-47"
+  - "SPDXRef-48"
+  - "SPDXRef-49"
+  - "SPDXRef-50"
+  - "SPDXRef-51"
+  - "SPDXRef-52"
+  - "SPDXRef-53"
+  - "SPDXRef-54"
+  - "SPDXRef-55"
+  - "SPDXRef-56"
+  - "SPDXRef-57"
+  - "SPDXRef-58"
+  - "SPDXRef-59"
+  - "SPDXRef-60"
+  - "SPDXRef-61"
+  - "SPDXRef-62"
+  - "SPDXRef-63"
+  - "SPDXRef-64"
+  - "SPDXRef-65"
+  - "SPDXRef-66"
+  - "SPDXRef-67"
+  - "SPDXRef-68"
+  - "SPDXRef-69"
+  - "SPDXRef-70"
+  - "SPDXRef-71"
+  - "SPDXRef-72"
+  - "SPDXRef-73"
+  - "SPDXRef-74"
+  - "SPDXRef-75"
+  - "SPDXRef-76"
+  - "SPDXRef-77"
+  - "SPDXRef-78"
+  - "SPDXRef-79"
+  - "SPDXRef-80"
+  - "SPDXRef-81"
+  - "SPDXRef-82"
+  - "SPDXRef-83"
+  - "SPDXRef-84"
+  - "SPDXRef-85"
+  - "SPDXRef-86"
+  - "SPDXRef-87"
+  - "SPDXRef-88"
+  - "SPDXRef-89"
+  - "SPDXRef-90"
+  - "SPDXRef-91"
+  - "SPDXRef-92"
+  - "SPDXRef-93"
+  - "SPDXRef-94"
+  - "SPDXRef-95"
+  - "SPDXRef-96"
+  - "SPDXRef-97"
+  - "SPDXRef-98"
+  - "SPDXRef-99"
+  - "SPDXRef-100"
+  - "SPDXRef-101"
+  - "SPDXRef-102"
+  - "SPDXRef-103"
+  - "SPDXRef-104"
+  - "SPDXRef-106"
+  - "SPDXRef-107"
+  - "SPDXRef-108"
+  - "SPDXRef-109"
+  - "SPDXRef-110"
+  - "SPDXRef-111"
+  - "SPDXRef-112"
+  - "SPDXRef-113"
+  - "SPDXRef-114"
+  - "SPDXRef-115"
+  - "SPDXRef-116"
+  - "SPDXRef-117"
+  - "SPDXRef-118"
+  - "SPDXRef-119"
+  - "SPDXRef-120"
+  - "SPDXRef-121"
+  - "SPDXRef-122"
+  - "SPDXRef-123"
+  - "SPDXRef-124"
+  - "SPDXRef-125"
+  - "SPDXRef-126"
+  - "SPDXRef-127"
+  - "SPDXRef-128"
+  - "SPDXRef-129"
+  - "SPDXRef-130"
+  - "SPDXRef-131"
+  - "SPDXRef-132"
+  - "SPDXRef-133"
+  - "SPDXRef-134"
+  - "SPDXRef-135"
+  - "SPDXRef-136"
+  - "SPDXRef-137"
+  - "SPDXRef-138"
+  - "SPDXRef-139"
+  - "SPDXRef-140"
+  - "SPDXRef-141"
+  - "SPDXRef-142"
+  - "SPDXRef-143"
+  - "SPDXRef-144"
+  - "SPDXRef-145"
+  - "SPDXRef-146"
+  - "SPDXRef-147"
+  - "SPDXRef-148"
+  - "SPDXRef-149"
+  - "SPDXRef-150"
+  - "SPDXRef-151"
+  - "SPDXRef-152"
+  - "SPDXRef-153"
+  - "SPDXRef-154"
+  - "SPDXRef-155"
+  - "SPDXRef-156"
+  - "SPDXRef-157"
+  - "SPDXRef-158"
+  - "SPDXRef-159"
+  - "SPDXRef-160"
+  - "SPDXRef-161"
+  - "SPDXRef-162"
+  - "SPDXRef-167"
+  - "SPDXRef-168"
+  - "SPDXRef-169"
+  - "SPDXRef-170"
+  - "SPDXRef-171"
+  - "SPDXRef-172"
+  - "SPDXRef-173"
+  - "SPDXRef-174"
+  - "SPDXRef-175"
+  - "SPDXRef-176"
+  - "SPDXRef-177"
+  homepage: "https://www.gnu.org/software/time/"
+  licenseConcluded: "(GPL-3.0-or-later AND LicenseRef-2 AND FSFULLR AND GFDL-1.3-or-later)"
+  licenseDeclared: "(GPL-3.0-or-later AND GFDL-1.3-or-later)"
+  licenseInfoFromFiles:
+  - "GPL-3.0-or-later"
+  - "GPL-3.0-or-later WITH Autoconf-exception-3.0"
+  - "FSFAP"
+  - "FSFULLR"
+  - "X11"
+  - "GFDL-1.3-or-later"
+  - "LicenseRef-1"
+  - "GPL-2.0-or-later WITH Autoconf-exception-2.0"
+  name: "GNU Time"
+  originator: "Organization: Free Software Foundation"
+  packageFileName: "time-1.9.tar.gz"
+  packageVerificationCode:
+    packageVerificationCodeValue: "4ee8abb8bc16eaa2a44446bb6354fef171bb5543"
+  sourceInfo: ""
+  summary: "The `time' command runs another program, then displays information about\
+    \ the resources used by that program."
+  supplier: "Organization: Free Software Foundation"
+  versionInfo: "1.9"
+- SPDXID: "SPDXRef-19"
+  comment: "Package info generated from Source Auditor package database"
+  copyrightText: "NOASSERTION"
+  downloadLocation: "NOASSERTION"
+  filesAnalyzed: false
+  homepage: "https://github.com/termux/termux-x11/blob/master/app/src/main/jni/libxkbcommon/xkbcommon/build-aux/install-sh"
+  licenseConcluded: "X11"
+  licenseDeclared: "X11"
+  name: "install-sh"
+- SPDXID: "SPDXRef-17"
+  comment: "Package info generated from Source Auditor package database"
+  copyrightText: "NOASSERTION"
+  downloadLocation: "NOASSERTION"
+  filesAnalyzed: false
+  homepage: "https://www.gnu.org/software/gnulib/"
+  licenseConcluded: "GPL-3.0-or-later"
+  licenseDeclared: "GPL-3.0-or-later"
+  name: "Gnulib"
+- SPDXID: "SPDXRef-15"
+  comment: "Package info generated from Source Auditor package database"
+  copyrightText: "NOASSERTION"
+  description: "Git Source Code Mirror - This is a publish-only repository and all\
+    \ pull requests are ignored. Please follow Documentation/SubmittingPatches procedure\
+    \ for any of your improvements."
+  downloadLocation: "https://github.com/git/git/archive/master.zip"
+  filesAnalyzed: false
+  homepage: "https://git-scm.com/"
+  licenseConcluded: "GPL-3.0-or-later"
+  licenseDeclared: "GPL-3.0-or-later"
+  name: "github.git.git"
+  summary: "Git Source Code Mirror - This is a publish-only repository and all pull\
+    \ requests are ignored. Please follow Documentation/SubmittingPatches procedure\
+    \ for any of your improvements."
+- SPDXID: "SPDXRef-12"
+  comment: "Package info generated from Source Auditor package database"
+  copyrightText: "NOASSERTION"
+  downloadLocation: "NOASSERTION"
+  filesAnalyzed: false
+  homepage: "https://git.savannah.gnu.org/gitweb/?p=config.git;a=blob_plain;f=config.sub"
+  licenseConcluded: "GPL-3.0-or-later WITH Autoconf-exception-3.0"
+  licenseDeclared: "GPL-3.0-or-later WITH Autoconf-exception-3.0"
+  name: "config_sub"
+- SPDXID: "SPDXRef-10"
+  comment: "Package info generated from Source Auditor package database"
+  copyrightText: "NOASSERTION"
+  downloadLocation: "NOASSERTION"
+  filesAnalyzed: false
+  homepage: "https://www.gnu.org/software/libtool/"
+  licenseConcluded: "FSFULLR"
+  licenseDeclared: "FSFULLR"
+  name: "GNU libtool"
+- SPDXID: "SPDXRef-29"
+  comment: "Package info generated from Source Auditor package database"
+  copyrightText: "NOASSERTION"
+  downloadLocation: "NOASSERTION"
+  filesAnalyzed: false
+  homepage: "http://www.red-bean.com/cvsutils/"
+  licenseConcluded: "GPL-3.0-or-later"
+  licenseDeclared: "GPL-3.0-or-later"
+  name: "cvsutils"
+- SPDXID: "SPDXRef-25"
+  comment: "Package info generated from Source Auditor package database"
+  copyrightText: "NOASSERTION"
+  downloadLocation: "NOASSERTION"
+  filesAnalyzed: false
+  homepage: "https://www.gnu.org/software/texinfo/"
+  licenseConcluded: "LicenseRef-1"
+  licenseDeclared: "LicenseRef-1"
+  name: "texinfo"
+- SPDXID: "SPDXRef-42"
+  comment: "Package info generated from Source Auditor package database"
+  copyrightText: "NOASSERTION"
+  downloadLocation: "NOASSERTION"
+  filesAnalyzed: false
+  licenseConcluded: "FSFAP"
+  licenseDeclared: "FSFAP"
+  name: "GNU Install"
+  summary: "Install script commonly found in GNU projects"
+files:
+- SPDXID: "SPDXRef-7"
+  checksums:
+  - algorithm: "SHA1"
+    checksumValue: "5c84fa19f8e181ad8100a1afecd03426318834c1"
+  comment: "BOMNOTE:File|; BOMNOTE:File|"
+  copyrightText: "Copyright Copyright 1992-2018 Free Software Foundation, Inc."
+  fileName: "./time-1.9/build-aux/config.guess"
+  fileTypes:
+  - "OTHER"
+  licenseComments: "Seen licenses generated by Source Auditor Scanner.  Results should\
+    \ be manually verified."
+  licenseConcluded: "GPL-3.0-or-later WITH Autoconf-exception-3.0"
+  licenseInfoInFiles:
+  - "(LicenseRef-gpl-3.0-plus AND LicenseRef-free-unknown AND LicenseRef-autoconf-simple-exception)"
+  noticeText: "NOASSERTION"
+- SPDXID: "SPDXRef-9"
+  checksums:
+  - algorithm: "SHA1"
+    checksumValue: "94d9d908140d39fc3f9a940c0398e86db479fe34"
+  comment: "BOMNOTE:File|; BOMNOTE:File|"
+  copyrightText: "Copyright Copyright 1996-2018 Free Software Foundation, Inc."
+  fileName: "./time-1.9/build-aux/config.rpath"
+  fileTypes:
+  - "OTHER"
+  licenseComments: "Seen licenses generated by Source Auditor Scanner.  Results should\
+    \ be manually verified."
+  licenseConcluded: "FSFULLR"
+  licenseInfoInFiles:
+  - "FSFULLR"
+  noticeText: "NOASSERTION"
+- SPDXID: "SPDXRef-4"
+  checksums:
+  - algorithm: "SHA1"
+    checksumValue: "7951f4ceffdb030ec617eddf7bba22523cc1a67f"
+  copyrightText: "NOASSERTION"
+  fileName: "./time-1.9/AUTHORS"
+  fileTypes:
+  - "OTHER"
+  licenseConcluded: "GPL-3.0-or-later"
+  licenseInfoInFiles:
+  - "NOASSERTION"
+  noticeText: "NOASSERTION"
+- SPDXID: "SPDXRef-5"
+  checksums:
+  - algorithm: "SHA1"
+    checksumValue: "03a05e37267c2f1c9fea4f2a6a15f8a7beb91c0d"
+  copyrightText: "Copyright Copyright (c) 1999-2014 Free Software Foundation, Inc."
+  fileName: "./time-1.9/build-aux/compile"
+  fileTypes:
+  - "OTHER"
+  licenseComments: "Seen licenses generated by Source Auditor Scanner.  Results should\
+    \ be manually verified."
+  licenseConcluded: "GPL-2.0-or-later WITH Autoconf-exception-2.0"
+  licenseInfoInFiles:
+  - "(LicenseRef-autoconf-simple-exception-2.0 AND LicenseRef-gpl-2.0-plus)"
+  noticeText: "NOASSERTION"
+- SPDXID: "SPDXRef-170"
+  checksums:
+  - algorithm: "SHA1"
+    checksumValue: "3e6b7c41d9d21a64cc4c0fe8d8940fa34aaa7e15"
+  copyrightText: "Copyright Free Software Foundation, Inc"
+  fileName: "./time-1.9/src/rusage-kb.h"
+  fileTypes:
+  - "SOURCE"
+  licenseComments: "Seen licenses generated by Source Auditor Scanner.  Results should\
+    \ be manually verified."
+  licenseConcluded: "GPL-3.0-or-later"
+  licenseInfoInFiles:
+  - "(LicenseRef-gpl-3.0-plus AND GPL-3.0-or-later AND BSD-4-Clause)"
+  noticeText: "NOASSERTION"
+- SPDXID: "SPDXRef-2"
+  checksums:
+  - algorithm: "SHA1"
+    checksumValue: "6d92b5aec8fdaff9d61dd8b041413657bce9910a"
+  copyrightText: "Copyright Copyright (c) 2004-2014 Free Software Foundation, Inc.,\
+    \ Copyright (c) 2006-2014 Free Software Foundation, Inc., Copyright (c) 2009-2014\
+    \ Free Software Foundation, Inc., Copyright (c) 2003-2014 Free Software Foundation,\
+    \ Inc., Copyright (c) 1999-2014 Free Software Foundation, Inc., Copyright (c)\
+    \ 1997-2014 Free Software Foundation, Inc., Copyright (c) 2001-2014 Free Software\
+    \ Foundation, Inc., Copyright (c) 2002-2014 Free Software Foundation, Inc., Copyright\
+    \ (c) 1996-2014 Free Software Foundation, Inc."
+  fileName: "./time-1.9/aclocal.m4"
+  fileTypes:
+  - "OTHER"
+  licenseComments: "Seen licenses generated by Source Auditor Scanner.  Results should\
+    \ be manually verified."
+  licenseConcluded: "FSFULLR"
+  licenseInfoInFiles:
+  - "(LicenseRef-fsf-unlimited-no-warranty AND FSFULLR)"
+  noticeText: "NOASSERTION"
+- SPDXID: "SPDXRef-50"
+  checksums:
+  - algorithm: "SHA1"
+    checksumValue: "08606eb61b4b4f7c8c8ed2fc37a32924abde3d5e"
+  comment: "BOMNOTE:Directory|;  BOMNOTE:Directory|"
+  copyrightText: "Copyright Free Software Foundation, Inc"
+  fileName: "./time-1.9/lib/error.c"
+  fileTypes:
+  - "SOURCE"
+  licenseComments: "Seen licenses generated by Source Auditor Scanner.  Results should\
+    \ be manually verified."
+  licenseConcluded: "GPL-3.0-or-later"
+  licenseInfoInFiles:
+  - "LicenseRef-gpl-3.0-plus"
+  noticeText: "NOASSERTION"
+- SPDXID: "SPDXRef-168"
+  checksums:
+  - algorithm: "SHA1"
+    checksumValue: "4ce8b714113da3055d0721f4b3639aa0f25ce47c"
+  copyrightText: "Copyright Free Software Foundation, Inc"
+  fileName: "./time-1.9/src/resuse.h"
+  fileTypes:
+  - "SOURCE"
+  licenseComments: "Seen licenses generated by Source Auditor Scanner.  Results should\
+    \ be manually verified."
+  licenseConcluded: "GPL-3.0-or-later"
+  licenseInfoInFiles:
+  - "(LicenseRef-gpl-3.0-plus AND GPL-3.0-or-later)"
+  noticeText: "NOASSERTION"
+- SPDXID: "SPDXRef-51"
+  checksums:
+  - algorithm: "SHA1"
+    checksumValue: "13274964ca99ef14e5e04d96e1c4a0d7b32e1b0c"
+  comment: "BOMNOTE:Directory|;  BOMNOTE:Directory|"
+  copyrightText: "Copyright Free Software Foundation"
+  fileName: "./time-1.9/lib/error.h"
+  fileTypes:
+  - "SOURCE"
+  licenseComments: "Seen licenses generated by Source Auditor Scanner.  Results should\
+    \ be manually verified."
+  licenseConcluded: "GPL-3.0-or-later"
+  licenseInfoInFiles:
+  - "LicenseRef-gpl-3.0-plus"
+  noticeText: "NOASSERTION"
+- SPDXID: "SPDXRef-169"
+  checksums:
+  - algorithm: "SHA1"
+    checksumValue: "d377a5251c15cd6cfa29046748631749e10bc744"
+  copyrightText: "Copyright Free Software Foundation, Inc"
+  fileName: "./time-1.9/src/rusage-kb.c"
+  fileTypes:
+  - "SOURCE"
+  licenseComments: "Seen licenses generated by Source Auditor Scanner.  Results should\
+    \ be manually verified."
+  licenseConcluded: "GPL-3.0-or-later"
+  licenseInfoInFiles:
+  - "(LicenseRef-gpl-3.0-plus AND GPL-3.0-or-later)"
+  noticeText: "NOASSERTION"
+- SPDXID: "SPDXRef-58"
+  checksums:
+  - algorithm: "SHA1"
+    checksumValue: "8d386e709ce374a988fe2b094d0fe6f988723b1a"
+  comment: "BOMNOTE:File|; BOMNOTE:File|"
+  copyrightText: "Copyright Free Software Foundation, Inc"
+  fileName: "./time-1.9/lib/getopt.in.h"
+  fileTypes:
+  - "SOURCE"
+  licenseComments: "Seen licenses generated by Source Auditor Scanner.  Results should\
+    \ be manually verified."
+  licenseConcluded: "GPL-3.0-or-later"
+  licenseInfoInFiles:
+  - "LicenseRef-gpl-3.0-plus"
+  noticeText: "NOASSERTION"
+- SPDXID: "SPDXRef-160"
+  checksums:
+  - algorithm: "SHA1"
+    checksumValue: "fdfde6e09de0b09c2d6dfc52257079459705708f"
+  comment: "BOMNOTE:File|; BOMNOTE:File|"
+  copyrightText: "Copyright Copyright (c) 2002-2003, 2008-2018 Free Software Foundation,\
+    \ Inc."
+  fileName: "./time-1.9/m4/wchar_t.m4"
+  fileTypes:
+  - "OTHER"
+  licenseComments: "Seen licenses generated by Source Auditor Scanner.  Results should\
+    \ be manually verified."
+  licenseConcluded: "FSFULLR"
+  licenseInfoInFiles:
+  - "FSFULLR"
+  noticeText: "NOASSERTION"
+- SPDXID: "SPDXRef-59"
+  checksums:
+  - algorithm: "SHA1"
+    checksumValue: "7c87216625f1e6f54feaa7ff616d42ef7daf3bac"
+  comment: "BOMNOTE:File|; BOMNOTE:File|"
+  copyrightText: "Copyright Free Software Foundation, Inc"
+  fileName: "./time-1.9/lib/getopt1.c"
+  fileTypes:
+  - "SOURCE"
+  licenseComments: "Seen licenses generated by Source Auditor Scanner.  Results should\
+    \ be manually verified."
+  licenseConcluded: "GPL-3.0-or-later"
+  licenseInfoInFiles:
+  - "LicenseRef-gpl-3.0-plus"
+  noticeText: "NOASSERTION"
+- SPDXID: "SPDXRef-161"
+  checksums:
+  - algorithm: "SHA1"
+    checksumValue: "5c2fda83d4dc5fe3bd2af51edba153864c310f57"
+  comment: "BOMNOTE:File|; BOMNOTE:File|"
+  copyrightText: "Copyright Copyright (c) 2003, 2007-2018 Free Software Foundation,\
+    \ Inc."
+  fileName: "./time-1.9/m4/wint_t.m4"
+  fileTypes:
+  - "OTHER"
+  licenseComments: "Seen licenses generated by Source Auditor Scanner.  Results should\
+    \ be manually verified."
+  licenseConcluded: "FSFULLR"
+  licenseInfoInFiles:
+  - "FSFULLR"
+  noticeText: "NOASSERTION"
+- SPDXID: "SPDXRef-56"
+  checksums:
+  - algorithm: "SHA1"
+    checksumValue: "f535bcc34c386889067f693654264b99ac1dd9ec"
+  comment: "BOMNOTE:File|; BOMNOTE:File|"
+  copyrightText: "Copyright Free Software Foundation, Inc"
+  fileName: "./time-1.9/lib/getopt-pfx-ext.h"
+  fileTypes:
+  - "SOURCE"
+  licenseComments: "Seen licenses generated by Source Auditor Scanner.  Results should\
+    \ be manually verified."
+  licenseConcluded: "GPL-3.0-or-later"
+  licenseInfoInFiles:
+  - "LicenseRef-gpl-3.0-plus"
+  noticeText: "NOASSERTION"
+- SPDXID: "SPDXRef-162"
+  checksums:
+  - algorithm: "SHA1"
+    checksumValue: "561b14718c07c9663ea30749d57b2c71160dcd42"
+  copyrightText: "Copyright Copyright (c) 2001-2018 Free Software Foundation, Inc."
+  fileName: "./time-1.9/maint.mk"
+  fileTypes:
+  - "SOURCE"
+  licenseComments: "Seen licenses generated by Source Auditor Scanner.  Results should\
+    \ be manually verified."
+  licenseConcluded: "GPL-3.0-or-later"
+  licenseInfoInFiles:
+  - "LicenseRef-gpl-3.0-plus"
+  noticeText: "NOASSERTION"
+- SPDXID: "SPDXRef-163"
+  checksums:
+  - algorithm: "SHA1"
+    checksumValue: "b108e706ea53ff8a81adb3e0f812882db4735f05"
+  copyrightText: "NOASSERTION"
+  fileName: "./time-1.9/Makefile.am"
+  fileTypes:
+  - "OTHER"
+  licenseConcluded: "GPL-3.0-or-later"
+  licenseInfoInFiles:
+  - "NOASSERTION"
+  noticeText: "NOASSERTION"
+- SPDXID: "SPDXRef-57"
+  checksums:
+  - algorithm: "SHA1"
+    checksumValue: "1707d5465726240aadde3564add387435b4b7d42"
+  comment: "BOMNOTE:File|; BOMNOTE:File|"
+  copyrightText: "Copyright Free Software Foundation, Inc"
+  fileName: "./time-1.9/lib/getopt.c"
+  fileTypes:
+  - "SOURCE"
+  licenseComments: "Seen licenses generated by Source Auditor Scanner.  Results should\
+    \ be manually verified."
+  licenseConcluded: "GPL-3.0-or-later"
+  licenseInfoInFiles:
+  - "LicenseRef-gpl-3.0-plus"
+  noticeText: "NOASSERTION"
+- SPDXID: "SPDXRef-164"
+  checksums:
+  - algorithm: "SHA1"
+    checksumValue: "1517b8d574225cf2dba4d484984004983b324dcd"
+  comment: "BOMNOTE:File|; BOMNOTE:File|"
+  copyrightText: "Copyright Copyright (c) 2002-2018 Free Software Foundation, Inc.,\
+    \ Copyright (c) 1994-2014 Free Software Foundation, Inc."
+  fileName: "./time-1.9/Makefile.in"
+  fileTypes:
+  - "OTHER"
+  licenseComments: "Seen licenses generated by Source Auditor Scanner.  Results should\
+    \ be manually verified."
+  licenseConcluded: "FSFULLR"
+  licenseInfoInFiles:
+  - "(LicenseRef-gpl-3.0-plus AND LicenseRef-fsf-unlimited-no-warranty AND LicenseRef-autoconf-simple-exception-2.0)"
+  noticeText: "NOASSERTION"
+- SPDXID: "SPDXRef-54"
+  checksums:
+  - algorithm: "SHA1"
+    checksumValue: "c223bd7467ee633d0ca43ae9bcf04236b340743d"
+  comment: "BOMNOTE:File|; BOMNOTE:File|"
+  copyrightText: "Copyright Free Software Foundation, Inc"
+  fileName: "./time-1.9/lib/getopt-ext.h"
+  fileTypes:
+  - "SOURCE"
+  licenseComments: "Seen licenses generated by Source Auditor Scanner.  Results should\
+    \ be manually verified."
+  licenseConcluded: "GPL-3.0-or-later"
+  licenseInfoInFiles:
+  - "LicenseRef-gpl-3.0-plus"
+  noticeText: "NOASSERTION"
+- SPDXID: "SPDXRef-165"
+  checksums:
+  - algorithm: "SHA1"
+    checksumValue: "ae3b07644500912b2bed3cc39bdcf53f2e1c26f4"
+  copyrightText: "NOASSERTION"
+  fileName: "./time-1.9/NEWS"
+  fileTypes:
+  - "OTHER"
+  licenseComments: "Seen licenses generated by Source Auditor Scanner.  Results should\
+    \ be manually verified."
+  licenseConcluded: "GPL-3.0-or-later"
+  licenseInfoInFiles:
+  - "(LicenseRef-gpl-3.0-plus AND LicenseRef-gpl-3.0)"
+  noticeText: "NOASSERTION"
+- SPDXID: "SPDXRef-55"
+  checksums:
+  - algorithm: "SHA1"
+    checksumValue: "6221c6a5453d05fca62d76f9db5f36113a64de1a"
+  comment: "BOMNOTE:File|; BOMNOTE:File|"
+  copyrightText: "Copyright Free Software Foundation, Inc"
+  fileName: "./time-1.9/lib/getopt-pfx-core.h"
+  fileTypes:
+  - "SOURCE"
+  licenseComments: "Seen licenses generated by Source Auditor Scanner.  Results should\
+    \ be manually verified."
+  licenseConcluded: "GPL-3.0-or-later"
+  licenseInfoInFiles:
+  - "LicenseRef-gpl-3.0-plus"
+  noticeText: "NOASSERTION"
+- SPDXID: "SPDXRef-166"
+  checksums:
+  - algorithm: "SHA1"
+    checksumValue: "f87147d15b32b10d44a4df040037bb1cc15c87e8"
+  copyrightText: "NOASSERTION"
+  fileName: "./time-1.9/README"
+  fileTypes:
+  - "OTHER"
+  licenseConcluded: "GPL-3.0-or-later"
+  licenseInfoInFiles:
+  - "NOASSERTION"
+  noticeText: "NOASSERTION"
+- SPDXID: "SPDXRef-52"
+  checksums:
+  - algorithm: "SHA1"
+    checksumValue: "727a5d1dab736ffd5d8c119f8e9c19f7d30f9b6e"
+  comment: "BOMNOTE:File|; BOMNOTE:File|"
+  copyrightText: "Copyright Free Software Foundation, Inc"
+  fileName: "./time-1.9/lib/getopt-cdefs.in.h"
+  fileTypes:
+  - "SOURCE"
+  licenseComments: "Seen licenses generated by Source Auditor Scanner.  Results should\
+    \ be manually verified."
+  licenseConcluded: "GPL-3.0-or-later"
+  licenseInfoInFiles:
+  - "LicenseRef-gpl-3.0-plus"
+  noticeText: "NOASSERTION"
+- SPDXID: "SPDXRef-53"
+  checksums:
+  - algorithm: "SHA1"
+    checksumValue: "4e75ae10609c86c0a1a9cfa6d02e1f7e9b5e6878"
+  comment: "BOMNOTE:File|; BOMNOTE:File|"
+  copyrightText: "Copyright Free Software Foundation, Inc"
+  fileName: "./time-1.9/lib/getopt-core.h"
+  fileTypes:
+  - "SOURCE"
+  licenseComments: "Seen licenses generated by Source Auditor Scanner.  Results should\
+    \ be manually verified."
+  licenseConcluded: "GPL-3.0-or-later"
+  licenseInfoInFiles:
+  - "LicenseRef-gpl-3.0-plus"
+  noticeText: "NOASSERTION"
+- SPDXID: "SPDXRef-167"
+  checksums:
+  - algorithm: "SHA1"
+    checksumValue: "9df923fd706085677cb17f7fa58b851a3d1f74d0"
+  copyrightText: "Copyright Free Software Foundation, Inc"
+  fileName: "./time-1.9/src/resuse.c"
+  fileTypes:
+  - "SOURCE"
+  licenseComments: "Seen licenses generated by Source Auditor Scanner.  Results should\
+    \ be manually verified."
+  licenseConcluded: "GPL-3.0-or-later"
+  licenseInfoInFiles:
+  - "(LicenseRef-gpl-3.0-plus AND GPL-3.0-or-later AND BSD-4-Clause)"
+  noticeText: "NOASSERTION"
+- SPDXID: "SPDXRef-61"
+  checksums:
+  - algorithm: "SHA1"
+    checksumValue: "d35bf98dff95deeec41e9c5bccb3f56d9b0ae768"
+  comment: "BOMNOTE:Directory|;  BOMNOTE:Directory|"
+  copyrightText: "Copyright Free Software Foundation, Inc"
+  fileName: "./time-1.9/lib/getpagesize.c"
+  fileTypes:
+  - "SOURCE"
+  licenseComments: "Seen licenses generated by Source Auditor Scanner.  Results should\
+    \ be manually verified."
+  licenseConcluded: "GPL-3.0-or-later"
+  licenseInfoInFiles:
+  - "LicenseRef-gpl-3.0-plus"
+  noticeText: "NOASSERTION"
+- SPDXID: "SPDXRef-157"
+  checksums:
+  - algorithm: "SHA1"
+    checksumValue: "b58c33a96f9063fe1500e29c26f31aae9c5a42e3"
+  comment: "BOMNOTE:File|; BOMNOTE:File|"
+  copyrightText: "Copyright Copyright (c) 2009-2018 Free Software Foundation, Inc."
+  fileName: "./time-1.9/m4/version-etc.m4"
+  fileTypes:
+  - "OTHER"
+  licenseComments: "Seen licenses generated by Source Auditor Scanner.  Results should\
+    \ be manually verified."
+  licenseConcluded: "FSFULLR"
+  licenseInfoInFiles:
+  - "FSFULLR"
+  noticeText: "NOASSERTION"
+- SPDXID: "SPDXRef-62"
+  checksums:
+  - algorithm: "SHA1"
+    checksumValue: "11d87efc44342830c115a655eba086c918137452"
+  comment: "BOMNOTE:Directory|;  BOMNOTE:Directory|"
+  copyrightText: "Copyright Free Software Foundation, Inc"
+  fileName: "./time-1.9/lib/getprogname.c"
+  fileTypes:
+  - "SOURCE"
+  licenseComments: "Seen licenses generated by Source Auditor Scanner.  Results should\
+    \ be manually verified."
+  licenseConcluded: "GPL-3.0-or-later"
+  licenseInfoInFiles:
+  - "(LicenseRef-gpl-3.0-plus AND BSD-4-Clause)"
+  noticeText: "NOASSERTION"
+- SPDXID: "SPDXRef-158"
+  checksums:
+  - algorithm: "SHA1"
+    checksumValue: "51e5370363f45cc98dee7b8c9c34d394f7ce7f30"
+  comment: "BOMNOTE:File|; BOMNOTE:File|"
+  copyrightText: "Copyright Copyright (c) 2010-2018 Free Software Foundation, Inc."
+  fileName: "./time-1.9/m4/warn-on-use.m4"
+  fileTypes:
+  - "OTHER"
+  licenseComments: "Seen licenses generated by Source Auditor Scanner.  Results should\
+    \ be manually verified."
+  licenseConcluded: "FSFULLR"
+  licenseInfoInFiles:
+  - "FSFULLR"
+  noticeText: "NOASSERTION"
+- SPDXID: "SPDXRef-159"
+  checksums:
+  - algorithm: "SHA1"
+    checksumValue: "2cd6fbe2ef40cd2b9d4acb281b9fa12c1b47a197"
+  comment: "BOMNOTE:File|; BOMNOTE:File|"
+  copyrightText: "Copyright Copyright (c) 2008-2018 Free Software Foundation, Inc."
+  fileName: "./time-1.9/m4/warnings.m4"
+  fileTypes:
+  - "OTHER"
+  licenseComments: "Seen licenses generated by Source Auditor Scanner.  Results should\
+    \ be manually verified."
+  licenseConcluded: "FSFULLR"
+  licenseInfoInFiles:
+  - "FSFULLR"
+  noticeText: "NOASSERTION"
+- SPDXID: "SPDXRef-60"
+  checksums:
+  - algorithm: "SHA1"
+    checksumValue: "4f5801bf10900fdc389686accb97e1d257069b86"
+  comment: "BOMNOTE:File|; BOMNOTE:File|"
+  copyrightText: "Copyright Free Software Foundation, Inc"
+  fileName: "./time-1.9/lib/getopt_int.h"
+  fileTypes:
+  - "SOURCE"
+  licenseComments: "Seen licenses generated by Source Auditor Scanner.  Results should\
+    \ be manually verified."
+  licenseConcluded: "GPL-3.0-or-later"
+  licenseInfoInFiles:
+  - "LicenseRef-gpl-3.0-plus"
+  noticeText: "NOASSERTION"
+- SPDXID: "SPDXRef-69"
+  checksums:
+  - algorithm: "SHA1"
+    checksumValue: "e716c5d34d6271c3affdf9ef7cd0ba0b891b02ee"
+  comment: "BOMNOTE:Directory|;  BOMNOTE:Directory|"
+  copyrightText: "Copyright Free Software Foundation, Inc"
+  fileName: "./time-1.9/lib/inttypes.in.h"
+  fileTypes:
+  - "SOURCE"
+  licenseComments: "Seen licenses generated by Source Auditor Scanner.  Results should\
+    \ be manually verified."
+  licenseConcluded: "GPL-3.0-or-later"
+  licenseInfoInFiles:
+  - "LicenseRef-gpl-3.0-plus"
+  noticeText: "NOASSERTION"
+- SPDXID: "SPDXRef-150"
+  checksums:
+  - algorithm: "SHA1"
+    checksumValue: "f182501fb19fb13f6ce5dc2a95cf5ea26cc0688a"
+  comment: "BOMNOTE:File|; BOMNOTE:File|"
+  copyrightText: "Copyright Copyright (c) 2012-2018 Free Software Foundation, Inc."
+  fileName: "./time-1.9/m4/sys_resource_h.m4"
+  fileTypes:
+  - "OTHER"
+  licenseComments: "Seen licenses generated by Source Auditor Scanner.  Results should\
+    \ be manually verified."
+  licenseConcluded: "FSFULLR"
+  licenseInfoInFiles:
+  - "FSFULLR"
+  noticeText: "NOASSERTION"
+- SPDXID: "SPDXRef-67"
+  checksums:
+  - algorithm: "SHA1"
+    checksumValue: "9d2d83239cc6f37b327a6a754f1beb5c9240b3bd"
+  comment: "BOMNOTE:File|; BOMNOTE:File|"
+  copyrightText: "Copyright Copyright (c) 2002-2018 Free Software Foundation, Inc."
+  fileName: "./time-1.9/lib/gnulib.mk"
+  fileTypes:
+  - "SOURCE"
+  licenseComments: "Seen licenses generated by Source Auditor Scanner.  Results should\
+    \ be manually verified."
+  licenseConcluded: "FSFULLR"
+  licenseInfoInFiles:
+  - "(LicenseRef-gpl-3.0-plus AND LicenseRef-autoconf-simple-exception-2.0)"
+  noticeText: "NOASSERTION"
+- SPDXID: "SPDXRef-151"
+  checksums:
+  - algorithm: "SHA1"
+    checksumValue: "ca3e39a440708511878b60640afbb2ae17a4c8e5"
+  comment: "BOMNOTE:File|; BOMNOTE:File|"
+  copyrightText: "Copyright Copyright (c) 2005-2018 Free Software Foundation, Inc."
+  fileName: "./time-1.9/m4/sys_socket_h.m4"
+  fileTypes:
+  - "OTHER"
+  licenseComments: "Seen licenses generated by Source Auditor Scanner.  Results should\
+    \ be manually verified."
+  licenseConcluded: "FSFULLR"
+  licenseInfoInFiles:
+  - "FSFULLR"
+  noticeText: "NOASSERTION"
+- SPDXID: "SPDXRef-68"
+  checksums:
+  - algorithm: "SHA1"
+    checksumValue: "226d36d7b01c3b204c25ba43ed4d66e31d84daf8"
+  comment: "BOMNOTE:Directory|;  BOMNOTE:Directory|"
+  copyrightText: "Copyright Free Software Foundation, Inc"
+  fileName: "./time-1.9/lib/intprops.h"
+  fileTypes:
+  - "SOURCE"
+  licenseComments: "Seen licenses generated by Source Auditor Scanner.  Results should\
+    \ be manually verified."
+  licenseConcluded: "GPL-3.0-or-later"
+  licenseInfoInFiles:
+  - "LicenseRef-gpl-3.0-plus"
+  noticeText: "NOASSERTION"
+- SPDXID: "SPDXRef-152"
+  checksums:
+  - algorithm: "SHA1"
+    checksumValue: "608114215d62715e149e4a61bdd23147cb58589f"
+  comment: "BOMNOTE:File|; BOMNOTE:File|"
+  copyrightText: "Copyright Copyright (c) 2007, 2009-2018 Free Software Foundation,\
+    \ Inc."
+  fileName: "./time-1.9/m4/sys_time_h.m4"
+  fileTypes:
+  - "OTHER"
+  licenseComments: "Seen licenses generated by Source Auditor Scanner.  Results should\
+    \ be manually verified."
+  licenseConcluded: "FSFULLR"
+  licenseInfoInFiles:
+  - "FSFULLR"
+  noticeText: "NOASSERTION"
+- SPDXID: "SPDXRef-65"
+  checksums:
+  - algorithm: "SHA1"
+    checksumValue: "f752a7ebdb34000af737217ffe133a95b9536392"
+  comment: "BOMNOTE:Directory|;  BOMNOTE:Directory|"
+  copyrightText: "Copyright Free Software"
+  fileName: "./time-1.9/lib/gettext.h"
+  fileTypes:
+  - "SOURCE"
+  licenseComments: "Seen licenses generated by Source Auditor Scanner.  Results should\
+    \ be manually verified."
+  licenseConcluded: "GPL-3.0-or-later"
+  licenseInfoInFiles:
+  - "LicenseRef-gpl-3.0-plus"
+  noticeText: "NOASSERTION"
+- SPDXID: "SPDXRef-153"
+  checksums:
+  - algorithm: "SHA1"
+    checksumValue: "e36c6476e8bb9e7666b547465b59a9f44db1cadf"
+  comment: "BOMNOTE:File|; BOMNOTE:File|"
+  copyrightText: "Copyright Copyright (c) 2011-2018 Free Software Foundation, Inc."
+  fileName: "./time-1.9/m4/sys_types_h.m4"
+  fileTypes:
+  - "OTHER"
+  licenseComments: "Seen licenses generated by Source Auditor Scanner.  Results should\
+    \ be manually verified."
+  licenseConcluded: "FSFULLR"
+  licenseInfoInFiles:
+  - "FSFULLR"
+  noticeText: "NOASSERTION"
+- SPDXID: "SPDXRef-66"
+  checksums:
+  - algorithm: "SHA1"
+    checksumValue: "1370e14716b4d97f84770520d7d924f436e50c73"
+  comment: "BOMNOTE:Directory|;  BOMNOTE:Directory|"
+  copyrightText: "Copyright Free Software Foundation, Inc"
+  fileName: "./time-1.9/lib/gettimeofday.c"
+  fileTypes:
+  - "SOURCE"
+  licenseComments: "Seen licenses generated by Source Auditor Scanner.  Results should\
+    \ be manually verified."
+  licenseConcluded: "GPL-3.0-or-later"
+  licenseInfoInFiles:
+  - "LicenseRef-gpl-3.0-plus"
+  noticeText: "NOASSERTION"
+- SPDXID: "SPDXRef-154"
+  checksums:
+  - algorithm: "SHA1"
+    checksumValue: "8085422d7d1ee961a9ef799940b4d029656736d6"
+  comment: "BOMNOTE:File|; BOMNOTE:File|"
+  copyrightText: "Copyright Copyright (c) 2008-2018 Free Software Foundation, Inc."
+  fileName: "./time-1.9/m4/sys_wait_h.m4"
+  fileTypes:
+  - "OTHER"
+  licenseComments: "Seen licenses generated by Source Auditor Scanner.  Results should\
+    \ be manually verified."
+  licenseConcluded: "FSFULLR"
+  licenseInfoInFiles:
+  - "FSFULLR"
+  noticeText: "NOASSERTION"
+- SPDXID: "SPDXRef-63"
+  checksums:
+  - algorithm: "SHA1"
+    checksumValue: "b05f82faa97ba024616da38a0979fbc904e3ba48"
+  comment: "BOMNOTE:Directory|;  BOMNOTE:Directory|"
+  copyrightText: "Copyright Free Software Foundation, Inc"
+  fileName: "./time-1.9/lib/getprogname.h"
+  fileTypes:
+  - "SOURCE"
+  licenseComments: "Seen licenses generated by Source Auditor Scanner.  Results should\
+    \ be manually verified."
+  licenseConcluded: "GPL-3.0-or-later"
+  licenseInfoInFiles:
+  - "LicenseRef-gpl-3.0-plus"
+  noticeText: "NOASSERTION"
+- SPDXID: "SPDXRef-155"
+  checksums:
+  - algorithm: "SHA1"
+    checksumValue: "33118e382fed1142424c16f9fcac67997e3daad8"
+  comment: "BOMNOTE:File|; BOMNOTE:File|"
+  copyrightText: "Copyright Copyright (c) 2000-2001, 2003-2007, 2009-2018 Free Software\
+    \ Foundation, Inc."
+  fileName: "./time-1.9/m4/time_h.m4"
+  fileTypes:
+  - "OTHER"
+  licenseComments: "Seen licenses generated by Source Auditor Scanner.  Results should\
+    \ be manually verified."
+  licenseConcluded: "FSFULLR"
+  licenseInfoInFiles:
+  - "FSFULLR"
+  noticeText: "NOASSERTION"
+- SPDXID: "SPDXRef-64"
+  checksums:
+  - algorithm: "SHA1"
+    checksumValue: "1452ef675e215614b35dc42bec7e1ecf8d987ca3"
+  comment: "BOMNOTE:Directory|;  BOMNOTE:Directory|"
+  copyrightText: "Copyright Free Software Foundation, Inc"
+  fileName: "./time-1.9/lib/getrusage.c"
+  fileTypes:
+  - "SOURCE"
+  licenseComments: "Seen licenses generated by Source Auditor Scanner.  Results should\
+    \ be manually verified."
+  licenseConcluded: "GPL-3.0-or-later"
+  licenseInfoInFiles:
+  - "LicenseRef-gpl-3.0-plus"
+  noticeText: "NOASSERTION"
+- SPDXID: "SPDXRef-156"
+  checksums:
+  - algorithm: "SHA1"
+    checksumValue: "aa9cd95639ddad70ac9cabe1512f5a6b7067a058"
+  comment: "BOMNOTE:File|; BOMNOTE:File|"
+  copyrightText: "Copyright Copyright (c) 2006-2018 Free Software Foundation, Inc."
+  fileName: "./time-1.9/m4/unistd_h.m4"
+  fileTypes:
+  - "OTHER"
+  licenseComments: "Seen licenses generated by Source Auditor Scanner.  Results should\
+    \ be manually verified."
+  licenseConcluded: "FSFULLR"
+  licenseInfoInFiles:
+  - "FSFULLR"
+  noticeText: "NOASSERTION"
+- SPDXID: "SPDXRef-72"
+  checksums:
+  - algorithm: "SHA1"
+    checksumValue: "f4b2b187b1eae545a8543dce5c3044c841ffa887"
+  comment: "BOMNOTE:Directory|;  BOMNOTE:Directory|"
+  copyrightText: "Copyright Free Software Foundation, Inc"
+  fileName: "./time-1.9/lib/localtime-buffer.h"
+  fileTypes:
+  - "SOURCE"
+  licenseComments: "Seen licenses generated by Source Auditor Scanner.  Results should\
+    \ be manually verified."
+  licenseConcluded: "GPL-3.0-or-later"
+  licenseInfoInFiles:
+  - "LicenseRef-gpl-3.0-plus"
+  noticeText: "NOASSERTION"
+- SPDXID: "SPDXRef-73"
+  checksums:
+  - algorithm: "SHA1"
+    checksumValue: "1b8a62f2786a1489acfa70a5527fa4014b5ab166"
+  comment: "BOMNOTE:Directory|;  BOMNOTE:Directory|"
+  copyrightText: "Copyright Free Software Foundation, Inc"
+  fileName: "./time-1.9/lib/malloc.c"
+  fileTypes:
+  - "SOURCE"
+  licenseComments: "Seen licenses generated by Source Auditor Scanner.  Results should\
+    \ be manually verified."
+  licenseConcluded: "GPL-3.0-or-later"
+  licenseInfoInFiles:
+  - "LicenseRef-gpl-3.0-plus"
+  noticeText: "NOASSERTION"
+- SPDXID: "SPDXRef-70"
+  checksums:
+  - algorithm: "SHA1"
+    checksumValue: "918c2068541ade82abad76a01f87f8c41345ade1"
+  comment: "BOMNOTE:Directory|;  BOMNOTE:Directory|"
+  copyrightText: "Copyright Free Software Foundation, Inc"
+  fileName: "./time-1.9/lib/limits.in.h"
+  fileTypes:
+  - "SOURCE"
+  licenseComments: "Seen licenses generated by Source Auditor Scanner.  Results should\
+    \ be manually verified."
+  licenseConcluded: "GPL-3.0-or-later"
+  licenseInfoInFiles:
+  - "LicenseRef-gpl-3.0-plus"
+  noticeText: "NOASSERTION"
+- SPDXID: "SPDXRef-71"
+  checksums:
+  - algorithm: "SHA1"
+    checksumValue: "7f35c9801d38e8d80043a9992da9c9b59c8f7b68"
+  comment: "BOMNOTE:Directory|;  BOMNOTE:Directory|"
+  copyrightText: "Copyright Free Software Foundation, Inc"
+  fileName: "./time-1.9/lib/localtime-buffer.c"
+  fileTypes:
+  - "SOURCE"
+  licenseComments: "Seen licenses generated by Source Auditor Scanner.  Results should\
+    \ be manually verified."
+  licenseConcluded: "GPL-3.0-or-later"
+  licenseInfoInFiles:
+  - "LicenseRef-gpl-3.0-plus"
+  noticeText: "NOASSERTION"
+- SPDXID: "SPDXRef-78"
+  checksums:
+  - algorithm: "SHA1"
+    checksumValue: "aa6727a9ae9a7da201c947f50e2551a655ea78c6"
+  comment: "BOMNOTE:Directory|;  BOMNOTE:Directory|"
+  copyrightText: "Copyright Free Software Foundation, Inc"
+  fileName: "./time-1.9/lib/progname.c"
+  fileTypes:
+  - "SOURCE"
+  licenseComments: "Seen licenses generated by Source Auditor Scanner.  Results should\
+    \ be manually verified."
+  licenseConcluded: "GPL-3.0-or-later"
+  licenseInfoInFiles:
+  - "LicenseRef-gpl-3.0-plus"
+  noticeText: "NOASSERTION"
+- SPDXID: "SPDXRef-79"
+  checksums:
+  - algorithm: "SHA1"
+    checksumValue: "81733e16c4ba6c6ed42fab6b820a84e859441647"
+  comment: "BOMNOTE:Directory|;  BOMNOTE:Directory|"
+  copyrightText: "Copyright Free Software Foundation, Inc"
+  fileName: "./time-1.9/lib/progname.h"
+  fileTypes:
+  - "SOURCE"
+  licenseComments: "Seen licenses generated by Source Auditor Scanner.  Results should\
+    \ be manually verified."
+  licenseConcluded: "GPL-3.0-or-later"
+  licenseInfoInFiles:
+  - "LicenseRef-gpl-3.0-plus"
+  noticeText: "NOASSERTION"
+- SPDXID: "SPDXRef-76"
+  checksums:
+  - algorithm: "SHA1"
+    checksumValue: "f3369dda6a7489de1355d6d68c9b6198508cb19f"
+  comment: "BOMNOTE:Directory|;  BOMNOTE:Directory|"
+  copyrightText: "Copyright Free Software Foundation, Inc"
+  fileName: "./time-1.9/lib/msvc-nothrow.c"
+  fileTypes:
+  - "SOURCE"
+  licenseComments: "Seen licenses generated by Source Auditor Scanner.  Results should\
+    \ be manually verified."
+  licenseConcluded: "GPL-3.0-or-later"
+  licenseInfoInFiles:
+  - "LicenseRef-gpl-3.0-plus"
+  noticeText: "NOASSERTION"
+- SPDXID: "SPDXRef-77"
+  checksums:
+  - algorithm: "SHA1"
+    checksumValue: "f9cf59b422a07d8cb6a6eaf90a355361c1245c6d"
+  comment: "BOMNOTE:Directory|;  BOMNOTE:Directory|"
+  copyrightText: "Copyright Free Software Foundation, Inc"
+  fileName: "./time-1.9/lib/msvc-nothrow.h"
+  fileTypes:
+  - "SOURCE"
+  licenseComments: "Seen licenses generated by Source Auditor Scanner.  Results should\
+    \ be manually verified."
+  licenseConcluded: "GPL-3.0-or-later"
+  licenseInfoInFiles:
+  - "LicenseRef-gpl-3.0-plus"
+  noticeText: "NOASSERTION"
+- SPDXID: "SPDXRef-74"
+  checksums:
+  - algorithm: "SHA1"
+    checksumValue: "d651efa620a18a6e93440b68554d90d3458f4cfd"
+  comment: "BOMNOTE:Directory|;  BOMNOTE:Directory|"
+  copyrightText: "Copyright Free Software Foundation, Inc"
+  fileName: "./time-1.9/lib/msvc-inval.c"
+  fileTypes:
+  - "SOURCE"
+  licenseComments: "Seen licenses generated by Source Auditor Scanner.  Results should\
+    \ be manually verified."
+  licenseConcluded: "GPL-3.0-or-later"
+  licenseInfoInFiles:
+  - "LicenseRef-gpl-3.0-plus"
+  noticeText: "NOASSERTION"
+- SPDXID: "SPDXRef-75"
+  checksums:
+  - algorithm: "SHA1"
+    checksumValue: "1aa54660d37808bbf25157e641e98ddcc2abe233"
+  comment: "BOMNOTE:Directory|;  BOMNOTE:Directory|"
+  copyrightText: "Copyright Free Software Foundation, Inc"
+  fileName: "./time-1.9/lib/msvc-inval.h"
+  fileTypes:
+  - "SOURCE"
+  licenseComments: "Seen licenses generated by Source Auditor Scanner.  Results should\
+    \ be manually verified."
+  licenseConcluded: "GPL-3.0-or-later"
+  licenseInfoInFiles:
+  - "LicenseRef-gpl-3.0-plus"
+  noticeText: "NOASSERTION"
+- SPDXID: "SPDXRef-83"
+  checksums:
+  - algorithm: "SHA1"
+    checksumValue: "494da9199a804eb9ac48a6e122830ea5e722993c"
+  comment: "BOMNOTE:Directory|;  BOMNOTE:Directory|"
+  copyrightText: "Copyright Free Software Foundation, Inc"
+  fileName: "./time-1.9/lib/stddef.in.h"
+  fileTypes:
+  - "SOURCE"
+  licenseComments: "Seen licenses generated by Source Auditor Scanner.  Results should\
+    \ be manually verified."
+  licenseConcluded: "GPL-3.0-or-later"
+  licenseInfoInFiles:
+  - "(LicenseRef-gpl-3.0-plus AND BSD-4-Clause)"
+  noticeText: "NOASSERTION"
+- SPDXID: "SPDXRef-84"
+  checksums:
+  - algorithm: "SHA1"
+    checksumValue: "fba336def1e96907b4f5ef7764ccefcf6aa50e90"
+  comment: "BOMNOTE:Directory|;  BOMNOTE:Directory|"
+  copyrightText: "Copyright Free Software Foundation, Inc"
+  fileName: "./time-1.9/lib/stdint.in.h"
+  fileTypes:
+  - "SOURCE"
+  licenseComments: "Seen licenses generated by Source Auditor Scanner.  Results should\
+    \ be manually verified."
+  licenseConcluded: "GPL-3.0-or-later"
+  licenseInfoInFiles:
+  - "(LicenseRef-gpl-3.0-plus AND BSD-4-Clause)"
+  noticeText: "NOASSERTION"
+- SPDXID: "SPDXRef-81"
+  checksums:
+  - algorithm: "SHA1"
+    checksumValue: "b070dfc0d6b59c15ef2a74e832cb3dd9a8a558b1"
+  comment: "BOMNOTE:Directory|;  BOMNOTE:Directory|"
+  copyrightText: "Copyright Free Software Foundation, Inc"
+  fileName: "./time-1.9/lib/stdarg.in.h"
+  fileTypes:
+  - "SOURCE"
+  licenseComments: "Seen licenses generated by Source Auditor Scanner.  Results should\
+    \ be manually verified."
+  licenseConcluded: "GPL-3.0-or-later"
+  licenseInfoInFiles:
+  - "LicenseRef-gpl-3.0-plus"
+  noticeText: "NOASSERTION"
+- SPDXID: "SPDXRef-82"
+  checksums:
+  - algorithm: "SHA1"
+    checksumValue: "514be630aeda2883bf3e5f5e7a8223b0852e526d"
+  comment: "BOMNOTE:Directory|;  BOMNOTE:Directory|"
+  copyrightText: "Copyright Free Software Foundation, Inc"
+  fileName: "./time-1.9/lib/stdbool.in.h"
+  fileTypes:
+  - "SOURCE"
+  licenseComments: "Seen licenses generated by Source Auditor Scanner.  Results should\
+    \ be manually verified."
+  licenseConcluded: "GPL-3.0-or-later"
+  licenseInfoInFiles:
+  - "LicenseRef-gpl-3.0-plus"
+  noticeText: "NOASSERTION"
+- SPDXID: "SPDXRef-80"
+  checksums:
+  - algorithm: "SHA1"
+    checksumValue: "583c5ee6c5ad345b13ee34f4a2f3fc7fab46fb71"
+  comment: "BOMNOTE:Directory|;  BOMNOTE:Directory|"
+  copyrightText: "Copyright Free Software Foundation, Inc"
+  fileName: "./time-1.9/lib/signal.in.h"
+  fileTypes:
+  - "SOURCE"
+  licenseComments: "Seen licenses generated by Source Auditor Scanner.  Results should\
+    \ be manually verified."
+  licenseConcluded: "GPL-3.0-or-later"
+  licenseInfoInFiles:
+  - "(LicenseRef-gpl-3.0-plus AND BSD-4-Clause)"
+  noticeText: "NOASSERTION"
+- SPDXID: "SPDXRef-171"
+  checksums:
+  - algorithm: "SHA1"
+    checksumValue: "e523df92851a6fd2d7dc03112f7e0b47b822531c"
+  copyrightText: "Copyright Free Software Foundation, Inc"
+  fileName: "./time-1.9/src/time.c"
+  fileTypes:
+  - "SOURCE"
+  licenseComments: "Seen licenses generated by Source Auditor Scanner.  Results should\
+    \ be manually verified."
+  licenseConcluded: "GPL-3.0-or-later"
+  licenseInfoInFiles:
+  - "(LicenseRef-gpl-3.0-plus AND GPL-3.0-or-later AND BSD-4-Clause)"
+  noticeText: "NOASSERTION"
+- SPDXID: "SPDXRef-172"
+  checksums:
+  - algorithm: "SHA1"
+    checksumValue: "30b3973b22ddbcd9e8982a06c5a2440fcb315013"
+  copyrightText: "Copyright Free Software Foundation, Inc"
+  fileName: "./time-1.9/tests/help-version.sh"
+  fileTypes:
+  - "SOURCE"
+  licenseComments: "Seen licenses generated by Source Auditor Scanner.  Results should\
+    \ be manually verified."
+  licenseConcluded: "GPL-3.0-or-later"
+  licenseInfoInFiles:
+  - "(LicenseRef-gpl-3.0-plus AND GPL-3.0-or-later)"
+  noticeText: "NOASSERTION"
+- SPDXID: "SPDXRef-89"
+  checksums:
+  - algorithm: "SHA1"
+    checksumValue: "68afa0efc8b8a0735ea33ccb9364dc7a18fb8f1c"
+  comment: "BOMNOTE:Directory|;  BOMNOTE:Directory|"
+  copyrightText: "Copyright Free Software Foundation, Inc"
+  fileName: "./time-1.9/lib/strerror-override.h"
+  fileTypes:
+  - "SOURCE"
+  licenseComments: "Seen licenses generated by Source Auditor Scanner.  Results should\
+    \ be manually verified."
+  licenseConcluded: "GPL-3.0-or-later"
+  licenseInfoInFiles:
+  - "LicenseRef-gpl-3.0-plus"
+  noticeText: "NOASSERTION"
+- SPDXID: "SPDXRef-173"
+  checksums:
+  - algorithm: "SHA1"
+    checksumValue: "f1b6784c00fe8e44c66690f22a2729a23111cec7"
+  copyrightText: "Copyright Free Software Foundation, Inc"
+  fileName: "./time-1.9/tests/init.sh"
+  fileTypes:
+  - "SOURCE"
+  licenseComments: "Seen licenses generated by Source Auditor Scanner.  Results should\
+    \ be manually verified."
+  licenseConcluded: "GPL-3.0-or-later"
+  licenseInfoInFiles:
+  - "(LicenseRef-gpl-3.0-plus AND GPL-3.0-or-later AND BSD-4-Clause)"
+  noticeText: "NOASSERTION"
+- SPDXID: "SPDXRef-174"
+  checksums:
+  - algorithm: "SHA1"
+    checksumValue: "3ee07020d4e3c6c123dfdc22f44d203ef3a80431"
+  copyrightText: "NOASSERTION"
+  fileName: "./time-1.9/tests/time-aux.c"
+  fileTypes:
+  - "SOURCE"
+  licenseConcluded: "GPL-3.0-or-later"
+  licenseInfoInFiles:
+  - "NOASSERTION"
+  noticeText: "NOASSERTION"
+- SPDXID: "SPDXRef-87"
+  checksums:
+  - algorithm: "SHA1"
+    checksumValue: "aca56ede31f81aa3a3060321cf5d04c8bebe4e43"
+  comment: "BOMNOTE:Directory|;  BOMNOTE:Directory|"
+  copyrightText: "Copyright Free Software Foundation, Inc"
+  fileName: "./time-1.9/lib/stdnoreturn.in.h"
+  fileTypes:
+  - "SOURCE"
+  licenseComments: "Seen licenses generated by Source Auditor Scanner.  Results should\
+    \ be manually verified."
+  licenseConcluded: "GPL-3.0-or-later"
+  licenseInfoInFiles:
+  - "LicenseRef-gpl-3.0-plus"
+  noticeText: "NOASSERTION"
+- SPDXID: "SPDXRef-175"
+  checksums:
+  - algorithm: "SHA1"
+    checksumValue: "a2274d739390a1f5fdd92cf2287c3e6a51f6e555"
+  copyrightText: "Copyright Free Software Foundation, Inc"
+  fileName: "./time-1.9/tests/time-exit-codes.sh"
+  fileTypes:
+  - "SOURCE"
+  licenseComments: "Seen licenses generated by Source Auditor Scanner.  Results should\
+    \ be manually verified."
+  licenseConcluded: "GPL-3.0-or-later"
+  licenseInfoInFiles:
+  - "(LicenseRef-gpl-3.0-plus AND GPL-3.0-or-later)"
+  noticeText: "NOASSERTION"
+- SPDXID: "SPDXRef-88"
+  checksums:
+  - algorithm: "SHA1"
+    checksumValue: "3ec73f7b08702d3388abb713626e3c5371f6161f"
+  comment: "BOMNOTE:Directory|;  BOMNOTE:Directory|"
+  copyrightText: "Copyright Free Software Foundation, Inc"
+  fileName: "./time-1.9/lib/strerror-override.c"
+  fileTypes:
+  - "SOURCE"
+  licenseComments: "Seen licenses generated by Source Auditor Scanner.  Results should\
+    \ be manually verified."
+  licenseConcluded: "GPL-3.0-or-later"
+  licenseInfoInFiles:
+  - "LicenseRef-gpl-3.0-plus"
+  noticeText: "NOASSERTION"
+- SPDXID: "SPDXRef-176"
+  checksums:
+  - algorithm: "SHA1"
+    checksumValue: "587cf63cce3b3b09dca557a482b5d0255cfa0dfa"
+  copyrightText: "Copyright Free Software Foundation, Inc"
+  fileName: "./time-1.9/tests/time-max-rss.sh"
+  fileTypes:
+  - "SOURCE"
+  licenseComments: "Seen licenses generated by Source Auditor Scanner.  Results should\
+    \ be manually verified."
+  licenseConcluded: "GPL-3.0-or-later"
+  licenseInfoInFiles:
+  - "(LicenseRef-gpl-3.0-plus AND GPL-3.0-or-later)"
+  noticeText: "NOASSERTION"
+- SPDXID: "SPDXRef-85"
+  checksums:
+  - algorithm: "SHA1"
+    checksumValue: "b511b306705e62ffc0eacbfa7f4a4a3635f30d00"
+  comment: "BOMNOTE:Directory|;  BOMNOTE:Directory|"
+  copyrightText: "Copyright Free Software Foundation, Inc"
+  fileName: "./time-1.9/lib/stdio.in.h"
+  fileTypes:
+  - "SOURCE"
+  licenseComments: "Seen licenses generated by Source Auditor Scanner.  Results should\
+    \ be manually verified."
+  licenseConcluded: "GPL-3.0-or-later"
+  licenseInfoInFiles:
+  - "(LicenseRef-gpl-3.0-plus AND BSD-4-Clause)"
+  noticeText: "NOASSERTION"
+- SPDXID: "SPDXRef-177"
+  checksums:
+  - algorithm: "SHA1"
+    checksumValue: "0890026279d3bd045bbd9a896ac3ec3533e3079c"
+  copyrightText: "Copyright Free Software Foundation, Inc"
+  fileName: "./time-1.9/tests/time-posix-quiet.sh"
+  fileTypes:
+  - "SOURCE"
+  licenseComments: "Seen licenses generated by Source Auditor Scanner.  Results should\
+    \ be manually verified."
+  licenseConcluded: "GPL-3.0-or-later"
+  licenseInfoInFiles:
+  - "(LicenseRef-gpl-3.0-plus AND GPL-3.0-or-later)"
+  noticeText: "NOASSERTION"
+- SPDXID: "SPDXRef-86"
+  checksums:
+  - algorithm: "SHA1"
+    checksumValue: "034d761c619194a98e5bcc60093f848b932e8795"
+  comment: "BOMNOTE:Directory|;  BOMNOTE:Directory|"
+  copyrightText: "Copyright Free Software Foundation, Inc"
+  fileName: "./time-1.9/lib/stdlib.in.h"
+  fileTypes:
+  - "SOURCE"
+  licenseComments: "Seen licenses generated by Source Auditor Scanner.  Results should\
+    \ be manually verified."
+  licenseConcluded: "GPL-3.0-or-later"
+  licenseInfoInFiles:
+  - "(LicenseRef-gpl-3.0-plus AND BSD-4-Clause)"
+  noticeText: "NOASSERTION"
+- SPDXID: "SPDXRef-94"
+  checksums:
+  - algorithm: "SHA1"
+    checksumValue: "4b512128688bfd1dfc158bf041f84663e30df8bd"
+  comment: "BOMNOTE:Directory|;  BOMNOTE:Directory|"
+  copyrightText: "Copyright Free Software Foundation, Inc"
+  fileName: "./time-1.9/lib/sys_time.in.h"
+  fileTypes:
+  - "SOURCE"
+  licenseComments: "Seen licenses generated by Source Auditor Scanner.  Results should\
+    \ be manually verified."
+  licenseConcluded: "GPL-3.0-or-later"
+  licenseInfoInFiles:
+  - "(LicenseRef-gpl-3.0-plus AND BSD-4-Clause)"
+  noticeText: "NOASSERTION"
+- SPDXID: "SPDXRef-124"
+  checksums:
+  - algorithm: "SHA1"
+    checksumValue: "b705ad1eb8c5503cbee5a794be1bc81ed5f21ad2"
+  comment: "BOMNOTE:File|; BOMNOTE:File|"
+  copyrightText: "Copyright Copyright (c) 2002-2018 Free Software Foundation, Inc."
+  fileName: "./time-1.9/m4/host-cpu-c-abi.m4"
+  fileTypes:
+  - "OTHER"
+  licenseComments: "Seen licenses generated by Source Auditor Scanner.  Results should\
+    \ be manually verified."
+  licenseConcluded: "FSFULLR"
+  licenseInfoInFiles:
+  - "FSFULLR"
+  noticeText: "NOASSERTION"
+- SPDXID: "SPDXRef-95"
+  checksums:
+  - algorithm: "SHA1"
+    checksumValue: "86afd26e65fb000970bb96f2ee933683d7d25565"
+  comment: "BOMNOTE:Directory|;  BOMNOTE:Directory|"
+  copyrightText: "Copyright Free Software Foundation, Inc"
+  fileName: "./time-1.9/lib/sys_types.in.h"
+  fileTypes:
+  - "SOURCE"
+  licenseComments: "Seen licenses generated by Source Auditor Scanner.  Results should\
+    \ be manually verified."
+  licenseConcluded: "GPL-3.0-or-later"
+  licenseInfoInFiles:
+  - "LicenseRef-gpl-3.0-plus"
+  noticeText: "NOASSERTION"
+- SPDXID: "SPDXRef-125"
+  checksums:
+  - algorithm: "SHA1"
+    checksumValue: "c89c44c324c662b09098f1d2193e32727cac33df"
+  comment: "BOMNOTE:File|; BOMNOTE:File|"
+  copyrightText: "Copyright Copyright (c) 2006-2018 Free Software Foundation, Inc."
+  fileName: "./time-1.9/m4/include_next.m4"
+  fileTypes:
+  - "OTHER"
+  licenseComments: "Seen licenses generated by Source Auditor Scanner.  Results should\
+    \ be manually verified."
+  licenseConcluded: "FSFULLR"
+  licenseInfoInFiles:
+  - "FSFULLR"
+  noticeText: "NOASSERTION"
+- SPDXID: "SPDXRef-92"
+  checksums:
+  - algorithm: "SHA1"
+    checksumValue: "e493392deaf3e3f2becbf89edb32e6b345eca135"
+  comment: "BOMNOTE:Directory|;  BOMNOTE:Directory|"
+  copyrightText: "Copyright Free Software Foundation"
+  fileName: "./time-1.9/lib/stripslash.c"
+  fileTypes:
+  - "SOURCE"
+  licenseComments: "Seen licenses generated by Source Auditor Scanner.  Results should\
+    \ be manually verified."
+  licenseConcluded: "GPL-3.0-or-later"
+  licenseInfoInFiles:
+  - "LicenseRef-gpl-3.0-plus"
+  noticeText: "NOASSERTION"
+- SPDXID: "SPDXRef-126"
+  checksums:
+  - algorithm: "SHA1"
+    checksumValue: "391965566d9dd55927dca2b04b28117f1fe9da33"
+  comment: "BOMNOTE:File|; BOMNOTE:File|"
+  copyrightText: "Copyright Copyright (c) 1997-2002, 2006, 2008-2018 Free Software\
+    \ Foundation, Inc."
+  fileName: "./time-1.9/m4/inttypes-pri.m4"
+  fileTypes:
+  - "OTHER"
+  licenseComments: "Seen licenses generated by Source Auditor Scanner.  Results should\
+    \ be manually verified."
+  licenseConcluded: "FSFULLR"
+  licenseInfoInFiles:
+  - "FSFULLR"
+  noticeText: "NOASSERTION"
+- SPDXID: "SPDXRef-93"
+  checksums:
+  - algorithm: "SHA1"
+    checksumValue: "2317c47a955ec6b3e48101a80956dfcc2d206768"
+  comment: "BOMNOTE:Directory|;  BOMNOTE:Directory|"
+  copyrightText: "Copyright Free Software Foundation, Inc"
+  fileName: "./time-1.9/lib/sys_resource.in.h"
+  fileTypes:
+  - "SOURCE"
+  licenseComments: "Seen licenses generated by Source Auditor Scanner.  Results should\
+    \ be manually verified."
+  licenseConcluded: "GPL-3.0-or-later"
+  licenseInfoInFiles:
+  - "(LicenseRef-gpl-3.0-plus AND BSD-4-Clause)"
+  noticeText: "NOASSERTION"
+- SPDXID: "SPDXRef-127"
+  checksums:
+  - algorithm: "SHA1"
+    checksumValue: "aa151c9c8adab7c1eff8b90bf014950332f2a0d7"
+  comment: "BOMNOTE:File|; BOMNOTE:File|"
+  copyrightText: "Copyright Copyright (c) 2006-2018 Free Software Foundation, Inc."
+  fileName: "./time-1.9/m4/inttypes.m4"
+  fileTypes:
+  - "OTHER"
+  licenseComments: "Seen licenses generated by Source Auditor Scanner.  Results should\
+    \ be manually verified."
+  licenseConcluded: "FSFULLR"
+  licenseInfoInFiles:
+  - "FSFULLR"
+  noticeText: "NOASSERTION"
+- SPDXID: "SPDXRef-90"
+  checksums:
+  - algorithm: "SHA1"
+    checksumValue: "5d1efe3552ca65e1fb9e472f2527b1767dff472f"
+  comment: "BOMNOTE:Directory|;  BOMNOTE:Directory|"
+  copyrightText: "Copyright Free Software Foundation, Inc"
+  fileName: "./time-1.9/lib/strerror.c"
+  fileTypes:
+  - "SOURCE"
+  licenseComments: "Seen licenses generated by Source Auditor Scanner.  Results should\
+    \ be manually verified."
+  licenseConcluded: "GPL-3.0-or-later"
+  licenseInfoInFiles:
+  - "LicenseRef-gpl-3.0-plus"
+  noticeText: "NOASSERTION"
+- SPDXID: "SPDXRef-128"
+  checksums:
+  - algorithm: "SHA1"
+    checksumValue: "4f5c421dda1b7dc84b3ba4622f6ec96f6ee355d0"
+  comment: "BOMNOTE:File|; BOMNOTE:File|"
+  copyrightText: "Copyright Copyright 2016-2018 Free Software Foundation, Inc."
+  fileName: "./time-1.9/m4/limits-h.m4"
+  fileTypes:
+  - "OTHER"
+  licenseComments: "Seen licenses generated by Source Auditor Scanner.  Results should\
+    \ be manually verified."
+  licenseConcluded: "FSFULLR"
+  licenseInfoInFiles:
+  - "FSFULLR"
+  noticeText: "NOASSERTION"
+- SPDXID: "SPDXRef-91"
+  checksums:
+  - algorithm: "SHA1"
+    checksumValue: "11ad83677192c80f6428004154d9b8118c07b379"
+  comment: "BOMNOTE:Directory|;  BOMNOTE:Directory|"
+  copyrightText: "Copyright Free Software Foundation, Inc"
+  fileName: "./time-1.9/lib/string.in.h"
+  fileTypes:
+  - "SOURCE"
+  licenseComments: "Seen licenses generated by Source Auditor Scanner.  Results should\
+    \ be manually verified."
+  licenseConcluded: "GPL-3.0-or-later"
+  licenseInfoInFiles:
+  - "(LicenseRef-gpl-3.0-plus AND BSD-4-Clause)"
+  noticeText: "NOASSERTION"
+- SPDXID: "SPDXRef-129"
+  checksums:
+  - algorithm: "SHA1"
+    checksumValue: "55ee29c74307d5e4d3f3bcff2827d41402c0f97f"
+  comment: "BOMNOTE:File|; BOMNOTE:File|"
+  copyrightText: "Copyright Copyright (c) 2017-2018 Free Software Foundation, Inc."
+  fileName: "./time-1.9/m4/localtime-buffer.m4"
+  fileTypes:
+  - "OTHER"
+  licenseComments: "Seen licenses generated by Source Auditor Scanner.  Results should\
+    \ be manually verified."
+  licenseConcluded: "FSFULLR"
+  licenseInfoInFiles:
+  - "FSFULLR"
+  noticeText: "NOASSERTION"
+- SPDXID: "SPDXRef-98"
+  checksums:
+  - algorithm: "SHA1"
+    checksumValue: "001c127e9815767e19984dfe8ee52ee9778f3883"
+  comment: "BOMNOTE:Directory|"
+  copyrightText: "NOASSERTION"
+  fileName: "./time-1.9/lib/unistd.c"
+  fileTypes:
+  - "SOURCE"
+  licenseConcluded: "GPL-3.0-or-later"
+  licenseInfoInFiles:
+  - "NOASSERTION"
+  noticeText: "NOASSERTION"
+- SPDXID: "SPDXRef-120"
+  checksums:
+  - algorithm: "SHA1"
+    checksumValue: "63ce1aeef3ec35710efa43b523435a2605098ba3"
+  comment: "BOMNOTE:File|; BOMNOTE:File|"
+  copyrightText: "Copyright Copyright (c) 2001-2003, 2005, 2007, 2009-2018 Free Software\
+    \ Foundation, Inc."
+  fileName: "./time-1.9/m4/gettimeofday.m4"
+  fileTypes:
+  - "OTHER"
+  licenseComments: "Seen licenses generated by Source Auditor Scanner.  Results should\
+    \ be manually verified."
+  licenseConcluded: "FSFULLR"
+  licenseInfoInFiles:
+  - "FSFULLR"
+  noticeText: "NOASSERTION"
+- SPDXID: "SPDXRef-99"
+  checksums:
+  - algorithm: "SHA1"
+    checksumValue: "b0e4116c6455283e8c9b0cfbb330de931263c07e"
+  comment: "BOMNOTE:Directory|;  BOMNOTE:Directory|"
+  copyrightText: "Copyright Free Software Foundation, Inc"
+  fileName: "./time-1.9/lib/unistd.in.h"
+  fileTypes:
+  - "SOURCE"
+  licenseComments: "Seen licenses generated by Source Auditor Scanner.  Results should\
+    \ be manually verified."
+  licenseConcluded: "GPL-3.0-or-later"
+  licenseInfoInFiles:
+  - "(LicenseRef-gpl-3.0-plus AND BSD-4-Clause)"
+  noticeText: "NOASSERTION"
+- SPDXID: "SPDXRef-121"
+  checksums:
+  - algorithm: "SHA1"
+    checksumValue: "587a85354d193b985b0e33f9ea6bb090ec217988"
+  comment: "BOMNOTE:File|; BOMNOTE:File|"
+  copyrightText: "Copyright Copyright (c) 2002-2018 Free Software Foundation, Inc."
+  fileName: "./time-1.9/m4/gnulib-cache.m4"
+  fileTypes:
+  - "OTHER"
+  licenseComments: "Seen licenses generated by Source Auditor Scanner.  Results should\
+    \ be manually verified."
+  licenseConcluded: "FSFULLR"
+  licenseInfoInFiles:
+  - "(LicenseRef-gpl-3.0-plus AND LicenseRef-autoconf-simple-exception-2.0)"
+  noticeText: "NOASSERTION"
+- SPDXID: "SPDXRef-96"
+  checksums:
+  - algorithm: "SHA1"
+    checksumValue: "e6cdf5fcc956ea9835a89f9ae0d9c27ced312206"
+  comment: "BOMNOTE:Directory|;  BOMNOTE:Directory|"
+  copyrightText: "Copyright Free Software Foundation, Inc"
+  fileName: "./time-1.9/lib/sys_wait.in.h"
+  fileTypes:
+  - "SOURCE"
+  licenseComments: "Seen licenses generated by Source Auditor Scanner.  Results should\
+    \ be manually verified."
+  licenseConcluded: "GPL-3.0-or-later"
+  licenseInfoInFiles:
+  - "LicenseRef-gpl-3.0-plus"
+  noticeText: "NOASSERTION"
+- SPDXID: "SPDXRef-122"
+  checksums:
+  - algorithm: "SHA1"
+    checksumValue: "38c11628a7df3f1d7630af83e5874d8e19ede550"
+  comment: "BOMNOTE:File|; BOMNOTE:File|"
+  copyrightText: "Copyright Copyright (c) 2007-2018 Free Software Foundation, Inc."
+  fileName: "./time-1.9/m4/gnulib-common.m4"
+  fileTypes:
+  - "OTHER"
+  licenseComments: "Seen licenses generated by Source Auditor Scanner.  Results should\
+    \ be manually verified."
+  licenseConcluded: "FSFULLR"
+  licenseInfoInFiles:
+  - "FSFULLR"
+  noticeText: "NOASSERTION"
+- SPDXID: "SPDXRef-97"
+  checksums:
+  - algorithm: "SHA1"
+    checksumValue: "45c558e1d64e7077dd4109dc3f3bc354ec87d943"
+  comment: "BOMNOTE:Directory|;  BOMNOTE:Directory|"
+  copyrightText: "Copyright Free Software Foundation, Inc"
+  fileName: "./time-1.9/lib/time.in.h"
+  fileTypes:
+  - "SOURCE"
+  licenseComments: "Seen licenses generated by Source Auditor Scanner.  Results should\
+    \ be manually verified."
+  licenseConcluded: "GPL-3.0-or-later"
+  licenseInfoInFiles:
+  - "(LicenseRef-gpl-3.0-plus AND BSD-4-Clause)"
+  noticeText: "NOASSERTION"
+- SPDXID: "SPDXRef-123"
+  checksums:
+  - algorithm: "SHA1"
+    checksumValue: "e58801e80585e57cc0419965c6d551a204527500"
+  comment: "BOMNOTE:File|; BOMNOTE:File|"
+  copyrightText: "Copyright Copyright (c) 2002-2018 Free Software Foundation, Inc."
+  fileName: "./time-1.9/m4/gnulib-comp.m4"
+  fileTypes:
+  - "OTHER"
+  licenseComments: "Seen licenses generated by Source Auditor Scanner.  Results should\
+    \ be manually verified."
+  licenseConcluded: "FSFULLR"
+  licenseInfoInFiles:
+  - "(LicenseRef-gpl-3.0-plus AND LicenseRef-autoconf-simple-exception-2.0)"
+  noticeText: "NOASSERTION"
+- SPDXID: "SPDXRef-113"
+  checksums:
+  - algorithm: "SHA1"
+    checksumValue: "97cc057ef86104f4ef6c93e1189b56ef8677a79d"
+  comment: "BOMNOTE:File|; BOMNOTE:File|"
+  copyrightText: "Copyright Copyright (c) 2003, 2006-2018 Free Software Foundation,\
+    \ Inc."
+  fileName: "./time-1.9/m4/extensions.m4"
+  fileTypes:
+  - "OTHER"
+  licenseComments: "Seen licenses generated by Source Auditor Scanner.  Results should\
+    \ be manually verified."
+  licenseConcluded: "FSFULLR"
+  licenseInfoInFiles:
+  - "FSFULLR"
+  noticeText: "NOASSERTION"
+- SPDXID: "SPDXRef-114"
+  checksums:
+  - algorithm: "SHA1"
+    checksumValue: "372f442db3e9f974eebf3046732755259e2df1a5"
+  comment: "BOMNOTE:File|; BOMNOTE:File|"
+  copyrightText: "Copyright Copyright 2012-2018 Free Software Foundation, Inc."
+  fileName: "./time-1.9/m4/extern-inline.m4"
+  fileTypes:
+  - "OTHER"
+  licenseComments: "Seen licenses generated by Source Auditor Scanner.  Results should\
+    \ be manually verified."
+  licenseConcluded: "FSFULLR"
+  licenseInfoInFiles:
+  - "FSFULLR"
+  noticeText: "NOASSERTION"
+- SPDXID: "SPDXRef-115"
+  checksums:
+  - algorithm: "SHA1"
+    checksumValue: "a86231c5d11db1de4816e40a170840d7de741879"
+  comment: "BOMNOTE:File|; BOMNOTE:File|"
+  copyrightText: "Copyright Copyright (c) 2002-2006, 2008-2018 Free Software Foundation,\
+    \ Inc."
+  fileName: "./time-1.9/m4/getopt.m4"
+  fileTypes:
+  - "OTHER"
+  licenseComments: "Seen licenses generated by Source Auditor Scanner.  Results should\
+    \ be manually verified."
+  licenseConcluded: "FSFULLR"
+  licenseInfoInFiles:
+  - "FSFULLR"
+  noticeText: "NOASSERTION"
+- SPDXID: "SPDXRef-116"
+  checksums:
+  - algorithm: "SHA1"
+    checksumValue: "707041985b226f0385a684346f15501438ff983d"
+  comment: "BOMNOTE:File|; BOMNOTE:File|"
+  copyrightText: "Copyright Copyright (c) 2002, 2004-2005, 2007, 2009-2018 Free Software\
+    \ Foundation, Inc."
+  fileName: "./time-1.9/m4/getpagesize.m4"
+  fileTypes:
+  - "OTHER"
+  licenseComments: "Seen licenses generated by Source Auditor Scanner.  Results should\
+    \ be manually verified."
+  licenseConcluded: "FSFULLR"
+  licenseInfoInFiles:
+  - "FSFULLR"
+  noticeText: "NOASSERTION"
+- SPDXID: "SPDXRef-117"
+  checksums:
+  - algorithm: "SHA1"
+    checksumValue: "02e07ad1366d6eb67a27706e4beb03f05385a2a6"
+  comment: "BOMNOTE:File|; BOMNOTE:File|"
+  copyrightText: "Copyright Copyright (c) 2016-2018 Free Software Foundation, Inc."
+  fileName: "./time-1.9/m4/getprogname.m4"
+  fileTypes:
+  - "OTHER"
+  licenseComments: "Seen licenses generated by Source Auditor Scanner.  Results should\
+    \ be manually verified."
+  licenseConcluded: "FSFULLR"
+  licenseInfoInFiles:
+  - "FSFULLR"
+  noticeText: "NOASSERTION"
+- SPDXID: "SPDXRef-118"
+  checksums:
+  - algorithm: "SHA1"
+    checksumValue: "4685f827c3b929d3683f27fc72e161fdffb2106f"
+  comment: "BOMNOTE:File|; BOMNOTE:File|"
+  copyrightText: "Copyright Copyright (c) 2012-2018 Free Software Foundation, Inc."
+  fileName: "./time-1.9/m4/getrusage.m4"
+  fileTypes:
+  - "OTHER"
+  licenseComments: "Seen licenses generated by Source Auditor Scanner.  Results should\
+    \ be manually verified."
+  licenseConcluded: "FSFULLR"
+  licenseInfoInFiles:
+  - "FSFULLR"
+  noticeText: "NOASSERTION"
+- SPDXID: "SPDXRef-119"
+  checksums:
+  - algorithm: "SHA1"
+    checksumValue: "411bb31a9f6544ac6fbaa7fda92fbeea05ff04e3"
+  comment: "BOMNOTE:File|; BOMNOTE:File|"
+  copyrightText: "Copyright Copyright (c) 1995-2014, 2016 Free Software Foundation,\
+    \ Inc."
+  fileName: "./time-1.9/m4/gettext.m4"
+  fileTypes:
+  - "OTHER"
+  licenseComments: "Seen licenses generated by Source Auditor Scanner.  Results should\
+    \ be manually verified."
+  licenseConcluded: "FSFULLR"
+  licenseInfoInFiles:
+  - "FSFULLR"
+  noticeText: "NOASSERTION"
+- SPDXID: "SPDXRef-110"
+  checksums:
+  - algorithm: "SHA1"
+    checksumValue: "107627ca6794640b394f12c95dd39d4b2094014e"
+  comment: "BOMNOTE:File|; BOMNOTE:File|"
+  copyrightText: "Copyright Copyright (c) 2006, 2008-2018 Free Software Foundation,\
+    \ Inc."
+  fileName: "./time-1.9/m4/double-slash-root.m4"
+  fileTypes:
+  - "OTHER"
+  licenseComments: "Seen licenses generated by Source Auditor Scanner.  Results should\
+    \ be manually verified."
+  licenseConcluded: "FSFULLR"
+  licenseInfoInFiles:
+  - "FSFULLR"
+  noticeText: "NOASSERTION"
+- SPDXID: "SPDXRef-111"
+  checksums:
+  - algorithm: "SHA1"
+    checksumValue: "4444906ad68133b43c643685774defe73f193a92"
+  comment: "BOMNOTE:File|; BOMNOTE:File|"
+  copyrightText: "Copyright Copyright (c) 2004, 2006, 2008-2018 Free Software Foundation,\
+    \ Inc."
+  fileName: "./time-1.9/m4/errno_h.m4"
+  fileTypes:
+  - "OTHER"
+  licenseComments: "Seen licenses generated by Source Auditor Scanner.  Results should\
+    \ be manually verified."
+  licenseConcluded: "FSFULLR"
+  licenseInfoInFiles:
+  - "FSFULLR"
+  noticeText: "NOASSERTION"
+- SPDXID: "SPDXRef-112"
+  checksums:
+  - algorithm: "SHA1"
+    checksumValue: "824208c655e55935bdb1567f062730df6d0a3bf6"
+  comment: "BOMNOTE:File|; BOMNOTE:File|"
+  copyrightText: "Copyright Copyright (c) 1996-1998, 2001-2004, 2009-2018 Free Software\
+    \ Foundation, Inc."
+  fileName: "./time-1.9/m4/error.m4"
+  fileTypes:
+  - "OTHER"
+  licenseComments: "Seen licenses generated by Source Auditor Scanner.  Results should\
+    \ be manually verified."
+  licenseConcluded: "FSFULLR"
+  licenseInfoInFiles:
+  - "FSFULLR"
+  noticeText: "NOASSERTION"
+- SPDXID: "SPDXRef-146"
+  checksums:
+  - algorithm: "SHA1"
+    checksumValue: "ea3b2b9a47ab25338e144fd7233dbc6981966fc2"
+  comment: "BOMNOTE:File|; BOMNOTE:File|"
+  copyrightText: "Copyright Copyright (c) 2007-2018 Free Software Foundation, Inc."
+  fileName: "./time-1.9/m4/stdlib_h.m4"
+  fileTypes:
+  - "OTHER"
+  licenseComments: "Seen licenses generated by Source Auditor Scanner.  Results should\
+    \ be manually verified."
+  licenseConcluded: "FSFULLR"
+  licenseInfoInFiles:
+  - "FSFULLR"
+  noticeText: "NOASSERTION"
+- SPDXID: "SPDXRef-147"
+  checksums:
+  - algorithm: "SHA1"
+    checksumValue: "61f6dd39d8a5504c662bb95e1d2d2e7cb247250c"
+  comment: "BOMNOTE:File|; BOMNOTE:File|"
+  copyrightText: "Copyright Copyright 2012-2018 Free Software Foundation, Inc."
+  fileName: "./time-1.9/m4/stdnoreturn.m4"
+  fileTypes:
+  - "OTHER"
+  licenseComments: "Seen licenses generated by Source Auditor Scanner.  Results should\
+    \ be manually verified."
+  licenseConcluded: "FSFULLR"
+  licenseInfoInFiles:
+  - "FSFULLR"
+  noticeText: "NOASSERTION"
+- SPDXID: "SPDXRef-148"
+  checksums:
+  - algorithm: "SHA1"
+    checksumValue: "0f15c737dfbcc1a56b3c730f83aa77dddc8c1fb4"
+  comment: "BOMNOTE:File|; BOMNOTE:File|"
+  copyrightText: "Copyright Copyright (c) 2002, 2007-2018 Free Software Foundation,\
+    \ Inc."
+  fileName: "./time-1.9/m4/strerror.m4"
+  fileTypes:
+  - "OTHER"
+  licenseComments: "Seen licenses generated by Source Auditor Scanner.  Results should\
+    \ be manually verified."
+  licenseConcluded: "FSFULLR"
+  licenseInfoInFiles:
+  - "FSFULLR"
+  noticeText: "NOASSERTION"
+- SPDXID: "SPDXRef-149"
+  checksums:
+  - algorithm: "SHA1"
+    checksumValue: "229e2a129e3159ced22dd1083ac0dbe870e6483c"
+  comment: "BOMNOTE:File|; BOMNOTE:File|"
+  copyrightText: "Copyright Copyright (c) 2007-2018 Free Software Foundation, Inc."
+  fileName: "./time-1.9/m4/string_h.m4"
+  fileTypes:
+  - "OTHER"
+  licenseComments: "Seen licenses generated by Source Auditor Scanner.  Results should\
+    \ be manually verified."
+  licenseConcluded: "FSFULLR"
+  licenseInfoInFiles:
+  - "FSFULLR"
+  noticeText: "NOASSERTION"
+- SPDXID: "SPDXRef-140"
+  checksums:
+  - algorithm: "SHA1"
+    checksumValue: "faf8e5ce37681b60f7e06db5ccc22cd0009477f6"
+  comment: "BOMNOTE:File|; BOMNOTE:File|"
+  copyrightText: "Copyright Copyright (c) 2001-2003, 2006, 2010-2018 Free Software\
+    \ Foundation, Inc."
+  fileName: "./time-1.9/m4/ssize_t.m4"
+  fileTypes:
+  - "OTHER"
+  licenseComments: "Seen licenses generated by Source Auditor Scanner.  Results should\
+    \ be manually verified."
+  licenseConcluded: "FSFULLR"
+  licenseInfoInFiles:
+  - "FSFULLR"
+  noticeText: "NOASSERTION"
+- SPDXID: "SPDXRef-141"
+  checksums:
+  - algorithm: "SHA1"
+    checksumValue: "61e10ebf66a35728c5913f253f897167ea41e37a"
+  comment: "BOMNOTE:File|; BOMNOTE:File|"
+  copyrightText: "Copyright Copyright (c) 2006, 2008-2018 Free Software Foundation,\
+    \ Inc."
+  fileName: "./time-1.9/m4/stdarg.m4"
+  fileTypes:
+  - "OTHER"
+  licenseComments: "Seen licenses generated by Source Auditor Scanner.  Results should\
+    \ be manually verified."
+  licenseConcluded: "FSFULLR"
+  licenseInfoInFiles:
+  - "FSFULLR"
+  noticeText: "NOASSERTION"
+- SPDXID: "SPDXRef-142"
+  checksums:
+  - algorithm: "SHA1"
+    checksumValue: "c90d4002ec2962aa6dd0df0bc4373efa14c0afff"
+  comment: "BOMNOTE:File|; BOMNOTE:File|"
+  copyrightText: "Copyright Copyright (c) 2002-2006, 2009-2018 Free Software Foundation,\
+    \ Inc."
+  fileName: "./time-1.9/m4/stdbool.m4"
+  fileTypes:
+  - "OTHER"
+  licenseComments: "Seen licenses generated by Source Auditor Scanner.  Results should\
+    \ be manually verified."
+  licenseConcluded: "FSFULLR"
+  licenseInfoInFiles:
+  - "FSFULLR"
+  noticeText: "NOASSERTION"
+- SPDXID: "SPDXRef-143"
+  checksums:
+  - algorithm: "SHA1"
+    checksumValue: "a4f53891f2b680e37df4e127485ab9b53d43011a"
+  comment: "BOMNOTE:File|; BOMNOTE:File|"
+  copyrightText: "Copyright Copyright (c) 2009-2018 Free Software Foundation, Inc."
+  fileName: "./time-1.9/m4/stddef_h.m4"
+  fileTypes:
+  - "OTHER"
+  licenseComments: "Seen licenses generated by Source Auditor Scanner.  Results should\
+    \ be manually verified."
+  licenseConcluded: "FSFULLR"
+  licenseInfoInFiles:
+  - "FSFULLR"
+  noticeText: "NOASSERTION"
+- SPDXID: "SPDXRef-144"
+  checksums:
+  - algorithm: "SHA1"
+    checksumValue: "9b7c39d49b752a4f719c46b97461d6d0a1597769"
+  comment: "BOMNOTE:File|; BOMNOTE:File|"
+  copyrightText: "Copyright Copyright (c) 2001-2018 Free Software Foundation, Inc."
+  fileName: "./time-1.9/m4/stdint.m4"
+  fileTypes:
+  - "OTHER"
+  licenseComments: "Seen licenses generated by Source Auditor Scanner.  Results should\
+    \ be manually verified."
+  licenseConcluded: "FSFULLR"
+  licenseInfoInFiles:
+  - "FSFULLR"
+  noticeText: "NOASSERTION"
+- SPDXID: "SPDXRef-145"
+  checksums:
+  - algorithm: "SHA1"
+    checksumValue: "81c420e632724d22ea54b5779054bc3c2297c428"
+  comment: "BOMNOTE:File|; BOMNOTE:File|"
+  copyrightText: "Copyright Copyright (c) 2007-2018 Free Software Foundation, Inc."
+  fileName: "./time-1.9/m4/stdio_h.m4"
+  fileTypes:
+  - "OTHER"
+  licenseComments: "Seen licenses generated by Source Auditor Scanner.  Results should\
+    \ be manually verified."
+  licenseConcluded: "FSFULLR"
+  licenseInfoInFiles:
+  - "FSFULLR"
+  noticeText: "NOASSERTION"
+- SPDXID: "SPDXRef-135"
+  checksums:
+  - algorithm: "SHA1"
+    checksumValue: "ea44004200391a17ce2b73bbf03777433557dff1"
+  comment: "BOMNOTE:File|; BOMNOTE:File|"
+  copyrightText: "Copyright Copyright (c) 2005, 2009-2018 Free Software Foundation,\
+    \ Inc."
+  fileName: "./time-1.9/m4/nocrash.m4"
+  fileTypes:
+  - "OTHER"
+  licenseComments: "Seen licenses generated by Source Auditor Scanner.  Results should\
+    \ be manually verified."
+  licenseConcluded: "FSFULLR"
+  licenseInfoInFiles:
+  - "FSFULLR"
+  noticeText: "NOASSERTION"
+- SPDXID: "SPDXRef-136"
+  checksums:
+  - algorithm: "SHA1"
+    checksumValue: "0e053bd9fa3c2eac0d1ca052abc00508fa1d1744"
+  comment: "BOMNOTE:File|; BOMNOTE:File|"
+  copyrightText: "Copyright Copyright (c) 2012-2018 Free Software Foundation, Inc."
+  fileName: "./time-1.9/m4/non-recursive-gnulib-prefix-hack.m4"
+  fileTypes:
+  - "OTHER"
+  licenseComments: "Seen licenses generated by Source Auditor Scanner.  Results should\
+    \ be manually verified."
+  licenseConcluded: "FSFULLR"
+  licenseInfoInFiles:
+  - "FSFULLR"
+  noticeText: "NOASSERTION"
+- SPDXID: "SPDXRef-137"
+  checksums:
+  - algorithm: "SHA1"
+    checksumValue: "715903370b49ca9a63c5f1f47e6e486e200a583c"
+  comment: "BOMNOTE:File|; BOMNOTE:File|"
+  copyrightText: "Copyright Copyright (c) 2012-2018 Free Software Foundation, Inc."
+  fileName: "./time-1.9/m4/off_t.m4"
+  fileTypes:
+  - "OTHER"
+  licenseComments: "Seen licenses generated by Source Auditor Scanner.  Results should\
+    \ be manually verified."
+  licenseConcluded: "FSFULLR"
+  licenseInfoInFiles:
+  - "FSFULLR"
+  noticeText: "NOASSERTION"
+- SPDXID: "SPDXRef-138"
+  checksums:
+  - algorithm: "SHA1"
+    checksumValue: "3ecb82b151002b56a1168f9f6c286dc5f7a9a585"
+  comment: "BOMNOTE:File|; BOMNOTE:File|"
+  copyrightText: "Copyright Copyright (c) 1995-2014, 2016 Free Software Foundation,\
+    \ Inc."
+  fileName: "./time-1.9/m4/po.m4"
+  fileTypes:
+  - "OTHER"
+  licenseComments: "Seen licenses generated by Source Auditor Scanner.  Results should\
+    \ be manually verified."
+  licenseConcluded: "FSFULLR"
+  licenseInfoInFiles:
+  - "FSFULLR"
+  noticeText: "NOASSERTION"
+- SPDXID: "SPDXRef-139"
+  checksums:
+  - algorithm: "SHA1"
+    checksumValue: "b7026df39567c215d2961618317820ab5838180f"
+  comment: "BOMNOTE:File|; BOMNOTE:File|"
+  copyrightText: "Copyright Copyright (c) 2007-2018 Free Software Foundation, Inc."
+  fileName: "./time-1.9/m4/signal_h.m4"
+  fileTypes:
+  - "OTHER"
+  licenseComments: "Seen licenses generated by Source Auditor Scanner.  Results should\
+    \ be manually verified."
+  licenseConcluded: "FSFULLR"
+  licenseInfoInFiles:
+  - "FSFULLR"
+  noticeText: "NOASSERTION"
+- SPDXID: "SPDXRef-130"
+  checksums:
+  - algorithm: "SHA1"
+    checksumValue: "80fb87dd762a265ce9919b69a5da0f4b8f46bf96"
+  comment: "BOMNOTE:File|; BOMNOTE:File|"
+  copyrightText: "Copyright Copyright (c) 1999-2007, 2009-2018 Free Software Foundation,\
+    \ Inc."
+  fileName: "./time-1.9/m4/longlong.m4"
+  fileTypes:
+  - "OTHER"
+  licenseComments: "Seen licenses generated by Source Auditor Scanner.  Results should\
+    \ be manually verified."
+  licenseConcluded: "FSFULLR"
+  licenseInfoInFiles:
+  - "FSFULLR"
+  noticeText: "NOASSERTION"
+- SPDXID: "SPDXRef-131"
+  checksums:
+  - algorithm: "SHA1"
+    checksumValue: "45e41f67310a6028b409c10da8f78f3ff783d0f0"
+  comment: "BOMNOTE:File|; BOMNOTE:File|"
+  copyrightText: "Copyright Copyright (c) 2007, 2009-2018 Free Software Foundation,\
+    \ Inc."
+  fileName: "./time-1.9/m4/malloc.m4"
+  fileTypes:
+  - "OTHER"
+  licenseComments: "Seen licenses generated by Source Auditor Scanner.  Results should\
+    \ be manually verified."
+  licenseConcluded: "FSFULLR"
+  licenseInfoInFiles:
+  - "FSFULLR"
+  noticeText: "NOASSERTION"
+- SPDXID: "SPDXRef-132"
+  checksums:
+  - algorithm: "SHA1"
+    checksumValue: "06b096bb430aaa6602ca9f00bbb9825975fcbee3"
+  comment: "BOMNOTE:File|; BOMNOTE:File|"
+  copyrightText: "Copyright Copyright (c) 2011-2018 Free Software Foundation, Inc."
+  fileName: "./time-1.9/m4/msvc-inval.m4"
+  fileTypes:
+  - "OTHER"
+  licenseComments: "Seen licenses generated by Source Auditor Scanner.  Results should\
+    \ be manually verified."
+  licenseConcluded: "FSFULLR"
+  licenseInfoInFiles:
+  - "FSFULLR"
+  noticeText: "NOASSERTION"
+- SPDXID: "SPDXRef-133"
+  checksums:
+  - algorithm: "SHA1"
+    checksumValue: "df8f6bc6c018dbc8d422d04f4997e5218851a907"
+  comment: "BOMNOTE:File|; BOMNOTE:File|"
+  copyrightText: "Copyright Copyright (c) 2011-2018 Free Software Foundation, Inc."
+  fileName: "./time-1.9/m4/msvc-nothrow.m4"
+  fileTypes:
+  - "OTHER"
+  licenseComments: "Seen licenses generated by Source Auditor Scanner.  Results should\
+    \ be manually verified."
+  licenseConcluded: "FSFULLR"
+  licenseInfoInFiles:
+  - "FSFULLR"
+  noticeText: "NOASSERTION"
+- SPDXID: "SPDXRef-134"
+  checksums:
+  - algorithm: "SHA1"
+    checksumValue: "a2dc0ad901c750e4d3a12ffd6f6181b4c22f5b66"
+  comment: "BOMNOTE:File|; BOMNOTE:File|"
+  copyrightText: "Copyright Copyright (c) 2008-2018 Free Software Foundation, Inc."
+  fileName: "./time-1.9/m4/multiarch.m4"
+  fileTypes:
+  - "OTHER"
+  licenseComments: "Seen licenses generated by Source Auditor Scanner.  Results should\
+    \ be manually verified."
+  licenseConcluded: "FSFULLR"
+  licenseInfoInFiles:
+  - "FSFULLR"
+  noticeText: "NOASSERTION"
+- SPDXID: "SPDXRef-102"
+  checksums:
+  - algorithm: "SHA1"
+    checksumValue: "3b506e038f9d6bcfd9329d7395272c91691566d2"
+  comment: "BOMNOTE:Directory|;  BOMNOTE:Directory|"
+  copyrightText: "Copyright Free Software Foundation, Inc, to the   symbol, leave\
+    \ it as-is"
+  fileName: "./time-1.9/lib/version-etc.c"
+  fileTypes:
+  - "SOURCE"
+  licenseComments: "Seen licenses generated by Source Auditor Scanner.  Results should\
+    \ be manually verified."
+  licenseConcluded: "GPL-3.0-or-later"
+  licenseInfoInFiles:
+  - "LicenseRef-gpl-3.0-plus"
+  noticeText: "NOASSERTION"
+- SPDXID: "SPDXRef-103"
+  checksums:
+  - algorithm: "SHA1"
+    checksumValue: "f07b122e461940e6406062e047674916b23ec8dd"
+  comment: "BOMNOTE:Directory|;  BOMNOTE:Directory|"
+  copyrightText: "Copyright Free Software Foundation, Inc"
+  fileName: "./time-1.9/lib/version-etc.h"
+  fileTypes:
+  - "SOURCE"
+  licenseComments: "Seen licenses generated by Source Auditor Scanner.  Results should\
+    \ be manually verified."
+  licenseConcluded: "GPL-3.0-or-later"
+  licenseInfoInFiles:
+  - "(LicenseRef-gpl-3.0-plus AND LicenseRef-GPL-Keywords)"
+  noticeText: "NOASSERTION"
+- SPDXID: "SPDXRef-104"
+  checksums:
+  - algorithm: "SHA1"
+    checksumValue: "29e07e0a938ae7ee9b3248ed0d87efaf22fc8ff1"
+  comment: "BOMNOTE:Directory|;  BOMNOTE:Directory|"
+  copyrightText: "Copyright Free Software Foundation, Inc"
+  fileName: "./time-1.9/lib/warn-on-use.h"
+  fileTypes:
+  - "SOURCE"
+  licenseComments: "Seen licenses generated by Source Auditor Scanner.  Results should\
+    \ be manually verified."
+  licenseConcluded: "GPL-3.0-or-later"
+  licenseInfoInFiles:
+  - "LicenseRef-gpl-3.0-plus"
+  noticeText: "NOASSERTION"
+- SPDXID: "SPDXRef-105"
+  checksums:
+  - algorithm: "SHA1"
+    checksumValue: "1f64b11327ec515b28fa1e0300ec147259a98517"
+  comment: "BOMNOTE:Directory|"
+  copyrightText: "NOASSERTION"
+  fileName: "./time-1.9/lib/_Noreturn.h"
+  fileTypes:
+  - "SOURCE"
+  licenseConcluded: "GPL-3.0-or-later"
+  licenseInfoInFiles:
+  - "NOASSERTION"
+  noticeText: "NOASSERTION"
+- SPDXID: "SPDXRef-106"
+  checksums:
+  - algorithm: "SHA1"
+    checksumValue: "fe5097e87aae81d8dd2d5d735a83ac13e407b4fa"
+  comment: "BOMNOTE:File|; BOMNOTE:File|"
+  copyrightText: "Copyright Copyright (c) 2009-2018 Free Software Foundation, Inc."
+  fileName: "./time-1.9/m4/00gnulib.m4"
+  fileTypes:
+  - "OTHER"
+  licenseComments: "Seen licenses generated by Source Auditor Scanner.  Results should\
+    \ be manually verified."
+  licenseConcluded: "FSFULLR"
+  licenseInfoInFiles:
+  - "FSFULLR"
+  noticeText: "NOASSERTION"
+- SPDXID: "SPDXRef-107"
+  checksums:
+  - algorithm: "SHA1"
+    checksumValue: "a72188b2609d6614aadc1681f83e2cd146d85cf5"
+  comment: "BOMNOTE:File|; BOMNOTE:File|"
+  copyrightText: "Copyright Copyright (c) 2006-2018 Free Software Foundation, Inc."
+  fileName: "./time-1.9/m4/absolute-header.m4"
+  fileTypes:
+  - "OTHER"
+  licenseComments: "Seen licenses generated by Source Auditor Scanner.  Results should\
+    \ be manually verified."
+  licenseConcluded: "FSFULLR"
+  licenseInfoInFiles:
+  - "FSFULLR"
+  noticeText: "NOASSERTION"
+- SPDXID: "SPDXRef-108"
+  checksums:
+  - algorithm: "SHA1"
+    checksumValue: "a4ba397ec4fdc4edb97e2503831a3207eefd2de7"
+  comment: "BOMNOTE:File|; BOMNOTE:File|"
+  copyrightText: "Copyright Copyright (c) 2010-2018 Free Software Foundation, Inc."
+  fileName: "./time-1.9/m4/asm-underscore.m4"
+  fileTypes:
+  - "OTHER"
+  licenseComments: "Seen licenses generated by Source Auditor Scanner.  Results should\
+    \ be manually verified."
+  licenseConcluded: "FSFULLR"
+  licenseInfoInFiles:
+  - "FSFULLR"
+  noticeText: "NOASSERTION"
+- SPDXID: "SPDXRef-109"
+  checksums:
+  - algorithm: "SHA1"
+    checksumValue: "8d26f70ddbc7eb04df51c2c0aa1b0959d73079d3"
+  comment: "BOMNOTE:File|; BOMNOTE:File|"
+  copyrightText: "Copyright Copyright (c) 2002-2006, 2009-2018 Free Software Foundation,\
+    \ Inc."
+  fileName: "./time-1.9/m4/dirname.m4"
+  fileTypes:
+  - "OTHER"
+  licenseComments: "Seen licenses generated by Source Auditor Scanner.  Results should\
+    \ be manually verified."
+  licenseConcluded: "FSFULLR"
+  licenseInfoInFiles:
+  - "FSFULLR"
+  noticeText: "NOASSERTION"
+- SPDXID: "SPDXRef-100"
+  checksums:
+  - algorithm: "SHA1"
+    checksumValue: "9d8ff6980c77aced82d8f5921caef3401d1a7203"
+  comment: "BOMNOTE:Directory|;  BOMNOTE:Directory|"
+  copyrightText: "Copyright Free Software Foundation, Inc"
+  fileName: "./time-1.9/lib/verify.h"
+  fileTypes:
+  - "SOURCE"
+  licenseComments: "Seen licenses generated by Source Auditor Scanner.  Results should\
+    \ be manually verified."
+  licenseConcluded: "GPL-3.0-or-later"
+  licenseInfoInFiles:
+  - "(LicenseRef-gpl-3.0-plus AND BSD-4-Clause)"
+  noticeText: "NOASSERTION"
+- SPDXID: "SPDXRef-101"
+  checksums:
+  - algorithm: "SHA1"
+    checksumValue: "91f0899f3c6b31c2908224bfa60f95c18e4383fc"
+  comment: "BOMNOTE:Directory|;  BOMNOTE:Directory|"
+  copyrightText: "Copyright Copyright d Free Software Foundation, Inc., Copyright\
+    \ (c) 1999-2006, 2009-2018 Free Software Foundation, Inc., goes to the FSF, information,\
+    \ for version-etc"
+  fileName: "./time-1.9/lib/version-etc-fsf.c"
+  fileTypes:
+  - "SOURCE"
+  licenseComments: "Seen licenses generated by Source Auditor Scanner.  Results should\
+    \ be manually verified."
+  licenseConcluded: "GPL-3.0-or-later"
+  licenseInfoInFiles:
+  - "LicenseRef-gpl-3.0-plus"
+  noticeText: "NOASSERTION"
+- SPDXID: "SPDXRef-18"
+  checksums:
+  - algorithm: "SHA1"
+    checksumValue: "45053d3e25fb26a5b3c4a00a23d6b572086a2445"
+  comment: "BOMNOTE:File|; BOMNOTE:File|"
+  copyrightText: "Copyright Copyright (c) 1994 X Consortium"
+  fileName: "./time-1.9/build-aux/install-sh"
+  fileTypes:
+  - "OTHER"
+  licenseComments: "Seen licenses generated by Source Auditor Scanner.  Results should\
+    \ be manually verified."
+  licenseConcluded: "X11"
+  licenseInfoInFiles:
+  - "(X11 AND LicenseRef-Public-Domain)"
+  noticeText: "NOASSERTION"
+- SPDXID: "SPDXRef-16"
+  checksums:
+  - algorithm: "SHA1"
+    checksumValue: "d42f8fbf99b9d9967c976f4501dca68266768aae"
+  comment: "BOMNOTE:File|; BOMNOTE:File|"
+  copyrightText: "Copyright Copyright (c) 2008-2018 Free Software Foundation, Inc."
+  fileName: "./time-1.9/build-aux/gitlog-to-changelog"
+  fileTypes:
+  - "OTHER"
+  licenseComments: "Seen licenses generated by Source Auditor Scanner.  Results should\
+    \ be manually verified."
+  licenseConcluded: "GPL-3.0-or-later"
+  licenseInfoInFiles:
+  - "LicenseRef-gpl-3.0-plus"
+  noticeText: "NOASSERTION"
+- SPDXID: "SPDXRef-14"
+  checksums:
+  - algorithm: "SHA1"
+    checksumValue: "9145fb9ee80ba23ed781baf42f08b32e53c5c384"
+  comment: "BOMNOTE:File|;  BOMNOTE:File|"
+  copyrightText: "Copyright Copyright 2011 Free Software Foundation, Inc. There, Copyright\
+    \ (c) 2007-2018 Free Software Foundation, Inc."
+  fileName: "./time-1.9/build-aux/git-version-gen"
+  fileTypes:
+  - "OTHER"
+  licenseComments: "Seen licenses generated by Source Auditor Scanner.  Results should\
+    \ be manually verified."
+  licenseConcluded: "GPL-3.0-or-later"
+  licenseInfoInFiles:
+  - "(LicenseRef-gpl-3.0-plus AND LicenseRef-gpl-1.0-plus)"
+  noticeText: "NOASSERTION"
+- SPDXID: "SPDXRef-13"
+  checksums:
+  - algorithm: "SHA1"
+    checksumValue: "81388f72975aa969aae12bb81472ade0d5f62c10"
+  comment: "BOMNOTE:File|; BOMNOTE:File|"
+  copyrightText: "Copyright Copyright (c) 1999-2018 Free Software Foundation, Inc."
+  fileName: "./time-1.9/build-aux/depcomp"
+  fileTypes:
+  - "OTHER"
+  licenseComments: "Seen licenses generated by Source Auditor Scanner.  Results should\
+    \ be manually verified."
+  licenseConcluded: "GPL-2.0-or-later WITH Autoconf-exception-2.0"
+  licenseInfoInFiles:
+  - "(LicenseRef-autoconf-simple-exception-2.0 AND LicenseRef-gpl-2.0-plus)"
+  noticeText: "NOASSERTION"
+- SPDXID: "SPDXRef-11"
+  checksums:
+  - algorithm: "SHA1"
+    checksumValue: "847084fc5a4190626624f6629e3782614414973c"
+  comment: "BOMNOTE:File|; BOMNOTE:File|"
+  copyrightText: "Copyright Copyright 1992-2018 Free Software Foundation, Inc."
+  fileName: "./time-1.9/build-aux/config.sub"
+  fileTypes:
+  - "OTHER"
+  licenseComments: "Seen licenses generated by Source Auditor Scanner.  Results should\
+    \ be manually verified."
+  licenseConcluded: "GPL-3.0-or-later WITH Autoconf-exception-3.0"
+  licenseInfoInFiles:
+  - "(LicenseRef-gpl-3.0-plus AND LicenseRef-free-unknown AND LicenseRef-autoconf-simple-exception)"
+  noticeText: "NOASSERTION"
+- SPDXID: "SPDXRef-27"
+  checksums:
+  - algorithm: "SHA1"
+    checksumValue: "8bc335752c95905823f68cc74fff9b100b211e62"
+  comment: "BOMNOTE:File|; BOMNOTE:File|"
+  copyrightText: "Copyright Copyright (c) 2008-2018 Free Software Foundation, Inc."
+  fileName: "./time-1.9/build-aux/useless-if-before-free"
+  fileTypes:
+  - "OTHER"
+  licenseComments: "Seen licenses generated by Source Auditor Scanner.  Results should\
+    \ be manually verified."
+  licenseConcluded: "GPL-3.0-or-later"
+  licenseInfoInFiles:
+  - "LicenseRef-gpl-3.0-plus"
+  noticeText: "NOASSERTION"
+- SPDXID: "SPDXRef-28"
+  checksums:
+  - algorithm: "SHA1"
+    checksumValue: "8f030960a3b263f581ca7f85b172bcaee7378380"
+  comment: "BOMNOTE:File|; BOMNOTE:File|"
+  copyrightText: "Copyright Copyright (c) $year Free Software Foundation, Inc, Copyright\
+    \ (c) 2006-2018 Free Software Foundation, Inc."
+  fileName: "./time-1.9/build-aux/vc-list-files"
+  fileTypes:
+  - "OTHER"
+  licenseComments: "Seen licenses generated by Source Auditor Scanner.  Results should\
+    \ be manually verified."
+  licenseConcluded: "GPL-3.0-or-later"
+  licenseInfoInFiles:
+  - "LicenseRef-gpl-3.0-plus"
+  noticeText: "NOASSERTION"
+- SPDXID: "SPDXRef-26"
+  checksums:
+  - algorithm: "SHA1"
+    checksumValue: "07ff1cb1250c2d91aff08a8f5e872933c6523de4"
+  comment: "BOMNOTE:File|; BOMNOTE:File|"
+  copyrightText: "Copyright C. copyright D. (c), A. (c) B. (c), Copyright (c) 90,2005,2007-2009\
+    \ Free Software Foundation, Inc., Copyright (c) 1990-2005, 2007-2009 Free Software\
+    \ Foundation, Inc., Copyright 1990-2005, 2007-2009 Free Software Foundation, Inc.,\
+    \ Copyright (c) 2009-2018 Free Software Foundation, Inc."
+  fileName: "./time-1.9/build-aux/update-copyright"
+  fileTypes:
+  - "OTHER"
+  licenseComments: "Seen licenses generated by Source Auditor Scanner.  Results should\
+    \ be manually verified."
+  licenseConcluded: "GPL-3.0-or-later"
+  licenseInfoInFiles:
+  - "LicenseRef-gpl-3.0-plus"
+  noticeText: "NOASSERTION"
+- SPDXID: "SPDXRef-23"
+  checksums:
+  - algorithm: "SHA1"
+    checksumValue: "ebabeb373c5af3b8606b510a2494955e34325d8a"
+  comment: "BOMNOTE:File|; BOMNOTE:File|"
+  copyrightText: "Copyright Copyright (c) 2011-2014 Free Software Foundation, Inc."
+  fileName: "./time-1.9/build-aux/test-driver"
+  fileTypes:
+  - "OTHER"
+  licenseComments: "Seen licenses generated by Source Auditor Scanner.  Results should\
+    \ be manually verified."
+  licenseConcluded: "GPL-2.0-or-later WITH Autoconf-exception-2.0"
+  licenseInfoInFiles:
+  - "(LicenseRef-autoconf-simple-exception-2.0 AND LicenseRef-gpl-2.0-plus)"
+  noticeText: "NOASSERTION"
+- SPDXID: "SPDXRef-24"
+  checksums:
+  - algorithm: "SHA1"
+    checksumValue: "85493d1ff3bccecb5e09634b779acc65f2250d83"
+  comment: "BOMNOTE:File|; BOMNOTE:File|"
+  copyrightText: "Copyright Copyright 1985, 1986, 1988, 1990, 1991, 1992, 1993, 1994,\
+    \ 1995, 1996, 1997, 1998, 1999, 2000, 2001, 2002, 2003, 2004, 2005, 2006, 2007,\
+    \ 2008, 2009, 2010, 2011, 2012, 2013, 2014, 2015, 2016, 2017, 2018"
+  fileName: "./time-1.9/build-aux/texinfo.tex"
+  fileTypes:
+  - "OTHER"
+  licenseComments: "Seen licenses generated by Source Auditor Scanner.  Results should\
+    \ be manually verified."
+  licenseConcluded: "LicenseRef-1"
+  licenseInfoInFiles:
+  - "(LicenseRef-gpl-3.0-plus AND LicenseRef-tex-exception AND LicenseRef-gpl-1.0-plus)"
+  noticeText: "NOASSERTION"
+- SPDXID: "SPDXRef-21"
+  checksums:
+  - algorithm: "SHA1"
+    checksumValue: "fced81554799feb0f10fb56e3a06acb92c7ce7b0"
+  comment: "BOMNOTE:File|; BOMNOTE:File|"
+  copyrightText: "Copyright Copyright (c) 1996-2014 Free Software Foundation, Inc."
+  fileName: "./time-1.9/build-aux/missing"
+  fileTypes:
+  - "OTHER"
+  licenseComments: "Seen licenses generated by Source Auditor Scanner.  Results should\
+    \ be manually verified."
+  licenseConcluded: "GPL-2.0-or-later WITH Autoconf-exception-2.0"
+  licenseInfoInFiles:
+  - "(LicenseRef-autoconf-simple-exception-2.0 AND LicenseRef-gpl-2.0-plus)"
+  noticeText: "NOASSERTION"
+- SPDXID: "SPDXRef-22"
+  checksums:
+  - algorithm: "SHA1"
+    checksumValue: "d3b0652874bfa83f7519ca90b82710e7fa76cc00"
+  comment: "BOMNOTE:File|"
+  copyrightText: "NOASSERTION"
+  fileName: "./time-1.9/build-aux/prefix-gnulib-mk"
+  fileTypes:
+  - "OTHER"
+  licenseConcluded: "GPL-3.0-or-later"
+  licenseInfoInFiles:
+  - "NOASSERTION"
+  noticeText: "NOASSERTION"
+- SPDXID: "SPDXRef-20"
+  checksums:
+  - algorithm: "SHA1"
+    checksumValue: "95d39f2b33a700f674893faf568442c2f898999a"
+  comment: "BOMNOTE:File|; BOMNOTE:File|"
+  copyrightText: "Copyright Copyright (c) 1995-2018 Free Software Foundation, Inc."
+  fileName: "./time-1.9/build-aux/mdate-sh"
+  fileTypes:
+  - "OTHER"
+  licenseComments: "Seen licenses generated by Source Auditor Scanner.  Results should\
+    \ be manually verified."
+  licenseConcluded: "GPL-2.0-or-later WITH Autoconf-exception-2.0"
+  licenseInfoInFiles:
+  - "(LicenseRef-autoconf-simple-exception-2.0 AND LicenseRef-gpl-2.0-plus)"
+  noticeText: "NOASSERTION"
+- SPDXID: "SPDXRef-38"
+  checksums:
+  - algorithm: "SHA1"
+    checksumValue: "8a9b21d1d5d8fac7d4343457cb930f376f415b48"
+  copyrightText: "Copyright Copyright 1991-2018 Free Software Foundation, Inc."
+  fileName: "./time-1.9/doc/time.texi"
+  fileTypes:
+  - "OTHER"
+  licenseComments: "Seen licenses generated by Source Auditor Scanner.  Results should\
+    \ be manually verified."
+  licenseConcluded: "GFDL-1.3-or-later"
+  licenseInfoInFiles:
+  - "(LicenseRef-GFDL-1.3-or-later-plus AND LicenseRef-gfdl-1.1-plus)"
+  noticeText: "NOASSERTION"
+- SPDXID: "SPDXRef-39"
+  checksums:
+  - algorithm: "SHA1"
+    checksumValue: "b8704559c36de165e01c23b7a084035cd757ed39"
+  copyrightText: "NOASSERTION"
+  fileName: "./time-1.9/doc/version.texi"
+  fileTypes:
+  - "OTHER"
+  licenseConcluded: "GFDL-1.3-or-later"
+  licenseInfoInFiles:
+  - "NOASSERTION"
+  noticeText: "NOASSERTION"
+- SPDXID: "SPDXRef-36"
+  checksums:
+  - algorithm: "SHA1"
+    checksumValue: "b8704559c36de165e01c23b7a084035cd757ed39"
+  copyrightText: "NOASSERTION"
+  fileName: "./time-1.9/doc/stamp-vti"
+  fileTypes:
+  - "OTHER"
+  licenseConcluded: "GFDL-1.3-or-later"
+  licenseInfoInFiles:
+  - "NOASSERTION"
+  noticeText: "NOASSERTION"
+- SPDXID: "SPDXRef-37"
+  checksums:
+  - algorithm: "SHA1"
+    checksumValue: "b11d29e1de8f333ca0839a4315d5c20d921fb67d"
+  copyrightText: "Copyright Copyright (c) 2000, 2001, 2002, 2007, 2008 Free Software\
+    \ Foundation, Inc. <https://fsf.org/>, Copyright (c) 1991-2018 Free Software Foundation,\
+    \ Inc."
+  fileName: "./time-1.9/doc/time.info"
+  fileTypes:
+  - "OTHER"
+  licenseComments: "Seen licenses generated by Source Auditor Scanner.  Results should\
+    \ be manually verified."
+  licenseConcluded: "GFDL-1.3-or-later"
+  licenseInfoInFiles:
+  - "(LicenseRef-GFDL-1.3-or-later-plus AND LicenseRef-gfdl-1.1-plus AND GFDL-1.3-or-later)"
+  noticeText: "NOASSERTION"
+- SPDXID: "SPDXRef-34"
+  checksums:
+  - algorithm: "SHA1"
+    checksumValue: "8624bcdae55baeef00cd11d5dfcfa60f68710a02"
+  copyrightText: "Copyright Copyright (c) 2007 Free Software Foundation, Inc. <http://fsf.org/>"
+  fileName: "./time-1.9/COPYING"
+  fileTypes:
+  - "OTHER"
+  licenseComments: "Seen licenses generated by Source Auditor Scanner.  Results should\
+    \ be manually verified."
+  licenseConcluded: "GPL-3.0-or-later"
+  licenseInfoInFiles:
+  - "LicenseRef-gpl-3.0"
+  noticeText: "NOASSERTION"
+- SPDXID: "SPDXRef-35"
+  checksums:
+  - algorithm: "SHA1"
+    checksumValue: "b325d74cd9fcecf5e9472248c2ce93ba2bda2c16"
+  copyrightText: "Copyright Copyright 2000, 2001, 2002, 2007, 2008 Free Software Foundation,\
+    \ Inc. uref https://fsf.org"
+  fileName: "./time-1.9/doc/fdl.texi"
+  fileTypes:
+  - "OTHER"
+  licenseComments: "Seen licenses generated by Source Auditor Scanner.  Results should\
+    \ be manually verified."
+  licenseConcluded: "GFDL-1.3-or-later"
+  licenseInfoInFiles:
+  - "GFDL-1.3-or-later"
+  noticeText: "NOASSERTION"
+- SPDXID: "SPDXRef-32"
+  checksums:
+  - algorithm: "SHA1"
+    checksumValue: "564ec5e88fd08269c512141b1df1257eb1583e15"
+  comment: "BOMNOTE:File|; BOMNOTE:File|"
+  copyrightText: "Copyright Copyright (c) 2012 Free Software Foundation, Inc., Copyright\
+    \ (c) 1992-1996, 1998-2012 Free Software Foundation, Inc."
+  fileName: "./time-1.9/configure"
+  fileTypes:
+  - "OTHER"
+  licenseComments: "Seen licenses generated by Source Auditor Scanner.  Results should\
+    \ be manually verified."
+  licenseConcluded: "FSFULLR"
+  licenseInfoInFiles:
+  - "FSFUL"
+  noticeText: "NOASSERTION"
+- SPDXID: "SPDXRef-33"
+  checksums:
+  - algorithm: "SHA1"
+    checksumValue: "7ff96aba93c8885a48dda73d892dda8b0063e73c"
+  copyrightText: "NOASSERTION"
+  fileName: "./time-1.9/configure.ac"
+  fileTypes:
+  - "OTHER"
+  licenseConcluded: "GPL-3.0-or-later"
+  licenseInfoInFiles:
+  - "NOASSERTION"
+  noticeText: "NOASSERTION"
+- SPDXID: "SPDXRef-30"
+  checksums:
+  - algorithm: "SHA1"
+    checksumValue: "0a3a0e1ab72b7c132f5021c538a7a3ea6d539bcd"
+  copyrightText: "NOASSERTION"
+  fileName: "./time-1.9/ChangeLog"
+  fileTypes:
+  - "OTHER"
+  licenseComments: "Seen licenses generated by Source Auditor Scanner.  Results should\
+    \ be manually verified."
+  licenseConcluded: "GPL-3.0-or-later"
+  licenseInfoInFiles:
+  - "LicenseRef-gpl-3.0"
+  noticeText: "NOASSERTION"
+- SPDXID: "SPDXRef-31"
+  checksums:
+  - algorithm: "SHA1"
+    checksumValue: "a3ee869fd47d2e99f5d7b98b201ef4a7e9309542"
+  copyrightText: "NOASSERTION"
+  fileName: "./time-1.9/config.in"
+  fileTypes:
+  - "OTHER"
+  licenseConcluded: "GPL-3.0-or-later"
+  licenseInfoInFiles:
+  - "NOASSERTION"
+  noticeText: "NOASSERTION"
+- SPDXID: "SPDXRef-49"
+  checksums:
+  - algorithm: "SHA1"
+    checksumValue: "51c5dbea1f25643589da0c47cccda59b406919d9"
+  comment: "BOMNOTE:Directory|;  BOMNOTE:Directory|"
+  copyrightText: "Copyright Free Software Foundation, Inc"
+  fileName: "./time-1.9/lib/errno.in.h"
+  fileTypes:
+  - "SOURCE"
+  licenseComments: "Seen licenses generated by Source Auditor Scanner.  Results should\
+    \ be manually verified."
+  licenseConcluded: "GPL-3.0-or-later"
+  licenseInfoInFiles:
+  - "(LicenseRef-gpl-3.0-plus AND BSD-4-Clause)"
+  noticeText: "NOASSERTION"
+- SPDXID: "SPDXRef-40"
+  checksums:
+  - algorithm: "SHA1"
+    checksumValue: "8cc0a9e05e94ebcb65085d8be9c2d335facbbbcc"
+  copyrightText: "Copyright Copyright (c) 2001, 2003, 2006-2018 Free Software Foundation,\
+    \ Inc."
+  fileName: "./time-1.9/GNUmakefile"
+  fileTypes:
+  - "OTHER"
+  licenseComments: "Seen licenses generated by Source Auditor Scanner.  Results should\
+    \ be manually verified."
+  licenseConcluded: "GPL-3.0-or-later"
+  licenseInfoInFiles:
+  - "LicenseRef-gpl-3.0-plus"
+  noticeText: "NOASSERTION"
+- SPDXID: "SPDXRef-47"
+  checksums:
+  - algorithm: "SHA1"
+    checksumValue: "55401f622fda3e3f785d3060598f45955973489a"
+  comment: "BOMNOTE:Directory|;  BOMNOTE:Directory|"
+  copyrightText: "Copyright Free Software Foundation"
+  fileName: "./time-1.9/lib/dirname.h"
+  fileTypes:
+  - "SOURCE"
+  licenseComments: "Seen licenses generated by Source Auditor Scanner.  Results should\
+    \ be manually verified."
+  licenseConcluded: "GPL-3.0-or-later"
+  licenseInfoInFiles:
+  - "LicenseRef-gpl-3.0-plus"
+  noticeText: "NOASSERTION"
+- SPDXID: "SPDXRef-48"
+  checksums:
+  - algorithm: "SHA1"
+    checksumValue: "d9beea323c6e885ad2af38b958f90edab03ad791"
+  comment: "BOMNOTE:Directory|;  BOMNOTE:Directory|"
+  copyrightText: "Copyright Free Software Foundation, Inc"
+  fileName: "./time-1.9/lib/dosname.h"
+  fileTypes:
+  - "SOURCE"
+  licenseComments: "Seen licenses generated by Source Auditor Scanner.  Results should\
+    \ be manually verified."
+  licenseConcluded: "GPL-3.0-or-later"
+  licenseInfoInFiles:
+  - "LicenseRef-gpl-3.0-plus"
+  noticeText: "NOASSERTION"
+- SPDXID: "SPDXRef-45"
+  checksums:
+  - algorithm: "SHA1"
+    checksumValue: "4812e217ecdbb32a4adb9c3c2724ceb8f4ebabc1"
+  comment: "BOMNOTE:Directory|;  BOMNOTE:Directory|"
+  copyrightText: "Copyright Free Software Foundation, Inc"
+  fileName: "./time-1.9/lib/c++defs.h"
+  fileTypes:
+  - "SOURCE"
+  licenseComments: "Seen licenses generated by Source Auditor Scanner.  Results should\
+    \ be manually verified."
+  licenseConcluded: "GPL-3.0-or-later"
+  licenseInfoInFiles:
+  - "LicenseRef-gpl-3.0-plus"
+  noticeText: "NOASSERTION"
+- SPDXID: "SPDXRef-46"
+  checksums:
+  - algorithm: "SHA1"
+    checksumValue: "d5f42477ac5f44d3f9fc3369e07fb838852a5f74"
+  comment: "BOMNOTE:Directory|;  BOMNOTE:Directory|"
+  copyrightText: "Copyright Free Software"
+  fileName: "./time-1.9/lib/dirname-lgpl.c"
+  fileTypes:
+  - "SOURCE"
+  licenseComments: "Seen licenses generated by Source Auditor Scanner.  Results should\
+    \ be manually verified."
+  licenseConcluded: "GPL-3.0-or-later"
+  licenseInfoInFiles:
+  - "LicenseRef-gpl-3.0-plus"
+  noticeText: "NOASSERTION"
+- SPDXID: "SPDXRef-43"
+  checksums:
+  - algorithm: "SHA1"
+    checksumValue: "ba8c225a8601ead39e8ebc493e9fee13428dead6"
+  comment: "BOMNOTE:Directory|;  BOMNOTE:Directory|"
+  copyrightText: "Copyright Free Software Foundation, Inc"
+  fileName: "./time-1.9/lib/arg-nonnull.h"
+  fileTypes:
+  - "SOURCE"
+  licenseComments: "Seen licenses generated by Source Auditor Scanner.  Results should\
+    \ be manually verified."
+  licenseConcluded: "GPL-3.0-or-later"
+  licenseInfoInFiles:
+  - "LicenseRef-gpl-3.0-plus"
+  noticeText: "NOASSERTION"
+- SPDXID: "SPDXRef-44"
+  checksums:
+  - algorithm: "SHA1"
+    checksumValue: "f3bf19e8ac996910db6a7d72585fb6ac6cdcd378"
+  comment: "BOMNOTE:Directory|;  BOMNOTE:Directory|"
+  copyrightText: "Copyright Free Software"
+  fileName: "./time-1.9/lib/basename-lgpl.c"
+  fileTypes:
+  - "SOURCE"
+  licenseComments: "Seen licenses generated by Source Auditor Scanner.  Results should\
+    \ be manually verified."
+  licenseConcluded: "GPL-3.0-or-later"
+  licenseInfoInFiles:
+  - "LicenseRef-gpl-3.0-plus"
+  noticeText: "NOASSERTION"
+- SPDXID: "SPDXRef-41"
+  checksums:
+  - algorithm: "SHA1"
+    checksumValue: "ed90eb318bd3ebb4ae1a2bd352f106786a2923f4"
+  comment: "BOMNOTE:File|; BOMNOTE:File|"
+  copyrightText: "Copyright Copyright (c) 1994-1996, 1999-2002, 2004-2016 Free Software\
+    \ Foundation, Inc."
+  fileName: "./time-1.9/INSTALL"
+  fileTypes:
+  - "OTHER"
+  licenseComments: "Seen licenses generated by Source Auditor Scanner.  Results should\
+    \ be manually verified."
+  licenseConcluded: "FSFAP"
+  licenseInfoInFiles:
+  - "FSFAP"
+  noticeText: "NOASSERTION"
+relationships:
+- spdxElementId: "SPDXRef-DOCUMENT"
+  relatedSpdxElement: "SPDXRef-1"
+  relationshipType: "DESCRIBES"
+- spdxElementId: "SPDXRef-7"
+  relatedSpdxElement: "SPDXRef-8"
+  relationshipType: "CONTAINED_BY"
+- spdxElementId: "SPDXRef-7"
+  relatedSpdxElement: "SPDXRef-1"
+  relationshipType: "BUILD_TOOL_OF"
+- spdxElementId: "SPDXRef-9"
+  relatedSpdxElement: "SPDXRef-10"
+  relationshipType: "CONTAINED_BY"
+- spdxElementId: "SPDXRef-9"
+  relatedSpdxElement: "SPDXRef-1"
+  relationshipType: "BUILD_TOOL_OF"
+- spdxElementId: "SPDXRef-5"
+  relatedSpdxElement: "SPDXRef-6"
+  relationshipType: "CONTAINED_BY"
+- spdxElementId: "SPDXRef-5"
+  relatedSpdxElement: "SPDXRef-1"
+  relationshipType: "BUILD_TOOL_OF"
+- spdxElementId: "SPDXRef-2"
+  relatedSpdxElement: "SPDXRef-6"
+  relationshipType: "GENERATED_FROM"
+- spdxElementId: "SPDXRef-2"
+  relatedSpdxElement: "SPDXRef-1"
+  relationshipType: "BUILD_TOOL_OF"
+- spdxElementId: "SPDXRef-50"
+  relatedSpdxElement: "SPDXRef-1"
+  relationshipType: "CONTAINED_BY"
+- spdxElementId: "SPDXRef-50"
+  relatedSpdxElement: "SPDXRef-17"
+  relationshipType: "CONTAINED_BY"
+- spdxElementId: "SPDXRef-51"
+  relatedSpdxElement: "SPDXRef-1"
+  relationshipType: "CONTAINED_BY"
+- spdxElementId: "SPDXRef-51"
+  relatedSpdxElement: "SPDXRef-17"
+  relationshipType: "CONTAINED_BY"
+- spdxElementId: "SPDXRef-58"
+  relatedSpdxElement: "SPDXRef-1"
+  relationshipType: "CONTAINED_BY"
+- spdxElementId: "SPDXRef-58"
+  relatedSpdxElement: "SPDXRef-17"
+  relationshipType: "CONTAINED_BY"
+- spdxElementId: "SPDXRef-160"
+  relatedSpdxElement: "SPDXRef-6"
+  relationshipType: "GENERATED_FROM"
+- spdxElementId: "SPDXRef-160"
+  relatedSpdxElement: "SPDXRef-1"
+  relationshipType: "BUILD_TOOL_OF"
+- spdxElementId: "SPDXRef-59"
+  relatedSpdxElement: "SPDXRef-1"
+  relationshipType: "CONTAINED_BY"
+- spdxElementId: "SPDXRef-59"
+  relatedSpdxElement: "SPDXRef-17"
+  relationshipType: "CONTAINED_BY"
+- spdxElementId: "SPDXRef-161"
+  relatedSpdxElement: "SPDXRef-6"
+  relationshipType: "GENERATED_FROM"
+- spdxElementId: "SPDXRef-161"
+  relatedSpdxElement: "SPDXRef-1"
+  relationshipType: "BUILD_TOOL_OF"
+- spdxElementId: "SPDXRef-56"
+  relatedSpdxElement: "SPDXRef-1"
+  relationshipType: "CONTAINED_BY"
+- spdxElementId: "SPDXRef-56"
+  relatedSpdxElement: "SPDXRef-17"
+  relationshipType: "CONTAINED_BY"
+- spdxElementId: "SPDXRef-57"
+  relatedSpdxElement: "SPDXRef-1"
+  relationshipType: "CONTAINED_BY"
+- spdxElementId: "SPDXRef-57"
+  relatedSpdxElement: "SPDXRef-17"
+  relationshipType: "CONTAINED_BY"
+- spdxElementId: "SPDXRef-164"
+  relatedSpdxElement: "SPDXRef-6"
+  relationshipType: "GENERATED_FROM"
+- spdxElementId: "SPDXRef-164"
+  relatedSpdxElement: "SPDXRef-1"
+  relationshipType: "BUILD_TOOL_OF"
+- spdxElementId: "SPDXRef-54"
+  relatedSpdxElement: "SPDXRef-1"
+  relationshipType: "CONTAINED_BY"
+- spdxElementId: "SPDXRef-54"
+  relatedSpdxElement: "SPDXRef-17"
+  relationshipType: "CONTAINED_BY"
+- spdxElementId: "SPDXRef-55"
+  relatedSpdxElement: "SPDXRef-1"
+  relationshipType: "CONTAINED_BY"
+- spdxElementId: "SPDXRef-55"
+  relatedSpdxElement: "SPDXRef-17"
+  relationshipType: "CONTAINED_BY"
+- spdxElementId: "SPDXRef-52"
+  relatedSpdxElement: "SPDXRef-1"
+  relationshipType: "CONTAINED_BY"
+- spdxElementId: "SPDXRef-52"
+  relatedSpdxElement: "SPDXRef-17"
+  relationshipType: "CONTAINED_BY"
+- spdxElementId: "SPDXRef-53"
+  relatedSpdxElement: "SPDXRef-1"
+  relationshipType: "CONTAINED_BY"
+- spdxElementId: "SPDXRef-53"
+  relatedSpdxElement: "SPDXRef-17"
+  relationshipType: "CONTAINED_BY"
+- spdxElementId: "SPDXRef-61"
+  relatedSpdxElement: "SPDXRef-1"
+  relationshipType: "CONTAINED_BY"
+- spdxElementId: "SPDXRef-61"
+  relatedSpdxElement: "SPDXRef-17"
+  relationshipType: "CONTAINED_BY"
+- spdxElementId: "SPDXRef-157"
+  relatedSpdxElement: "SPDXRef-6"
+  relationshipType: "GENERATED_FROM"
+- spdxElementId: "SPDXRef-157"
+  relatedSpdxElement: "SPDXRef-1"
+  relationshipType: "BUILD_TOOL_OF"
+- spdxElementId: "SPDXRef-62"
+  relatedSpdxElement: "SPDXRef-1"
+  relationshipType: "CONTAINED_BY"
+- spdxElementId: "SPDXRef-62"
+  relatedSpdxElement: "SPDXRef-17"
+  relationshipType: "CONTAINED_BY"
+- spdxElementId: "SPDXRef-158"
+  relatedSpdxElement: "SPDXRef-6"
+  relationshipType: "GENERATED_FROM"
+- spdxElementId: "SPDXRef-158"
+  relatedSpdxElement: "SPDXRef-1"
+  relationshipType: "BUILD_TOOL_OF"
+- spdxElementId: "SPDXRef-159"
+  relatedSpdxElement: "SPDXRef-6"
+  relationshipType: "GENERATED_FROM"
+- spdxElementId: "SPDXRef-159"
+  relatedSpdxElement: "SPDXRef-1"
+  relationshipType: "BUILD_TOOL_OF"
+- spdxElementId: "SPDXRef-60"
+  relatedSpdxElement: "SPDXRef-1"
+  relationshipType: "CONTAINED_BY"
+- spdxElementId: "SPDXRef-60"
+  relatedSpdxElement: "SPDXRef-17"
+  relationshipType: "CONTAINED_BY"
+- spdxElementId: "SPDXRef-69"
+  relatedSpdxElement: "SPDXRef-1"
+  relationshipType: "CONTAINED_BY"
+- spdxElementId: "SPDXRef-69"
+  relatedSpdxElement: "SPDXRef-17"
+  relationshipType: "CONTAINED_BY"
+- spdxElementId: "SPDXRef-150"
+  relatedSpdxElement: "SPDXRef-6"
+  relationshipType: "GENERATED_FROM"
+- spdxElementId: "SPDXRef-150"
+  relatedSpdxElement: "SPDXRef-1"
+  relationshipType: "BUILD_TOOL_OF"
+- spdxElementId: "SPDXRef-67"
+  relatedSpdxElement: "SPDXRef-6"
+  relationshipType: "GENERATED_FROM"
+- spdxElementId: "SPDXRef-67"
+  relatedSpdxElement: "SPDXRef-1"
+  relationshipType: "BUILD_TOOL_OF"
+- spdxElementId: "SPDXRef-151"
+  relatedSpdxElement: "SPDXRef-6"
+  relationshipType: "GENERATED_FROM"
+- spdxElementId: "SPDXRef-151"
+  relatedSpdxElement: "SPDXRef-1"
+  relationshipType: "BUILD_TOOL_OF"
+- spdxElementId: "SPDXRef-68"
+  relatedSpdxElement: "SPDXRef-1"
+  relationshipType: "CONTAINED_BY"
+- spdxElementId: "SPDXRef-68"
+  relatedSpdxElement: "SPDXRef-17"
+  relationshipType: "CONTAINED_BY"
+- spdxElementId: "SPDXRef-152"
+  relatedSpdxElement: "SPDXRef-6"
+  relationshipType: "GENERATED_FROM"
+- spdxElementId: "SPDXRef-152"
+  relatedSpdxElement: "SPDXRef-1"
+  relationshipType: "BUILD_TOOL_OF"
+- spdxElementId: "SPDXRef-65"
+  relatedSpdxElement: "SPDXRef-1"
+  relationshipType: "CONTAINED_BY"
+- spdxElementId: "SPDXRef-65"
+  relatedSpdxElement: "SPDXRef-17"
+  relationshipType: "CONTAINED_BY"
+- spdxElementId: "SPDXRef-153"
+  relatedSpdxElement: "SPDXRef-6"
+  relationshipType: "GENERATED_FROM"
+- spdxElementId: "SPDXRef-153"
+  relatedSpdxElement: "SPDXRef-1"
+  relationshipType: "BUILD_TOOL_OF"
+- spdxElementId: "SPDXRef-66"
+  relatedSpdxElement: "SPDXRef-1"
+  relationshipType: "CONTAINED_BY"
+- spdxElementId: "SPDXRef-66"
+  relatedSpdxElement: "SPDXRef-17"
+  relationshipType: "CONTAINED_BY"
+- spdxElementId: "SPDXRef-154"
+  relatedSpdxElement: "SPDXRef-6"
+  relationshipType: "GENERATED_FROM"
+- spdxElementId: "SPDXRef-154"
+  relatedSpdxElement: "SPDXRef-1"
+  relationshipType: "BUILD_TOOL_OF"
+- spdxElementId: "SPDXRef-63"
+  relatedSpdxElement: "SPDXRef-1"
+  relationshipType: "CONTAINED_BY"
+- spdxElementId: "SPDXRef-63"
+  relatedSpdxElement: "SPDXRef-17"
+  relationshipType: "CONTAINED_BY"
+- spdxElementId: "SPDXRef-155"
+  relatedSpdxElement: "SPDXRef-6"
+  relationshipType: "GENERATED_FROM"
+- spdxElementId: "SPDXRef-155"
+  relatedSpdxElement: "SPDXRef-1"
+  relationshipType: "BUILD_TOOL_OF"
+- spdxElementId: "SPDXRef-64"
+  relatedSpdxElement: "SPDXRef-1"
+  relationshipType: "CONTAINED_BY"
+- spdxElementId: "SPDXRef-64"
+  relatedSpdxElement: "SPDXRef-17"
+  relationshipType: "CONTAINED_BY"
+- spdxElementId: "SPDXRef-156"
+  relatedSpdxElement: "SPDXRef-6"
+  relationshipType: "GENERATED_FROM"
+- spdxElementId: "SPDXRef-156"
+  relatedSpdxElement: "SPDXRef-1"
+  relationshipType: "BUILD_TOOL_OF"
+- spdxElementId: "SPDXRef-72"
+  relatedSpdxElement: "SPDXRef-1"
+  relationshipType: "CONTAINED_BY"
+- spdxElementId: "SPDXRef-72"
+  relatedSpdxElement: "SPDXRef-17"
+  relationshipType: "CONTAINED_BY"
+- spdxElementId: "SPDXRef-73"
+  relatedSpdxElement: "SPDXRef-1"
+  relationshipType: "CONTAINED_BY"
+- spdxElementId: "SPDXRef-73"
+  relatedSpdxElement: "SPDXRef-17"
+  relationshipType: "CONTAINED_BY"
+- spdxElementId: "SPDXRef-70"
+  relatedSpdxElement: "SPDXRef-1"
+  relationshipType: "CONTAINED_BY"
+- spdxElementId: "SPDXRef-70"
+  relatedSpdxElement: "SPDXRef-17"
+  relationshipType: "CONTAINED_BY"
+- spdxElementId: "SPDXRef-71"
+  relatedSpdxElement: "SPDXRef-1"
+  relationshipType: "CONTAINED_BY"
+- spdxElementId: "SPDXRef-71"
+  relatedSpdxElement: "SPDXRef-17"
+  relationshipType: "CONTAINED_BY"
+- spdxElementId: "SPDXRef-78"
+  relatedSpdxElement: "SPDXRef-1"
+  relationshipType: "CONTAINED_BY"
+- spdxElementId: "SPDXRef-78"
+  relatedSpdxElement: "SPDXRef-17"
+  relationshipType: "CONTAINED_BY"
+- spdxElementId: "SPDXRef-79"
+  relatedSpdxElement: "SPDXRef-1"
+  relationshipType: "CONTAINED_BY"
+- spdxElementId: "SPDXRef-79"
+  relatedSpdxElement: "SPDXRef-17"
+  relationshipType: "CONTAINED_BY"
+- spdxElementId: "SPDXRef-76"
+  relatedSpdxElement: "SPDXRef-1"
+  relationshipType: "CONTAINED_BY"
+- spdxElementId: "SPDXRef-76"
+  relatedSpdxElement: "SPDXRef-17"
+  relationshipType: "CONTAINED_BY"
+- spdxElementId: "SPDXRef-77"
+  relatedSpdxElement: "SPDXRef-1"
+  relationshipType: "CONTAINED_BY"
+- spdxElementId: "SPDXRef-77"
+  relatedSpdxElement: "SPDXRef-17"
+  relationshipType: "CONTAINED_BY"
+- spdxElementId: "SPDXRef-74"
+  relatedSpdxElement: "SPDXRef-1"
+  relationshipType: "CONTAINED_BY"
+- spdxElementId: "SPDXRef-74"
+  relatedSpdxElement: "SPDXRef-17"
+  relationshipType: "CONTAINED_BY"
+- spdxElementId: "SPDXRef-75"
+  relatedSpdxElement: "SPDXRef-1"
+  relationshipType: "CONTAINED_BY"
+- spdxElementId: "SPDXRef-75"
+  relatedSpdxElement: "SPDXRef-17"
+  relationshipType: "CONTAINED_BY"
+- spdxElementId: "SPDXRef-83"
+  relatedSpdxElement: "SPDXRef-1"
+  relationshipType: "CONTAINED_BY"
+- spdxElementId: "SPDXRef-83"
+  relatedSpdxElement: "SPDXRef-17"
+  relationshipType: "CONTAINED_BY"
+- spdxElementId: "SPDXRef-84"
+  relatedSpdxElement: "SPDXRef-1"
+  relationshipType: "CONTAINED_BY"
+- spdxElementId: "SPDXRef-84"
+  relatedSpdxElement: "SPDXRef-17"
+  relationshipType: "CONTAINED_BY"
+- spdxElementId: "SPDXRef-81"
+  relatedSpdxElement: "SPDXRef-1"
+  relationshipType: "CONTAINED_BY"
+- spdxElementId: "SPDXRef-81"
+  relatedSpdxElement: "SPDXRef-17"
+  relationshipType: "CONTAINED_BY"
+- spdxElementId: "SPDXRef-82"
+  relatedSpdxElement: "SPDXRef-1"
+  relationshipType: "CONTAINED_BY"
+- spdxElementId: "SPDXRef-82"
+  relatedSpdxElement: "SPDXRef-17"
+  relationshipType: "CONTAINED_BY"
+- spdxElementId: "SPDXRef-80"
+  relatedSpdxElement: "SPDXRef-1"
+  relationshipType: "CONTAINED_BY"
+- spdxElementId: "SPDXRef-80"
+  relatedSpdxElement: "SPDXRef-17"
+  relationshipType: "CONTAINED_BY"
+- spdxElementId: "SPDXRef-89"
+  relatedSpdxElement: "SPDXRef-1"
+  relationshipType: "CONTAINED_BY"
+- spdxElementId: "SPDXRef-89"
+  relatedSpdxElement: "SPDXRef-17"
+  relationshipType: "CONTAINED_BY"
+- spdxElementId: "SPDXRef-87"
+  relatedSpdxElement: "SPDXRef-1"
+  relationshipType: "CONTAINED_BY"
+- spdxElementId: "SPDXRef-87"
+  relatedSpdxElement: "SPDXRef-17"
+  relationshipType: "CONTAINED_BY"
+- spdxElementId: "SPDXRef-88"
+  relatedSpdxElement: "SPDXRef-1"
+  relationshipType: "CONTAINED_BY"
+- spdxElementId: "SPDXRef-88"
+  relatedSpdxElement: "SPDXRef-17"
+  relationshipType: "CONTAINED_BY"
+- spdxElementId: "SPDXRef-85"
+  relatedSpdxElement: "SPDXRef-1"
+  relationshipType: "CONTAINED_BY"
+- spdxElementId: "SPDXRef-85"
+  relatedSpdxElement: "SPDXRef-17"
+  relationshipType: "CONTAINED_BY"
+- spdxElementId: "SPDXRef-86"
+  relatedSpdxElement: "SPDXRef-1"
+  relationshipType: "CONTAINED_BY"
+- spdxElementId: "SPDXRef-86"
+  relatedSpdxElement: "SPDXRef-17"
+  relationshipType: "CONTAINED_BY"
+- spdxElementId: "SPDXRef-94"
+  relatedSpdxElement: "SPDXRef-1"
+  relationshipType: "CONTAINED_BY"
+- spdxElementId: "SPDXRef-94"
+  relatedSpdxElement: "SPDXRef-17"
+  relationshipType: "CONTAINED_BY"
+- spdxElementId: "SPDXRef-124"
+  relatedSpdxElement: "SPDXRef-6"
+  relationshipType: "GENERATED_FROM"
+- spdxElementId: "SPDXRef-124"
+  relatedSpdxElement: "SPDXRef-1"
+  relationshipType: "BUILD_TOOL_OF"
+- spdxElementId: "SPDXRef-95"
+  relatedSpdxElement: "SPDXRef-1"
+  relationshipType: "CONTAINED_BY"
+- spdxElementId: "SPDXRef-95"
+  relatedSpdxElement: "SPDXRef-17"
+  relationshipType: "CONTAINED_BY"
+- spdxElementId: "SPDXRef-125"
+  relatedSpdxElement: "SPDXRef-6"
+  relationshipType: "GENERATED_FROM"
+- spdxElementId: "SPDXRef-125"
+  relatedSpdxElement: "SPDXRef-1"
+  relationshipType: "BUILD_TOOL_OF"
+- spdxElementId: "SPDXRef-92"
+  relatedSpdxElement: "SPDXRef-1"
+  relationshipType: "CONTAINED_BY"
+- spdxElementId: "SPDXRef-92"
+  relatedSpdxElement: "SPDXRef-17"
+  relationshipType: "CONTAINED_BY"
+- spdxElementId: "SPDXRef-126"
+  relatedSpdxElement: "SPDXRef-6"
+  relationshipType: "GENERATED_FROM"
+- spdxElementId: "SPDXRef-126"
+  relatedSpdxElement: "SPDXRef-1"
+  relationshipType: "BUILD_TOOL_OF"
+- spdxElementId: "SPDXRef-93"
+  relatedSpdxElement: "SPDXRef-1"
+  relationshipType: "CONTAINED_BY"
+- spdxElementId: "SPDXRef-93"
+  relatedSpdxElement: "SPDXRef-17"
+  relationshipType: "CONTAINED_BY"
+- spdxElementId: "SPDXRef-127"
+  relatedSpdxElement: "SPDXRef-6"
+  relationshipType: "GENERATED_FROM"
+- spdxElementId: "SPDXRef-127"
+  relatedSpdxElement: "SPDXRef-1"
+  relationshipType: "BUILD_TOOL_OF"
+- spdxElementId: "SPDXRef-90"
+  relatedSpdxElement: "SPDXRef-1"
+  relationshipType: "CONTAINED_BY"
+- spdxElementId: "SPDXRef-90"
+  relatedSpdxElement: "SPDXRef-17"
+  relationshipType: "CONTAINED_BY"
+- spdxElementId: "SPDXRef-128"
+  relatedSpdxElement: "SPDXRef-6"
+  relationshipType: "GENERATED_FROM"
+- spdxElementId: "SPDXRef-128"
+  relatedSpdxElement: "SPDXRef-1"
+  relationshipType: "BUILD_TOOL_OF"
+- spdxElementId: "SPDXRef-91"
+  relatedSpdxElement: "SPDXRef-1"
+  relationshipType: "CONTAINED_BY"
+- spdxElementId: "SPDXRef-91"
+  relatedSpdxElement: "SPDXRef-17"
+  relationshipType: "CONTAINED_BY"
+- spdxElementId: "SPDXRef-129"
+  relatedSpdxElement: "SPDXRef-6"
+  relationshipType: "GENERATED_FROM"
+- spdxElementId: "SPDXRef-129"
+  relatedSpdxElement: "SPDXRef-1"
+  relationshipType: "BUILD_TOOL_OF"
+- spdxElementId: "SPDXRef-98"
+  relatedSpdxElement: "SPDXRef-1"
+  relationshipType: "CONTAINED_BY"
+- spdxElementId: "SPDXRef-98"
+  relatedSpdxElement: "SPDXRef-17"
+  relationshipType: "CONTAINED_BY"
+- spdxElementId: "SPDXRef-120"
+  relatedSpdxElement: "SPDXRef-6"
+  relationshipType: "GENERATED_FROM"
+- spdxElementId: "SPDXRef-120"
+  relatedSpdxElement: "SPDXRef-1"
+  relationshipType: "BUILD_TOOL_OF"
+- spdxElementId: "SPDXRef-99"
+  relatedSpdxElement: "SPDXRef-1"
+  relationshipType: "CONTAINED_BY"
+- spdxElementId: "SPDXRef-99"
+  relatedSpdxElement: "SPDXRef-17"
+  relationshipType: "CONTAINED_BY"
+- spdxElementId: "SPDXRef-121"
+  relatedSpdxElement: "SPDXRef-6"
+  relationshipType: "GENERATED_FROM"
+- spdxElementId: "SPDXRef-121"
+  relatedSpdxElement: "SPDXRef-1"
+  relationshipType: "BUILD_TOOL_OF"
+- spdxElementId: "SPDXRef-96"
+  relatedSpdxElement: "SPDXRef-1"
+  relationshipType: "CONTAINED_BY"
+- spdxElementId: "SPDXRef-96"
+  relatedSpdxElement: "SPDXRef-17"
+  relationshipType: "CONTAINED_BY"
+- spdxElementId: "SPDXRef-122"
+  relatedSpdxElement: "SPDXRef-6"
+  relationshipType: "GENERATED_FROM"
+- spdxElementId: "SPDXRef-122"
+  relatedSpdxElement: "SPDXRef-1"
+  relationshipType: "BUILD_TOOL_OF"
+- spdxElementId: "SPDXRef-97"
+  relatedSpdxElement: "SPDXRef-1"
+  relationshipType: "CONTAINED_BY"
+- spdxElementId: "SPDXRef-97"
+  relatedSpdxElement: "SPDXRef-17"
+  relationshipType: "CONTAINED_BY"
+- spdxElementId: "SPDXRef-123"
+  relatedSpdxElement: "SPDXRef-6"
+  relationshipType: "GENERATED_FROM"
+- spdxElementId: "SPDXRef-123"
+  relatedSpdxElement: "SPDXRef-1"
+  relationshipType: "BUILD_TOOL_OF"
+- spdxElementId: "SPDXRef-113"
+  relatedSpdxElement: "SPDXRef-6"
+  relationshipType: "GENERATED_FROM"
+- spdxElementId: "SPDXRef-113"
+  relatedSpdxElement: "SPDXRef-1"
+  relationshipType: "BUILD_TOOL_OF"
+- spdxElementId: "SPDXRef-114"
+  relatedSpdxElement: "SPDXRef-6"
+  relationshipType: "GENERATED_FROM"
+- spdxElementId: "SPDXRef-114"
+  relatedSpdxElement: "SPDXRef-1"
+  relationshipType: "BUILD_TOOL_OF"
+- spdxElementId: "SPDXRef-115"
+  relatedSpdxElement: "SPDXRef-6"
+  relationshipType: "GENERATED_FROM"
+- spdxElementId: "SPDXRef-115"
+  relatedSpdxElement: "SPDXRef-1"
+  relationshipType: "BUILD_TOOL_OF"
+- spdxElementId: "SPDXRef-116"
+  relatedSpdxElement: "SPDXRef-6"
+  relationshipType: "GENERATED_FROM"
+- spdxElementId: "SPDXRef-116"
+  relatedSpdxElement: "SPDXRef-1"
+  relationshipType: "BUILD_TOOL_OF"
+- spdxElementId: "SPDXRef-117"
+  relatedSpdxElement: "SPDXRef-6"
+  relationshipType: "GENERATED_FROM"
+- spdxElementId: "SPDXRef-117"
+  relatedSpdxElement: "SPDXRef-1"
+  relationshipType: "BUILD_TOOL_OF"
+- spdxElementId: "SPDXRef-118"
+  relatedSpdxElement: "SPDXRef-6"
+  relationshipType: "GENERATED_FROM"
+- spdxElementId: "SPDXRef-118"
+  relatedSpdxElement: "SPDXRef-1"
+  relationshipType: "BUILD_TOOL_OF"
+- spdxElementId: "SPDXRef-119"
+  relatedSpdxElement: "SPDXRef-6"
+  relationshipType: "GENERATED_FROM"
+- spdxElementId: "SPDXRef-119"
+  relatedSpdxElement: "SPDXRef-1"
+  relationshipType: "BUILD_TOOL_OF"
+- spdxElementId: "SPDXRef-110"
+  relatedSpdxElement: "SPDXRef-6"
+  relationshipType: "GENERATED_FROM"
+- spdxElementId: "SPDXRef-110"
+  relatedSpdxElement: "SPDXRef-1"
+  relationshipType: "BUILD_TOOL_OF"
+- spdxElementId: "SPDXRef-111"
+  relatedSpdxElement: "SPDXRef-6"
+  relationshipType: "GENERATED_FROM"
+- spdxElementId: "SPDXRef-111"
+  relatedSpdxElement: "SPDXRef-1"
+  relationshipType: "BUILD_TOOL_OF"
+- spdxElementId: "SPDXRef-112"
+  relatedSpdxElement: "SPDXRef-6"
+  relationshipType: "GENERATED_FROM"
+- spdxElementId: "SPDXRef-112"
+  relatedSpdxElement: "SPDXRef-1"
+  relationshipType: "BUILD_TOOL_OF"
+- spdxElementId: "SPDXRef-146"
+  relatedSpdxElement: "SPDXRef-6"
+  relationshipType: "GENERATED_FROM"
+- spdxElementId: "SPDXRef-146"
+  relatedSpdxElement: "SPDXRef-1"
+  relationshipType: "BUILD_TOOL_OF"
+- spdxElementId: "SPDXRef-147"
+  relatedSpdxElement: "SPDXRef-6"
+  relationshipType: "GENERATED_FROM"
+- spdxElementId: "SPDXRef-147"
+  relatedSpdxElement: "SPDXRef-1"
+  relationshipType: "BUILD_TOOL_OF"
+- spdxElementId: "SPDXRef-148"
+  relatedSpdxElement: "SPDXRef-6"
+  relationshipType: "GENERATED_FROM"
+- spdxElementId: "SPDXRef-148"
+  relatedSpdxElement: "SPDXRef-1"
+  relationshipType: "BUILD_TOOL_OF"
+- spdxElementId: "SPDXRef-149"
+  relatedSpdxElement: "SPDXRef-6"
+  relationshipType: "GENERATED_FROM"
+- spdxElementId: "SPDXRef-149"
+  relatedSpdxElement: "SPDXRef-1"
+  relationshipType: "BUILD_TOOL_OF"
+- spdxElementId: "SPDXRef-140"
+  relatedSpdxElement: "SPDXRef-6"
+  relationshipType: "GENERATED_FROM"
+- spdxElementId: "SPDXRef-140"
+  relatedSpdxElement: "SPDXRef-1"
+  relationshipType: "BUILD_TOOL_OF"
+- spdxElementId: "SPDXRef-141"
+  relatedSpdxElement: "SPDXRef-6"
+  relationshipType: "GENERATED_FROM"
+- spdxElementId: "SPDXRef-141"
+  relatedSpdxElement: "SPDXRef-1"
+  relationshipType: "BUILD_TOOL_OF"
+- spdxElementId: "SPDXRef-142"
+  relatedSpdxElement: "SPDXRef-6"
+  relationshipType: "GENERATED_FROM"
+- spdxElementId: "SPDXRef-142"
+  relatedSpdxElement: "SPDXRef-1"
+  relationshipType: "BUILD_TOOL_OF"
+- spdxElementId: "SPDXRef-143"
+  relatedSpdxElement: "SPDXRef-6"
+  relationshipType: "GENERATED_FROM"
+- spdxElementId: "SPDXRef-143"
+  relatedSpdxElement: "SPDXRef-1"
+  relationshipType: "BUILD_TOOL_OF"
+- spdxElementId: "SPDXRef-144"
+  relatedSpdxElement: "SPDXRef-6"
+  relationshipType: "GENERATED_FROM"
+- spdxElementId: "SPDXRef-144"
+  relatedSpdxElement: "SPDXRef-1"
+  relationshipType: "BUILD_TOOL_OF"
+- spdxElementId: "SPDXRef-145"
+  relatedSpdxElement: "SPDXRef-6"
+  relationshipType: "GENERATED_FROM"
+- spdxElementId: "SPDXRef-145"
+  relatedSpdxElement: "SPDXRef-1"
+  relationshipType: "BUILD_TOOL_OF"
+- spdxElementId: "SPDXRef-135"
+  relatedSpdxElement: "SPDXRef-6"
+  relationshipType: "GENERATED_FROM"
+- spdxElementId: "SPDXRef-135"
+  relatedSpdxElement: "SPDXRef-1"
+  relationshipType: "BUILD_TOOL_OF"
+- spdxElementId: "SPDXRef-136"
+  relatedSpdxElement: "SPDXRef-6"
+  relationshipType: "GENERATED_FROM"
+- spdxElementId: "SPDXRef-136"
+  relatedSpdxElement: "SPDXRef-1"
+  relationshipType: "BUILD_TOOL_OF"
+- spdxElementId: "SPDXRef-137"
+  relatedSpdxElement: "SPDXRef-6"
+  relationshipType: "GENERATED_FROM"
+- spdxElementId: "SPDXRef-137"
+  relatedSpdxElement: "SPDXRef-1"
+  relationshipType: "BUILD_TOOL_OF"
+- spdxElementId: "SPDXRef-138"
+  relatedSpdxElement: "SPDXRef-6"
+  relationshipType: "GENERATED_FROM"
+- spdxElementId: "SPDXRef-138"
+  relatedSpdxElement: "SPDXRef-1"
+  relationshipType: "BUILD_TOOL_OF"
+- spdxElementId: "SPDXRef-139"
+  relatedSpdxElement: "SPDXRef-6"
+  relationshipType: "GENERATED_FROM"
+- spdxElementId: "SPDXRef-139"
+  relatedSpdxElement: "SPDXRef-1"
+  relationshipType: "BUILD_TOOL_OF"
+- spdxElementId: "SPDXRef-130"
+  relatedSpdxElement: "SPDXRef-6"
+  relationshipType: "GENERATED_FROM"
+- spdxElementId: "SPDXRef-130"
+  relatedSpdxElement: "SPDXRef-1"
+  relationshipType: "BUILD_TOOL_OF"
+- spdxElementId: "SPDXRef-131"
+  relatedSpdxElement: "SPDXRef-6"
+  relationshipType: "GENERATED_FROM"
+- spdxElementId: "SPDXRef-131"
+  relatedSpdxElement: "SPDXRef-1"
+  relationshipType: "BUILD_TOOL_OF"
+- spdxElementId: "SPDXRef-132"
+  relatedSpdxElement: "SPDXRef-6"
+  relationshipType: "GENERATED_FROM"
+- spdxElementId: "SPDXRef-132"
+  relatedSpdxElement: "SPDXRef-1"
+  relationshipType: "BUILD_TOOL_OF"
+- spdxElementId: "SPDXRef-133"
+  relatedSpdxElement: "SPDXRef-6"
+  relationshipType: "GENERATED_FROM"
+- spdxElementId: "SPDXRef-133"
+  relatedSpdxElement: "SPDXRef-1"
+  relationshipType: "BUILD_TOOL_OF"
+- spdxElementId: "SPDXRef-134"
+  relatedSpdxElement: "SPDXRef-6"
+  relationshipType: "GENERATED_FROM"
+- spdxElementId: "SPDXRef-134"
+  relatedSpdxElement: "SPDXRef-1"
+  relationshipType: "BUILD_TOOL_OF"
+- spdxElementId: "SPDXRef-102"
+  relatedSpdxElement: "SPDXRef-1"
+  relationshipType: "CONTAINED_BY"
+- spdxElementId: "SPDXRef-102"
+  relatedSpdxElement: "SPDXRef-17"
+  relationshipType: "CONTAINED_BY"
+- spdxElementId: "SPDXRef-103"
+  relatedSpdxElement: "SPDXRef-1"
+  relationshipType: "CONTAINED_BY"
+- spdxElementId: "SPDXRef-103"
+  relatedSpdxElement: "SPDXRef-17"
+  relationshipType: "CONTAINED_BY"
+- spdxElementId: "SPDXRef-104"
+  relatedSpdxElement: "SPDXRef-1"
+  relationshipType: "CONTAINED_BY"
+- spdxElementId: "SPDXRef-104"
+  relatedSpdxElement: "SPDXRef-17"
+  relationshipType: "CONTAINED_BY"
+- spdxElementId: "SPDXRef-105"
+  relatedSpdxElement: "SPDXRef-1"
+  relationshipType: "CONTAINED_BY"
+- spdxElementId: "SPDXRef-105"
+  relatedSpdxElement: "SPDXRef-17"
+  relationshipType: "CONTAINED_BY"
+- spdxElementId: "SPDXRef-106"
+  relatedSpdxElement: "SPDXRef-6"
+  relationshipType: "GENERATED_FROM"
+- spdxElementId: "SPDXRef-106"
+  relatedSpdxElement: "SPDXRef-1"
+  relationshipType: "BUILD_TOOL_OF"
+- spdxElementId: "SPDXRef-107"
+  relatedSpdxElement: "SPDXRef-6"
+  relationshipType: "GENERATED_FROM"
+- spdxElementId: "SPDXRef-107"
+  relatedSpdxElement: "SPDXRef-1"
+  relationshipType: "BUILD_TOOL_OF"
+- spdxElementId: "SPDXRef-108"
+  relatedSpdxElement: "SPDXRef-6"
+  relationshipType: "GENERATED_FROM"
+- spdxElementId: "SPDXRef-108"
+  relatedSpdxElement: "SPDXRef-1"
+  relationshipType: "BUILD_TOOL_OF"
+- spdxElementId: "SPDXRef-109"
+  relatedSpdxElement: "SPDXRef-6"
+  relationshipType: "GENERATED_FROM"
+- spdxElementId: "SPDXRef-109"
+  relatedSpdxElement: "SPDXRef-1"
+  relationshipType: "BUILD_TOOL_OF"
+- spdxElementId: "SPDXRef-100"
+  relatedSpdxElement: "SPDXRef-1"
+  relationshipType: "CONTAINED_BY"
+- spdxElementId: "SPDXRef-100"
+  relatedSpdxElement: "SPDXRef-17"
+  relationshipType: "CONTAINED_BY"
+- spdxElementId: "SPDXRef-101"
+  relatedSpdxElement: "SPDXRef-1"
+  relationshipType: "CONTAINED_BY"
+- spdxElementId: "SPDXRef-101"
+  relatedSpdxElement: "SPDXRef-17"
+  relationshipType: "CONTAINED_BY"
+- spdxElementId: "SPDXRef-18"
+  relatedSpdxElement: "SPDXRef-19"
+  relationshipType: "CONTAINED_BY"
+- spdxElementId: "SPDXRef-18"
+  relatedSpdxElement: "SPDXRef-1"
+  relationshipType: "BUILD_TOOL_OF"
+- spdxElementId: "SPDXRef-16"
+  relatedSpdxElement: "SPDXRef-1"
+  relationshipType: "CONTAINED_BY"
+- spdxElementId: "SPDXRef-16"
+  relatedSpdxElement: "SPDXRef-17"
+  relationshipType: "CONTAINED_BY"
+- spdxElementId: "SPDXRef-14"
+  relatedSpdxElement: "SPDXRef-15"
+  relationshipType: "CONTAINED_BY"
+- spdxElementId: "SPDXRef-14"
+  relatedSpdxElement: "SPDXRef-1"
+  relationshipType: "BUILD_TOOL_OF"
+- spdxElementId: "SPDXRef-13"
+  relatedSpdxElement: "SPDXRef-6"
+  relationshipType: "CONTAINED_BY"
+- spdxElementId: "SPDXRef-13"
+  relatedSpdxElement: "SPDXRef-1"
+  relationshipType: "BUILD_TOOL_OF"
+- spdxElementId: "SPDXRef-11"
+  relatedSpdxElement: "SPDXRef-12"
+  relationshipType: "CONTAINED_BY"
+- spdxElementId: "SPDXRef-11"
+  relatedSpdxElement: "SPDXRef-1"
+  relationshipType: "BUILD_TOOL_OF"
+- spdxElementId: "SPDXRef-27"
+  relatedSpdxElement: "SPDXRef-1"
+  relationshipType: "CONTAINED_BY"
+- spdxElementId: "SPDXRef-27"
+  relatedSpdxElement: "SPDXRef-17"
+  relationshipType: "CONTAINED_BY"
+- spdxElementId: "SPDXRef-28"
+  relatedSpdxElement: "SPDXRef-29"
+  relationshipType: "CONTAINED_BY"
+- spdxElementId: "SPDXRef-28"
+  relatedSpdxElement: "SPDXRef-1"
+  relationshipType: "BUILD_TOOL_OF"
+- spdxElementId: "SPDXRef-26"
+  relatedSpdxElement: "SPDXRef-1"
+  relationshipType: "CONTAINED_BY"
+- spdxElementId: "SPDXRef-26"
+  relatedSpdxElement: "SPDXRef-17"
+  relationshipType: "CONTAINED_BY"
+- spdxElementId: "SPDXRef-23"
+  relatedSpdxElement: "SPDXRef-6"
+  relationshipType: "CONTAINED_BY"
+- spdxElementId: "SPDXRef-23"
+  relatedSpdxElement: "SPDXRef-1"
+  relationshipType: "BUILD_TOOL_OF"
+- spdxElementId: "SPDXRef-24"
+  relatedSpdxElement: "SPDXRef-25"
+  relationshipType: "CONTAINED_BY"
+- spdxElementId: "SPDXRef-24"
+  relatedSpdxElement: "SPDXRef-1"
+  relationshipType: "BUILD_TOOL_OF"
+- spdxElementId: "SPDXRef-21"
+  relatedSpdxElement: "SPDXRef-6"
+  relationshipType: "CONTAINED_BY"
+- spdxElementId: "SPDXRef-21"
+  relatedSpdxElement: "SPDXRef-1"
+  relationshipType: "BUILD_TOOL_OF"
+- spdxElementId: "SPDXRef-22"
+  relatedSpdxElement: "SPDXRef-1"
+  relationshipType: "CONTAINED_BY"
+- spdxElementId: "SPDXRef-22"
+  relatedSpdxElement: "SPDXRef-17"
+  relationshipType: "CONTAINED_BY"
+- spdxElementId: "SPDXRef-20"
+  relatedSpdxElement: "SPDXRef-6"
+  relationshipType: "CONTAINED_BY"
+- spdxElementId: "SPDXRef-20"
+  relatedSpdxElement: "SPDXRef-1"
+  relationshipType: "BUILD_TOOL_OF"
+- spdxElementId: "SPDXRef-32"
+  relatedSpdxElement: "SPDXRef-6"
+  relationshipType: "GENERATED_FROM"
+- spdxElementId: "SPDXRef-32"
+  relatedSpdxElement: "SPDXRef-1"
+  relationshipType: "BUILD_TOOL_OF"
+- spdxElementId: "SPDXRef-49"
+  relatedSpdxElement: "SPDXRef-1"
+  relationshipType: "CONTAINED_BY"
+- spdxElementId: "SPDXRef-49"
+  relatedSpdxElement: "SPDXRef-17"
+  relationshipType: "CONTAINED_BY"
+- spdxElementId: "SPDXRef-47"
+  relatedSpdxElement: "SPDXRef-1"
+  relationshipType: "CONTAINED_BY"
+- spdxElementId: "SPDXRef-47"
+  relatedSpdxElement: "SPDXRef-17"
+  relationshipType: "CONTAINED_BY"
+- spdxElementId: "SPDXRef-48"
+  relatedSpdxElement: "SPDXRef-1"
+  relationshipType: "CONTAINED_BY"
+- spdxElementId: "SPDXRef-48"
+  relatedSpdxElement: "SPDXRef-17"
+  relationshipType: "CONTAINED_BY"
+- spdxElementId: "SPDXRef-45"
+  relatedSpdxElement: "SPDXRef-1"
+  relationshipType: "CONTAINED_BY"
+- spdxElementId: "SPDXRef-45"
+  relatedSpdxElement: "SPDXRef-17"
+  relationshipType: "CONTAINED_BY"
+- spdxElementId: "SPDXRef-46"
+  relatedSpdxElement: "SPDXRef-1"
+  relationshipType: "CONTAINED_BY"
+- spdxElementId: "SPDXRef-46"
+  relatedSpdxElement: "SPDXRef-17"
+  relationshipType: "CONTAINED_BY"
+- spdxElementId: "SPDXRef-43"
+  relatedSpdxElement: "SPDXRef-1"
+  relationshipType: "CONTAINED_BY"
+- spdxElementId: "SPDXRef-43"
+  relatedSpdxElement: "SPDXRef-17"
+  relationshipType: "CONTAINED_BY"
+- spdxElementId: "SPDXRef-44"
+  relatedSpdxElement: "SPDXRef-1"
+  relationshipType: "CONTAINED_BY"
+- spdxElementId: "SPDXRef-44"
+  relatedSpdxElement: "SPDXRef-17"
+  relationshipType: "CONTAINED_BY"
+- spdxElementId: "SPDXRef-41"
+  relatedSpdxElement: "SPDXRef-42"
+  relationshipType: "CONTAINED_BY"
+- spdxElementId: "SPDXRef-41"
+  relatedSpdxElement: "SPDXRef-1"
+  relationshipType: "BUILD_TOOL_OF"
