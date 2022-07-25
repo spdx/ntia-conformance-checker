@@ -15,7 +15,7 @@ def check_minimum_elements(file, messages=None):
         return messages
     messages.push_context(doc.name)
     if error:
-        messages.append("Parsing errors occurred.")
+        messages.append("Errors while parsing: True")
     check_components_names(doc, messages)
     check_components_versions(doc, messages)
     check_sbom_author(doc, messages)
