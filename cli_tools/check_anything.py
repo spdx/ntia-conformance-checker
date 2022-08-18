@@ -16,6 +16,7 @@ def check_minimum_elements(file, messages=None):
     messages.push_context(doc.name)
     if error:
         messages.append("Errors while parsing: True")
+    check_document_version(doc, messages)
     check_components_names(doc, messages)
     check_components_versions(doc, messages)
     check_sbom_author(doc, messages)
@@ -25,6 +26,11 @@ def check_minimum_elements(file, messages=None):
     check_components_identifiers(doc, messages)
     messages.pop_context()
     return messages
+
+def check_document_version(doc, messages):
+    if str(doc.version) != 'SPDX-2.2' and str(doc.version) != 'SPDX-2.3':
+        messages.append("Document  version " + str(doc.version) + " not supported.")
+        return messages
 
 def check_components_names(doc, messages):
     for package in doc.packages:

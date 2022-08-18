@@ -233,4 +233,4 @@ Document:
     licenseInfoFromSnippet:
     - Apache-2.0
     name: from linux kernel
-  spdxVersion: SPDX-2.1
+  spdxVersion: SPDX-2.2

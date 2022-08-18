@@ -203,7 +203,7 @@
                 "licenseId": "LicenseRef-1"
             }
         ], 
-        "spdxVersion": "SPDX-2.1", 
+        "spdxVersion": "SPDX-2.2",
         "SPDXID": "SPDXRef-DOCUMENT", 
         "snippets": [
             {

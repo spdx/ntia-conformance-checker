@@ -25,7 +25,7 @@
         <creator>Person: Gary O'Neall</creator>
       </CreationInfo>
     </creationInfo>
-    <specVersion>SPDX-2.1</specVersion>
+    <specVersion>SPDX-2.2</specVersion>
     <externalDocumentRef>
       <ExternalDocumentRef>
         <externalDocumentId>DocumentRef-spdx-tool-2.1</externalDocumentId>

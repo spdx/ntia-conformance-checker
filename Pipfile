@@ -4,7 +4,7 @@ verify_ssl = true
 name = "pypi"
 
 [packages]
-spdx-tools = "*"
+spdx-tools = {git = "https://github.com/linynjosh/tools-python"}
 
 [dev-packages]
 

@@ -1,4 +1,4 @@
-SPDXVersion: SPDX-2.1
+SPDXVersion: SPDX-2.2
 DataLicense: CC0-1.0
 DocumentName: Sample_Document-V2.1
 SPDXID: SPDXRef-DOCUMENT
