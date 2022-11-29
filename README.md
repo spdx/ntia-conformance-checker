@@ -1,2 +1,60 @@
 # ntia-conformance-checker
-2022 GSoC project to check for NTIA minimum elements
+
+This 2022 Google Summer of Code project determines whether a [SPDX](https://spdx.dev/) software bill of materials (SBOM) document contains the National Telecommunications and Information Administration (NTIA) ["minimum elements."](https://www.ntia.doc.gov/files/ntia/publications/sbom_minimum_elements_report.pdf)
+
+The minimum elements include:
+- Supplier Name
+- Component Name
+- Version of the Component
+- Other Unique Identifiers
+- Dependency Relationship
+- Author of SBOM Data
+- Timestamp
+
+As defined by the NTIA, the minimum elements are "the essential pieces that support basic SBOM functionality and will serve as the foundation for an evolving approach to software transparency."
+
+# Installation
+
+Use git to install the `ntia-conformance-checker` tool.
+
+```bash
+git clone https://github.com/spdx/ntia-conformance-checker.git
+```
+
+Then change directories and install the required Python dependencies using [`pipenv`](https://pipenv.pypa.io/en/latest/).
+
+```bash
+cd ntia-conformance-checker
+```
+
+```bash
+pipenv install
+```
+
+Finally, activate the project's virtual environment.
+
+```bash
+pipenv shell
+```
+
+# Usage
+
+ Navigate to the `cli-tools` directory.
+
+ ```bash
+ cd ntia_conformance_checker/cli_tools
+ ```
+
+Finally, invoke the tool:
+
+```bash
+python3 checker.py
+```
+
+The user will then be presented with a prompt:
+
+```
+File name: 
+```
+
+Enter the full path to an SPDX document.
