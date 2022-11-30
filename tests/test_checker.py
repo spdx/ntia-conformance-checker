@@ -1,3 +1,5 @@
+"""Tests using pytest framework."""
+
 import os
 
 import pytest
