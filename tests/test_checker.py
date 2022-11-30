@@ -1,6 +1,10 @@
-from spdx.parsers import parse_anything
+import os
+
 import pytest
 
+from spdx.parsers import parse_anything
+
+import ntia_conformance_checker.cli_tools.check_anything as check_anything
 
 a = '/Users/joshlin/Desktop/tools-python/tests/data/SPDXSBOMExampleTests/SPDXSBOMExampleMissingAuthorName.spdx.yml'
 b = '/Users/joshlin/SPDX/ntia-conformance-checker/tests/doc_fest/SourceAuditor/AppBomInation-SourceAndDependency.spdx (1).json'
