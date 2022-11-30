@@ -23,6 +23,7 @@ jobs:
         python -m pip install --upgrade pip
         pip install pipenv pytest
         pipenv install
+        pipenv install -e .
     - name: Test with pytest
       run: |
         pipenv run cd tests
