@@ -6,8 +6,6 @@ from spdx.parsers import parse_anything
 
 import ntia_conformance_checker.cli_tools.check_anything as check_anything
 
-a = '/Users/joshlin/Desktop/tools-python/tests/data/SPDXSBOMExampleTests/SPDXSBOMExampleMissingAuthorName.spdx.yml'
-b = '/Users/joshlin/SPDX/ntia-conformance-checker/tests/doc_fest/SourceAuditor/AppBomInation-SourceAndDependency.spdx (1).json'
 dirname = os.path.join(os.path.dirname(__file__), "data", "no_elements_missing")
 test_files = [os.path.join(dirname, fn) for fn in os.listdir(dirname)]
 
@@ -21,7 +19,6 @@ def test_checker_no_errors(test_file):
 
 dirname = os.path.join(os.path.dirname(__file__), "data", "missing_author_name")
 test_files_missing_author_name = [os.path.join(dirname, fn) for fn in os.listdir(dirname)]
-
 @pytest.mark.parametrize("test_file", test_files_missing_author_name)
 def test_checker_missing_author_name(test_file):
     doc, error = parse_anything.parse_file(test_file)
@@ -30,7 +27,6 @@ def test_checker_missing_author_name(test_file):
 
 dirname = os.path.join(os.path.dirname(__file__), "data", "missing_timestamp")
 test_files_missing_timestamp = [os.path.join(dirname, fn) for fn in os.listdir(dirname)]
-
 @pytest.mark.parametrize("test_file", test_files_missing_timestamp)
 # Todo: Cannot be parsed
 def test_checker_missing_timestamp(test_file):
@@ -38,8 +34,9 @@ def test_checker_missing_timestamp(test_file):
     assert error
     assert check_anything.check_minimum_elements(test_file).messages == [str(doc.name + ': Errors while parsing: True'),
                                                                          str(doc.name + ': Document has no timestamp.')]
-
-@pytest.mark.parametrize("test_file", ['/Users/joshlin/Desktop/tools-python/tests/data/other_tests/SPDXSBOMExample.spdx.yml'])
+dirname = os.path.join(os.path.dirname(__file__), "data", "other_tests")
+file = [os.path.join(dirname, "SPDXSBOMExample.spdx.yml")]
+@pytest.mark.parametrize("test_file", file)
 # Todo: Cannot be parsed
 def test_checker_missing_timestamp_(test_file):
     doc, error = parse_anything.parse_file(test_file)
@@ -55,7 +52,6 @@ def test_checker_missing_timestamp_(test_file):
 
 dirname = os.path.join(os.path.dirname(__file__), "data", "missing_supplier_name")
 test_files_missing_supplier_name = [os.path.join(dirname, fn) for fn in os.listdir(dirname)]
-
 @pytest.mark.parametrize("test_file", test_files_missing_supplier_name)
 def test_checker_missing_author_name_json(test_file):
     doc, error = parse_anything.parse_file(test_file)
@@ -63,16 +59,18 @@ def test_checker_missing_author_name_json(test_file):
     assert check_anything.check_minimum_elements(test_file).messages == ['Sample_Document-V2.1: SPDX Translator has no supplier.',
                                                                          'Sample_Document-V2.1: SPDX Translator has no identifier.']
 
-@pytest.mark.parametrize("test_file", ['/Users/joshlin/Desktop/tools-python/tests/data/missing_supplier_name/SPDXRdfExample.rdf'])
+dirname = os.path.join(os.path.dirname(__file__), "data", "missing_author_name")
+missing_author_name_rdf = [os.path.join(dirname, "SPDXRdfExample.rdf")]
+@pytest.mark.parametrize("test_file", missing_author_name_rdf)
 def test_checker_missing_author_name_rdf(test_file):
     doc, error = parse_anything.parse_file(test_file)
-    print(doc.__dict__)
-    print(doc.version)
     assert not error
-    assert check_anything.check_minimum_elements(test_file).messages == ['Sample_Document-V2.1: SPDX Translator has no supplier.',
-                                                                         'Sample_Document-V2.1: SPDX Translator has no identifier.']
+    assert check_anything.check_minimum_elements(test_file).messages == ['Sample_Document-V2.1: Document has no author.']
 
-@pytest.mark.parametrize("test_file", ['/Users/joshlin/Desktop/tools-python/tests/data/SPDXSBOMExampleTests/SPDXSBOMExampleMissingAuthorName.spdx.yml'])
+
+dirname = os.path.join(os.path.dirname(__file__), "data", "SPDXSBOMExampleTests")
+missing_author_name_yml = [os.path.join(dirname, "SPDXSBOMExampleMissingAuthorName.spdx.yml")]
+@pytest.mark.parametrize("test_file", missing_author_name_yml)
 def test_checker_missing_author_name_yml(test_file):
     doc, error = parse_anything.parse_file(test_file)
     assert not error
@@ -84,36 +82,29 @@ def test_checker_missing_author_name_yml(test_file):
                                                                          'xyz-0.1.0: curl has no identifier.',
                                                                          'xyz-0.1.0: openssl has no identifier.']
 
-@pytest.mark.parametrize("test_file", ['/Users/joshlin/Desktop/tools-python/tests/data/missing_supplier_name/SPDXSimpleTag.tag'])
+
+dirname = os.path.join(os.path.dirname(__file__), "data", "missing_supplier_name")
+files = [os.path.join(dirname, fn) for fn in os.listdir(dirname)]
+#missing_supplier_name_simple_tag = [os.path.join(dirname, "SPDXSimpleTag.tag")]
+@pytest.mark.parametrize("test_file", files)
+def test_checker_missing_supplier_name(test_file):
+    doc, error = parse_anything.parse_file(test_file)
+    assert not error
+    assert check_anything.check_minimum_elements(test_file).messages == ['Sample_Document-V2.1: SPDX Translator has no supplier.',
+                                                                         'Sample_Document-V2.1: SPDX Translator has no identifier.']
+
+
+dirname = os.path.join(os.path.dirname(__file__), "data", "missing_author_name")
+test_files_missing_author_name = [os.path.join(dirname, fn) for fn in os.listdir(dirname)]
+@pytest.mark.parametrize("test_file", test_files_missing_author_name)
 def test_checker_missing_author_name_simple_tag(test_file):
     doc, error = parse_anything.parse_file(test_file)
     assert not error
-    assert check_anything.check_minimum_elements(test_file).messages == ['Sample_Document-V2.1: Test has no supplier.']
-
-
-
-@pytest.mark.parametrize("test_file", ['/Users/joshlin/Desktop/tools-python/tests/data/missing_supplier_name/SPDXTagExample.tag'])
-def test_checker_missing_author_name_simple_tag(test_file):
-    doc, error = parse_anything.parse_file(test_file)
-    assert not error
-    assert check_anything.check_minimum_elements(test_file).messages == ['Sample_Document-V2.1: SPDX Translator has no supplier.']
-
-@pytest.mark.parametrize("test_file", ['/Users/joshlin/Desktop/tools-python/tests/data/missing_supplier_name/SPDXXmlExample.xml'])
-def test_checker_missing_author_name_simple_tag(test_file):
-    doc, error = parse_anything.parse_file(test_file)
-    assert not error
-    assert check_anything.check_minimum_elements(test_file).messages == ['Sample_Document-V2.1: SPDX Translator has no supplier.']
-
-@pytest.mark.parametrize("test_file", ['/Users/joshlin/Desktop/tools-python/tests/data/missing_supplier_name/SPDXYamlExample.yaml'])
-def test_checker_missing_author_name_simple_tag(test_file):
-    doc, error = parse_anything.parse_file(test_file)
-    assert not error
-    assert check_anything.check_minimum_elements(test_file).messages == ['Sample_Document-V2.1: SPDX Translator has no supplier.']
+    assert check_anything.check_minimum_elements(test_file).messages == ['Sample_Document-V2.1: Document has no author.']
 
 
 dirname = os.path.join(os.path.dirname(__file__), "data", "missing_component_version")
 test_files_missing_component_version = [os.path.join(dirname, fn) for fn in os.listdir(dirname)]
-
 @pytest.mark.parametrize("test_file", test_files_missing_component_version)
 def test_checker_missing_author_name_simple_tag(test_file):
     doc, error = parse_anything.parse_file(test_file)
@@ -257,6 +248,3 @@ files = [os.path.join(dirname, fn) for fn in os.listdir(dirname)]
 def test_zephyrwest(test_file):
     if test_file not in dict:
         dict[test_file] = check_anything.check_minimum_elements(test_file).messages
-
-def test_print_dict():
-    print(dict)
