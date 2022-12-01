@@ -57,4 +57,4 @@ The user will then be presented with a prompt:
 File name: 
 ```
 
-Enter the full path to an SPDX document.
+Enter the full path to an SPDX document. 
