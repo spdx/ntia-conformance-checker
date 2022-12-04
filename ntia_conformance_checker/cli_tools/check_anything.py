@@ -1,18 +1,38 @@
+import os
+
 from spdx.parsers.loggers import ErrorMessages
 import asyncio
 import spdx.creationinfo
 from spdx.parsers import parse_anything
 
 def check_minimum_elements(file, messages=None):
+    """Assess if a SPDX document contains minumum elements.
+
+    The function gathers all the individual minimum elements checks.
+
+    Args:
+        file (str) - full filepath
+        messages (list) - set of messages related to minumum elements check
+
+    Returns:
+        messages (list) - set of messages related to minumum elements check
+    """
     if isinstance(messages, list):
         raise TypeError("messages should be None or an instance of ErrorMessages")
     if messages is None:
         messages = ErrorMessages()
+
+    # check if file even exists
+    if not os.path.exists(file):
+        messages.append(f"Filename {file} not found.")
+        return messages
+
     try:
         doc, error = parse_anything.parse_file(file)
     except:
         messages.append("Document cannot be parsed.")
         return messages
+
     messages.push_context(doc.name)
     if error:
         messages.append("Errors while parsing: True")
