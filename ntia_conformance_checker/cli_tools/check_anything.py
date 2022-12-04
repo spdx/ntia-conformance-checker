@@ -82,7 +82,7 @@ def check_components_suppliers(doc, messages):
 
 def check_components_identifiers(doc, messages):
     for package in doc.packages:
-        if has_supplier(package) == False:
+        if has_identifier(package) == False:
             messages.append(str(package.name) + " has no identifier.")
 
 def has_supplier(package):
