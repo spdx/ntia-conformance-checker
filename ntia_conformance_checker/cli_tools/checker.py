@@ -2,6 +2,7 @@ from check_anything import check_minimum_elements
 
 import click
 
+
 @click.command()
 @click.option("--file", prompt="File name", help="The file to be parsed")
 def main(file):
@@ -12,6 +13,7 @@ def main(file):
 
     """
     print(check_minimum_elements(file).messages)
+
 
 if __name__ == "__main__":
     main()
