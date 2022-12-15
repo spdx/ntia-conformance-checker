@@ -29,7 +29,7 @@ def check_minimum_elements(file, messages=None):
         messages.append(f"Filename {file} not found.")
         return messages
 
-    try: # pylint: disable=bare-except
+    try:  # pylint: disable=bare-except
         doc, error = parse_anything.parse_file(file)
     except:
         messages.append("Document cannot be parsed.")
