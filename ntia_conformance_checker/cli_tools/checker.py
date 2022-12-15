@@ -1,5 +1,7 @@
 """Entrypoint for CLI."""
 
+# pylint: disable=import-error
+
 import click
 from check_anything import check_minimum_elements
 

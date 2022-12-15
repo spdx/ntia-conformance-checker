@@ -1,6 +1,6 @@
 """Tests using pytest framework."""
 
-# pylint: disable=missing-function-docstring
+# pylint: disable=missing-function-docstring,import-error
 
 import os
 
