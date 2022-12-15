@@ -1,12 +1,13 @@
 """Tests using pytest framework."""
 
+# pylint: disable=missing-function-docstring
+
 import os
 
 import pytest
-
 from spdx.parsers import parse_anything
 
-import ntia_conformance_checker.cli_tools.check_anything as check_anything
+import ntia_conformance_checker.cli_tools.check_anything as check_anything  # pylint: disable=consider-using-from-import
 
 dirname = os.path.join(os.path.dirname(__file__), "data", "no_elements_missing")
 test_files = [os.path.join(dirname, fn) for fn in os.listdir(dirname)]
@@ -17,7 +18,7 @@ def test_checker_no_errors(test_file):
     doc, error = parse_anything.parse_file(test_file)
     print(str(doc.version) == "SPDX-2.1")
     assert not error
-    assert check_anything.check_minimum_elements(test_file).messages == []
+    assert not check_anything.check_minimum_elements(test_file).messages
 
 
 dirname = os.path.join(os.path.dirname(__file__), "data", "missing_author_name")
@@ -40,7 +41,6 @@ test_files_missing_timestamp = [os.path.join(dirname, fn) for fn in os.listdir(d
 
 
 @pytest.mark.parametrize("test_file", test_files_missing_timestamp)
-# Todo: Cannot be parsed
 def test_checker_missing_timestamp(test_file):
     doc, error = parse_anything.parse_file(test_file)
     assert error
@@ -55,9 +55,8 @@ file = [os.path.join(dirname, "SPDXSBOMExample.spdx.yml")]
 
 
 @pytest.mark.parametrize("test_file", file)
-# Todo: Cannot be parsed
 def test_checker_missing_timestamp_(test_file):
-    doc, error = parse_anything.parse_file(test_file)
+    _, error = parse_anything.parse_file(test_file)
     assert error
     assert check_anything.check_minimum_elements(test_file).messages == [
         "xyz-0.1.0: Errors while parsing: True",
@@ -79,7 +78,7 @@ test_files_missing_supplier_name = [
 
 @pytest.mark.parametrize("test_file", test_files_missing_supplier_name)
 def test_checker_missing_author_name_json(test_file):
-    doc, error = parse_anything.parse_file(test_file)
+    _, error = parse_anything.parse_file(test_file)
     assert not error
     assert check_anything.check_minimum_elements(test_file).messages == [
         "Sample_Document-V2.1: SPDX Translator has no supplier.",
@@ -93,7 +92,7 @@ missing_author_name_rdf = [os.path.join(dirname, "SPDXRdfExample.rdf")]
 
 @pytest.mark.parametrize("test_file", missing_author_name_rdf)
 def test_checker_missing_author_name_rdf(test_file):
-    doc, error = parse_anything.parse_file(test_file)
+    _, error = parse_anything.parse_file(test_file)
     assert not error
     assert check_anything.check_minimum_elements(test_file).messages == [
         "Sample_Document-V2.1: Document has no author."
@@ -108,7 +107,7 @@ missing_author_name_yml = [
 
 @pytest.mark.parametrize("test_file", missing_author_name_yml)
 def test_checker_missing_author_name_yml(test_file):
-    doc, error = parse_anything.parse_file(test_file)
+    _, error = parse_anything.parse_file(test_file)
     assert not error
     assert check_anything.check_minimum_elements(test_file).messages == [
         "xyz-0.1.0: Document has no author.",
@@ -123,10 +122,11 @@ def test_checker_missing_author_name_yml(test_file):
 
 dirname = os.path.join(os.path.dirname(__file__), "data", "missing_supplier_name")
 files = [os.path.join(dirname, fn) for fn in os.listdir(dirname)]
-# missing_supplier_name_simple_tag = [os.path.join(dirname, "SPDXSimpleTag.tag")]
+
+
 @pytest.mark.parametrize("test_file", files)
 def test_checker_missing_supplier_name(test_file):
-    doc, error = parse_anything.parse_file(test_file)
+    _, error = parse_anything.parse_file(test_file)
     assert not error
     assert check_anything.check_minimum_elements(test_file).messages == [
         "Sample_Document-V2.1: SPDX Translator has no supplier.",
@@ -142,7 +142,7 @@ test_files_missing_author_name = [
 
 @pytest.mark.parametrize("test_file", test_files_missing_author_name)
 def test_checker_missing_author_name_simple_tag(test_file):
-    doc, error = parse_anything.parse_file(test_file)
+    _, error = parse_anything.parse_file(test_file)
     assert not error
     assert check_anything.check_minimum_elements(test_file).messages == [
         "Sample_Document-V2.1: Document has no author."
@@ -156,7 +156,7 @@ test_files_missing_component_version = [
 
 
 @pytest.mark.parametrize("test_file", test_files_missing_component_version)
-def test_checker_missing_author_name_simple_tag(test_file):
+def test_checker_missing_version_name_simple_tag(test_file):
     doc, error = parse_anything.parse_file(test_file)
     assert not error
     assert check_anything.check_minimum_elements(test_file).messages == [
@@ -168,10 +168,11 @@ dirname = os.path.join(os.path.dirname(__file__), "data", "missing_unique_identi
 test_files_missing_unique_identifiers = [
     os.path.join(dirname, fn) for fn in os.listdir(dirname)
 ]
-# Todo: Cannot be parsed
+
+
 @pytest.mark.parametrize("test_file", test_files_missing_unique_identifiers)
 def test_checker_missing_unique_identifiers(test_file):
-    doc, error = parse_anything.parse_file(test_file)
+    _, _ = parse_anything.parse_file(test_file)
     assert check_anything.check_minimum_elements(test_file).messages == [
         "Sample_Document-V2.1: Errors while parsing: True"
     ]
@@ -198,7 +199,8 @@ dirname = os.path.join(os.path.dirname(__file__), "data", "missing_component_nam
 test_files_missing_component_names = [
     os.path.join(dirname, fn) for fn in os.listdir(dirname)
 ]
-# Todo: Cannot be parsed
+
+
 @pytest.mark.parametrize("test_file", test_files_missing_component_names)
 def test_fossology(test_file):
     doc, error = parse_anything.parse_file(test_file)
@@ -209,133 +211,132 @@ def test_fossology(test_file):
 
 
 dirname = os.path.join(os.path.dirname(__file__), "doc_fest", "FOSSology")
-dict = {}
+file_dict = {}
 files = [os.path.join(dirname, fn) for fn in os.listdir(dirname)]
 
 
 @pytest.mark.parametrize("test_file", files)
 def test_kubernetes(test_file):
-    if test_file not in dict:
-        dict[test_file] = check_anything.check_minimum_elements(test_file).messages
+    if test_file not in file_dict:
+        file_dict[test_file] = check_anything.check_minimum_elements(test_file).messages
 
 
 dirname = os.path.join(os.path.dirname(__file__), "doc_fest", "Kubernetes")
-dict = {}
+file_dict = {}
 files = [os.path.join(dirname, fn) for fn in os.listdir(dirname)]
 
 
 @pytest.mark.parametrize("test_file", files)
 def test_metaeffekt(test_file):
-    if test_file not in dict:
-        dict[test_file] = check_anything.check_minimum_elements(test_file).messages
+    if test_file not in file_dict:
+        file_dict[test_file] = check_anything.check_minimum_elements(test_file).messages
 
 
 dirname = os.path.join(os.path.dirname(__file__), "doc_fest", "metaeffekt")
-dict = {}
+file_dict = {}
 files = [os.path.join(dirname, fn) for fn in os.listdir(dirname)]
 
 
 @pytest.mark.parametrize("test_file", files)
 def test_metaspdxscanner(test_file):
-    if test_file not in dict:
-        dict[test_file] = check_anything.check_minimum_elements(test_file).messages
+    if test_file not in file_dict:
+        file_dict[test_file] = check_anything.check_minimum_elements(test_file).messages
 
 
 dirname = os.path.join(os.path.dirname(__file__), "doc_fest", "MetaSpdxscanner")
-dict = {}
+file_dict = {}
 files = [os.path.join(dirname, fn) for fn in os.listdir(dirname)]
 
 
 @pytest.mark.parametrize("test_file", files)
 def test_nexb(test_file):
-    if test_file not in dict:
-        dict[test_file] = check_anything.check_minimum_elements(test_file).messages
+    if test_file not in file_dict:
+        file_dict[test_file] = check_anything.check_minimum_elements(test_file).messages
 
 
 dirname = os.path.join(os.path.dirname(__file__), "doc_fest", "nexB")
-dict = {}
+file_dict = {}
 files = [os.path.join(dirname, fn) for fn in os.listdir(dirname)]
 
 
 @pytest.mark.parametrize("test_file", files)
 def test_openembedded(test_file):
-    if test_file not in dict:
-        dict[test_file] = check_anything.check_minimum_elements(test_file).messages
+    if test_file not in file_dict:
+        file_dict[test_file] = check_anything.check_minimum_elements(test_file).messages
 
 
 dirname = os.path.join(os.path.dirname(__file__), "doc_fest", "OpenEmbedded")
-dict = {}
+file_dict = {}
 files = [os.path.join(dirname, fn) for fn in os.listdir(dirname)]
 
 
 @pytest.mark.parametrize("test_file", files)
 def test_philips(test_file):
-    if test_file not in dict:
-        dict[test_file] = check_anything.check_minimum_elements(test_file).messages
+    if test_file not in file_dict:
+        file_dict[test_file] = check_anything.check_minimum_elements(test_file).messages
 
 
 dirname = os.path.join(os.path.dirname(__file__), "doc_fest", "Philips")
-dict = {}
+file_dict = {}
 files = [os.path.join(dirname, fn) for fn in os.listdir(dirname)]
 
 
 @pytest.mark.parametrize("test_file", files)
 def test_rea(test_file):
-    if test_file not in dict:
-        dict[test_file] = check_anything.check_minimum_elements(test_file).messages
+    if test_file not in file_dict:
+        file_dict[test_file] = check_anything.check_minimum_elements(test_file).messages
 
 
 dirname = os.path.join(os.path.dirname(__file__), "doc_fest", "REA")
-dict = {}
+file_dict = {}
 files = [os.path.join(dirname, fn) for fn in os.listdir(dirname)]
 
 
 @pytest.mark.parametrize("test_file", files)
 def test_sourceauditor(test_file):
-    if test_file not in dict:
-        dict[test_file] = check_anything.check_minimum_elements(test_file).messages
+    if test_file not in file_dict:
+        file_dict[test_file] = check_anything.check_minimum_elements(test_file).messages
 
 
 dirname = os.path.join(os.path.dirname(__file__), "doc_fest", "SourceAuditor")
-dict = {}
+file_dict = {}
 files = [os.path.join(dirname, fn) for fn in os.listdir(dirname)]
 
 
 @pytest.mark.parametrize("test_file", files)
 def test_synopsysblackduck(test_file):
-    if test_file not in dict:
-        dict[test_file] = check_anything.check_minimum_elements(test_file).messages
+    if test_file not in file_dict:
+        file_dict[test_file] = check_anything.check_minimum_elements(test_file).messages
 
 
 dirname = os.path.join(os.path.dirname(__file__), "doc_fest", "SynopsysBlackDuck")
-dict = {}
+file_dict = {}
 files = [os.path.join(dirname, fn) for fn in os.listdir(dirname)]
 
 
 @pytest.mark.parametrize("test_file", files)
-def test_tern(test_file):
-    if test_file not in dict:
-        dict[test_file] = check_anything.check_minimum_elements(test_file).messages
+def test_synopsys_black_duck(test_file):
+    if test_file not in file_dict:
+        file_dict[test_file] = check_anything.check_minimum_elements(test_file).messages
 
 
 dirname = os.path.join(os.path.dirname(__file__), "doc_fest", "Tern")
-dict = {}
+file_dict = {}
 files = [os.path.join(dirname, fn) for fn in os.listdir(dirname)]
 
 
 @pytest.mark.parametrize("test_file", files)
 def test_tern(test_file):
-    if test_file not in dict:
-        dict[test_file] = check_anything.check_minimum_elements(test_file).messages
+    if test_file not in file_dict:
+        file_dict[test_file] = check_anything.check_minimum_elements(test_file).messages
 
 
-# Todo: changed all .spdx files to .tag and parsing now works
 dirname = os.path.join(os.path.dirname(__file__), "doc_fest", "ZephyrWest")
-dict = {}
+file_dict = {}
 files = [os.path.join(dirname, fn) for fn in os.listdir(dirname)]
 
 
 @pytest.mark.parametrize("test_file", files)
 def test_zephyrwest(test_file):
-    if test_file not in dict:
-        dict[test_file] = check_anything.check_minimum_elements(test_file).messages
+    if test_file not in file_dict:
+        file_dict[test_file] = check_anything.check_minimum_elements(test_file).messages
