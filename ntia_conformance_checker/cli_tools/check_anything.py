@@ -1,5 +1,7 @@
 """Main minimum elements checking functionality."""
 
+# pylint: disable=import-error
+
 import os
 
 import spdx.creationinfo
