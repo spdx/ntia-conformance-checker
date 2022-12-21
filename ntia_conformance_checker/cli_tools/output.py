@@ -1,6 +1,6 @@
 """Parse and format message output."""
 
-from spdx.parsers import parse_anything # pylint: disable=import-error
+from spdx.parsers import parse_anything  # pylint: disable=import-error
 
 
 def structure_messages(file, messages):
