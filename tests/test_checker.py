@@ -1,6 +1,6 @@
 """Tests using pytest framework."""
 
-# pylint: disable=missing-function-docstring,import-error
+# pylint: disable=missing-function-docstring,import-error,consider-using-from-import
 
 import os
 
@@ -348,7 +348,7 @@ def test_is_document_level_element_present():
     got = output.is_document_level_element_present(messages, "Document has no author.")
     # because there is an error message that the "document has no author",
     # then that SBOM minimum element is not present, so False
-    assert got == False
+    assert got is False
 
 
 def test_find_nonconformant_component_level_elements():
@@ -371,9 +371,8 @@ def test_structure_messages():
         "Document has no timestamp.",
         "pkg2 has has no supplier.",
     ]
-    dirname = os.path.join(os.path.dirname(__file__), "data", "other_tests")
-    file = os.path.join(dirname, "SPDXSBOMExample.spdx.yml")
-    got = output.structure_messages(file, messages)
+    filepath = os.path.join(os.path.dirname(__file__), "data", "other_tests", "SPDXSBOMExample.spdx.yml")
+    got = output.structure_messages(filepath, messages)
     assert got == {
         "componentVersions": {"nonconformantComponents": [], "allProvided": True},
         "componentIdentifiers": {"nonconformantComponents": [], "allProvided": True},
