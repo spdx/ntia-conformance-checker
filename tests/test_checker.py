@@ -371,7 +371,9 @@ def test_structure_messages():
         "Document has no timestamp.",
         "pkg2 has has no supplier.",
     ]
-    filepath = os.path.join(os.path.dirname(__file__), "data", "other_tests", "SPDXSBOMExample.spdx.yml")
+    filepath = os.path.join(
+        os.path.dirname(__file__), "data", "other_tests", "SPDXSBOMExample.spdx.yml"
+    )
     got = output.structure_messages(filepath, messages)
     assert got == {
         "componentVersions": {"nonconformantComponents": [], "allProvided": True},
