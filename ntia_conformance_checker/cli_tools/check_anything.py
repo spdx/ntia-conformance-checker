@@ -1,9 +1,12 @@
+"""Main minimum elements checking functionality."""
+
+# pylint: disable=import-error
+
 import os
 
-from spdx.parsers.loggers import ErrorMessages
-import asyncio
 import spdx.creationinfo
 from spdx.parsers import parse_anything
+from spdx.parsers.loggers import ErrorMessages
 
 
 def check_minimum_elements(file, messages=None):
@@ -30,7 +33,7 @@ def check_minimum_elements(file, messages=None):
 
     try:
         doc, error = parse_anything.parse_file(file)
-    except:
+    except:  # pylint: disable=bare-except
         messages.append("Document cannot be parsed.")
         return messages
 
@@ -50,69 +53,175 @@ def check_minimum_elements(file, messages=None):
 
 
 def check_document_version(doc, messages):
+    """Check the SPDX document version.
+
+    Args:
+        file (str) - full filepath
+        messages (list) - set of messages related to minumum elements check
+
+    Returns:
+        messages (list) - set of messages related to minumum elements check
+    """
     if str(doc.version) != "SPDX-2.2" and str(doc.version) != "SPDX-2.3":
         messages.append("Document  version " + str(doc.version) + " not supported.")
-        return messages
+    return messages
 
 
 def check_components_names(doc, messages):
+    """Check that components have names.
+
+    Args:
+        file (str) - full filepath
+        messages (list) - set of messages related to minumum elements check
+
+    Returns:
+        messages (list) - set of messages related to minumum elements check
+    """
     for package in doc.packages:
         messages = check_name(package, messages)
+    return messages
 
 
 def check_components_versions(doc, messages):
+    """Check that components have versions.
+
+    Args:
+        file (str) - full filepath
+        messages (list) - set of messages related to minumum elements check
+
+    Returns:
+        messages (list) - set of messages related to minumum elements check
+    """
     for package in doc.packages:
-        if has_version(package) == False:
+        if has_version(package) is False:
             messages.append(str(package.name) + " has no version.")
 
 
 def check_sbom_author(doc, messages):
-    for i in range(len(doc.creation_info.creators)):
-        if type(doc.creation_info.creators[i]) == spdx.creationinfo.Person:
+    """Check that SBOM has an author.
+
+    Args:
+        file (str) - full filepath
+        messages (list) - set of messages related to minumum elements check
+
+    Returns:
+        messages (list) - set of messages related to minumum elements check
+    """
+    for i, _ in enumerate(doc.creation_info.creators):
+        if isinstance(doc.creation_info.creators[i], spdx.creationinfo.Person):
             return
     messages.append("Document has no author.")
 
 
 def check_sbom_timestamp(doc, messages):
+    """Check that SBOM has a timestamp.
+
+    Args:
+        file (str) - full filepath
+        messages (list) - set of messages related to minumum elements check
+
+    Returns:
+        messages (list) - set of messages related to minumum elements check
+    """
     if doc.creation_info.created is None:
         messages.append("Document has no timestamp.")
 
 
 def check_sbom_dependency_relationships(doc, messages):
+    """Check if SBOM has any dependency relationships.
+
+    Args:
+        file (str) - full filepath
+        messages (list) - set of messages related to minumum elements check
+
+    Returns:
+        messages (list) - set of messages related to minumum elements check
+    """
     if len(doc.relationships) == 0:
         messages.append("Document has no dependency relationships.")
 
 
 def check_components_suppliers(doc, messages):
+    """Check for components that have no suppliers.
+
+    Args:
+        file (str) - full filepath
+        messages (list) - set of messages related to minumum elements check
+
+    Returns:
+        messages (list) - set of messages related to minumum elements check
+    """
     for package in doc.packages:
-        if has_supplier(package) == False:
+        if has_supplier(package) is False:
             messages.append(str(package.name) + " has no supplier.")
 
 
 def check_components_identifiers(doc, messages):
+    """Check that components have identifiers.
+
+    Args:
+        file (str) - full filepath
+        messages (list) - set of messages related to minumum elements check
+
+    Returns:
+        messages (list) - set of messages related to minumum elements check
+    """
     for package in doc.packages:
-        if has_identifier(package) == False:
+        if has_identifier(package) is False:
             messages.append(str(package.name) + " has no identifier.")
 
 
 def has_supplier(package):
+    """Check that a particular package has a supplier.
+
+    Args:
+        package - package name
+
+    Returns:
+        bool
+    """
     if package.supplier is None:
         return False
     return True
 
 
 def has_identifier(package):
+    """Check that a particular package has an identifier.
+
+    Args:
+        package - package name
+
+    Returns:
+        bool
+    """
     if package.supplier is None:
         return False
     return True
 
 
 def has_version(package):
+    """Check that a particular package has a version.
+
+    Args:
+        package - package name
+
+    Returns:
+        bool
+    """
     if package.version is None:
         return False
     return True
 
 
 def check_name(package, messages):
+    """Check that a particular package has a name.
+
+    Args:
+        package - package name
+
+    Returns:
+        bool
+    """
     if package.name is None:
         messages.append("Package has no name.")
+    return messages
