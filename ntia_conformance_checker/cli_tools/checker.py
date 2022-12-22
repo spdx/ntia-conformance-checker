@@ -33,12 +33,13 @@ def main(file, output, output_path):
     if output == "json":
         msgs = check_minimum_elements(file).messages
         result_dict = structure_messages(file, msgs)
-        print(json.dumps(result_dict, indent=2))
         # only export JSON results to a file if output_path
         # is provided
         if output_path:
             with open(output_path, "w", encoding="utf-8") as outfile:
                 json.dump(result_dict, outfile)
+        else:
+            print(json.dumps(result_dict, indent=2))
 
 
 if __name__ == "__main__":
