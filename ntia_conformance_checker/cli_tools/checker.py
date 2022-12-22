@@ -19,7 +19,7 @@ from output import structure_messages
 )
 @click.option(
     "--output_path",
-    help="Filepath for output of JSON.",
+    help="Filepath for optionally storing output.",
 )
 def main(file, output, output_path):
     """
@@ -29,12 +29,15 @@ def main(file, output, output_path):
     For help: run `python3 checker.py --help`
     """
     if output == "print":
-        print(check_minimum_elements(file).messages)
+        result_list = check_minimum_elements(file).messages
+        if output_path:
+            with open(output_path, "w", encoding="utf-8") as outfile:
+                json.dump(result_list, outfile)
+        else:
+            print(result_list)
     if output == "json":
         msgs = check_minimum_elements(file).messages
         result_dict = structure_messages(file, msgs)
-        # only export JSON results to a file if output_path
-        # is provided
         if output_path:
             with open(output_path, "w", encoding="utf-8") as outfile:
                 json.dump(result_dict, outfile)
