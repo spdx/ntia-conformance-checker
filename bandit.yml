@@ -1,0 +1,4 @@
+# `assert_used` in tests is not a security concern
+# credit to SO https://stackoverflow.com/questions/63829128/how-can-i-make-bandit-skip-b101-within-tests
+assert_used:
+  skips: ['/tests/']
