@@ -15,4 +15,4 @@ jobs:
       - name: Run bandit
         uses: tj-actions/bandit@v5.1
         with:
-          options: "-c bandit.yaml -r"
+          options: "-c bandit.yml -r"
