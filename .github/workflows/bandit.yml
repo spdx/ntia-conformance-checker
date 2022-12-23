@@ -1,0 +1,16 @@
+name: bandit-security-linter
+on:
+  push:
+    branches:
+    - main
+  pull_request:
+    branches:
+    - main
+
+jobs:
+  bandit:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v2
+      - name: Run bandit
+        uses: tj-actions/bandit@v5.1
