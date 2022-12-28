@@ -110,7 +110,7 @@ def check_sbom_author(doc, messages):
     for i, _ in enumerate(doc.creation_info.creators):
         if isinstance(
             doc.creation_info.creators[i],
-            [spdx.creationinfo.Person, spdx.creationinfo.Organization],
+            (spdx.creationinfo.Person, spdx.creationinfo.Organization),
         ):
             return
     messages.append("Document has no author.")
