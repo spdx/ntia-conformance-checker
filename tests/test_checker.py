@@ -1,6 +1,6 @@
 """Tests using pytest framework."""
 
-# pylint: disable=missing-function-docstring,import-error
+# pylint: disable=missing-function-docstring,import-error,consider-using-from-import
 
 import os
 
@@ -8,6 +8,7 @@ import pytest
 from spdx.parsers import parse_anything
 
 import ntia_conformance_checker.cli_tools.check_anything as check_anything  # pylint: disable=consider-using-from-import
+import ntia_conformance_checker.cli_tools.output as output
 
 dirname = os.path.join(os.path.dirname(__file__), "data", "no_elements_missing")
 test_files = [os.path.join(dirname, fn) for fn in os.listdir(dirname)]
@@ -340,3 +341,51 @@ files = [os.path.join(dirname, fn) for fn in os.listdir(dirname)]
 def test_zephyrwest(test_file):
     if test_file not in file_dict:
         file_dict[test_file] = check_anything.check_minimum_elements(test_file).messages
+
+
+def test_is_document_level_element_present():
+    messages = ["Document has no author.", "Document has no timestamp."]
+    got = output.is_document_level_element_present(messages, "Document has no author.")
+    # because there is an error message that the "document has no author",
+    # then that SBOM minimum element is not present, so False
+    assert got is False
+
+
+def test_find_nonconformant_component_level_elements():
+    messages = [
+        "pkg1 has has no supplier.",
+        "Document has no author.",
+        "Document has no timestamp.",
+        "pkg2 has has no supplier.",
+    ]
+    got = output.find_nonconformant_component_level_elements(
+        messages, "has no supplier."
+    )
+    assert got == ["pkg1", "pkg2"]
+
+
+def test_structure_messages():
+    messages = [
+        "pkg1 has has no supplier.",
+        "Document has no author.",
+        "Document has no timestamp.",
+        "pkg2 has has no supplier.",
+    ]
+    filepath = os.path.join(
+        os.path.dirname(__file__), "data", "other_tests", "SPDXSBOMExample.spdx.yml"
+    )
+    got = output.structure_messages(filepath, messages)
+    assert got == {
+        "componentVersions": {"nonconformantComponents": [], "allProvided": True},
+        "componentIdentifiers": {"nonconformantComponents": [], "allProvided": True},
+        "componentSuppliers": {
+            "nonconformantComponents": ["pkg1", "pkg2"],
+            "allProvided": False,
+        },
+        "componentNames": {"numNonconformantComponents": 0, "allProvided": True},
+        "authorNameProvided": False,
+        "timestampProvided": False,
+        "dependencyRelationshipsProvided": True,
+        "isNtiaConformant": False,
+        "sbomName": "xyz-0.1.0",
+    }
