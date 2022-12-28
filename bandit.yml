@@ -1,0 +1,3 @@
+# exclude tests directory
+# bandit config info: https://bandit.readthedocs.io/en/latest/config.html
+exclude_dirs: ['tests']
