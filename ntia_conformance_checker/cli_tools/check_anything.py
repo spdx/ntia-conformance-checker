@@ -5,7 +5,7 @@
 import os
 
 import spdx.creationinfo
-from spdx.parsers import parse_anything
+from spdx.parsers.parse_anything import parse_file
 from spdx.parsers.loggers import ErrorMessages
 
 
@@ -32,7 +32,7 @@ def check_minimum_elements(file, messages=None):
         return messages
 
     try:
-        doc, error = parse_anything.parse_file(file)
+        doc, error = parse_file(file)
     except Exception as parsing_error:  # pylint: disable=broad-except
         messages.append(f"Document cannot be parsed: {parsing_error}")
         return messages
