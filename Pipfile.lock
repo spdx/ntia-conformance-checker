@@ -16,14 +16,6 @@
         ]
     },
     "default": {
-        "click": {
-            "hashes": [
-                "sha256:7682dc8afb30297001674575ea00d1814d808d6a36af415a82bd481d37ba7b8e",
-                "sha256:bb4d8133cb15a609f44e8213d9b391b0809795062913b383c62be0ee95b1db48"
-            ],
-            "markers": "python_version >= '3.7'",
-            "version": "==8.1.3"
-        },
         "isodate": {
             "hashes": [
                 "sha256:0751eece944162659049d35f4f549ed815792b38793f07cf73381c1c87cbed96",
@@ -113,17 +105,15 @@
                 "sha256:1e61c37477a1626458e36f7b1d82aa5c9b094fa4802892072e49de9c60c4c926",
                 "sha256:8abb2f1d86890a2dfb989f9a77cfcfd3e47c2a354b01111771326f8aa26e0254"
             ],
-            "markers": "python_version >= '2.7' and python_version not in '3.0, 3.1, 3.2, 3.3'",
+            "markers": "python_version >= '2.7' and python_version not in '3.0, 3.1, 3.2'",
             "version": "==1.16.0"
         },
         "spdx-tools": {
-            "git": "https://github.com/linynjosh/tools-python",
             "hashes": [
                 "sha256:45fa09d43534772ca63bff2dccf1fbde88e1fc9b9515fc7a34ae50540d7ad29c",
                 "sha256:9a1aaae051771e865705dd2fd374c3f73d0ad595c1056548466997551cbd7a81"
             ],
             "index": "pypi",
-            "ref": "bda0bbeffb413487304e97e7f8056c8158f1b83e",
             "version": "==0.6.1"
         },
         "xmltodict": {
