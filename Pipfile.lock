@@ -1,7 +1,7 @@
 {
     "_meta": {
         "hash": {
-            "sha256": "5c6cb30b030c0053188233b68527d384e976c8568a94657f9754c8e714d7e7d9"
+            "sha256": "fe289aca4045e9119a31628daf90d0235184655bff4cf595eef251329b5271a6"
         },
         "pipfile-spec": 6,
         "requires": {
@@ -16,6 +16,14 @@
         ]
     },
     "default": {
+        "click": {
+            "hashes": [
+                "sha256:7682dc8afb30297001674575ea00d1814d808d6a36af415a82bd481d37ba7b8e",
+                "sha256:bb4d8133cb15a609f44e8213d9b391b0809795062913b383c62be0ee95b1db48"
+            ],
+            "markers": "python_version >= '3.7'",
+            "version": "==8.1.3"
+        },
         "isodate": {
             "hashes": [
                 "sha256:0751eece944162659049d35f4f549ed815792b38793f07cf73381c1c87cbed96",
@@ -105,16 +113,16 @@
                 "sha256:1e61c37477a1626458e36f7b1d82aa5c9b094fa4802892072e49de9c60c4c926",
                 "sha256:8abb2f1d86890a2dfb989f9a77cfcfd3e47c2a354b01111771326f8aa26e0254"
             ],
-            "markers": "python_version >= '2.7' and python_version not in '3.0, 3.1, 3.2'",
+            "markers": "python_version >= '2.7' and python_version not in '3.0, 3.1, 3.2, 3.3'",
             "version": "==1.16.0"
         },
         "spdx-tools": {
             "hashes": [
-                "sha256:45fa09d43534772ca63bff2dccf1fbde88e1fc9b9515fc7a34ae50540d7ad29c",
-                "sha256:9a1aaae051771e865705dd2fd374c3f73d0ad595c1056548466997551cbd7a81"
+                "sha256:650dd0786eb5012ec5fb267228f1cf226e9d53a31be59a4f2e2a840942c1402f",
+                "sha256:cf950dc92e916a0097f3cef3aaa6632462d2e0312561244a3f7640d018749a01"
             ],
             "index": "pypi",
-            "version": "==0.6.1"
+            "version": "==0.7.0rc0"
         },
         "xmltodict": {
             "hashes": [
