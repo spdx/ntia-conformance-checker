@@ -5,7 +5,7 @@
 import os
 
 import spdx.creationinfo
-from spdx.parsers.parse_anything import parse_file
+from spdx.parsers import parse_anything
 from spdx.parsers.loggers import ErrorMessages
 
 

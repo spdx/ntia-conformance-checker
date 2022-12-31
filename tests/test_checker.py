@@ -5,7 +5,7 @@
 import os
 
 import pytest
-import spdx.parsers.parse_anything as parse_anything
+from spdx.parsers import parse_anything
 
 import ntia_conformance_checker.cli_tools.check_anything as check_anything  # pylint: disable=consider-using-from-import
 import ntia_conformance_checker.cli_tools.output as output
