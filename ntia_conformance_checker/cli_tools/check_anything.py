@@ -32,7 +32,7 @@ def check_minimum_elements(file, messages=None):
         return messages
 
     try:
-        doc, error = parse_file(file)
+        doc, error = parse_anything.parse_file(file)
     except Exception as parsing_error:  # pylint: disable=broad-except
         messages.append(f"Document cannot be parsed: {parsing_error}")
         return messages
