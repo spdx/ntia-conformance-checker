@@ -36,7 +36,7 @@ Relationship: SPDXRef-DOCUMENT CONTAINS SPDXRef-Package
 
 ## Package Information
 PackageName: SPDX Translator
-PackageVersion: Version 0.9.2
+PackageVersion: 2.11.1
 PackageDownloadLocation: http://www.spdx.org/tools
 PackageSummary: <text>SPDX Translator utility</text>
 PackageSourceInfo: <text>Version 1.0 of the SPDX Translator application</text>
@@ -213,4 +213,3 @@ ExtractedText: <text>/*
  * (INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE OF
  * THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
  */  </text>
-
