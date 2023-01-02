@@ -109,7 +109,10 @@ def check_sbom_author(doc, messages):
         messages (list) - set of messages related to minumum elements check
     """
     for i, _ in enumerate(doc.creation_info.creators):
-        if isinstance(doc.creation_info.creators[i], spdx.creationinfo.Person):
+        if isinstance(
+            doc.creation_info.creators[i],
+            (spdx.creationinfo.Person, spdx.creationinfo.Organization),
+        ):
             return messages
     return messages.append("Document has no author.")
 
