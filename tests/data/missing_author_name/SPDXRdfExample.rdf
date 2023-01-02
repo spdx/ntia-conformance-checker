@@ -21,7 +21,6 @@
         <created>2010-02-03T00:00:00Z</created>
         <rdfs:comment>This is an example of an SPDX spreadsheet format</rdfs:comment>
         <creator>Tool: SourceAuditor-V1.2</creator>
-        <creator>Organization: Source Auditor Inc.</creator>
       </CreationInfo>
     </creationInfo>
     <specVersion>SPDX-2.3</specVersion>
