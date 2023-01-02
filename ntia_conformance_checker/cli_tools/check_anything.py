@@ -95,6 +95,7 @@ def check_components_versions(doc, messages):
     for package in doc.packages:
         if has_version(package) is False:
             messages.append(str(package.name) + " has no version.")
+    return messages
 
 
 def check_sbom_author(doc, messages):
@@ -109,8 +110,8 @@ def check_sbom_author(doc, messages):
     """
     for i, _ in enumerate(doc.creation_info.creators):
         if isinstance(doc.creation_info.creators[i], spdx.creationinfo.Person):
-            return
-    messages.append("Document has no author.")
+            return messages
+    return messages.append("Document has no author.")
 
 
 def check_sbom_timestamp(doc, messages):
@@ -125,6 +126,7 @@ def check_sbom_timestamp(doc, messages):
     """
     if doc.creation_info.created is None:
         messages.append("Document has no timestamp.")
+    return messages
 
 
 def check_sbom_dependency_relationships(doc, messages):
@@ -139,6 +141,7 @@ def check_sbom_dependency_relationships(doc, messages):
     """
     if len(doc.relationships) == 0:
         messages.append("Document has no dependency relationships.")
+    return messages
 
 
 def check_components_suppliers(doc, messages):
@@ -154,6 +157,7 @@ def check_components_suppliers(doc, messages):
     for package in doc.packages:
         if has_supplier(package) is False:
             messages.append(str(package.name) + " has no supplier.")
+    return messages
 
 
 def check_components_identifiers(doc, messages):
@@ -169,6 +173,7 @@ def check_components_identifiers(doc, messages):
     for package in doc.packages:
         if has_identifier(package) is False:
             messages.append(str(package.name) + " has no identifier.")
+    return messages
 
 
 def has_supplier(package):
@@ -189,21 +194,21 @@ def has_identifier(package):
     """Check that a particular package has an identifier.
 
     Args:
-        package - package name
+        package - spdx package object
 
     Returns:
         bool
     """
-    if package.supplier is None:
-        return False
-    return True
+    if package.spdx_id:
+        return True
+    return False
 
 
 def has_version(package):
     """Check that a particular package has a version.
 
     Args:
-        package - package name
+        package - spdx package object
 
     Returns:
         bool
@@ -217,7 +222,7 @@ def check_name(package, messages):
     """Check that a particular package has a name.
 
     Args:
-        package - package name
+        package - spdx package object
 
     Returns:
         bool

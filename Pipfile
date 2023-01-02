@@ -4,9 +4,12 @@ verify_ssl = true
 name = "pypi"
 
 [packages]
-spdx-tools = {git = "https://github.com/linynjosh/tools-python"}
+spdx-tools = '>=0.7.0rc0'
 
 [dev-packages]
 
 [requires]
 python_version = "3.8"
+
+[pipenv]
+allow_prereleases = true
