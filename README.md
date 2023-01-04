@@ -45,16 +45,20 @@ pipenv shell
  cd ntia_conformance_checker/cli_tools
  ```
 
-Finally, invoke the tool:
+The user can request help via a command-line flag:
 
 ```bash
-python3 checker.py
+python3 checker.py --help
 ```
 
-The user will then be presented with a prompt:
+The user can then analyze a particular file:
 
-```
-File name: 
+```bash
+python3 checker.py --file sbom.json
 ```
 
-Enter the full path to an SPDX document.
+To make the output machine-readable JSON, run:
+
+```bash
+python3 checker.py --output json
+```
