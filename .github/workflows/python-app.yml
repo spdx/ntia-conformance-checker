@@ -6,6 +6,7 @@ on:
 
 permissions:
   contents: read
+  pull-requests: write
 
 jobs:
   build:
@@ -33,6 +34,8 @@ jobs:
         pipenv run coverage run -m pytest
         pipenv run coverage xml -o coverage/python.xml
     - name: Report python coverage
+      permissions:
+        contents: read
       uses: orgoro/coverage@v3
       with:
         coverageFile: coverage/python.xml
