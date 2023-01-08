@@ -5,13 +5,11 @@ on:
     branches: [ "main" ]
 
 permissions:
-  contents: read
+  pull-requests: write
 
 jobs:
   build:
-
     runs-on: ubuntu-latest
-
     steps:
     - uses: actions/checkout@v3
     - name: Set up Python 3.8
@@ -23,7 +21,17 @@ jobs:
         python -m pip install --upgrade pip
         pip install pipenv
         pipenv install --pre
-        pipenv install pytest
+        pipenv install pytest coverage
     - name: Test with pytest
+      env:
+          # This token is provided by Actions,
+          # you do not need to create your own token
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
       run: |
-        pipenv run python -m pytest
+        pipenv run coverage run -m pytest
+        pipenv run coverage xml -o coverage/python.xml
+    - name: Report python coverage
+      uses: orgoro/coverage@v3
+      with:
+        coverageFile: coverage/python.xml
+        token: ${{ secrets.GITHUB_TOKEN }}
