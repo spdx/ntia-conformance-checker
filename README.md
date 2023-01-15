@@ -1,4 +1,4 @@
-[![Build Status](https://github.com/spdx/ntia-conformance-checker/workflows/build-and-test/badge.svg)](https://github.com/spdx/ntia-conformance-checker/actions)
+[![Build Status](https://github.com/spdx/ntia-conformance-checker/workflows/build/badge.svg)](https://github.com/spdx/ntia-conformance-checker/actions)
 
 # NTIA Conformance Checker
 
