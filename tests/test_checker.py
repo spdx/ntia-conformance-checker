@@ -174,3 +174,4 @@ def test_sbomchecker_output_json():
         "curl",
         "openssl",
     ]
+    assert got["totalNumberComponents"] == 3

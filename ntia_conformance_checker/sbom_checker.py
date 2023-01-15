@@ -115,6 +115,10 @@ class SbomChecker:
             ]
         )
 
+    def get_total_number_components(self):
+        """Retrieve total number of components."""
+        return len(self.doc.packages)
+
     def print_table_output(self):
         """Print element-by-element result table."""
         # pylint: disable=line-too-long
@@ -215,4 +219,5 @@ class SbomChecker:
 
         result["isNtiaConformant"] = self.ntia_mininum_elements_compliant
 
+        result["totalNumberComponents"] = self.get_total_number_components()
         return result
