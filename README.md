@@ -42,23 +42,23 @@ pipenv shell
  Navigate to the `cli-tools` directory.
 
  ```bash
- cd ntia_conformance_checker/cli_tools
+ cd ntia_conformance_checker
  ```
 
 The user can request help via a command-line flag:
 
 ```bash
-python3 checker.py --help
+python3 main.py --help
 ```
 
 The user can then analyze a particular file:
 
 ```bash
-python3 checker.py --file sbom.json
+python3 main.py --file sbom.json
 ```
 
 To make the output machine-readable JSON, run:
 
 ```bash
-python3 checker.py --output json
+python3 main.py --output json
 ```
