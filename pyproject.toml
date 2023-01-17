@@ -1,0 +1,6 @@
+[project]
+name = "ntia_conformance_checker"
+version = "0.0.1"
+dependencies = [
+    "spdx-tools>=0.7.0rc0",
+]
