@@ -4,6 +4,7 @@
 
 import logging
 import os
+import sys
 
 import spdx.creationinfo
 from spdx.parsers import parse_anything
@@ -33,7 +34,7 @@ class SbomChecker:
         # check if file exists
         if not os.path.exists(self.file):
             logging.error("Filename %s not found.", self.file)
-
+            sys.exit()
         try:
             doc, _ = parse_anything.parse_file(self.file)
         except Exception as parsing_error:  # pylint: disable=broad-except
