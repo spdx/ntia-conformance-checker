@@ -6,7 +6,7 @@ DocumentNamespace: https://spdx.org/spdxdocs/spdx-example-444504E0-4F89-41D3-9A0
 DocumentComment: <text>This is a sample spreadsheet</text>
 
 ## Creation Information
-Creator: Tool: SourceAuditor-V1.2
+Creator:
 Created: 2010-02-03T00:00:00Z
 CreatorComment: <text>This is an example of an SPDX spreadsheet format</text>
 

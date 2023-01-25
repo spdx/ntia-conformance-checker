@@ -7,7 +7,7 @@
 The binaries were created with gcc 4.5.1 and expect to link to
 compatible system run time libraries.</comment>
     <created>2010-01-29T18:30:22Z</created>
-    <creators>Tool: LicenseFind-1.0</creators>
+    <creators></creators>
     <licenseListVersion>3.17</licenseListVersion>
   </creationInfo>
   <name>SPDX-Tools-v2.0</name>

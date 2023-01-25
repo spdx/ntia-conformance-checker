@@ -12,7 +12,6 @@ Document:
     comment: This is an example of an SPDX spreadsheet format
     created: '2010-02-03T00:00:00Z'
     creators:
-    - 'Tool: SourceAuditor-V1.2'
     licenseListVersion: '3.6'
   dataLicense: CC0-1.0
   documentDescribes:
