@@ -13,7 +13,7 @@ import sbom_checker
 @click.option(
     "--output",
     default="print",
-    type=click.Choice(["print", "json"]),
+    type=click.Choice(["print", "json", "bool"]),
     help="Output format",
 )
 @click.option(
@@ -45,6 +45,11 @@ def main(file, output, verbose, output_path):
                 json.dump(result_dict, outfile)
         else:
             print(json.dumps(result_dict, indent=2))
+    if output == "bool":
+        if sbom.check_ntia_minimum_elements_compliance():
+            print(0)
+        else:
+            print(-1)
 
 
 if __name__ == "__main__":
