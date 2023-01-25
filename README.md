@@ -41,7 +41,7 @@ pipenv shell
 
 # Usage
 
- Navigate to the `cli-tools` directory.
+ Navigate to the `ntia_conformance_checker` directory.
 
  ```bash
  cd ntia_conformance_checker
