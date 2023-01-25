@@ -111,12 +111,6 @@ def test_sbomchecker_missing_component_version(test_file):
     assert not sbom.ntia_mininum_elements_compliant
 
 
-dirname = os.path.join(os.path.dirname(__file__), "data", "missing_unique_identifiers")
-test_files_missing_unique_identifiers = [
-    os.path.join(dirname, fn) for fn in os.listdir(dirname)
-]
-
-
 dirname = os.path.join(os.path.dirname(__file__), "data", "missing_supplier_name")
 files = [os.path.join(dirname, fn) for fn in os.listdir(dirname)]
 
@@ -136,6 +130,12 @@ def test_sbomchecker_missing_supplier_name(test_file):
     assert not sbom.ntia_mininum_elements_compliant
 
 
+dirname = os.path.join(os.path.dirname(__file__), "data", "missing_unique_identifiers")
+test_files_missing_unique_identifiers = [
+    os.path.join(dirname, fn) for fn in os.listdir(dirname)
+]
+
+
 @pytest.mark.parametrize("test_file", test_files_missing_unique_identifiers)
 def test_sbomchecker_missing_unique_identifiers(test_file):
     sbom = sbom_checker.SbomChecker(test_file)
@@ -149,6 +149,15 @@ def test_sbomchecker_missing_unique_identifiers(test_file):
     assert not sbom.components_without_suppliers
     assert sbom.components_without_identifiers in [["glibc"], ["SPDX Translator"]]
     assert not sbom.ntia_mininum_elements_compliant
+
+
+def test_sbomchecker_tern_photon_example():
+    """Check that SBOM from Tern for Photon has an author."""
+    test_file = os.path.join(
+        os.path.dirname(__file__), "data", "SPDXSBOMExampleTests", "photon.spdx.tag"
+    )
+    sbom = sbom_checker.SbomChecker(test_file)
+    assert sbom.doc_author
 
 
 def test_sbomchecker_output_json():
