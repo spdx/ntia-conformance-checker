@@ -46,9 +46,8 @@ def main(file, output, verbose, output_path):
                 json.dump(result_dict, outfile)
         else:
             print(json.dumps(result_dict, indent=2))
-    if output == "bool":
-        # 0 indicates success
-        sys.exit(0 if sbom.check_ntia_minimum_elements_compliance() else 1)
+    # 0 indicates success
+    sys.exit(0 if sbom.check_ntia_minimum_elements_compliance() else 1)
 
 
 if __name__ == "__main__":
