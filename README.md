@@ -64,3 +64,7 @@ To make the output machine-readable JSON, run:
 ```bash
 python3 main.py --output json
 ```
+
+# Further help
+
+Check out the [frequently asked questions](FAQ.md) document.
