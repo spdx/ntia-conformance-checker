@@ -1,4 +1,5 @@
 #!/usr/bin/python
+"""module for building and distributing this project as a python package"""
 
 from setuptools import setup
 

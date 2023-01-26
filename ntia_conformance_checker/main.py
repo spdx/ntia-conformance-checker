@@ -7,6 +7,7 @@ import click
 
 from ntia_conformance_checker.sbom_checker import SbomChecker
 
+
 @click.command(context_settings={"show_default": True})
 @click.option("--file", prompt="File name", help="The file to be parsed")
 @click.option(
