@@ -81,3 +81,7 @@ by a community of SPDX adopters and enthusiasts.
 # Contributing
 
 Contributions are very welcome! See [CONTRIBUTING.md](./CONTRIBUTING.md) for instructions on how to contribute to the codebase.
+
+# Further help
+
+Check out the [frequently asked questions](FAQ.md) document.
