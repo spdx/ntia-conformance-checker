@@ -19,7 +19,7 @@ As defined by the NTIA, the minimum elements are "the essential pieces that supp
 
 To install use the following command:
 
-`pip install ntia-checker`
+`pip install ntia-conformance-checker`
 
 Alternatively, just clone the repo and install dependencies using the following commands:
 
@@ -37,11 +37,6 @@ up for testing using different versions of Python.
 
 ```
 Usage: ntia-checker [OPTIONS]
-
-  COMMAND-LINE TOOL that checks for NTIA's minimum elements within a file of
-  RDF, XML, JSON, YAML or XML format.
-
-  For help: run `ntia-checker --help`
 
 Options:
   --file TEXT            The file to be parsed
