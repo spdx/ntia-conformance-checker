@@ -62,5 +62,12 @@ python3 main.py --file sbom.json
 To make the output machine-readable JSON, run:
 
 ```bash
-python3 main.py --output json
+python3 main.py --output json --file sbom.json
+```
+
+To optimize the output for a CI/CD pipeline and return 0 for
+conformant and 1 for non-conformant, run:
+
+```bash
+python3 main.py --output quiet --file sbom.json
 ```
