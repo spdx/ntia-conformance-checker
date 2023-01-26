@@ -34,7 +34,7 @@ class SbomChecker:
         # check if file exists
         if not os.path.exists(self.file):
             logging.error("Filename %s not found.", self.file)
-            sys.exit(-1)
+            sys.exit(1)
         try:
             doc, _ = parse_anything.parse_file(self.file)
         except Exception as parsing_error:  # pylint: disable=broad-except
