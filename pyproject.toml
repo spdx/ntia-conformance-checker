@@ -13,7 +13,7 @@ maintainers = [
     {name = "John Speed Meyers", email = "johnmeyersster@gmail.com"},
     {name = "Gary O'Neall", email = "gary@sourceauditor.com"},
     {name = "Josh Lin", email = "linynjosh@gmail.com"},
-    {name = "SPDX group at the Linux Foundation and others"},
+    {name = "SPDX group at the Linux Foundation and others", email = "spdx-implementers+owner@lists.spdx.org"},
 ]
 license = {text = "Apache-2.0"}
 description = "Check SPDX SBOM for NTIA minimum elements"
