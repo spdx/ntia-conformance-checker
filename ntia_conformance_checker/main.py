@@ -2,6 +2,7 @@
 
 # pylint: disable=import-error
 import json
+import sys
 
 import click
 
@@ -13,7 +14,7 @@ from ntia_conformance_checker.sbom_checker import SbomChecker
 @click.option(
     "--output",
     default="print",
-    type=click.Choice(["print", "json"]),
+    type=click.Choice(["print", "json", "quiet"]),
     help="Output format",
 )
 @click.option(
@@ -45,6 +46,8 @@ def main(file, output, verbose, output_path):
                 json.dump(result_dict, outfile)
         else:
             print(json.dumps(result_dict, indent=2))
+    # 0 indicates success
+    sys.exit(0 if sbom.check_ntia_minimum_elements_compliance() else 1)
 
 
 if __name__ == "__main__":
