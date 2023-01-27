@@ -4,9 +4,11 @@
 
 import logging
 import os
+import sys
 
 import spdx.creationinfo
 from spdx.parsers import parse_anything
+
 
 # pylint: disable=too-many-instance-attributes
 class SbomChecker:
@@ -33,7 +35,7 @@ class SbomChecker:
         # check if file exists
         if not os.path.exists(self.file):
             logging.error("Filename %s not found.", self.file)
-
+            sys.exit(1)
         try:
             doc, _ = parse_anything.parse_file(self.file)
         except Exception as parsing_error:  # pylint: disable=broad-except

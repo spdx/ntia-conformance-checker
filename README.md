@@ -15,59 +15,73 @@ The minimum elements include:
 
 As defined by the NTIA, the minimum elements are "the essential pieces that support basic SBOM functionality and will serve as the foundation for an evolving approach to software transparency."
 
-# Installation
+## Installation
 
-Use git to install the `ntia-conformance-checker` tool.
+To install use the following command:
+
+`pip install ntia-conformance-checker`
+
+Alternatively, just clone the repo and install dependencies using the following commands:
 
 ```bash
 git clone https://github.com/spdx/ntia-conformance-checker.git
+pip install .
 ```
 
-Then change directories and install the required Python dependencies using [`pipenv`](https://pipenv.pypa.io/en/latest/).
+The tool requires Python 3 (3.8+). It is recommended to use a virtual python environment especially
+if you are using different versions of python. `virtualenv` is a tool for setting up virtual python environments which
+allows you to have all the dependencies for the tool set up in a single environment, or have different environments set
+up for testing using different versions of Python.
 
-```bash
-cd ntia-conformance-checker
+## Usage
+
 ```
+Usage: ntia-checker [OPTIONS]
 
-```bash
-pipenv install
-```
-
-Finally, activate the project's virtual environment.
-
-```bash
-pipenv shell
-```
-
-# Usage
-
- Navigate to the `ntia_conformance_checker` directory.
-
- ```bash
- cd ntia_conformance_checker
- ```
-
-The user can request help via a command-line flag:
-
-```bash
-python3 main.py --help
+Options:
+  --file TEXT            The file to be parsed
+  --output [print|json]  Output format  [default: print]
+  -v, --verbose          Use verbose printing
+  --output_path TEXT     Filepath for optionally storing output.
+  --help                 Show this message and exit.
 ```
 
 The user can then analyze a particular file:
 
 ```bash
-python3 main.py --file sbom.json
+ntia-checker --file sbom.json
 ```
 
-To make the output machine-readable JSON, run:
+To generare the output in machine-readable JSON, run:
 
 ```bash
-python3 main.py --output json --file sbom.json
+ntia-checker --file sbom.spdx --output json
 ```
 
-To optimize the output for a CI/CD pipeline and return 0 for
-conformant and 1 for non-conformant, run:
+# History
 
-```bash
-python3 main.py --output quiet --file sbom.json
-```
+This is the result of an initial [Google Summer of Code (GSoC)](https://summerofcode.withgoogle.com/) contribution in 2022 by
+[@linynjosh](https://github.com/linynjosh) and is maintained
+by a community of SPDX adopters and enthusiasts.
+
+# License
+
+[Apache-2.0](LICENSE)
+
+# Dependencies
+
+* [spdx-tools](https://pypi.org/project/spdx-tools/) used for parsing the SPDX SBOM.
+* [click](https://pypi.org/project/click/) for creating the CLI interface.
+
+# Support
+
+* Submit issues, questions or feedback at https://github.com/spdx/ntia-conformance-checker/issues
+* Join the discussion on https://lists.spdx.org/g/spdx-tech and https://spdx.dev/participate/tech/
+
+# Contributing
+
+Contributions are very welcome! See [CONTRIBUTING.md](./CONTRIBUTING.md) for instructions on how to contribute to the codebase.
+
+# Further help
+
+Check out the [frequently asked questions](FAQ.md) document.
