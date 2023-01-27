@@ -9,6 +9,7 @@ import sys
 import spdx.creationinfo
 from spdx.parsers import parse_anything
 
+
 # pylint: disable=too-many-instance-attributes
 class SbomChecker:
     """SBOM minimum elements check."""

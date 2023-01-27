@@ -5,7 +5,7 @@ import json
 
 import click
 
-import sbom_checker
+from ntia_conformance_checker.sbom_checker import SbomChecker
 
 
 @click.command(context_settings={"show_default": True})
@@ -31,9 +31,9 @@ def main(file, output, verbose, output_path):
     COMMAND-LINE TOOL that checks for NTIA's minimum elements within a
     file of RDF, XML, JSON, YAML or XML format.
 
-    For help: run `python3 check.py --help`
+    For help: run `ntia-checker --help`
     """
-    sbom = sbom_checker.SbomChecker(file)
+    sbom = SbomChecker(file)
     if output == "print":
         sbom.print_table_output()
         if verbose:
