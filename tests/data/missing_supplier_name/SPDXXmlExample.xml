@@ -273,7 +273,7 @@ EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.</extractedText>
     </externalRefs>
     <filesAnalyzed>false</filesAnalyzed>
     <homepage>http://www.openjena.org/</homepage>
-	<supplier>Organization: idk</supplier>
+	<supplier>Organization: Apache (apache@hotmail.com)</supplier>
     <name>Jena</name>
     <versionInfo>3.12.0</versionInfo>
   </packages>
@@ -291,7 +291,7 @@ EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.</extractedText>
     <licenseComments>Other versions available for a commercial license</licenseComments>
     <licenseConcluded>MPL-1.0</licenseConcluded>
     <licenseDeclared>MPL-1.0</licenseDeclared>
-	<supplier>Organization: idk</supplier>
+	  <supplier>Organization: test</supplier>
     <name>Saxon</name>
     <packageFileName>saxonB-8.8.zip</packageFileName>
     <versionInfo>8.8</versionInfo>
