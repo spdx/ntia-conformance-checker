@@ -36,10 +36,9 @@ class SbomChecker:
         if not os.path.exists(self.file):
             logging.error("Filename %s not found.", self.file)
             sys.exit(1)
-        try:
-            doc, _ = parse_anything.parse_file(self.file)
-        except Exception as parsing_error:  # pylint: disable=broad-except
-            logging.error("Document cannot be parsed: %s", parsing_error)
+        doc, err = parse_anything.parse_file(self.file)
+        if err:
+            logging.error("Document cannot be parsed: %s", err)
 
         return doc
 
@@ -95,7 +94,7 @@ class SbomChecker:
         """Retrieve name of components without suppliers."""
         components_without_suppliers = []
         for package in self.doc.packages:
-            if package.supplier is None:
+            if package.supplier is None or "NOASSERTION" in package.supplier.name:
                 components_without_suppliers.append(package.name)
         return components_without_suppliers
 

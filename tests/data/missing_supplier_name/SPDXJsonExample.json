@@ -136,7 +136,7 @@
       "filesAnalyzed" : false,
       "homepage" : "http://www.openjena.org/",
       "name" : "Jena",
-      "supplier" : "Person: Jane Doe (jane.doe@example.com)",
+      "supplier" : "Person: Jane Doe",
       "versionInfo" : "3.12.0"
     }, {
       "SPDXID" : "SPDXRef-Saxon",
@@ -153,7 +153,7 @@
       "licenseConcluded" : "MPL-1.0",
       "licenseDeclared" : "MPL-1.0",
       "name" : "Saxon",
-      "supplier" : "Person: Jane Doe (jane.doe@example.com)",
+      "supplier" : "Person: NOASSERTION",
       "packageFileName" : "saxonB-8.8.zip",
       "versionInfo" : "8.8"
     } ],
