@@ -125,7 +125,15 @@ def test_sbomchecker_missing_supplier_name(test_file):
     assert sbom.dependency_relationships
     assert not sbom.components_without_names
     assert not sbom.components_without_versions
-    assert sbom.components_without_suppliers in [["glibc"], ["SPDX Translator"]]
+    # this list approach reflects that different formats
+    # (e.g. JSON, tag-value, etc) are not identical. this
+    # should probably be refactored in the future.
+    assert sbom.components_without_suppliers in [
+        ["glibc"],
+        ["SPDX Translator"],
+        ["glibc", "Apache Commons Lang"],
+        ["glibc", "Saxon"],
+    ]
     assert not sbom.components_without_identifiers
     assert not sbom.ntia_mininum_elements_compliant
 
