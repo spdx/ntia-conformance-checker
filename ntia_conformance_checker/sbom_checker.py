@@ -94,7 +94,7 @@ class SbomChecker:
         """Retrieve name of components without suppliers."""
         components_without_suppliers = []
         for package in self.doc.packages:
-            if package.supplier is None or package.supplier == "NOASSERTION":
+            if package.supplier is None or "NOASSERTION" in package.supplier.name:
                 components_without_suppliers.append(package.name)
         return components_without_suppliers
 
