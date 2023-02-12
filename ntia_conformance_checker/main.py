@@ -8,8 +8,8 @@ import sys
 from ntia_conformance_checker.sbom_checker import SbomChecker
 
 
-def main():
-    """Entrypoint for CLI application."""
+def get_parsed_args():
+    """Parse command line arguments"""
     parser = argparse.ArgumentParser(
         prog="ntia-checker",
         description="Check if SPDX SBOM complies with NTIA minimum elements",
@@ -21,11 +21,22 @@ def main():
         default="print",
         help="Specify type of output",
     )
-    parser.add_argument("--verbose", help="Specify whether output should be verbose")
+    parser.add_argument(
+        "--verbose",
+        action="store_true",
+        help="Specify whether output should be verbose",
+    )
     parser.add_argument(
         "--output_path", help="Specify whether output should be verbose"
     )
     args = parser.parse_args()
+    return args
+
+
+def main():
+    """Entrypoint for CLI application."""
+
+    args = get_parsed_args()
 
     sbom = SbomChecker(args.file)
     if args.output == "print":
