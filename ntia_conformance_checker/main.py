@@ -9,25 +9,21 @@ from ntia_conformance_checker.sbom_checker import SbomChecker
 
 
 def main():
-
     parser = argparse.ArgumentParser(
-                    prog = 'ntia-checker',
-                    description = 'Check if SPDX SBOM complies with NTIA minimum elements')
+        prog="ntia-checker",
+        description="Check if SPDX SBOM complies with NTIA minimum elements",
+    )
+    parser.add_argument("--file", required=True, help="Filepath for SPDX SBOM")
     parser.add_argument(
-        '--file',
-        required=True,
-        help="Filepath for SPDX SBOM")
-    parser.add_argument(
-        '--output',
+        "--output",
         choices=["print", "json", "quiet"],
         default="print",
-        help="Specify type of output")
+        help="Specify type of output",
+    )
+    parser.add_argument("--verbose", help="Specify whether output should be verbose")
     parser.add_argument(
-        '--verbose',
-        help="Specify whether output should be verbose")
-    parser.add_argument(
-        "--output_path",
-        help="Specify whether output should be verbose")
+        "--output_path", help="Specify whether output should be verbose"
+    )
     args = parser.parse_args()
 
     sbom = SbomChecker(args.file)
