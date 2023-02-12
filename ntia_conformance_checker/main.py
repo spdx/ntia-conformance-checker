@@ -9,6 +9,7 @@ from ntia_conformance_checker.sbom_checker import SbomChecker
 
 
 def main():
+    """Entrypoint for CLI application."""
     parser = argparse.ArgumentParser(
         prog="ntia-checker",
         description="Check if SPDX SBOM complies with NTIA minimum elements",
