@@ -1,48 +1,52 @@
 """Entrypoint for CLI."""
 
 # pylint: disable=import-error
+import argparse
 import json
 import sys
-
-import click
 
 from ntia_conformance_checker.sbom_checker import SbomChecker
 
 
-@click.command(context_settings={"show_default": True})
-@click.option("--file", prompt="File name", help="The file to be parsed")
-@click.option(
-    "--output",
-    default="print",
-    type=click.Choice(["print", "json", "quiet"]),
-    help="Output format",
-)
-@click.option(
-    "--verbose",
-    "-v",
-    is_flag=True,
-    help="Use verbose printing",
-)
-@click.option(
-    "--output_path",
-    help="Filepath for optionally storing output.",
-)
-def main(file, output, verbose, output_path):
-    """
-    COMMAND-LINE TOOL that checks for NTIA's minimum elements within a
-    file of RDF, XML, JSON, YAML or XML format.
+def get_parsed_args():
+    """Parse command line arguments"""
+    parser = argparse.ArgumentParser(
+        prog="ntia-checker",
+        description="Check if SPDX SBOM complies with NTIA minimum elements",
+    )
+    parser.add_argument("--file", required=True, help="Filepath for SPDX SBOM")
+    parser.add_argument(
+        "--output",
+        choices=["print", "json", "quiet"],
+        default="print",
+        help="Specify type of output",
+    )
+    parser.add_argument(
+        "--verbose",
+        action="store_true",
+        help="Specify whether output should be verbose",
+    )
+    parser.add_argument(
+        "--output_path", help="Specify whether output should be verbose"
+    )
+    args = parser.parse_args()
+    return args
 
-    For help: run `ntia-checker --help`
-    """
-    sbom = SbomChecker(file)
-    if output == "print":
+
+def main():
+    """Entrypoint for CLI application."""
+
+    args = get_parsed_args()
+
+    sbom = SbomChecker(args.file)
+    if args.output == "print":
         sbom.print_table_output()
-        if verbose:
+        if args.verbose:
             sbom.print_components_missing_info()
-    if output == "json":
+    if args.output == "json":
         result_dict = sbom.output_json()
-        if output_path:
-            with open(output_path, "w", encoding="utf-8") as outfile:
+        if args.output_path:
+            with open(args.output_path, "w", encoding="utf-8") as outfile:
                 json.dump(result_dict, outfile)
         else:
             print(json.dumps(result_dict, indent=2))
@@ -51,4 +55,4 @@ def main(file, output, verbose, output_path):
 
 
 if __name__ == "__main__":
-    main()  # pylint: disable=no-value-for-parameter
+    main()
