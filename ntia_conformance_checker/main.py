@@ -1,9 +1,10 @@
 """Entrypoint for CLI."""
 
-# pylint: disable=import-error
 import argparse
 import json
 import sys
+
+from importlib.metadata import version
 
 from ntia_conformance_checker.sbom_checker import SbomChecker
 
@@ -14,7 +15,7 @@ def get_parsed_args():
         prog="ntia-checker",
         description="Check if SPDX SBOM complies with NTIA minimum elements",
     )
-    parser.add_argument("--file", required=True, help="Filepath for SPDX SBOM")
+    parser.add_argument("--file", help="Filepath for SPDX SBOM")
     parser.add_argument(
         "--output",
         choices=["print", "json", "quiet"],
@@ -29,6 +30,11 @@ def get_parsed_args():
     parser.add_argument(
         "--output_path", help="Specify whether output should be verbose"
     )
+    parser.add_argument(
+        "--version",
+        action="store_true",
+        help="Display version of ntia-conformance-checker",
+    )
     args = parser.parse_args()
     return args
 
@@ -37,6 +43,10 @@ def main():
     """Entrypoint for CLI application."""
 
     args = get_parsed_args()
+
+    if args.version:
+        print(version("ntia-conformance-checker"))
+        sys.exit(0)
 
     sbom = SbomChecker(args.file)
     if args.output == "print":
