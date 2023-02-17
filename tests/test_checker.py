@@ -166,6 +166,7 @@ def test_sbomchecker_tern_photon_example():
     )
     sbom = sbom_checker.SbomChecker(test_file)
     assert sbom.doc_author
+    assert sbom.components_without_versions == ["5e94941e3961b26645fbfdc71a59d439537b98417546bfdab35fa074f121eb15", "bash"]
 
 
 def test_sbomchecker_output_json():
