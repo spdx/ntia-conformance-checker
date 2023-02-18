@@ -63,10 +63,7 @@ class SbomChecker:
 
     def check_doc_timestamp(self):
         """Check for document timestamp."""
-        if (
-            self.doc.creation_info.created is None
-            or self.doc.creation_info.created == ""
-        ):
+        if self.doc.creation_info.created is None or not self.doc.creation_info.created:
             return False
         return True
 
@@ -80,7 +77,7 @@ class SbomChecker:
         """Retrieve SPDX ID of components without names."""
         components_without_names = []
         for package in self.doc.packages:
-            if package.name is None or package.name == "":
+            if package.name is None or not package.name:
                 components_without_names.append(package.spdx_id)
         return components_without_names
 
@@ -88,7 +85,7 @@ class SbomChecker:
         """Retrieve SPDX ID of components without names."""
         components_without_versions = []
         for package in self.doc.packages:
-            if package.version is None or package.version == "":
+            if package.version is None or not package.version:
                 components_without_versions.append(package.name)
         return components_without_versions
 
@@ -99,7 +96,7 @@ class SbomChecker:
             if (
                 package.supplier is None
                 or "NOASSERTION" in package.supplier.name
-                or package.supplier.name == ""
+                or not package.supplier.name
             ):
                 components_without_suppliers.append(package.name)
         return components_without_suppliers
