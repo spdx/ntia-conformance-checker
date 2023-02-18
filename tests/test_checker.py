@@ -166,6 +166,26 @@ def test_sbomchecker_tern_photon_example():
     )
     sbom = sbom_checker.SbomChecker(test_file)
     assert sbom.doc_author
+    assert sbom.components_without_versions == [
+        "5e94941e3961b26645fbfdc71a59d439537b98417546bfdab35fa074f121eb15",
+        "bash",
+    ]
+
+
+def test_sbomchecker_bom_alpine_example():
+    """Check that SBOM for alpine has component with missing version."""
+    test_file = os.path.join(
+        os.path.dirname(__file__),
+        "data",
+        "SPDXSBOMExampleTests",
+        "bom-alpine-3.15.spdx.json",
+    )
+    sbom = sbom_checker.SbomChecker(test_file)
+    # currently checking only one component with a missing version
+    assert (
+        "sha256:850d4aa2c32a30db71a7e54dab7c605f74a4aeabf9418ccd9273b2480fcb6c04"
+        in sbom.components_without_versions
+    )
 
 
 def test_sbomchecker_output_json():

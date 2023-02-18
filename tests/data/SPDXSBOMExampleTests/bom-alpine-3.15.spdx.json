@@ -1,0 +1,517 @@
+{
+  "SPDXID": "SPDXRef-DOCUMENT",
+  "name": "SBOM-SPDX-45a8ae2a-420b-4a34-ba43-d5201801bae2",
+  "spdxVersion": "SPDX-2.3",
+  "creationInfo": {
+    "created": "2023-02-14T07:49:15Z",
+    "creators": [
+      "Tool: sigs.k8s.io/bom/pkg/spdx"
+    ]
+  },
+  "dataLicense": "CC0-1.0",
+  "documentNamespace": "https://spdx.org/spdxdocs/k8s-releng-bom-c5ea9b55-ef28-4b3b-a45f-4208e035f75e",
+  "documentDescribes": [
+    "SPDXRef-Package-sha256-689659b1f08e9fdfb85190144098c378beb5a53b328f7ced7883a74a1157c709"
+  ],
+  "packages": [
+    {
+      "SPDXID": "SPDXRef-Package-sha256-689659b1f08e9fdfb85190144098c378beb5a53b328f7ced7883a74a1157c709-sha256-850d4aa2c32a30db71a7e54dab7c605f74a4aeabf9418ccd9273b2480fcb6c04",
+      "name": "sha256:850d4aa2c32a30db71a7e54dab7c605f74a4aeabf9418ccd9273b2480fcb6c04",
+      "versionInfo": "",
+      "filesAnalyzed": false,
+      "licenseDeclared": "NOASSERTION",
+      "licenseConcluded": "NOASSERTION",
+      "downloadLocation": "NONE",
+      "copyrightText": "NOASSERTION",
+      "checksums": [
+        {
+          "algorithm": "SHA256",
+          "checksumValue": "850d4aa2c32a30db71a7e54dab7c605f74a4aeabf9418ccd9273b2480fcb6c04"
+        }
+      ],
+      "externalRefs": [
+        {
+          "referenceCategory": "PACKAGE-MANAGER",
+          "referenceLocator": "pkg:oci/alpine@sha256:850d4aa2c32a30db71a7e54dab7c605f74a4aeabf9418ccd9273b2480fcb6c04?arch=arm64\u0026mediaType=application%2Fvnd.docker.distribution.manifest.v2+json\u0026os=linux\u0026repository_url=index.docker.io%2Flibrary",
+          "referenceType": "purl"
+        }
+      ],
+      "packageVerificationCode": {
+        "packageVerificationCodeValue": ""
+      }
+    },
+    {
+      "SPDXID": "SPDXRef-Package-index.docker.io-library-alpine-22ae4375e31519c23a0fe1dc59f2ac8c255e5ef64a98e7695e985d503c5220ba-sha256-ed6cbaa656dcebfe8d252792a339ccf10dddd695875f07c9636d59a5baf85f3f",
+      "name": "sha256:ed6cbaa656dcebfe8d252792a339ccf10dddd695875f07c9636d59a5baf85f3f",
+      "versionInfo": "",
+      "filesAnalyzed": false,
+      "licenseDeclared": "NOASSERTION",
+      "licenseConcluded": "NOASSERTION",
+      "downloadLocation": "NONE",
+      "copyrightText": "NOASSERTION",
+      "checksums": [
+        {
+          "algorithm": "SHA1",
+          "checksumValue": "663de497ba43cc56a6e7c9fc131bfc13d413ba2f"
+        },
+        {
+          "algorithm": "SHA256",
+          "checksumValue": "ed6cbaa656dcebfe8d252792a339ccf10dddd695875f07c9636d59a5baf85f3f"
+        },
+        {
+          "algorithm": "SHA512",
+          "checksumValue": "e353c137cb489f52d1c6f0ccf3ae946bac5fad9c292e3adf4e83542aae6a88471402ead61a6ce677a152881d985aa49fec2e7c3a7dafd554fc7c1c3d2c598079"
+        }
+      ],
+      "packageVerificationCode": {
+        "packageVerificationCodeValue": ""
+      }
+    },
+    {
+      "SPDXID": "SPDXRef-Package-sha256-689659b1f08e9fdfb85190144098c378beb5a53b328f7ced7883a74a1157c709-sha256-8729f6c5313899e9fd2a4ba9275b1cf1209d6d6ff198acf4162865835f0f52ab",
+      "name": "sha256:8729f6c5313899e9fd2a4ba9275b1cf1209d6d6ff198acf4162865835f0f52ab",
+      "versionInfo": "",
+      "filesAnalyzed": false,
+      "licenseDeclared": "NOASSERTION",
+      "licenseConcluded": "NOASSERTION",
+      "downloadLocation": "NONE",
+      "copyrightText": "NOASSERTION",
+      "checksums": [
+        {
+          "algorithm": "SHA256",
+          "checksumValue": "8729f6c5313899e9fd2a4ba9275b1cf1209d6d6ff198acf4162865835f0f52ab"
+        }
+      ],
+      "externalRefs": [
+        {
+          "referenceCategory": "PACKAGE-MANAGER",
+          "referenceLocator": "pkg:oci/alpine@sha256:8729f6c5313899e9fd2a4ba9275b1cf1209d6d6ff198acf4162865835f0f52ab?arch=arm\u0026mediaType=application%2Fvnd.docker.distribution.manifest.v2+json\u0026os=linux\u0026repository_url=index.docker.io%2Flibrary",
+          "referenceType": "purl"
+        }
+      ],
+      "packageVerificationCode": {
+        "packageVerificationCodeValue": ""
+      }
+    },
+    {
+      "SPDXID": "SPDXRef-Package-sha256-689659b1f08e9fdfb85190144098c378beb5a53b328f7ced7883a74a1157c709-sha256-de5f92425d08f60925c97dd2df4f8d353b737c512a2a5ab13f5ab2120450480a",
+      "name": "sha256:de5f92425d08f60925c97dd2df4f8d353b737c512a2a5ab13f5ab2120450480a",
+      "versionInfo": "",
+      "filesAnalyzed": false,
+      "licenseDeclared": "NOASSERTION",
+      "licenseConcluded": "NOASSERTION",
+      "downloadLocation": "NONE",
+      "copyrightText": "NOASSERTION",
+      "checksums": [
+        {
+          "algorithm": "SHA256",
+          "checksumValue": "de5f92425d08f60925c97dd2df4f8d353b737c512a2a5ab13f5ab2120450480a"
+        }
+      ],
+      "externalRefs": [
+        {
+          "referenceCategory": "PACKAGE-MANAGER",
+          "referenceLocator": "pkg:oci/alpine@sha256:de5f92425d08f60925c97dd2df4f8d353b737c512a2a5ab13f5ab2120450480a?arch=s390x\u0026mediaType=application%2Fvnd.docker.distribution.manifest.v2+json\u0026os=linux\u0026repository_url=index.docker.io%2Flibrary",
+          "referenceType": "purl"
+        }
+      ],
+      "packageVerificationCode": {
+        "packageVerificationCodeValue": ""
+      }
+    },
+    {
+      "SPDXID": "SPDXRef-Package-index.docker.io-library-alpine-850d4aa2c32a30db71a7e54dab7c605f74a4aeabf9418ccd9273b2480fcb6c04-sha256-404f35918b797abb27547df3b530ec55a77c499c4dce88f3b90867115087f9e7",
+      "name": "sha256:404f35918b797abb27547df3b530ec55a77c499c4dce88f3b90867115087f9e7",
+      "versionInfo": "",
+      "filesAnalyzed": false,
+      "licenseDeclared": "NOASSERTION",
+      "licenseConcluded": "NOASSERTION",
+      "downloadLocation": "NONE",
+      "copyrightText": "NOASSERTION",
+      "checksums": [
+        {
+          "algorithm": "SHA1",
+          "checksumValue": "10e984f79799c373198fd295c6da86f95581e38b"
+        },
+        {
+          "algorithm": "SHA256",
+          "checksumValue": "404f35918b797abb27547df3b530ec55a77c499c4dce88f3b90867115087f9e7"
+        },
+        {
+          "algorithm": "SHA512",
+          "checksumValue": "ecfc884b70a5bb03c909790a2c3f12a99c0541d4afb43362a5eb0fb550b69afd9a01a32621289d0d83c2ea2f6645ebb79d46c91b88c89219a785c39abe99ec6b"
+        }
+      ],
+      "packageVerificationCode": {
+        "packageVerificationCodeValue": ""
+      }
+    },
+    {
+      "SPDXID": "SPDXRef-Package-index.docker.io-library-alpine-babba7b40fc3ae2a4dbed37886067d40a56cc35628c9b13e6669326250f0fea3-sha256-895e193edb5191bf66fb5ccb29f5d3659e05eec5953255180cbdd66520e7c517",
+      "name": "sha256:895e193edb5191bf66fb5ccb29f5d3659e05eec5953255180cbdd66520e7c517",
+      "versionInfo": "",
+      "filesAnalyzed": false,
+      "licenseDeclared": "NOASSERTION",
+      "licenseConcluded": "NOASSERTION",
+      "downloadLocation": "NONE",
+      "copyrightText": "NOASSERTION",
+      "checksums": [
+        {
+          "algorithm": "SHA1",
+          "checksumValue": "9be39988686ae4777c49cae58be4155b8a063dbb"
+        },
+        {
+          "algorithm": "SHA256",
+          "checksumValue": "895e193edb5191bf66fb5ccb29f5d3659e05eec5953255180cbdd66520e7c517"
+        },
+        {
+          "algorithm": "SHA512",
+          "checksumValue": "446be1ccdab9c2a1ee22f0156609fe06ca42beedfc1605dfb368594463e6dc911c1d929df78379dcb459dd49cb2e65cbc6b21d28665c6e326d15e1e8742eeecd"
+        }
+      ],
+      "packageVerificationCode": {
+        "packageVerificationCodeValue": ""
+      }
+    },
+    {
+      "SPDXID": "SPDXRef-Package-index.docker.io-library-alpine-de5f92425d08f60925c97dd2df4f8d353b737c512a2a5ab13f5ab2120450480a-sha256-0d71e9a79f477719291f0a25b6a2462917f2e396325883144c1f1e59fbc56f21",
+      "name": "sha256:0d71e9a79f477719291f0a25b6a2462917f2e396325883144c1f1e59fbc56f21",
+      "versionInfo": "",
+      "filesAnalyzed": false,
+      "licenseDeclared": "NOASSERTION",
+      "licenseConcluded": "NOASSERTION",
+      "downloadLocation": "NONE",
+      "copyrightText": "NOASSERTION",
+      "checksums": [
+        {
+          "algorithm": "SHA1",
+          "checksumValue": "bd6fc3010f43f5cc301f4ddace98d1d8a17b3b41"
+        },
+        {
+          "algorithm": "SHA256",
+          "checksumValue": "0d71e9a79f477719291f0a25b6a2462917f2e396325883144c1f1e59fbc56f21"
+        },
+        {
+          "algorithm": "SHA512",
+          "checksumValue": "619407c8f53c3587a48e896afb86a79491c18b442ca498bd2a6c8ebfbd998c5243e0765f824901eef029f044c2ab5c1162dbfe34d46c7d39063778db06d16b5f"
+        }
+      ],
+      "packageVerificationCode": {
+        "packageVerificationCodeValue": ""
+      }
+    },
+    {
+      "SPDXID": "SPDXRef-Package-sha256-689659b1f08e9fdfb85190144098c378beb5a53b328f7ced7883a74a1157c709-sha256-22ae4375e31519c23a0fe1dc59f2ac8c255e5ef64a98e7695e985d503c5220ba",
+      "name": "sha256:22ae4375e31519c23a0fe1dc59f2ac8c255e5ef64a98e7695e985d503c5220ba",
+      "versionInfo": "",
+      "filesAnalyzed": false,
+      "licenseDeclared": "NOASSERTION",
+      "licenseConcluded": "NOASSERTION",
+      "downloadLocation": "NONE",
+      "copyrightText": "NOASSERTION",
+      "checksums": [
+        {
+          "algorithm": "SHA256",
+          "checksumValue": "22ae4375e31519c23a0fe1dc59f2ac8c255e5ef64a98e7695e985d503c5220ba"
+        }
+      ],
+      "externalRefs": [
+        {
+          "referenceCategory": "PACKAGE-MANAGER",
+          "referenceLocator": "pkg:oci/alpine@sha256:22ae4375e31519c23a0fe1dc59f2ac8c255e5ef64a98e7695e985d503c5220ba?arch=arm\u0026mediaType=application%2Fvnd.docker.distribution.manifest.v2+json\u0026os=linux\u0026repository_url=index.docker.io%2Flibrary",
+          "referenceType": "purl"
+        }
+      ],
+      "packageVerificationCode": {
+        "packageVerificationCodeValue": ""
+      }
+    },
+    {
+      "SPDXID": "SPDXRef-Package-sha256-689659b1f08e9fdfb85190144098c378beb5a53b328f7ced7883a74a1157c709",
+      "name": "sha256:689659b1f08e9fdfb85190144098c378beb5a53b328f7ced7883a74a1157c709",
+      "versionInfo": "",
+      "filesAnalyzed": false,
+      "licenseDeclared": "NOASSERTION",
+      "licenseConcluded": "NOASSERTION",
+      "downloadLocation": "index.docker.io/library/alpine@sha256:689659b1f08e9fdfb85190144098c378beb5a53b328f7ced7883a74a1157c709",
+      "copyrightText": "NOASSERTION",
+      "checksums": [],
+      "externalRefs": [
+        {
+          "referenceCategory": "PACKAGE-MANAGER",
+          "referenceLocator": "pkg:oci/alpine@sha256:689659b1f08e9fdfb85190144098c378beb5a53b328f7ced7883a74a1157c709?mediaType=application%2Fvnd.docker.distribution.manifest.list.v2+json\u0026repository_url=index.docker.io%2Flibrary",
+          "referenceType": "purl"
+        }
+      ],
+      "packageVerificationCode": {
+        "packageVerificationCodeValue": ""
+      }
+    },
+    {
+      "SPDXID": "SPDXRef-Package-sha256-689659b1f08e9fdfb85190144098c378beb5a53b328f7ced7883a74a1157c709-sha256-0d6bae0ae9daf7520390be4f00c13f8fac7591c2092707fd0d621c929f6aed6c",
+      "name": "sha256:0d6bae0ae9daf7520390be4f00c13f8fac7591c2092707fd0d621c929f6aed6c",
+      "versionInfo": "",
+      "filesAnalyzed": false,
+      "licenseDeclared": "NOASSERTION",
+      "licenseConcluded": "NOASSERTION",
+      "downloadLocation": "NONE",
+      "copyrightText": "NOASSERTION",
+      "checksums": [
+        {
+          "algorithm": "SHA256",
+          "checksumValue": "0d6bae0ae9daf7520390be4f00c13f8fac7591c2092707fd0d621c929f6aed6c"
+        }
+      ],
+      "externalRefs": [
+        {
+          "referenceCategory": "PACKAGE-MANAGER",
+          "referenceLocator": "pkg:oci/alpine@sha256:0d6bae0ae9daf7520390be4f00c13f8fac7591c2092707fd0d621c929f6aed6c?arch=386\u0026mediaType=application%2Fvnd.docker.distribution.manifest.v2+json\u0026os=linux\u0026repository_url=index.docker.io%2Flibrary",
+          "referenceType": "purl"
+        }
+      ],
+      "packageVerificationCode": {
+        "packageVerificationCodeValue": ""
+      }
+    },
+    {
+      "SPDXID": "SPDXRef-Package-index.docker.io-library-alpine-d2ea25e305c74e53c70a748e54d82072f396760fc55b94c20aba3aa72e1bc6ec-sha256-5b42622f88c38596f558fe14b894eadc782d1b003f25d0374cf41bc92e716959",
+      "name": "sha256:5b42622f88c38596f558fe14b894eadc782d1b003f25d0374cf41bc92e716959",
+      "versionInfo": "",
+      "filesAnalyzed": false,
+      "licenseDeclared": "NOASSERTION",
+      "licenseConcluded": "NOASSERTION",
+      "downloadLocation": "NONE",
+      "copyrightText": "NOASSERTION",
+      "checksums": [
+        {
+          "algorithm": "SHA512",
+          "checksumValue": "1eb617eab95a5374fe2a3caab39b8397fdeeec9911b78d2bcec6baa6b7770d68f4bddba6fbe969cdd587df3b4d98e91e330618c6b2f13313fa4cae0b0d4e0d65"
+        },
+        {
+          "algorithm": "SHA1",
+          "checksumValue": "d34fca6bbce83a1cd2d46cbcd77e15b4a6f1d0a0"
+        },
+        {
+          "algorithm": "SHA256",
+          "checksumValue": "5b42622f88c38596f558fe14b894eadc782d1b003f25d0374cf41bc92e716959"
+        }
+      ],
+      "packageVerificationCode": {
+        "packageVerificationCodeValue": ""
+      }
+    },
+    {
+      "SPDXID": "SPDXRef-Package-sha256-689659b1f08e9fdfb85190144098c378beb5a53b328f7ced7883a74a1157c709-sha256-d2ea25e305c74e53c70a748e54d82072f396760fc55b94c20aba3aa72e1bc6ec",
+      "name": "sha256:d2ea25e305c74e53c70a748e54d82072f396760fc55b94c20aba3aa72e1bc6ec",
+      "versionInfo": "",
+      "filesAnalyzed": false,
+      "licenseDeclared": "NOASSERTION",
+      "licenseConcluded": "NOASSERTION",
+      "downloadLocation": "NONE",
+      "copyrightText": "NOASSERTION",
+      "checksums": [
+        {
+          "algorithm": "SHA256",
+          "checksumValue": "d2ea25e305c74e53c70a748e54d82072f396760fc55b94c20aba3aa72e1bc6ec"
+        }
+      ],
+      "externalRefs": [
+        {
+          "referenceCategory": "PACKAGE-MANAGER",
+          "referenceLocator": "pkg:oci/alpine@sha256:d2ea25e305c74e53c70a748e54d82072f396760fc55b94c20aba3aa72e1bc6ec?arch=ppc64le\u0026mediaType=application%2Fvnd.docker.distribution.manifest.v2+json\u0026os=linux\u0026repository_url=index.docker.io%2Flibrary",
+          "referenceType": "purl"
+        }
+      ],
+      "packageVerificationCode": {
+        "packageVerificationCodeValue": ""
+      }
+    },
+    {
+      "SPDXID": "SPDXRef-Package-sha256-689659b1f08e9fdfb85190144098c378beb5a53b328f7ced7883a74a1157c709-sha256-babba7b40fc3ae2a4dbed37886067d40a56cc35628c9b13e6669326250f0fea3",
+      "name": "sha256:babba7b40fc3ae2a4dbed37886067d40a56cc35628c9b13e6669326250f0fea3",
+      "versionInfo": "",
+      "filesAnalyzed": false,
+      "licenseDeclared": "NOASSERTION",
+      "licenseConcluded": "NOASSERTION",
+      "downloadLocation": "NONE",
+      "copyrightText": "NOASSERTION",
+      "checksums": [
+        {
+          "algorithm": "SHA256",
+          "checksumValue": "babba7b40fc3ae2a4dbed37886067d40a56cc35628c9b13e6669326250f0fea3"
+        }
+      ],
+      "externalRefs": [
+        {
+          "referenceCategory": "PACKAGE-MANAGER",
+          "referenceLocator": "pkg:oci/alpine@sha256:babba7b40fc3ae2a4dbed37886067d40a56cc35628c9b13e6669326250f0fea3?arch=amd64\u0026mediaType=application%2Fvnd.docker.distribution.manifest.v2+json\u0026os=linux\u0026repository_url=index.docker.io%2Flibrary",
+          "referenceType": "purl"
+        }
+      ],
+      "packageVerificationCode": {
+        "packageVerificationCodeValue": ""
+      }
+    },
+    {
+      "SPDXID": "SPDXRef-Package-index.docker.io-library-alpine-0d6bae0ae9daf7520390be4f00c13f8fac7591c2092707fd0d621c929f6aed6c-sha256-13a1d7e543968b1c2bd92ca5f2fb2e964b31713fc7707305c1cdfb935ca3e631",
+      "name": "sha256:13a1d7e543968b1c2bd92ca5f2fb2e964b31713fc7707305c1cdfb935ca3e631",
+      "versionInfo": "",
+      "filesAnalyzed": false,
+      "licenseDeclared": "NOASSERTION",
+      "licenseConcluded": "NOASSERTION",
+      "downloadLocation": "NONE",
+      "copyrightText": "NOASSERTION",
+      "checksums": [
+        {
+          "algorithm": "SHA1",
+          "checksumValue": "189d7e297b4fe1f67d4c08e0c3e89a92147e1d09"
+        },
+        {
+          "algorithm": "SHA256",
+          "checksumValue": "13a1d7e543968b1c2bd92ca5f2fb2e964b31713fc7707305c1cdfb935ca3e631"
+        },
+        {
+          "algorithm": "SHA512",
+          "checksumValue": "02d0b266a5ec6697646e56a41004fa89ce4124b07f4ead3d29ba503dae1367f25edfc3da7737fa45e336c8ec13a030b438abef6e1eacaa9abe1acfb7849a1940"
+        }
+      ],
+      "packageVerificationCode": {
+        "packageVerificationCodeValue": ""
+      }
+    },
+    {
+      "SPDXID": "SPDXRef-Package-index.docker.io-library-alpine-8729f6c5313899e9fd2a4ba9275b1cf1209d6d6ff198acf4162865835f0f52ab-sha256-137f96a009f55a18e96ff80c4e5c529bb760479bd0b413a1366501ffd0714fa9",
+      "name": "sha256:137f96a009f55a18e96ff80c4e5c529bb760479bd0b413a1366501ffd0714fa9",
+      "versionInfo": "",
+      "filesAnalyzed": false,
+      "licenseDeclared": "NOASSERTION",
+      "licenseConcluded": "NOASSERTION",
+      "downloadLocation": "NONE",
+      "copyrightText": "NOASSERTION",
+      "checksums": [
+        {
+          "algorithm": "SHA1",
+          "checksumValue": "52f518327e37a47a00b6e86dc801d1ebfc365e77"
+        },
+        {
+          "algorithm": "SHA256",
+          "checksumValue": "137f96a009f55a18e96ff80c4e5c529bb760479bd0b413a1366501ffd0714fa9"
+        },
+        {
+          "algorithm": "SHA512",
+          "checksumValue": "3ddd733d8f978867b7ebf2bfb59c5fc030e799e8dd1cc3b9fda0e7719577af75bff28f2dc67627ee369057fbab9e68a80fe17559d0ac58736d3d31ee7c0aaeac"
+        }
+      ],
+      "packageVerificationCode": {
+        "packageVerificationCodeValue": ""
+      }
+    }
+  ],
+  "relationships": [
+    {
+      "spdxElementId": "SPDXRef-Package-sha256-689659b1f08e9fdfb85190144098c378beb5a53b328f7ced7883a74a1157c709-sha256-850d4aa2c32a30db71a7e54dab7c605f74a4aeabf9418ccd9273b2480fcb6c04",
+      "relationshipType": "CONTAINS",
+      "relatedSpdxElement": "SPDXRef-Package-index.docker.io-library-alpine-850d4aa2c32a30db71a7e54dab7c605f74a4aeabf9418ccd9273b2480fcb6c04-sha256-404f35918b797abb27547df3b530ec55a77c499c4dce88f3b90867115087f9e7"
+    },
+    {
+      "spdxElementId": "SPDXRef-Package-sha256-689659b1f08e9fdfb85190144098c378beb5a53b328f7ced7883a74a1157c709-sha256-850d4aa2c32a30db71a7e54dab7c605f74a4aeabf9418ccd9273b2480fcb6c04",
+      "relationshipType": "VARIANT_OF",
+      "relatedSpdxElement": "SPDXRef-Package-sha256-689659b1f08e9fdfb85190144098c378beb5a53b328f7ced7883a74a1157c709"
+    },
+    {
+      "spdxElementId": "SPDXRef-Package-sha256-689659b1f08e9fdfb85190144098c378beb5a53b328f7ced7883a74a1157c709-sha256-8729f6c5313899e9fd2a4ba9275b1cf1209d6d6ff198acf4162865835f0f52ab",
+      "relationshipType": "CONTAINS",
+      "relatedSpdxElement": "SPDXRef-Package-index.docker.io-library-alpine-8729f6c5313899e9fd2a4ba9275b1cf1209d6d6ff198acf4162865835f0f52ab-sha256-137f96a009f55a18e96ff80c4e5c529bb760479bd0b413a1366501ffd0714fa9"
+    },
+    {
+      "spdxElementId": "SPDXRef-Package-sha256-689659b1f08e9fdfb85190144098c378beb5a53b328f7ced7883a74a1157c709-sha256-8729f6c5313899e9fd2a4ba9275b1cf1209d6d6ff198acf4162865835f0f52ab",
+      "relationshipType": "VARIANT_OF",
+      "relatedSpdxElement": "SPDXRef-Package-sha256-689659b1f08e9fdfb85190144098c378beb5a53b328f7ced7883a74a1157c709"
+    },
+    {
+      "spdxElementId": "SPDXRef-Package-sha256-689659b1f08e9fdfb85190144098c378beb5a53b328f7ced7883a74a1157c709-sha256-de5f92425d08f60925c97dd2df4f8d353b737c512a2a5ab13f5ab2120450480a",
+      "relationshipType": "CONTAINS",
+      "relatedSpdxElement": "SPDXRef-Package-index.docker.io-library-alpine-de5f92425d08f60925c97dd2df4f8d353b737c512a2a5ab13f5ab2120450480a-sha256-0d71e9a79f477719291f0a25b6a2462917f2e396325883144c1f1e59fbc56f21"
+    },
+    {
+      "spdxElementId": "SPDXRef-Package-sha256-689659b1f08e9fdfb85190144098c378beb5a53b328f7ced7883a74a1157c709-sha256-de5f92425d08f60925c97dd2df4f8d353b737c512a2a5ab13f5ab2120450480a",
+      "relationshipType": "VARIANT_OF",
+      "relatedSpdxElement": "SPDXRef-Package-sha256-689659b1f08e9fdfb85190144098c378beb5a53b328f7ced7883a74a1157c709"
+    },
+    {
+      "spdxElementId": "SPDXRef-Package-sha256-689659b1f08e9fdfb85190144098c378beb5a53b328f7ced7883a74a1157c709-sha256-22ae4375e31519c23a0fe1dc59f2ac8c255e5ef64a98e7695e985d503c5220ba",
+      "relationshipType": "CONTAINS",
+      "relatedSpdxElement": "SPDXRef-Package-index.docker.io-library-alpine-22ae4375e31519c23a0fe1dc59f2ac8c255e5ef64a98e7695e985d503c5220ba-sha256-ed6cbaa656dcebfe8d252792a339ccf10dddd695875f07c9636d59a5baf85f3f"
+    },
+    {
+      "spdxElementId": "SPDXRef-Package-sha256-689659b1f08e9fdfb85190144098c378beb5a53b328f7ced7883a74a1157c709-sha256-22ae4375e31519c23a0fe1dc59f2ac8c255e5ef64a98e7695e985d503c5220ba",
+      "relationshipType": "VARIANT_OF",
+      "relatedSpdxElement": "SPDXRef-Package-sha256-689659b1f08e9fdfb85190144098c378beb5a53b328f7ced7883a74a1157c709"
+    },
+    {
+      "spdxElementId": "SPDXRef-Package-sha256-689659b1f08e9fdfb85190144098c378beb5a53b328f7ced7883a74a1157c709",
+      "relationshipType": "CONTAINS",
+      "relatedSpdxElement": "SPDXRef-Package-sha256-689659b1f08e9fdfb85190144098c378beb5a53b328f7ced7883a74a1157c709-sha256-850d4aa2c32a30db71a7e54dab7c605f74a4aeabf9418ccd9273b2480fcb6c04"
+    },
+    {
+      "spdxElementId": "SPDXRef-Package-sha256-689659b1f08e9fdfb85190144098c378beb5a53b328f7ced7883a74a1157c709",
+      "relationshipType": "CONTAINS",
+      "relatedSpdxElement": "SPDXRef-Package-sha256-689659b1f08e9fdfb85190144098c378beb5a53b328f7ced7883a74a1157c709-sha256-babba7b40fc3ae2a4dbed37886067d40a56cc35628c9b13e6669326250f0fea3"
+    },
+    {
+      "spdxElementId": "SPDXRef-Package-sha256-689659b1f08e9fdfb85190144098c378beb5a53b328f7ced7883a74a1157c709",
+      "relationshipType": "CONTAINS",
+      "relatedSpdxElement": "SPDXRef-Package-sha256-689659b1f08e9fdfb85190144098c378beb5a53b328f7ced7883a74a1157c709-sha256-22ae4375e31519c23a0fe1dc59f2ac8c255e5ef64a98e7695e985d503c5220ba"
+    },
+    {
+      "spdxElementId": "SPDXRef-Package-sha256-689659b1f08e9fdfb85190144098c378beb5a53b328f7ced7883a74a1157c709",
+      "relationshipType": "CONTAINS",
+      "relatedSpdxElement": "SPDXRef-Package-sha256-689659b1f08e9fdfb85190144098c378beb5a53b328f7ced7883a74a1157c709-sha256-8729f6c5313899e9fd2a4ba9275b1cf1209d6d6ff198acf4162865835f0f52ab"
+    },
+    {
+      "spdxElementId": "SPDXRef-Package-sha256-689659b1f08e9fdfb85190144098c378beb5a53b328f7ced7883a74a1157c709",
+      "relationshipType": "CONTAINS",
+      "relatedSpdxElement": "SPDXRef-Package-sha256-689659b1f08e9fdfb85190144098c378beb5a53b328f7ced7883a74a1157c709-sha256-0d6bae0ae9daf7520390be4f00c13f8fac7591c2092707fd0d621c929f6aed6c"
+    },
+    {
+      "spdxElementId": "SPDXRef-Package-sha256-689659b1f08e9fdfb85190144098c378beb5a53b328f7ced7883a74a1157c709",
+      "relationshipType": "CONTAINS",
+      "relatedSpdxElement": "SPDXRef-Package-sha256-689659b1f08e9fdfb85190144098c378beb5a53b328f7ced7883a74a1157c709-sha256-d2ea25e305c74e53c70a748e54d82072f396760fc55b94c20aba3aa72e1bc6ec"
+    },
+    {
+      "spdxElementId": "SPDXRef-Package-sha256-689659b1f08e9fdfb85190144098c378beb5a53b328f7ced7883a74a1157c709",
+      "relationshipType": "CONTAINS",
+      "relatedSpdxElement": "SPDXRef-Package-sha256-689659b1f08e9fdfb85190144098c378beb5a53b328f7ced7883a74a1157c709-sha256-de5f92425d08f60925c97dd2df4f8d353b737c512a2a5ab13f5ab2120450480a"
+    },
+    {
+      "spdxElementId": "SPDXRef-Package-sha256-689659b1f08e9fdfb85190144098c378beb5a53b328f7ced7883a74a1157c709-sha256-0d6bae0ae9daf7520390be4f00c13f8fac7591c2092707fd0d621c929f6aed6c",
+      "relationshipType": "CONTAINS",
+      "relatedSpdxElement": "SPDXRef-Package-index.docker.io-library-alpine-0d6bae0ae9daf7520390be4f00c13f8fac7591c2092707fd0d621c929f6aed6c-sha256-13a1d7e543968b1c2bd92ca5f2fb2e964b31713fc7707305c1cdfb935ca3e631"
+    },
+    {
+      "spdxElementId": "SPDXRef-Package-sha256-689659b1f08e9fdfb85190144098c378beb5a53b328f7ced7883a74a1157c709-sha256-0d6bae0ae9daf7520390be4f00c13f8fac7591c2092707fd0d621c929f6aed6c",
+      "relationshipType": "VARIANT_OF",
+      "relatedSpdxElement": "SPDXRef-Package-sha256-689659b1f08e9fdfb85190144098c378beb5a53b328f7ced7883a74a1157c709"
+    },
+    {
+      "spdxElementId": "SPDXRef-Package-sha256-689659b1f08e9fdfb85190144098c378beb5a53b328f7ced7883a74a1157c709-sha256-d2ea25e305c74e53c70a748e54d82072f396760fc55b94c20aba3aa72e1bc6ec",
+      "relationshipType": "CONTAINS",
+      "relatedSpdxElement": "SPDXRef-Package-index.docker.io-library-alpine-d2ea25e305c74e53c70a748e54d82072f396760fc55b94c20aba3aa72e1bc6ec-sha256-5b42622f88c38596f558fe14b894eadc782d1b003f25d0374cf41bc92e716959"
+    },
+    {
+      "spdxElementId": "SPDXRef-Package-sha256-689659b1f08e9fdfb85190144098c378beb5a53b328f7ced7883a74a1157c709-sha256-d2ea25e305c74e53c70a748e54d82072f396760fc55b94c20aba3aa72e1bc6ec",
+      "relationshipType": "VARIANT_OF",
+      "relatedSpdxElement": "SPDXRef-Package-sha256-689659b1f08e9fdfb85190144098c378beb5a53b328f7ced7883a74a1157c709"
+    },
+    {
+      "spdxElementId": "SPDXRef-Package-sha256-689659b1f08e9fdfb85190144098c378beb5a53b328f7ced7883a74a1157c709-sha256-babba7b40fc3ae2a4dbed37886067d40a56cc35628c9b13e6669326250f0fea3",
+      "relationshipType": "CONTAINS",
+      "relatedSpdxElement": "SPDXRef-Package-index.docker.io-library-alpine-babba7b40fc3ae2a4dbed37886067d40a56cc35628c9b13e6669326250f0fea3-sha256-895e193edb5191bf66fb5ccb29f5d3659e05eec5953255180cbdd66520e7c517"
+    },
+    {
+      "spdxElementId": "SPDXRef-Package-sha256-689659b1f08e9fdfb85190144098c378beb5a53b328f7ced7883a74a1157c709-sha256-babba7b40fc3ae2a4dbed37886067d40a56cc35628c9b13e6669326250f0fea3",
+      "relationshipType": "VARIANT_OF",
+      "relatedSpdxElement": "SPDXRef-Package-sha256-689659b1f08e9fdfb85190144098c378beb5a53b328f7ced7883a74a1157c709"
+    }
+  ]
+}
