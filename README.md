@@ -71,7 +71,6 @@ by a community of SPDX adopters and enthusiasts.
 # Dependencies
 
 * [spdx-tools](https://pypi.org/project/spdx-tools/) used for parsing the SPDX SBOM.
-* [click](https://pypi.org/project/click/) for creating the CLI interface.
 
 # Support
 
