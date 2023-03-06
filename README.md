@@ -33,7 +33,7 @@ if you are using different versions of python. `virtualenv` is a tool for settin
 allows you to have all the dependencies for the tool set up in a single environment, or have different environments set
 up for testing using different versions of Python.
 
-## Usage
+## CLI Usage
 
 ```
 Usage: ntia-checker [OPTIONS]
@@ -57,6 +57,21 @@ To generare the output in machine-readable JSON, run:
 ```bash
 ntia-checker --file sbom.spdx --output json
 ```
+
+## Usage as a Library
+
+`ntia-conformance-checker` can also be imported as a library. For example:
+
+```python
+
+import ntia_conformance_checker as ntia
+
+sbom = ntia.SbomChecker("SBOM_filepath")
+
+print(sbom.ntia_mininum_elements_compliant)
+```
+
+Additional properties and methods associated with `SbomChecker()` can be found in [`sbom_checker.py`](ntia_conformance_checker/sbom_checker.py).
 
 # History
 
