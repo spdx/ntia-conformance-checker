@@ -1,7 +1,7 @@
 {
     "_meta": {
         "hash": {
-            "sha256": "0919eea67055d289b5761c83d6f9abc201c1ce3dcabf2a17c0608cd2745e076f"
+            "sha256": "64fc8bf81da9bed1fd6331931da74953a420e87d04be787ad0e5eab749d9e39b"
         },
         "pipfile-spec": 6,
         "requires": {
@@ -41,11 +41,11 @@
         },
         "pyparsing": {
             "hashes": [
-                "sha256:2b020ecf7d21b687f219b71ecad3631f644a47f01403fa1d1036b0c6416d70fb",
-                "sha256:5026bae9a10eeaefb61dab2f09052b9f4307d44aee4eda64b309723d8d206bbc"
+                "sha256:4f44f396e60f6ba92acae3e8067abd94112e7d55f1f8740386d2e31347cff871",
+                "sha256:81d85ba7025578a9b57f6c6deabd3016849dd40cf68f615b348dbd30edfeea6a"
             ],
             "markers": "python_full_version >= '3.6.8'",
-            "version": "==3.0.9"
+            "version": "==3.1.0a1"
         },
         "pyyaml": {
             "hashes": [
@@ -95,11 +95,11 @@
         },
         "rdflib": {
             "hashes": [
-                "sha256:62dc3c86d1712db0f55785baf8047f63731fa59b2682be03219cb89262065942",
-                "sha256:85c34a86dfc517a41e5f2425a41a0aceacc23983462b32e68610b9fad1383bca"
+                "sha256:6ea39896a4dbe10f933acf33aaab61d52f390d32e8618add4550d52e6a0d4428",
+                "sha256:9ee3f16c3c7c2da27c56ce5605f1bb9e07807d6c22cfec08d3abdcbac489bbb1"
             ],
-            "markers": "python_version >= '3.7'",
-            "version": "==6.2.0"
+            "markers": "python_version >= '3.7' and python_version < '4.0'",
+            "version": "==6.3.0"
         },
         "setuptools": {
             "hashes": [
@@ -119,11 +119,19 @@
         },
         "spdx-tools": {
             "hashes": [
-                "sha256:400080a00fb024327a05a3e637b83490764b82f0c6e22a2033267603b842b0ea",
-                "sha256:42a28c28179d58e1581756aff48810bb227a6f998d8613292195497440dc00af"
+                "sha256:975e6dbba88f105a8acb22abf53fe90f0e9d5635a2b9b1fe487781e969623b17",
+                "sha256:c89bcf650fff162bd5bfeec2d8a22c21bd7946cf58d54201401a2f70656f868a"
             ],
             "index": "pypi",
-            "version": "==0.7.0"
+            "version": "==0.7.1"
+        },
+        "uritools": {
+            "hashes": [
+                "sha256:d122d394ed6e6e15ac0fddba6a5b19e9fa204e7797507815cbfb0e1455ac0475",
+                "sha256:efc5c3a6de05404850685a8d3f34da8476b56aa3516fbf8eff5c8704c7a2826f"
+            ],
+            "markers": "python_version ~= '3.7'",
+            "version": "==4.0.1"
         },
         "xmltodict": {
             "hashes": [
