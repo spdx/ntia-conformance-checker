@@ -134,7 +134,7 @@ def test_sbomchecker_missing_supplier_name(test_file):
         ["glibc", "Apache Commons Lang"],
         ["glibc", "Saxon"],
         ["Saxon"],
-        ["Apache Commons Lang"]
+        ["Apache Commons Lang"],
     ]
     assert not sbom.components_without_identifiers
     assert not sbom.ntia_mininum_elements_compliant

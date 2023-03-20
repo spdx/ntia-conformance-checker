@@ -93,6 +93,7 @@ class SbomChecker:
         """Retrieve name of components without suppliers."""
         components_without_suppliers = []
         for package in self.doc.packages:
+            # pylint: disable=too-many-boolean-expressions
             # both package supplier and package originator satisfy the "supplier"
             # requirement
             # https://spdx.github.io/spdx-spec/v2.3/package-information/#76-package-originator-field
