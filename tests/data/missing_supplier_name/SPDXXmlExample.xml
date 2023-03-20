@@ -291,7 +291,6 @@ EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.</extractedText>
     <licenseComments>Other versions available for a commercial license</licenseComments>
     <licenseConcluded>MPL-1.0</licenseConcluded>
     <licenseDeclared>MPL-1.0</licenseDeclared>
-	  <supplier>Organization: test</supplier>
     <name>Saxon</name>
     <packageFileName>saxonB-8.8.zip</packageFileName>
     <versionInfo>8.8</versionInfo>
