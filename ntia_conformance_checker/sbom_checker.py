@@ -93,10 +93,17 @@ class SbomChecker:
         """Retrieve name of components without suppliers."""
         components_without_suppliers = []
         for package in self.doc.packages:
+            # both package supplier and package originator satisfy the "supplier"
+            # requirement
+            # https://spdx.github.io/spdx-spec/v2.3/package-information/#76-package-originator-field
             if (
                 not package.supplier
                 or "NOASSERTION" in package.supplier.name
                 or not package.supplier.name
+            ) and (
+                not package.originator
+                or "NOASSERTION" in package.originator.name
+                or not package.originator.name
             ):
                 components_without_suppliers.append(package.name)
         return components_without_suppliers
