@@ -229,3 +229,48 @@ class SbomChecker:
 
         result["totalNumberComponents"] = self.get_total_number_components()
         return result
+
+    def output_html(self):
+        """Print HTML of output."""
+
+        result = f"""
+        <h2>NTIA Conformance Results</h2>
+        <h3>Conformant: {self.ntia_mininum_elements_compliant}
+
+        <table>
+        <tr>
+            <th>Individual Elements</th>
+            <th>Conformant</th>
+        </tr>
+        <tr>
+            <td>All component names provided</td>
+            <td>{not self.components_without_names}</td>
+        </tr>
+        <tr>
+            <td>All component versions provided</td>
+            <td>{not self.components_without_versions}</td>
+        </tr>
+        <tr>
+            <td>All component identifiers provided</td>
+            <td>{not self.components_without_identifiers}</td>
+        </tr>
+        <tr>
+            <td>All component suppliers provided</td>
+            <td>{not self.components_without_suppliers}</td>
+        </tr>
+        <tr>
+            <td>SBOM author name provided</td>
+            <td>{self.doc_author}</td>
+        </tr>
+        <tr>
+            <td>SBOM creation timestamp provided</td>
+            <td>{self.doc_timestamp}</td>
+        </tr>
+        <tr>
+            <td>Dependency relationships provided?</td>
+            <td>{self.dependency_relationships}</td>
+        </tr>
+        </table>
+        """
+
+        return result
