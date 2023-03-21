@@ -282,7 +282,6 @@ EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.</extractedText>
           </ConjunctiveLicenseSet>
         </licenseDeclared>
         <licenseInfoFromFiles rdf:nodeID="A5"/>
-        <originator>Organization:SPDX</originator>
         <licenseComments>The declared license information can be found in the NOTICE file at the root of the archive file</licenseComments>
         <summary>SPDX Translator utility</summary>
         <licenseInfoFromFiles rdf:resource="http://spdx.org/licenses/MPL-1.1"/>
