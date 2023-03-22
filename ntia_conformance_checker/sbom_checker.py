@@ -8,6 +8,7 @@ import sys
 
 import spdx.creationinfo
 from spdx.parsers import parse_anything
+from spdx.utils import NoAssert
 
 
 # pylint: disable=too-many-instance-attributes
@@ -97,16 +98,36 @@ class SbomChecker:
             # both package supplier and package originator satisfy the "supplier"
             # requirement
             # https://spdx.github.io/spdx-spec/v2.3/package-information/#76-package-originator-field
-            if (
-                not package.supplier
-                or "NOASSERTION" in package.supplier.name
-                or not package.supplier.name
-            ) and (
-                not package.originator
-                or "NOASSERTION" in package.originator.name
-                or not package.originator.name
-            ):
+            no_package_supplier = (
+                package.supplier is None
+                or package.supplier.to_value() == "NOASSERTION"
+                or package.supplier is NoAssert
+                # some package suppliers do not have a name provided
+                or (
+                    hasattr(package.supplier, "name")
+                    # only check name conditions for those packages that do
+                    # have a name provided
+                    and (
+                        not package.supplier.name
+                        or "NOASSERTION" in package.supplier.name
+                    )
+                )
+            )
+            no_package_originator = (
+                package.originator is None
+                or package.originator.to_value() == "NOASSERTION"
+                or package.originator is NoAssert
+                or (
+                    hasattr(package.originator, "name")
+                    and (
+                        not package.originator.name
+                        or "NOASSERTION" in package.originator.name
+                    )
+                )
+            )
+            if no_package_supplier and no_package_originator:
                 components_without_suppliers.append(package.name)
+
         return components_without_suppliers
 
     def get_components_without_identifiers(self):
