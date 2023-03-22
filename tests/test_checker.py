@@ -190,6 +190,19 @@ def test_sbomchecker_bom_alpine_example():
     )
 
 
+def test_sbomchecker_alpine_no_package_supplier_name_example():
+    """Check that SBOM for alpine with NOASSERTION for supplier parses."""
+    test_file = os.path.join(
+        os.path.dirname(__file__),
+        "data",
+        "SPDXSBOMExampleTests",
+        "alpine.spdx",
+    )
+    sbom = sbom_checker.SbomChecker(test_file)
+    got = sbom.output_json()
+    assert not got["componentSuppliers"]["allProvided"]
+
+
 def test_sbomchecker_output_json():
     filepath = os.path.join(
         os.path.dirname(__file__), "data", "other_tests", "SPDXSBOMExample.spdx.yml"
