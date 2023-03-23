@@ -227,3 +227,53 @@ def test_sbomchecker_output_json():
         "openssl",
     ]
     assert got["totalNumberComponents"] == 3
+
+
+def test_sbomchecker_output_html():
+    filepath = os.path.join(
+        os.path.dirname(__file__), "data", "other_tests", "SPDXSBOMExample.spdx.yml"
+    )
+    sbom = sbom_checker.SbomChecker(filepath)
+
+    got = sbom.output_html()
+    expected = """
+        <h2>NTIA Conformance Results</h2>
+        <h3>Conformant: False
+
+        <table>
+        <tr>
+            <th>Individual Elements</th>
+            <th>Conformant</th>
+        </tr>
+        <tr>
+            <td>All component names provided</td>
+            <td>True</td>
+        </tr>
+        <tr>
+            <td>All component versions provided</td>
+            <td>True</td>
+        </tr>
+        <tr>
+            <td>All component identifiers provided</td>
+            <td>True</td>
+        </tr>
+        <tr>
+            <td>All component suppliers provided</td>
+            <td>False</td>
+        </tr>
+        <tr>
+            <td>SBOM author name provided</td>
+            <td>True</td>
+        </tr>
+        <tr>
+            <td>SBOM creation timestamp provided</td>
+            <td>False</td>
+        </tr>
+        <tr>
+            <td>Dependency relationships provided?</td>
+            <td>True</td>
+        </tr>
+        </table>
+        """
+
+    assert got == expected

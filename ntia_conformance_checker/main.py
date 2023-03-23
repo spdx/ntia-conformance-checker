@@ -18,7 +18,7 @@ def get_parsed_args():
     parser.add_argument("--file", help="Filepath for SPDX SBOM")
     parser.add_argument(
         "--output",
-        choices=["print", "json", "quiet"],
+        choices=["print", "json", "html", "quiet"],
         default="print",
         help="Specify type of output",
     )
@@ -60,6 +60,9 @@ def main():
                 json.dump(result_dict, outfile)
         else:
             print(json.dumps(result_dict, indent=2))
+    if args.output == "html":
+        html_output = sbom.output_html()
+        print(html_output)
     # 0 indicates success
     sys.exit(0 if sbom.ntia_mininum_elements_compliant else 1)
 
