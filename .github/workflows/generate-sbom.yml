@@ -1,0 +1,24 @@
+name: Generate SBOM
+
+on:
+  release:
+    types: [published]
+
+permissions: read-all
+
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    permissions:
+      contents: write # release changes require contents write
+    steps:
+      - uses: actions/checkout@v3
+      - uses: advanced-security/sbom-generator-action@v0.0.1
+        id: sbom
+        env: 
+          GITHUB_TOKEN: ${{ github.token }}
+      - name: Upload release asset
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        run:
+          gh release upload github.event.release.tag_name steps.sbom.outputs.fileName
