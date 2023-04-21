@@ -6,9 +6,9 @@ import logging
 import os
 import sys
 
-import spdx.creationinfo
+from spdx_tools.spdx.model.document import CreationInfo
 from spdx.parsers import parse_anything
-from spdx.utils import NoAssert
+from spdx_tools.spdx.model.spdx_no_assertion import SpdxNoAssertion
 
 
 # pylint: disable=too-many-instance-attributes
@@ -101,7 +101,7 @@ class SbomChecker:
             no_package_supplier = (
                 package.supplier is None
                 or package.supplier.to_value() == "NOASSERTION"
-                or package.supplier is NoAssert
+                or package.supplier is SpdxNoAssertion
                 # some package suppliers do not have a name provided
                 or (
                     hasattr(package.supplier, "name")
@@ -116,7 +116,7 @@ class SbomChecker:
             no_package_originator = (
                 package.originator is None
                 or package.originator.to_value() == "NOASSERTION"
-                or package.originator is NoAssert
+                or package.originator is SpdxNoAssertion
                 or (
                     hasattr(package.originator, "name")
                     and (
