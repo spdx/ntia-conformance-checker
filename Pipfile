@@ -12,4 +12,4 @@ spdx-tools = '0.8.0a1'
 python_version = "3.8"
 
 [pipenv]
-allow_prereleases = false
+allow_prereleases = true
