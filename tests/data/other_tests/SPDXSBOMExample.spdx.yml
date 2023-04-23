@@ -7,6 +7,7 @@ creationInfo:
   - "Organization: Example Inc."
   - "Person: Thomas Steenbergen"
   licenseListVersion: "3.9"
+  created: "2010-01-29T18:30:22Z"
 name: "xyz-0.1.0"
 dataLicense: "CC0-1.0"
 documentNamespace: "http://spdx.org/spdxdocs/spdx-document-xyz"
