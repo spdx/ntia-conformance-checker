@@ -78,7 +78,6 @@ Relationship: SPDXRef-9b5d4fa77c CONTAINS SPDXRef-zstd-libs-1.4.5-2.ph3
 
 PackageName: bash
 SPDXID: SPDXRef-bash-4.4.18-4.ph3
-PackageVersion:
 PackageDownloadLocation: NOASSERTION
 FilesAnalyzed: false
 PackageLicenseConcluded: NOASSERTION
