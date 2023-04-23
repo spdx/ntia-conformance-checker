@@ -7,7 +7,7 @@ import os
 import sys
 
 from spdx_tools.spdx.model.document import CreationInfo
-from spdx.parsers import parse_anything
+from spdx_tools.spdx.parser import parse_anything
 from spdx_tools.spdx.model.spdx_no_assertion import SpdxNoAssertion
 
 
