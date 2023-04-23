@@ -7,6 +7,7 @@ import os
 import sys
 
 from spdx_tools.spdx.model.document import CreationInfo
+from spdx_tools.spdx.model.actor import ActorType
 from spdx_tools.spdx.parser import parse_anything
 from spdx_tools.spdx.model.spdx_no_assertion import SpdxNoAssertion
 
@@ -18,7 +19,7 @@ class SbomChecker:
     def __init__(self, file):
         self.file = file
         self.doc = self.parse_file()
-        self.sbom_name = self.doc.name
+        self.sbom_name = self.doc.creation_info.name
         self.doc_version = self.check_doc_version()
         self.doc_author = self.check_doc_author()
         self.doc_timestamp = self.check_doc_timestamp()
@@ -37,28 +38,24 @@ class SbomChecker:
         if not os.path.exists(self.file):
             logging.error("Filename %s not found.", self.file)
             sys.exit(1)
-        doc, err = parse_anything.parse_file(self.file)
-        if err:
-            logging.error("Document cannot be parsed: %s", err)
+        doc = parse_anything.parse_file(self.file)
+
         return doc
 
     def check_doc_version(self):
         """Check for SPDX document version."""
-        if str(self.doc.version) not in ["SPDX-2.2", "SPDX-2.3"]:
+        if str(self.doc.creation_info.spdx_version) not in ["SPDX-2.2", "SPDX-2.3"]:
             return False
         return True
 
     def check_doc_author(self):
         """Check document author is person, organization, or tool."""
         for i, _ in enumerate(self.doc.creation_info.creators):
-            if isinstance(
-                self.doc.creation_info.creators[i],
-                (
-                    spdx.creationinfo.Person,
-                    spdx.creationinfo.Organization,
-                    spdx.creationinfo.Tool,
-                ),
-            ):
+            if self.doc.creation_info.creators[i].actor_type in [
+                    ActorType.PERSON,
+                    ActorType.ORGANIZATION,
+                    ActorType.TOOL,
+                ]:
                 return True
         return False
 
