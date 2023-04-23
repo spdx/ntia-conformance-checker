@@ -91,36 +91,16 @@ class SbomChecker:
         """Retrieve name of components without suppliers."""
         components_without_suppliers = []
         for package in self.doc.packages:
-            # pylint: disable=too-many-boolean-expressions
             # both package supplier and package originator satisfy the "supplier"
             # requirement
             # https://spdx.github.io/spdx-spec/v2.3/package-information/#76-package-originator-field
             no_package_supplier = (
                 package.supplier is None
-                or package.supplier.to_value() == "NOASSERTION"
-                or package.supplier is SpdxNoAssertion
-                # some package suppliers do not have a name provided
-                or (
-                    hasattr(package.supplier, "name")
-                    # only check name conditions for those packages that do
-                    # have a name provided
-                    and (
-                        not package.supplier.name
-                        or "NOASSERTION" in package.supplier.name
-                    )
-                )
+                or isinstance(package.supplier, SpdxNoAssertion)
             )
             no_package_originator = (
                 package.originator is None
-                or package.originator.to_value() == "NOASSERTION"
-                or package.originator is SpdxNoAssertion
-                or (
-                    hasattr(package.originator, "name")
-                    and (
-                        not package.originator.name
-                        or "NOASSERTION" in package.originator.name
-                    )
-                )
+                or isinstance(package.originator, SpdxNoAssertion)
             )
             if no_package_supplier and no_package_originator:
                 components_without_suppliers.append(package.name)
