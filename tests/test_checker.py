@@ -267,7 +267,7 @@ def test_sbomchecker_output_html():
         </tr>
         <tr>
             <td>SBOM creation timestamp provided</td>
-            <td>False</td>
+            <td>True</td>
         </tr>
         <tr>
             <td>Dependency relationships provided?</td>
