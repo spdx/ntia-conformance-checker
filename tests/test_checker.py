@@ -148,17 +148,10 @@ test_files_missing_unique_identifiers = [
 
 @pytest.mark.parametrize("test_file", test_files_missing_unique_identifiers)
 def test_sbomchecker_missing_unique_identifiers(test_file):
-    sbom = sbom_checker.SbomChecker(test_file)
-    assert sbom.file == test_file
-    assert sbom.doc_version
-    assert sbom.doc_author
-    assert sbom.doc_timestamp
-    assert sbom.dependency_relationships
-    assert not sbom.components_without_names
-    assert not sbom.components_without_versions
-    assert not sbom.components_without_suppliers
-    assert sbom.components_without_identifiers in [["glibc"], ["SPDX Translator"]]
-    assert not sbom.ntia_mininum_elements_compliant
+    with pytest.raises(Exception):
+        # the strictness of spdx-tools means that any SPDX SBOM without unique
+        # identifiers fails to parse
+        sbom_checker.SbomChecker(test_file)
 
 
 def test_sbomchecker_tern_photon_example():
