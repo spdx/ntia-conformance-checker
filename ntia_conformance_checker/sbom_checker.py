@@ -6,7 +6,6 @@ import logging
 import os
 import sys
 
-from spdx_tools.spdx.model.document import CreationInfo
 from spdx_tools.spdx.model.actor import ActorType
 from spdx_tools.spdx.parser import parse_anything
 from spdx_tools.spdx.model.spdx_no_assertion import SpdxNoAssertion
@@ -52,10 +51,10 @@ class SbomChecker:
         """Check document author is person, organization, or tool."""
         for i, _ in enumerate(self.doc.creation_info.creators):
             if self.doc.creation_info.creators[i].actor_type in [
-                    ActorType.PERSON,
-                    ActorType.ORGANIZATION,
-                    ActorType.TOOL,
-                ]:
+                ActorType.PERSON,
+                ActorType.ORGANIZATION,
+                ActorType.TOOL,
+            ]:
                 return True
         return False
 
@@ -94,13 +93,11 @@ class SbomChecker:
             # both package supplier and package originator satisfy the "supplier"
             # requirement
             # https://spdx.github.io/spdx-spec/v2.3/package-information/#76-package-originator-field
-            no_package_supplier = (
-                package.supplier is None
-                or isinstance(package.supplier, SpdxNoAssertion)
+            no_package_supplier = package.supplier is None or isinstance(
+                package.supplier, SpdxNoAssertion
             )
-            no_package_originator = (
-                package.originator is None
-                or isinstance(package.originator, SpdxNoAssertion)
+            no_package_originator = package.originator is None or isinstance(
+                package.originator, SpdxNoAssertion
             )
             if no_package_supplier and no_package_originator:
                 components_without_suppliers.append(package.name)
