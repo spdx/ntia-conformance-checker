@@ -226,7 +226,7 @@ packages:
   homepage: "http://commons.apache.org/proper/commons-lang/"
   licenseConcluded: "NOASSERTION"
   licenseDeclared: "NOASSERTION"
-  supplier: "Person: NOASSERTION"
+  supplier: "NOASSERTION"
   versionInfo: "2.11.1"
   name: "Apache Commons Lang"
 - SPDXID: "SPDXRef-fromDoap-0"
