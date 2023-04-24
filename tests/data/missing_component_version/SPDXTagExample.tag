@@ -12,15 +12,6 @@ Creator: Tool: SourceAuditor-V1.2
 Created: 2010-02-03T00:00:00Z
 CreatorComment: <text>This is an example of an SPDX spreadsheet format</text>
 
-## Review Information
-Reviewer: Person: Joe Reviewer
-ReviewDate: 2010-02-10T00:00:00Z
-ReviewComment: <text>This is just an example.  Some of the non-standard licenses look like they are actually BSD 3 clause licenses</text>
-
-Reviewer: Person: Suzanne Reviewer
-ReviewDate: 2011-03-13T00:00:00Z
-ReviewComment: <text>Another example reviewer.</text>
-
 ## Annotation Information
 Annotator: Person: Jim Annotator
 AnnotationType: REVIEW
@@ -84,20 +75,7 @@ LicenseConcluded: LicenseRef-1
 LicenseInfoInFile: LicenseRef-1
 LicenseComments: <text>This license is used by Jena</text>
 FileCopyrightText: <text>(c) Copyright 2000, 2001, 2002, 2003, 2004, 2005, 2006, 2007, 2008, 2009 Hewlett-Packard Development Company, LP</text>
-ArtifactOfProjectName: Jena
-ArtifactOfProjectHomePage: http://www.openjena.org/
-ArtifactOfProjectURI: UNKNOWN
 FileComment: <text>This file belongs to Jena</text>
-
-## Snippet Information
-SnippetSPDXID: SPDXRef-Snippet
-SnippetFromFileSPDXID: SPDXRef-DoapSource
-SnippetLicenseComments: <text>The concluded license was taken from package xyz, from which the snippet was copied into the current file. The concluded license information was found in the COPYING.txt file in package xyz.</text>
-SnippetCopyrightText: <text> Copyright 2008-2010 John Smith </text>
-SnippetComment: <text>This snippet was identified as significant and highlighted in this Apache-2.0 file, when a commercial scanner identified it as being derived from file foo.c in package xyz which is licensed under GPL-2.0-or-later.</text>
-SnippetName: from linux kernel
-SnippetLicenseConcluded: Apache-2.0
-LicenseInfoInSnippet: Apache-2.0
 
 ## License Information
 LicenseID: LicenseRef-3
