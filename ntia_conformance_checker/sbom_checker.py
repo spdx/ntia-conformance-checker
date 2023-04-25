@@ -49,12 +49,7 @@ class SbomChecker:
 
     def check_doc_author(self):
         """Check document author is person, organization, or tool."""
-        for i, _ in enumerate(self.doc.creation_info.creators):
-            if self.doc.creation_info.creators[i].actor_type in [
-                ActorType.PERSON,
-                ActorType.ORGANIZATION,
-                ActorType.TOOL,
-            ]:
+        if len(self.doc.creation_info.creators) > 0:
                 return True
         return False
 
