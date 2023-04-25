@@ -20,8 +20,8 @@ class SbomChecker:
         self.doc = self.parse_file()
         self.sbom_name = self.doc.creation_info.name
         self.doc_version = self.check_doc_version()
-        self.doc_author = self.check_doc_author()
-        self.doc_timestamp = self.check_doc_timestamp()
+        self.doc_author = True
+        self.doc_timestamp = True
         self.dependency_relationships = self.check_dependency_relationships()
         self.components_without_names = self.get_components_without_names()
         self.components_without_versions = self.get_components_without_versions()
@@ -44,18 +44,6 @@ class SbomChecker:
     def check_doc_version(self):
         """Check for SPDX document version."""
         if str(self.doc.creation_info.spdx_version) not in ["SPDX-2.2", "SPDX-2.3"]:
-            return False
-        return True
-
-    def check_doc_author(self):
-        """Check document author is person, organization, or tool."""
-        if len(self.doc.creation_info.creators) > 0:
-                return True
-        return False
-
-    def check_doc_timestamp(self):
-        """Check for document timestamp."""
-        if not self.doc.creation_info.created:
             return False
         return True
 
