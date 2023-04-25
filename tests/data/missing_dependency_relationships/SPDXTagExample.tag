@@ -14,12 +14,6 @@ CreatorComment: <text>This is an example of an SPDX spreadsheet format</text>
 
 ## Review Information
 Reviewer: Person: Joe Reviewer
-ReviewDate: 2010-02-10T00:00:00Z
-ReviewComment: <text>This is just an example.  Some of the non-standard licenses look like they are actually BSD 3 clause licenses</text>
-
-Reviewer: Person: Suzanne Reviewer
-ReviewDate: 2011-03-13T00:00:00Z
-ReviewComment: <text>Another example reviewer.</text>
 
 ## Annotation Information
 Annotator: Person: Jim Annotator
@@ -27,4 +21,3 @@ AnnotationType: REVIEW
 AnnotationDate: 2012-03-11T00:00:00Z
 AnnotationComment: <text>An example annotation comment.</text>
 SPDXREF: SPDXRef-45
-
