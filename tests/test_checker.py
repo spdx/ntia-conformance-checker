@@ -3,6 +3,7 @@
 # pylint: disable=missing-function-docstring,import-error,consider-using-from-import
 
 import os
+from unittest import TestCase
 
 import pytest
 
@@ -35,17 +36,12 @@ test_files_missing_author_name = [
 
 @pytest.mark.parametrize("test_file", test_files_missing_author_name)
 def test_sbomchecker_missing_author_name(test_file):
-    sbom = sbom_checker.SbomChecker(test_file)
-    assert sbom.file == test_file
-    assert sbom.doc_version
-    assert not sbom.doc_author
-    assert sbom.doc_timestamp
-    assert sbom.dependency_relationships
-    assert not sbom.components_without_names
-    assert not sbom.components_without_versions
-    assert not sbom.components_without_suppliers
-    assert not sbom.components_without_identifiers
-    assert not sbom.ntia_mininum_elements_compliant
+    """The parser from spdx-tools will raise an SPDXParsingError if
+    the document does not contain a creator."""
+    sbom_check = sbom_checker.SbomChecker(test_file)
+
+    assert not sbom_check.ntia_mininum_elements_compliant
+    assert sbom_check.parsing_error
 
 
 dirname = os.path.join(os.path.dirname(__file__), "data", "missing_timestamp")
@@ -54,17 +50,12 @@ test_files_missing_timestamp = [os.path.join(dirname, fn) for fn in os.listdir(d
 
 @pytest.mark.parametrize("test_file", test_files_missing_timestamp)
 def test_sbomchecker_missing_timestamp(test_file):
-    sbom = sbom_checker.SbomChecker(test_file)
-    assert sbom.file == test_file
-    assert sbom.doc_version
-    assert sbom.doc_author
-    assert not sbom.doc_timestamp
-    assert sbom.dependency_relationships
-    assert not sbom.components_without_names
-    assert not sbom.components_without_versions
-    assert not sbom.components_without_suppliers
-    assert not sbom.components_without_identifiers
-    assert not sbom.ntia_mininum_elements_compliant
+    """The parser from spdx-tools will raise an SPDXParsingError if
+    the document does not contain a created date."""
+    sbom_check = sbom_checker.SbomChecker(test_file)
+
+    assert not sbom_check.ntia_mininum_elements_compliant
+    assert sbom_check.parsing_error
 
 
 dirname = os.path.join(
@@ -105,7 +96,7 @@ def test_sbomchecker_missing_component_version(test_file):
     assert sbom.doc_timestamp
     assert sbom.dependency_relationships
     assert not sbom.components_without_names
-    assert sbom.components_without_versions in [["glibc"], ["SPDX Translator"]]
+    TestCase().assertCountEqual(sbom.components_without_versions, ["glibc"])
     assert not sbom.components_without_suppliers
     assert not sbom.components_without_identifiers
     assert not sbom.ntia_mininum_elements_compliant
@@ -125,17 +116,7 @@ def test_sbomchecker_missing_supplier_name(test_file):
     assert sbom.dependency_relationships
     assert not sbom.components_without_names
     assert not sbom.components_without_versions
-    # this list approach reflects that different formats
-    # (e.g. JSON, tag-value, etc) are not identical. this
-    # should probably be refactored in the future.
-    assert sbom.components_without_suppliers in [
-        ["glibc"],
-        ["SPDX Translator"],
-        ["glibc", "Apache Commons Lang"],
-        ["glibc", "Saxon"],
-        ["Saxon"],
-        ["Apache Commons Lang"],
-    ]
+    TestCase().assertCountEqual(sbom.components_without_suppliers, ["Jena", "Saxon"])
     assert not sbom.components_without_identifiers
     assert not sbom.ntia_mininum_elements_compliant
 
@@ -148,10 +129,12 @@ test_files_missing_unique_identifiers = [
 
 @pytest.mark.parametrize("test_file", test_files_missing_unique_identifiers)
 def test_sbomchecker_missing_unique_identifiers(test_file):
-    with pytest.raises(Exception):
-        # the strictness of spdx-tools means that any SPDX SBOM without unique
-        # identifiers fails to parse
-        sbom_checker.SbomChecker(test_file)
+    """The parser from spdx-tools will raise an SPDXParsingError if
+    the document contains an element without SPDXID."""
+    sbom_check = sbom_checker.SbomChecker(test_file)
+
+    assert not sbom_check.ntia_mininum_elements_compliant
+    assert sbom_check.parsing_error
 
 
 def test_sbomchecker_tern_photon_example():
@@ -230,43 +213,43 @@ def test_sbomchecker_output_html():
 
     got = sbom.output_html()
     expected = """
-        <h2>NTIA Conformance Results</h2>
-        <h3>Conformant: False
-
-        <table>
-        <tr>
-            <th>Individual Elements</th>
-            <th>Conformant</th>
-        </tr>
-        <tr>
-            <td>All component names provided</td>
-            <td>True</td>
-        </tr>
-        <tr>
-            <td>All component versions provided</td>
-            <td>True</td>
-        </tr>
-        <tr>
-            <td>All component identifiers provided</td>
-            <td>True</td>
-        </tr>
-        <tr>
-            <td>All component suppliers provided</td>
-            <td>False</td>
-        </tr>
-        <tr>
-            <td>SBOM author name provided</td>
-            <td>True</td>
-        </tr>
-        <tr>
-            <td>SBOM creation timestamp provided</td>
-            <td>True</td>
-        </tr>
-        <tr>
-            <td>Dependency relationships provided?</td>
-            <td>True</td>
-        </tr>
-        </table>
-        """
+            <h2>NTIA Conformance Results</h2>
+            <h3>Conformant: False
+    
+            <table>
+            <tr>
+                <th>Individual Elements</th>
+                <th>Conformant</th>
+            </tr>
+            <tr>
+                <td>All component names provided</td>
+                <td>True</td>
+            </tr>
+            <tr>
+                <td>All component versions provided</td>
+                <td>True</td>
+            </tr>
+            <tr>
+                <td>All component identifiers provided</td>
+                <td>True</td>
+            </tr>
+            <tr>
+                <td>All component suppliers provided</td>
+                <td>False</td>
+            </tr>
+            <tr>
+                <td>SBOM author name provided</td>
+                <td>True</td>
+            </tr>
+            <tr>
+                <td>SBOM creation timestamp provided</td>
+                <td>True</td>
+            </tr>
+            <tr>
+                <td>Dependency relationships provided?</td>
+                <td>True</td>
+            </tr>
+            </table>
+            """
 
     assert got == expected
