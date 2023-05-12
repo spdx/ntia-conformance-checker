@@ -168,12 +168,12 @@ class SbomChecker:
         """Print detailed info about which components are missing info."""
         if not self.parsing_error:
             if all(
-                [
-                    not self.components_without_names,
-                    not self.components_without_versions,
-                    not self.components_without_identifiers,
-                    not self.components_without_suppliers,
-                ]
+                    [
+                        not self.components_without_names,
+                        not self.components_without_versions,
+                        not self.components_without_identifiers,
+                        not self.components_without_suppliers,
+                    ]
             ):
                 print("No components with missing information.")
             if self.components_without_names:
@@ -247,48 +247,28 @@ class SbomChecker:
     def output_html(self):
         """Print HTML of output."""
         if self.doc:
-            result = f"""
-            <h2>NTIA Conformance Results</h2>
-            <h3>Conformant: {self.ntia_mininum_elements_compliant}
-    
-            <table>
-            <tr>
-                <th>Individual Elements</th>
-                <th>Conformant</th>
-            </tr>
-            <tr>
-                <td>All component names provided</td>
-                <td>{not self.components_without_names}</td>
-            </tr>
-            <tr>
-                <td>All component versions provided</td>
-                <td>{not self.components_without_versions}</td>
-            </tr>
-            <tr>
-                <td>All component identifiers provided</td>
-                <td>{not self.components_without_identifiers}</td>
-            </tr>
-            <tr>
-                <td>All component suppliers provided</td>
-                <td>{not self.components_without_suppliers}</td>
-            </tr>
-            <tr>
-                <td>SBOM author name provided</td>
-                <td>{self.doc_author}</td>
-            </tr>
-            <tr>
-                <td>SBOM creation timestamp provided</td>
-                <td>{self.doc_timestamp}</td>
-            </tr>
-            <tr>
-                <td>Dependency relationships provided?</td>
-                <td>{self.dependency_relationships}</td>
-            </tr>
-            </table>
-            """
+            result = f" <h2>NTIA Conformance Results</h2> " \
+                     f"<h3>Conformant: {self.ntia_mininum_elements_compliant} </h3>" \
+                     f"<table> <tr> " \
+                     f"<th>Individual Elements</th> <th>Conformant</th> </tr> " \
+                     f"<tr> <td>All component names provided</td>" \
+                     f" <td>{not self.components_without_names}</td> </tr> " \
+                     f"<tr> <td>All component versions provided</td>" \
+                     f" <td>{not self.components_without_versions}</td> </tr> " \
+                     f"<tr> <td>All component identifiers provided</td> " \
+                     f"<td>{not self.components_without_identifiers}</td> </tr> " \
+                     f"<tr> <td>All component suppliers provided</td> " \
+                     f"<td>{not self.components_without_suppliers}</td> " \
+                     f"</tr> <tr> <td>SBOM author name provided</td> " \
+                     f"<td>{self.doc_author}</td> </tr> " \
+                     f"<tr> <td>SBOM creation timestamp provided</td> " \
+                     f"<td>{self.doc_timestamp}</td> </tr> " \
+                     f"<tr> <td>Dependency relationships provided?</td> " \
+                     f"<td>{self.dependency_relationships}</td> </tr> " \
+                     f"</table>"
             if self.validation_messages:
-                result += "The provided document is not valid according to the SPDX specification. " \
-                          "The following errors were found:\n"
+                result += "<p>The provided document is not valid according to the SPDX specification. " \
+                          "The following errors were found:</p>\n"
             for message in self.validation_messages:
                 result += f"<p>{message.validation_message}</p>\n"
         else:
