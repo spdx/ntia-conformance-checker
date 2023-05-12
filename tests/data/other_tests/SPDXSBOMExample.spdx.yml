@@ -18,10 +18,10 @@ packages:
   summary: "Awesome product created by Example Inc."
   copyrightText: "copyright 2004-2020 Example Inc. All Rights Reserved."
   downloadLocation: "git+ssh://gitlab.example.com:3389/products/xyz.git@b2c358080011af6a366d2512a25a379fbe7b1f78"
-  filesAnalyzed: false
+  filesAnalyzed: true
   homepage: "https://example.com/products/xyz"
   licenseConcluded:  "NOASSERTION"
-  licenseDeclared: "Apache-2.0 AND curl AND LicenseRef-Proprietary-ExampleInc"
+  licenseDeclared: "Apache-2.0 AND curl"
   name: "xyz"
   versionInfo: "0.1.0"
 - SPDXID: "SPDXRef-Package-curl"
