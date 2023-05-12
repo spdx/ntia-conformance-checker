@@ -161,8 +161,8 @@ def test_sbomchecker_bom_alpine_example():
     sbom = sbom_checker.SbomChecker(test_file)
     # currently checking only one component with a missing version
     assert (
-            "sha256:850d4aa2c32a30db71a7e54dab7c605f74a4aeabf9418ccd9273b2480fcb6c04"
-            in sbom.components_without_versions
+        "sha256:850d4aa2c32a30db71a7e54dab7c605f74a4aeabf9418ccd9273b2480fcb6c04"
+        in sbom.components_without_versions
     )
 
 
@@ -212,13 +212,17 @@ def test_sbomchecker_output_html():
     sbom = sbom_checker.SbomChecker(filepath)
 
     got = sbom.output_html()
-    expected = " <h2>NTIA Conformance Results</h2> <h3>Conformant: False </h3><table> <tr> <th>Individual Elements</th> " \
-               "<th>Conformant</th> </tr> <tr> <td>All component names provided</td> <td>True</td> </tr> " \
-               "<tr> <td>All component versions provided</td> <td>True</td> </tr> " \
-               "<tr> <td>All component identifiers provided</td> <td>True</td> </tr> " \
-               "<tr> <td>All component suppliers provided</td> <td>False</td> </tr> " \
-               "<tr> <td>SBOM author name provided</td> <td>True</td> </tr> " \
-               "<tr> <td>SBOM creation timestamp provided</td> <td>True</td> </tr> " \
-               "<tr> <td>Dependency relationships provided?</td> <td>True</td> </tr> </table>"
+    expected = (
+        " <h2>NTIA Conformance Results</h2> <h3>Conformant: False </h3><table> <tr> "
+        "<th>Individual Elements</th> "
+        "<th>Conformant</th> </tr> "
+        "<tr> <td>All component names provided</td> <td>True</td> </tr> "
+        "<tr> <td>All component versions provided</td> <td>True</td> </tr> "
+        "<tr> <td>All component identifiers provided</td> <td>True</td> </tr> "
+        "<tr> <td>All component suppliers provided</td> <td>False</td> </tr> "
+        "<tr> <td>SBOM author name provided</td> <td>True</td> </tr> "
+        "<tr> <td>SBOM creation timestamp provided</td> <td>True</td> </tr> "
+        "<tr> <td>Dependency relationships provided?</td> <td>True</td> </tr> </table>"
+    )
 
     assert got == expected

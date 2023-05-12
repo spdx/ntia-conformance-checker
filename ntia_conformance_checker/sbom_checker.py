@@ -32,7 +32,9 @@ class SbomChecker:
             self.components_without_names = self.get_components_without_names()
             self.components_without_versions = self.get_components_without_versions()
             self.components_without_suppliers = self.get_components_without_suppliers()
-            self.components_without_identifiers = self.get_components_without_identifiers()
+            self.components_without_identifiers = (
+                self.get_components_without_identifiers()
+            )
             self.ntia_mininum_elements_compliant = (
                 self.check_ntia_minimum_elements_compliance()
             )
@@ -130,8 +132,10 @@ class SbomChecker:
             print(
                 f"\nIs this SBOM NTIA minimum element conformant? {self.ntia_mininum_elements_compliant}\n"
             )
-            print("The provided document couldn't be parsed, check for ntia minimum elements couldn't be performed.\n")
-            print(f"The following SPDXParsingError was raised:\n")
+            print(
+                "The provided document couldn't be parsed, check for ntia minimum elements couldn't be performed.\n"
+            )
+            print("The following SPDXParsingError was raised:\n")
             for error in self.parsing_error:
                 print(error)
 
@@ -154,13 +158,17 @@ class SbomChecker:
                 f"All component suppliers provided?              | {not self.components_without_suppliers}"
             )
             print(f"SBOM author name provided?                     | {self.doc_author}")
-            print(f"SBOM creation timestamp provided?              | {self.doc_timestamp}")
+            print(
+                f"SBOM creation timestamp provided?              | {self.doc_timestamp}"
+            )
             print(
                 f"Dependency relationships provided?             | {self.dependency_relationships}\n"
             )
             if self.validation_messages:
-                print(f"The provided document is not valid according to the SPDX specification. "
-                      f"The following errors were found:\n")
+                print(
+                    "The provided document is not valid according to the SPDX specification. "
+                    "The following errors were found:\n"
+                )
                 for message in self.validation_messages:
                     print(message.validation_message)
 
@@ -168,12 +176,12 @@ class SbomChecker:
         """Print detailed info about which components are missing info."""
         if not self.parsing_error:
             if all(
-                    [
-                        not self.components_without_names,
-                        not self.components_without_versions,
-                        not self.components_without_identifiers,
-                        not self.components_without_suppliers,
-                    ]
+                [
+                    not self.components_without_names,
+                    not self.components_without_versions,
+                    not self.components_without_identifiers,
+                    not self.components_without_suppliers,
+                ]
             ):
                 print("No components with missing information.")
             if self.components_without_names:
@@ -188,7 +196,8 @@ class SbomChecker:
                 print()
             if self.components_without_identifiers:
                 print(
-                    f"Components missing an identifier: {','.join(self.components_without_identifiers)}"
+                    f"Components missing an identifier: "
+                    f"{','.join(self.components_without_identifiers)}"
                 )
                 print()
             if self.components_without_suppliers:
@@ -247,28 +256,32 @@ class SbomChecker:
     def output_html(self):
         """Print HTML of output."""
         if self.doc:
-            result = f" <h2>NTIA Conformance Results</h2> " \
-                     f"<h3>Conformant: {self.ntia_mininum_elements_compliant} </h3>" \
-                     f"<table> <tr> " \
-                     f"<th>Individual Elements</th> <th>Conformant</th> </tr> " \
-                     f"<tr> <td>All component names provided</td>" \
-                     f" <td>{not self.components_without_names}</td> </tr> " \
-                     f"<tr> <td>All component versions provided</td>" \
-                     f" <td>{not self.components_without_versions}</td> </tr> " \
-                     f"<tr> <td>All component identifiers provided</td> " \
-                     f"<td>{not self.components_without_identifiers}</td> </tr> " \
-                     f"<tr> <td>All component suppliers provided</td> " \
-                     f"<td>{not self.components_without_suppliers}</td> " \
-                     f"</tr> <tr> <td>SBOM author name provided</td> " \
-                     f"<td>{self.doc_author}</td> </tr> " \
-                     f"<tr> <td>SBOM creation timestamp provided</td> " \
-                     f"<td>{self.doc_timestamp}</td> </tr> " \
-                     f"<tr> <td>Dependency relationships provided?</td> " \
-                     f"<td>{self.dependency_relationships}</td> </tr> " \
-                     f"</table>"
+            result = (
+                f" <h2>NTIA Conformance Results</h2> "
+                f"<h3>Conformant: {self.ntia_mininum_elements_compliant} </h3>"
+                f"<table> <tr> "
+                f"<th>Individual Elements</th> <th>Conformant</th> </tr> "
+                f"<tr> <td>All component names provided</td>"
+                f" <td>{not self.components_without_names}</td> </tr> "
+                f"<tr> <td>All component versions provided</td>"
+                f" <td>{not self.components_without_versions}</td> </tr> "
+                f"<tr> <td>All component identifiers provided</td> "
+                f"<td>{not self.components_without_identifiers}</td> </tr> "
+                f"<tr> <td>All component suppliers provided</td> "
+                f"<td>{not self.components_without_suppliers}</td> "
+                f"</tr> <tr> <td>SBOM author name provided</td> "
+                f"<td>{self.doc_author}</td> </tr> "
+                f"<tr> <td>SBOM creation timestamp provided</td> "
+                f"<td>{self.doc_timestamp}</td> </tr> "
+                f"<tr> <td>Dependency relationships provided?</td> "
+                f"<td>{self.dependency_relationships}</td> </tr> "
+                f"</table>"
+            )
             if self.validation_messages:
-                result += "<p>The provided document is not valid according to the SPDX specification. " \
-                          "The following errors were found:</p>\n"
+                result += (
+                    "<p>The provided document is not valid according to the SPDX specification. "
+                    "The following errors were found:</p>\n"
+                )
             for message in self.validation_messages:
                 result += f"<p>{message.validation_message}</p>\n"
         else:
