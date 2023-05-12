@@ -23,7 +23,7 @@ class SbomChecker:
         if not self.doc:
             self.ntia_mininum_elements_compliant = False
         else:
-            self.valid_document = validate_full_spdx_document(self.doc)
+            self.validation_messages = validate_full_spdx_document(self.doc)
             self.sbom_name = self.doc.creation_info.name
             self.doc_version = self.check_doc_version()
             self.doc_author = True
@@ -46,7 +46,7 @@ class SbomChecker:
         try:
             doc = parse_anything.parse_file(self.file)
         except SPDXParsingError as err:
-            self.parsing_error.append(err.get_messages())
+            self.parsing_error.extend(err.get_messages())
             return None
         return doc
 
@@ -115,6 +115,7 @@ class SbomChecker:
                 not self.components_without_versions,
                 not self.components_without_identifiers,
                 not self.components_without_suppliers,
+                not self.validation_messages
             ]
         )
 
@@ -126,20 +127,18 @@ class SbomChecker:
         """Print element-by-element result table."""
         # pylint: disable=line-too-long
         if self.parsing_error:
-            print()
             print(
-                f"Is this SBOM NTIA minimum element conformant? {self.ntia_mininum_elements_compliant}"
+                f"\nIs this SBOM NTIA minimum element conformant? {self.ntia_mininum_elements_compliant}\n"
             )
-            print()
-            print("The provided document couldn't be parsed, check for ntia minimum elements couldn't be performed.")
-            print(f"The following SPDXParsingError was raised: {self.parsing_error}")
+            print("The provided document couldn't be parsed, check for ntia minimum elements couldn't be performed.\n")
+            print(f"The following SPDXParsingError was raised:\n")
+            for error in self.parsing_error:
+                print(error)
 
         else:
-            print()
             print(
-                f"Is this SBOM NTIA minimum element conformant? {self.ntia_mininum_elements_compliant}"
+                f"\nIs this SBOM NTIA minimum element conformant? {self.ntia_mininum_elements_compliant}\n"
             )
-            print()
             print("Individual elements                            | Status")
             print("-------------------------------------------------------")
             print(
@@ -157,9 +156,13 @@ class SbomChecker:
             print(f"SBOM author name provided?                     | {self.doc_author}")
             print(f"SBOM creation timestamp provided?              | {self.doc_timestamp}")
             print(
-                f"Dependency relationships provided?             | {self.dependency_relationships}"
+                f"Dependency relationships provided?             | {self.dependency_relationships}\n"
             )
-            print()
+            if self.validation_messages:
+                print(f"The provided document is not valid according to the SPDX specification. "
+                      f"The following errors were found:\n")
+                for message in self.validation_messages:
+                    print(message.validation_message)
 
     def print_components_missing_info(self):
         """Print detailed info about which components are missing info."""
@@ -232,6 +235,8 @@ class SbomChecker:
                 "allProvided"
             ] = not self.components_without_suppliers
             result["totalNumberComponents"] = self.get_total_number_components()
+            if self.validation_messages:
+                result["validationMessages"] = self.validation_messages
         else:
             result["parsingError"] = self.parsing_error
 
@@ -281,6 +286,11 @@ class SbomChecker:
             </tr>
             </table>
             """
+            if self.validation_messages:
+                result += "The provided document is not valid according to the SPDX specification. " \
+                          "The following errors were found:\n"
+            for message in self.validation_messages:
+                result += f"<p>{message.validation_message}</p>\n"
         else:
             result = f"""
             <h2>NTIA Conformance Results</h2>
