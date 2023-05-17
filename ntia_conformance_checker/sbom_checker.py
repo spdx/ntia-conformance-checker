@@ -117,7 +117,7 @@ class SbomChecker:
                 not self.components_without_versions,
                 not self.components_without_identifiers,
                 not self.components_without_suppliers,
-                not self.validation_messages
+                not self.validation_messages,
             ]
         )
 
