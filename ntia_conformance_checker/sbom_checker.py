@@ -87,12 +87,8 @@ class SbomChecker:
             # both package supplier and package originator satisfy the "supplier"
             # requirement
             # https://spdx.github.io/spdx-spec/v2.3/package-information/#76-package-originator-field
-            no_package_supplier = package.supplier is None or isinstance(
-                package.supplier, SpdxNoAssertion
-            )
-            no_package_originator = package.originator is None or isinstance(
-                package.originator, SpdxNoAssertion
-            )
+            no_package_supplier = package.supplier is None 
+            no_package_originator = package.originator is None 
             if no_package_supplier and no_package_originator:
                 components_without_suppliers.append(package.name)
 
