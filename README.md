@@ -1,7 +1,7 @@
 [![Build Status](https://github.com/spdx/ntia-conformance-checker/workflows/build/badge.svg)](https://github.com/spdx/ntia-conformance-checker/actions)
 ![CodeQL](https://github.com/spdx/ntia-conformance-checker/actions/workflows/codeql.yml/badge.svg)
 [![PyPI version](https://badge.fury.io/py/ntia-conformance-checker.svg)](https://badge.fury.io/py/ntia-conformance-checker)
-[![Pylint Version](https://img.shields.io/badge/<linting>-<pylint>-<Yellow>)](https://badge.fury.io/py/ntia-conformance-checker)
+
 # NTIA Conformance Checker
 
 This tool determines whether a [SPDX](https://spdx.dev/) software bill of materials (SBOM) document contains the National Telecommunications and Information Administration (NTIA) ["minimum elements."](https://www.ntia.doc.gov/files/ntia/publications/sbom_minimum_elements_report.pdf) The mapping of the NTIA elements required data fields to the SPDX specification can be found [here](https://spdx.github.io/spdx-spec/v2.3/how-to-use/#k22-mapping-ntia-minimum-elements-to-spdx-fields).
