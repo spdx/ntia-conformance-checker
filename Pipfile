@@ -4,7 +4,7 @@ verify_ssl = true
 name = "pypi"
 
 [packages]
-spdx-tools = '0.7.1'
+spdx-tools = '0.8.0a2'
 
 [dev-packages]
 
@@ -12,4 +12,4 @@ spdx-tools = '0.7.1'
 python_version = "3.8"
 
 [pipenv]
-allow_prereleases = false
+allow_prereleases = true
