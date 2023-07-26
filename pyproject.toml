@@ -30,7 +30,7 @@ classifiers = [
 urls = {Homepage = "https://github.com/spdx/ntia-conformance-checker"}
 requires-python = ">=3.8"
 keywords = ["spdx", "sbom", "ntia"]
-dependencies = [ "spdx-tools>=0.8.0"]
+dependencies = [ "spdx-tools==0.8.0"]
 
 [project.optional-dependencies]
 test = ["pytest"]
