@@ -1,7 +1,7 @@
 {
     "_meta": {
         "hash": {
-            "sha256": "b644867ea5021c09a939bcf22ac6363a340694bf444ef9b3ec36b1ce4504b253"
+            "sha256": "977c21f8e9903c1dfbedd2c5f823117b52a49f2339eced830ed05acc52f9ad7a"
         },
         "pipfile-spec": 6,
         "requires": {
@@ -141,11 +141,11 @@
         },
         "spdx-tools": {
             "hashes": [
-                "sha256:3a820b7e21146a95fd912cc75570526b6e9e450f9a091a08efb5b847d2372a86",
-                "sha256:e56faff943e39b70ea69cd7a0d61ca739f6c277d188b5ee6ad2f691af5c92ee7"
+                "sha256:66809bf78783b47147dcaf69a63bb9d561eb45e6b2ec15c2e8fe1550e24ae1cd",
+                "sha256:d57669c2e66f3ba2bfe253a3d9952e8761858e1af4084cd5bec43994099eda9d"
             ],
             "index": "pypi",
-            "version": "==0.8.0rc3"
+            "version": "==0.8.0"
         },
         "uritools": {
             "hashes": [
