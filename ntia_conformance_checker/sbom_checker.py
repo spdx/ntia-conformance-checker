@@ -245,7 +245,7 @@ class SbomChecker:
             ] = not self.components_without_suppliers
             result["totalNumberComponents"] = self.get_total_number_components()
             if self.validation_messages:
-                result["validationMessages"] = self.validation_messages
+                result["validationMessages"] = list(map(str, self.validation_messages))
         else:
             result["parsingError"] = self.parsing_error
 
