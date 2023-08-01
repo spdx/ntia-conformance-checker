@@ -15,7 +15,7 @@ def get_parsed_args():
         prog="ntia-checker",
         description="Check if SPDX SBOM complies with NTIA minimum elements",
     )
-    parser.add_argument("--file", help="Filepath for SPDX SBOM")
+    parser.add_argument("--file", required=True, help="Filepath for SPDX SBOM")
     parser.add_argument(
         "--output",
         choices=["print", "json", "html", "quiet"],
