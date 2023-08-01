@@ -16,14 +16,16 @@ from spdx_tools.spdx.validation.document_validator import validate_full_spdx_doc
 class SbomChecker:
     """SBOM minimum elements check."""
 
-    def __init__(self, file):
+    def __init__(self, file, validate=True):
         self.file = file
         self.parsing_error = []
         self.doc = self.parse_file()
         if not self.doc:
             self.ntia_mininum_elements_compliant = False
         else:
-            self.validation_messages = validate_full_spdx_document(self.doc)
+            self.validation_messages = None
+            if validate:
+                self.validation_messages = validate_full_spdx_document(self.doc)
             self.sbom_name = self.doc.creation_info.name
             self.doc_version = self.check_doc_version()
             self.doc_author = True
