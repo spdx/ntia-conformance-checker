@@ -31,8 +31,3 @@ jobs:
       run: |
         pipenv run coverage run -m pytest
         pipenv run coverage xml -o coverage/python.xml
-    - name: Report python coverage
-      uses: orgoro/coverage@v3
-      with:
-        coverageFile: coverage/python.xml
-        token: ${{ secrets.GITHUB_TOKEN }}
