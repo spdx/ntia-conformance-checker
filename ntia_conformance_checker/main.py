@@ -35,6 +35,13 @@ def get_parsed_args():
         action="store_true",
         help="Display version of ntia-conformance-checker",
     )
+    parser.add_argument(
+        "--skip-validation",
+        action="store_true",
+        default=False,
+        help="Display version of ntia-conformance-checker",
+    )
+
     args = parser.parse_args()
     return args
 
@@ -48,7 +55,7 @@ def main():
         print(version("ntia-conformance-checker"))
         sys.exit(0)
 
-    sbom = SbomChecker(args.file)
+    sbom = SbomChecker(args.file, validate=not args.skip_validation)
     if args.output == "print":
         sbom.print_table_output()
         if args.verbose:
