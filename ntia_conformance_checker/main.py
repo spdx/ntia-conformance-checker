@@ -45,6 +45,9 @@ def get_parsed_args():
     args = parser.parse_args()
 
     if not args.file:
+        if args.version:
+            print(version("ntia-conformance-checker"))
+            sys.exit(0)
         parser.print_help()
         sys.exit(1)
 
@@ -55,10 +58,6 @@ def main():
     """Entrypoint for CLI application."""
 
     args = get_parsed_args()
-
-    if args.version:
-        print(version("ntia-conformance-checker"))
-        sys.exit(0)
 
     sbom = SbomChecker(args.file, validate=not args.skip_validation)
     if args.output == "print":
