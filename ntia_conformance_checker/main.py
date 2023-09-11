@@ -27,9 +27,7 @@ def get_parsed_args():
         action="store_true",
         help="Specify whether output should be verbose",
     )
-    parser.add_argument(
-        "--output_path", help="Filepath for optionally storing output"
-    )
+    parser.add_argument("--output_path", help="Filepath for optionally storing output")
     parser.add_argument(
         "--version",
         action="store_true",
