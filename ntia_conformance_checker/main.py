@@ -49,7 +49,7 @@ def get_parsed_args():
             print(version("ntia-conformance-checker"))
             sys.exit(0)
         parser.print_help()
-        sys.exit(1)
+        sys.exit(0)
 
     return args
 
