@@ -28,7 +28,7 @@ def get_parsed_args():
         help="Specify whether output should be verbose",
     )
     parser.add_argument(
-        "--output_path", help="Specify whether output should be verbose"
+        "--output_path", help="Filepath for optionally storing output"
     )
     parser.add_argument(
         "--version",
@@ -39,10 +39,15 @@ def get_parsed_args():
         "--skip-validation",
         action="store_true",
         default=False,
-        help="Display version of ntia-conformance-checker",
+        help="Specify whether to skip validation",
     )
 
     args = parser.parse_args()
+
+    if not args.file:
+        parser.print_help()
+        sys.exit(1)
+
     return args
 
 
