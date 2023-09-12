@@ -46,7 +46,7 @@ Options:
   --output [print|json]  Output format  [default: print]
   -v, --verbose          Use verbose printing
   --output_path TEXT     Filepath for optionally storing output.
-  --help                 Show this message and exit.
+  -h, --help             Show this message and exit.
 ```
 
 The user can then analyze a particular file:
