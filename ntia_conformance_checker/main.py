@@ -23,7 +23,7 @@ def get_parsed_args():
         help="Specify type of output",
     )
     parser.add_argument(
-        "--verbose",
+        "-v", "--verbose",
         action="store_true",
         help="Specify whether output should be verbose",
     )
