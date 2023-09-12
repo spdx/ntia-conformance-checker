@@ -27,9 +27,7 @@ def get_parsed_args():
         action="store_true",
         help="Specify whether output should be verbose",
     )
-    parser.add_argument(
-        "--output_path", help="Specify whether output should be verbose"
-    )
+    parser.add_argument("--output_path", help="Filepath for optionally storing output")
     parser.add_argument(
         "--version",
         action="store_true",
@@ -39,10 +37,18 @@ def get_parsed_args():
         "--skip-validation",
         action="store_true",
         default=False,
-        help="Display version of ntia-conformance-checker",
+        help="Specify whether to skip validation",
     )
 
     args = parser.parse_args()
+
+    if not args.file:
+        if args.version:
+            print(version("ntia-conformance-checker"))
+            sys.exit(0)
+        parser.print_help()
+        sys.exit(0)
+
     return args
 
 
@@ -50,10 +56,6 @@ def main():
     """Entrypoint for CLI application."""
 
     args = get_parsed_args()
-
-    if args.version:
-        print(version("ntia-conformance-checker"))
-        sys.exit(0)
 
     sbom = SbomChecker(args.file, validate=not args.skip_validation)
     if args.output == "print":
