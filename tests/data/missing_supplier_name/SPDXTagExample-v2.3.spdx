@@ -50,7 +50,7 @@ PackageFileName: glibc-2.11.1.tar.gz
 PackageSupplier: NOASSERTION
 PackageOriginator: Organization: ExampleCodeInspect (contact@example.com)
 PackageDownloadLocation: http://ftp.gnu.org/gnu/glibc/glibc-ports-2.15.tar.gz
-FilesAnalyzed: True
+FilesAnalyzed: true
 PackageVerificationCode: d6a770ba38583ed4bb4525bd96e50461655d2758 (excludes: ./package.spdx)
 PackageChecksum: MD5: 624c1abb3664f4b35547e7c73864ad24
 PackageChecksum: SHA1: 85ed0817af83a24ad8da68c2b5094de69833983c
@@ -146,7 +146,7 @@ PackageName: Jena
 SPDXID: SPDXRef-fromDoap-0
 PackageVersion: 3.12.0
 PackageDownloadLocation: https://search.maven.org/remotecontent?filepath=org/apache/jena/apache-jena/3.12.0/apache-jena-3.12.0.tar.gz
-FilesAnalyzed: False
+FilesAnalyzed: false
 PackageHomePage: http://www.openjena.org/
 ExternalRef: PACKAGE-MANAGER purl pkg:maven/org.apache.jena/apache-jena@3.12.0
 
@@ -156,7 +156,7 @@ SPDXID: SPDXRef-Saxon
 PackageVersion: 8.8
 PackageFileName: saxonB-8.8.zip
 PackageDownloadLocation: https://sourceforge.net/projects/saxon/files/Saxon-B/8.8.0.7/saxonb8-8-0-7j.zip/download
-FilesAnalyzed: False
+FilesAnalyzed: false
 PackageChecksum: SHA1: 85ed0817af83a24ad8da68c2b5094de69833983c
 PackageHomePage: http://saxon.sourceforge.net/
 PackageLicenseConcluded: MPL-1.0
