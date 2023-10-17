@@ -156,7 +156,7 @@ SPDXID: SPDXRef-Saxon
 PackageVersion: 8.8
 PackageFileName: saxonB-8.8.zip
 PackageDownloadLocation: https://sourceforge.net/projects/saxon/files/Saxon-B/8.8.0.7/saxonb8-8-0-7j.zip/download
-FilesAnalyzed: False
+FilesAnalyzed: false
 PackageChecksum: SHA1: 85ed0817af83a24ad8da68c2b5094de69833983c
 PackageHomePage: http://saxon.sourceforge.net/
 PackageLicenseConcluded: MPL-1.0
