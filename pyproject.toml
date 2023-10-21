@@ -4,7 +4,7 @@ build-backend = "setuptools.build_meta"
 
 [project]
 name = "ntia_conformance_checker"
-version = "0.5.1"
+version = "0.6.0"
 authors = [
     {name = "Josh Lin", email = "linynjosh@gmail.com"},
     {name = "John Speed Meyers", email = "johnmeyersster@gmail.com"}
