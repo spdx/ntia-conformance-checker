@@ -21,7 +21,7 @@ jobs:
         python -m pip install --upgrade pip
         pip install pipenv
         # use --pre flag to enable use of prerelease package versions
-        pipenv install --pre
+        pipenv install
         pipenv install pytest coverage
     - name: Test with pytest
       env:
