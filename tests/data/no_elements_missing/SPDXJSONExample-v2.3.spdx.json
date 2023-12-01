@@ -97,7 +97,7 @@
     "filesAnalyzed" : true,
     "homepage" : "http://ftp.gnu.org/gnu/glibc",
     "licenseComments" : "The license for this project changed with the release of version x.y.  The version of the project included here post-dates the license change.",
-    "licenseConcluded" : "(LGPL-2.0-only OR LicenseRef-3)",
+    "licenseConcluded" : "(lgpl-2.0-only OR LicenseRef-3)",
     "licenseDeclared" : "(LGPL-2.0-only AND LicenseRef-3)",
     "licenseInfoFromFiles" : [ "GPL-2.0-only", "LicenseRef-2", "LicenseRef-1" ],
     "name" : "glibc",
