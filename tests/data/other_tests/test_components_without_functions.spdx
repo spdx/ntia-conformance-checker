@@ -1,0 +1,259 @@
+## Document Information
+SPDXVersion: SPDX-2.3
+DataLicense: CC0-1.0
+SPDXID: SPDXRef-DOCUMENT
+DocumentName: SPDX-Tools-v2.0
+DocumentNamespace: http://spdx.org/spdxdocs/spdx-example-444504E0-4F89-41D3-9A0C-0305E82C3301
+DocumentComment: This document was created using SPDX 2.0 using licenses from the web site.
+
+## Creation Information
+LicenseListVersion: 3.17
+Creator: Tool: LicenseFind-1.0
+Creator: Organization: ExampleCodeInspect
+Creator: Person: Jane Doe
+Created: 2010-01-29T18:30:22Z
+CreatorComment: <text>This package has been shipped in source and binary form.
+The binaries were created with gcc 4.5.1 and expect to link to
+compatible system run time libraries.</text>
+
+## Package Information
+PackageName: glibc
+SPDXID: SPDXRef-Package
+PackageVersion: 2.4.57+dfsg-3+deb11u1
+PackageFileName: glibc-2.11.1.tar.gz
+PackageSupplier: NOASSERTION
+PackageOriginator: Organization: ExampleCodeInspect (contact@example.com)
+PackageDownloadLocation: http://ftp.gnu.org/gnu/glibc/glibc-ports-2.15.tar.gz
+FilesAnalyzed: true
+PackageVerificationCode: d6a770ba38583ed4bb4525bd96e50461655d2758 (excludes: ./package.spdx)
+PackageChecksum: MD5: 624c1abb3664f4b35547e7c73864ad24
+PackageChecksum: SHA1: 85ed0817af83a24ad8da68c2b5094de69833983c
+PackageChecksum: SHA256: 11b6d3ee554eedf79299905a98f9b9a04e498210b59f15094c916c91d150efcd
+PackageChecksum: BLAKE2b-384: aaabd89c926ab525c242e6621f2f5fa73aa4afe3d9e24aed727faaadd6af38b620bdb623dd2b4788b1c8086984af8706
+PackageHomePage: http://ftp.gnu.org/gnu/glibc
+PackageSourceInfo: uses glibc-2_11-branch from git://sourceware.org/git/glibc.git.
+PackageLicenseConcluded: LGPL-2.0-only OR LicenseRef-3
+PackageLicenseInfoFromFiles: GPL-2.0-only
+PackageLicenseInfoFromFiles: LicenseRef-2
+PackageLicenseInfoFromFiles: LicenseRef-1
+PackageLicenseDeclared: LGPL-2.0-only AND LicenseRef-3
+PackageLicenseComments: The license for this project changed with the release of version x.y.  The version of the project included here post-dates the license change.
+PackageCopyrightText: Copyright 2008-2010 John Smith
+PackageSummary: GNU C library.
+PackageDescription: The GNU C Library defines functions that are specified by the ISO C standard, as well as additional features specific to POSIX and other derivatives of the Unix operating system, and extensions specific to GNU systems.
+ExternalRef: SECURITY cpe23Type cpe:2.3:a:pivotal_software:spring_framework:4.1.0:*:*:*:*:*:*:*
+ExternalRef: OTHER http://spdx.org/spdxdocs/spdx-example-444504E0-4F89-41D3-9A0C-0305E82C3301#LocationRef-acmeforge acmecorp/acmenator/4.1.3-alpha
+ExternalRefComment: This is the external ref for Acme
+PackageAttributionText: The GNU C Library is free software.  See the file COPYING.LIB for copying conditions, and LICENSES for notices about a few contributions that require these additional notices to be distributed.  License copyright years may be listed using range notation, e.g., 1996-2015, indicating that every year in the range, inclusive, is a copyrightable year that would otherwise be listed individually.
+PrimaryPackagePurpose: SOURCE
+ReleaseDate: 2012-01-29T18:30:22Z
+BuiltDate: 2011-01-29T18:30:22Z
+ValidUntilDate: 2014-01-29T18:30:22Z
+
+
+## Package Information without name
+PackageName: 
+SPDXID: SPDXRef-Package1
+PackageVersion: 2.4.57+dfsg-3+deb11u1
+PackageFileName: glibc-2.11.1.tar.gz
+PackageSupplier: NOASSERTION
+PackageOriginator: Organization: ExampleCodeInspect (contact@example.com)
+PackageDownloadLocation: http://ftp.gnu.org/gnu/glibc/glibc-ports-2.15.tar.gz
+FilesAnalyzed: true
+PackageVerificationCode: d6a770ba38583ed4bb4525bd96e50461655d2758 (excludes: ./package.spdx)
+PackageChecksum: MD5: 624c1abb3664f4b35547e7c73864ad24
+PackageChecksum: SHA1: 85ed0817af83a24ad8da68c2b5094de69833983c
+PackageChecksum: SHA256: 11b6d3ee554eedf79299905a98f9b9a04e498210b59f15094c916c91d150efcd
+PackageChecksum: BLAKE2b-384: aaabd89c926ab525c242e6621f2f5fa73aa4afe3d9e24aed727faaadd6af38b620bdb623dd2b4788b1c8086984af8706
+PackageHomePage: http://ftp.gnu.org/gnu/glibc
+PackageSourceInfo: uses glibc-2_11-branch from git://sourceware.org/git/glibc.git.
+PackageLicenseConcluded: LGPL-2.0-only OR LicenseRef-3
+PackageLicenseInfoFromFiles: GPL-2.0-only
+PackageLicenseInfoFromFiles: LicenseRef-2
+PackageLicenseInfoFromFiles: LicenseRef-1
+PackageLicenseDeclared: LGPL-2.0-only AND LicenseRef-3
+PackageLicenseComments: The license for this project changed with the release of version x.y.  The version of the project included here post-dates the license change.
+PackageCopyrightText: Copyright 2008-2010 John Smith
+PackageSummary: GNU C library.
+PackageDescription: The GNU C Library defines functions that are specified by the ISO C standard, as well as additional features specific to POSIX and other derivatives of the Unix operating system, and extensions specific to GNU systems.
+ExternalRef: SECURITY cpe23Type cpe:2.3:a:pivotal_software:spring_framework:4.1.0:*:*:*:*:*:*:*
+ExternalRef: OTHER http://spdx.org/spdxdocs/spdx-example-444504E0-4F89-41D3-9A0C-0305E82C3301#LocationRef-acmeforge acmecorp/acmenator/4.1.3-alpha
+ExternalRefComment: This is the external ref for Acme
+PackageAttributionText: The GNU C Library is free software.  See the file COPYING.LIB for copying conditions, and LICENSES for notices about a few contributions that require these additional notices to be distributed.  License copyright years may be listed using range notation, e.g., 1996-2015, indicating that every year in the range, inclusive, is a copyrightable year that would otherwise be listed individually.
+PrimaryPackagePurpose: SOURCE
+ReleaseDate: 2012-01-29T18:30:22Z
+BuiltDate: 2011-01-29T18:30:22Z
+ValidUntilDate: 2014-01-29T18:30:22Z
+
+## Package Information without version
+PackageName: glibc-no-version-1
+SPDXID: SPDXRef-Package2
+PackageFileName: glibc-2.11.1.tar.gz
+PackageSupplier: NOASSERTION
+PackageOriginator: Organization: ExampleCodeInspect (contact@example.com)
+PackageDownloadLocation: http://ftp.gnu.org/gnu/glibc/glibc-ports-2.15.tar.gz
+FilesAnalyzed: true
+PackageVerificationCode: d6a770ba38583ed4bb4525bd96e50461655d2758 (excludes: ./package.spdx)
+PackageChecksum: MD5: 624c1abb3664f4b35547e7c73864ad24
+PackageChecksum: SHA1: 85ed0817af83a24ad8da68c2b5094de69833983c
+PackageChecksum: SHA256: 11b6d3ee554eedf79299905a98f9b9a04e498210b59f15094c916c91d150efcd
+PackageChecksum: BLAKE2b-384: aaabd89c926ab525c242e6621f2f5fa73aa4afe3d9e24aed727faaadd6af38b620bdb623dd2b4788b1c8086984af8706
+PackageHomePage: http://ftp.gnu.org/gnu/glibc
+PackageSourceInfo: uses glibc-2_11-branch from git://sourceware.org/git/glibc.git.
+PackageLicenseConcluded: LGPL-2.0-only OR LicenseRef-3
+PackageLicenseInfoFromFiles: GPL-2.0-only
+PackageLicenseInfoFromFiles: LicenseRef-2
+PackageLicenseInfoFromFiles: LicenseRef-1
+PackageLicenseDeclared: LGPL-2.0-only AND LicenseRef-3
+PackageLicenseComments: The license for this project changed with the release of version x.y.  The version of the project included here post-dates the license change.
+PackageCopyrightText: Copyright 2008-2010 John Smith
+PackageSummary: GNU C library.
+PackageDescription: The GNU C Library defines functions that are specified by the ISO C standard, as well as additional features specific to POSIX and other derivatives of the Unix operating system, and extensions specific to GNU systems.
+ExternalRef: SECURITY cpe23Type cpe:2.3:a:pivotal_software:spring_framework:4.1.0:*:*:*:*:*:*:*
+ExternalRef: OTHER http://spdx.org/spdxdocs/spdx-example-444504E0-4F89-41D3-9A0C-0305E82C3301#LocationRef-acmeforge acmecorp/acmenator/4.1.3-alpha
+ExternalRefComment: This is the external ref for Acme
+PackageAttributionText: The GNU C Library is free software.  See the file COPYING.LIB for copying conditions, and LICENSES for notices about a few contributions that require these additional notices to be distributed.  License copyright years may be listed using range notation, e.g., 1996-2015, indicating that every year in the range, inclusive, is a copyrightable year that would otherwise be listed individually.
+PrimaryPackagePurpose: SOURCE
+ReleaseDate: 2012-01-29T18:30:22Z
+BuiltDate: 2011-01-29T18:30:22Z
+ValidUntilDate: 2014-01-29T18:30:22Z
+
+## Package Information without version
+PackageName: glibc-no-version-2
+SPDXID: SPDXRef-Package3
+PackageFileName: glibc-2.11.1.tar.gz
+PackageSupplier: NOASSERTION
+PackageOriginator: Organization: ExampleCodeInspect (contact@example.com)
+PackageDownloadLocation: http://ftp.gnu.org/gnu/glibc/glibc-ports-2.15.tar.gz
+FilesAnalyzed: true
+PackageVerificationCode: d6a770ba38583ed4bb4525bd96e50461655d2758 (excludes: ./package.spdx)
+PackageChecksum: MD5: 624c1abb3664f4b35547e7c73864ad24
+PackageChecksum: SHA1: 85ed0817af83a24ad8da68c2b5094de69833983c
+PackageChecksum: SHA256: 11b6d3ee554eedf79299905a98f9b9a04e498210b59f15094c916c91d150efcd
+PackageChecksum: BLAKE2b-384: aaabd89c926ab525c242e6621f2f5fa73aa4afe3d9e24aed727faaadd6af38b620bdb623dd2b4788b1c8086984af8706
+PackageHomePage: http://ftp.gnu.org/gnu/glibc
+PackageSourceInfo: uses glibc-2_11-branch from git://sourceware.org/git/glibc.git.
+PackageLicenseConcluded: LGPL-2.0-only OR LicenseRef-3
+PackageLicenseInfoFromFiles: GPL-2.0-only
+PackageLicenseInfoFromFiles: LicenseRef-2
+PackageLicenseInfoFromFiles: LicenseRef-1
+PackageLicenseDeclared: LGPL-2.0-only AND LicenseRef-3
+PackageLicenseComments: The license for this project changed with the release of version x.y.  The version of the project included here post-dates the license change.
+PackageCopyrightText: Copyright 2008-2010 John Smith
+PackageSummary: GNU C library.
+PackageDescription: The GNU C Library defines functions that are specified by the ISO C standard, as well as additional features specific to POSIX and other derivatives of the Unix operating system, and extensions specific to GNU systems.
+ExternalRef: SECURITY cpe23Type cpe:2.3:a:pivotal_software:spring_framework:4.1.0:*:*:*:*:*:*:*
+ExternalRef: OTHER http://spdx.org/spdxdocs/spdx-example-444504E0-4F89-41D3-9A0C-0305E82C3301#LocationRef-acmeforge acmecorp/acmenator/4.1.3-alpha
+ExternalRefComment: This is the external ref for Acme
+PackageAttributionText: The GNU C Library is free software.  See the file COPYING.LIB for copying conditions, and LICENSES for notices about a few contributions that require these additional notices to be distributed.  License copyright years may be listed using range notation, e.g., 1996-2015, indicating that every year in the range, inclusive, is a copyrightable year that would otherwise be listed individually.
+PrimaryPackagePurpose: SOURCE
+ReleaseDate: 2012-01-29T18:30:22Z
+BuiltDate: 2011-01-29T18:30:22Z
+ValidUntilDate: 2014-01-29T18:30:22Z
+
+## Package Information without supplier
+PackageName: glibc-no-supplier
+SPDXID: SPDXRef-Package4
+PackageVersion: 2.4.57+dfsg-3+deb11u1
+PackageFileName: glibc-2.11.1.tar.gz
+PackageDownloadLocation: http://ftp.gnu.org/gnu/glibc/glibc-ports-2.15.tar.gz
+FilesAnalyzed: true
+PackageVerificationCode: d6a770ba38583ed4bb4525bd96e50461655d2758 (excludes: ./package.spdx)
+PackageChecksum: MD5: 624c1abb3664f4b35547e7c73864ad24
+PackageChecksum: SHA1: 85ed0817af83a24ad8da68c2b5094de69833983c
+PackageChecksum: SHA256: 11b6d3ee554eedf79299905a98f9b9a04e498210b59f15094c916c91d150efcd
+PackageChecksum: BLAKE2b-384: aaabd89c926ab525c242e6621f2f5fa73aa4afe3d9e24aed727faaadd6af38b620bdb623dd2b4788b1c8086984af8706
+PackageHomePage: http://ftp.gnu.org/gnu/glibc
+PackageSourceInfo: uses glibc-2_11-branch from git://sourceware.org/git/glibc.git.
+PackageLicenseConcluded: LGPL-2.0-only OR LicenseRef-3
+PackageLicenseInfoFromFiles: GPL-2.0-only
+PackageLicenseInfoFromFiles: LicenseRef-2
+PackageLicenseInfoFromFiles: LicenseRef-1
+PackageLicenseDeclared: LGPL-2.0-only AND LicenseRef-3
+PackageLicenseComments: The license for this project changed with the release of version x.y.  The version of the project included here post-dates the license change.
+PackageCopyrightText: Copyright 2008-2010 John Smith
+PackageSummary: GNU C library.
+PackageDescription: The GNU C Library defines functions that are specified by the ISO C standard, as well as additional features specific to POSIX and other derivatives of the Unix operating system, and extensions specific to GNU systems.
+ExternalRef: SECURITY cpe23Type cpe:2.3:a:pivotal_software:spring_framework:4.1.0:*:*:*:*:*:*:*
+ExternalRef: OTHER http://spdx.org/spdxdocs/spdx-example-444504E0-4F89-41D3-9A0C-0305E82C3301#LocationRef-acmeforge acmecorp/acmenator/4.1.3-alpha
+ExternalRefComment: This is the external ref for Acme
+PackageAttributionText: The GNU C Library is free software.  See the file COPYING.LIB for copying conditions, and LICENSES for notices about a few contributions that require these additional notices to be distributed.  License copyright years may be listed using range notation, e.g., 1996-2015, indicating that every year in the range, inclusive, is a copyrightable year that would otherwise be listed individually.
+PrimaryPackagePurpose: SOURCE
+ReleaseDate: 2012-01-29T18:30:22Z
+BuiltDate: 2011-01-29T18:30:22Z
+ValidUntilDate: 2014-01-29T18:30:22Z
+
+## Package Information without identiyer
+PackageName: glibc-no-identifier
+SPDXID: SPDXRef-Package5
+PackageVersion: 2.4.57+dfsg-3+deb11u1
+PackageFileName: glibc-2.11.1.tar.gz
+PackageSupplier: NOASSERTION
+PackageOriginator: Organization: ExampleCodeInspect (contact@example.com)
+PackageDownloadLocation: http://ftp.gnu.org/gnu/glibc/glibc-ports-2.15.tar.gz
+FilesAnalyzed: true
+PackageVerificationCode: d6a770ba38583ed4bb4525bd96e50461655d2758 (excludes: ./package.spdx)
+PackageChecksum: MD5: 624c1abb3664f4b35547e7c73864ad24
+PackageChecksum: SHA1: 85ed0817af83a24ad8da68c2b5094de69833983c
+PackageChecksum: SHA256: 11b6d3ee554eedf79299905a98f9b9a04e498210b59f15094c916c91d150efcd
+PackageChecksum: BLAKE2b-384: aaabd89c926ab525c242e6621f2f5fa73aa4afe3d9e24aed727faaadd6af38b620bdb623dd2b4788b1c8086984af8706
+PackageHomePage: http://ftp.gnu.org/gnu/glibc
+PackageSourceInfo: uses glibc-2_11-branch from git://sourceware.org/git/glibc.git.
+PackageLicenseConcluded: LGPL-2.0-only OR LicenseRef-3
+PackageLicenseInfoFromFiles: GPL-2.0-only
+PackageLicenseInfoFromFiles: LicenseRef-2
+PackageLicenseInfoFromFiles: LicenseRef-1
+PackageLicenseDeclared: LGPL-2.0-only AND LicenseRef-3
+PackageLicenseComments: The license for this project changed with the release of version x.y.  The version of the project included here post-dates the license change.
+PackageCopyrightText: Copyright 2008-2010 John Smith
+PackageSummary: GNU C library.
+PackageDescription: The GNU C Library defines functions that are specified by the ISO C standard, as well as additional features specific to POSIX and other derivatives of the Unix operating system, and extensions specific to GNU systems.
+ExternalRef: SECURITY cpe23Type cpe:2.3:a:pivotal_software:spring_framework:4.1.0:*:*:*:*:*:*:*
+ExternalRef: OTHER http://spdx.org/spdxdocs/spdx-example-444504E0-4F89-41D3-9A0C-0305E82C3301#LocationRef-acmeforge acmecorp/acmenator/4.1.3-alpha
+ExternalRefComment: This is the external ref for Acme
+PackageAttributionText: The GNU C Library is free software.  See the file COPYING.LIB for copying conditions, and LICENSES for notices about a few contributions that require these additional notices to be distributed.  License copyright years may be listed using range notation, e.g., 1996-2015, indicating that every year in the range, inclusive, is a copyrightable year that would otherwise be listed individually.
+PrimaryPackagePurpose: SOURCE
+ReleaseDate: 2012-01-29T18:30:22Z
+BuiltDate: 2011-01-29T18:30:22Z
+ValidUntilDate: 2014-01-29T18:30:22Z
+
+
+## Relationships
+Relationship: SPDXRef-DOCUMENT CONTAINS SPDXRef-Package
+Relationship: SPDXRef-DOCUMENT COPY_OF DocumentRef-spdx-tool-1.2:SPDXRef-ToolsElement
+Relationship: SPDXRef-CommonsLangSrc GENERATED_FROM NOASSERTION
+Relationship: SPDXRef-JenaLib CONTAINS SPDXRef-Package
+Relationship: SPDXRef-DOCUMENT DESCRIBES SPDXRef-File
+Relationship: SPDXRef-DOCUMENT DESCRIBES SPDXRef-Package
+
+## Annotations
+Annotator: Person: Jane Doe
+AnnotationDate: 2010-01-29T18:30:22Z
+AnnotationType: OTHER
+SPDXREF: SPDXRef-DOCUMENT
+AnnotationComment: Document level annotation
+
+Annotator: Person: Joe Reviewer
+AnnotationDate: 2010-02-10T00:00:00Z
+AnnotationType: REVIEW
+SPDXREF: SPDXRef-DOCUMENT
+AnnotationComment: This is just an example.  Some of the non-standard licenses look like they are actually BSD 3 clause licenses
+
+Annotator: Person: Suzanne Reviewer
+AnnotationDate: 2011-03-13T00:00:00Z
+AnnotationType: REVIEW
+SPDXREF: SPDXRef-DOCUMENT
+AnnotationComment: Another example reviewer.
+
+Annotator: Person: Package Commenter
+AnnotationDate: 2011-01-29T18:30:22Z
+AnnotationType: OTHER
+SPDXREF: SPDXRef-Package
+AnnotationComment: Package level annotation
+
+Annotator: Person: File Commenter
+AnnotationDate: 2011-01-29T18:30:22Z
+AnnotationType: OTHER
+SPDXREF: SPDXRef-File
+AnnotationComment: File level annotation
+

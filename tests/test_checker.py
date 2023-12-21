@@ -9,6 +9,12 @@ import pytest
 
 import ntia_conformance_checker.sbom_checker as sbom_checker
 
+import logging
+
+logging.basicConfig(
+    format='%(asctime)s - %(levelname)s - %(message)s', level=logging.INFO)
+logger = logging.getLogger(__name__)
+
 dirname = os.path.join(os.path.dirname(__file__), "data", "no_elements_missing")
 test_files = [os.path.join(dirname, fn) for fn in os.listdir(dirname)]
 
@@ -226,3 +232,25 @@ def test_sbomchecker_output_html():
     )
 
     assert got == expected
+
+def test_components_without_functions():
+    logger = logging.getLogger(__name__)
+    logger.info("In test")
+    filepath = os.path.join(
+        os.path.dirname(__file__), "data", "other_tests", "test_components_without_functions.spdx"
+    )
+    sbom = sbom_checker.SbomChecker(filepath)
+    components = sbom.get_components_without_names()
+    assert components == ["SPDXRef-Package1"]
+    components = sbom.get_components_without_versions()
+    assert components == ["glibc-no-version-1", "glibc-no-version-2"]
+    components = sbom.get_components_without_versions(returnTuples=True)
+    assert components == [("glibc-no-version-1", "SPDXRef-Package2"), 
+                          ("glibc-no-version-2", "SPDXRef-Package3")]
+    components = sbom.get_components_without_suppliers()
+    assert components == ["glibc-no-supplier"]
+    components = sbom.get_components_without_suppliers(returnTuples=True)
+    assert components == [("glibc-no-supplier", "SPDXRef-Package4")]
+    # TODO: Not sure how to test this. If any package misses the SPDXID the whole file seems to be invalid.
+    #components = sbom.get_components_without_identifiers()
+    #assert components == ["glibc-no-identifier"]
