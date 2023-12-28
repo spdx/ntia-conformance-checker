@@ -74,16 +74,19 @@ class SbomChecker:
                 components_without_names.append(package.spdx_id)
         return components_without_names
 
-    def get_components_without_versions(self):
-        """Retrieve SPDX ID of components without names."""
+    def get_components_without_versions(self, return_tuples=False):
+        """Retrieve name and/or SPDX ID of components without versions."""
         components_without_versions = []
         for package in self.doc.packages:
             if not package.version:
-                components_without_versions.append(package.name)
+                if return_tuples:
+                    components_without_versions.append((package.name, package.spdx_id))
+                else:
+                    components_without_versions.append(package.name)
         return components_without_versions
 
-    def get_components_without_suppliers(self):
-        """Retrieve name of components without suppliers."""
+    def get_components_without_suppliers(self, return_tuples=False):
+        """Retrieve name and/or SPDX ID of components without suppliers."""
         components_without_suppliers = []
         for package in self.doc.packages:
             # both package supplier and package originator satisfy the "supplier"
@@ -96,7 +99,10 @@ class SbomChecker:
                 package.originator, SpdxNoAssertion
             )
             if no_package_supplier and no_package_originator:
-                components_without_suppliers.append(package.name)
+                if return_tuples:
+                    components_without_suppliers.append((package.name, package.spdx_id))
+                else:
+                    components_without_suppliers.append(package.name)
 
         return components_without_suppliers
 
