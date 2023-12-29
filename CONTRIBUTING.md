@@ -47,17 +47,18 @@ Here's the process to make changes to the codebase:
    python setup.py test # in the repo root
    ```
    You may use other test runners, such as `pytest` or `nose` at your preference.
-6. Push the branch to your fork on GitHub:
+6. Format your changes with [`black`](https://github.com/psf/black) and [`pylint`](https://github.com/pylint-dev/pylint).
+7. Push the branch to your fork on GitHub:
    ```sh
    git push origin fix-or-improve-something
    ```
-7. Make a pull request on GitHub.
-8. Continue making more changes and commits on the branch, with `git commit --signoff` and `git push`.
-9. When done, write a comment on the PR asking for a code review.
-10. Some other developer will review your changes and accept your PR. The merge should be done with `rebase`, if
+8. Make a pull request on GitHub.
+9. Continue making more changes and commits on the branch, with `git commit --signoff` and `git push`.
+10. When done, write a comment on the PR asking for a code review.
+11. Some other developer will review your changes and accept your PR. The merge should be done with `rebase`, if
     possible, or with `squash`.
-11. The temporary branch on GitHub should be deleted (there is a button for deleting it).
-12. Delete the local branch as well:
+12. The temporary branch on GitHub should be deleted (there is a button for deleting it).
+13. Delete the local branch as well:
     ```sh
     git checkout master
     git pull -p
