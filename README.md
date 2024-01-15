@@ -28,6 +28,7 @@ Alternatively, just clone the repo and install dependencies using the following 
 
 ```bash
 git clone https://github.com/spdx/ntia-conformance-checker.git
+cd ntia-conformance-checker
 pip install .
 ```
 
