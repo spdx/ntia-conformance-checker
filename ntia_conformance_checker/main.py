@@ -74,7 +74,7 @@ def main():
         html_output = sbom.output_html()
         print(html_output)
     # 0 indicates success
-    sys.exit(0 if sbom.ntia_mininum_elements_compliant else 1)
+    sys.exit(0 if sbom.ntia_minimum_elements_compliant else 1)
 
 
 if __name__ == "__main__":
