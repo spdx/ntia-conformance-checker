@@ -72,7 +72,7 @@ import ntia_conformance_checker as ntia
 
 sbom = ntia.SbomChecker("SBOM_filepath")
 
-print(sbom.ntia_mininum_elements_compliant)
+print(sbom.ntia_minimum_elements_compliant)
 ```
 
 Additional properties and methods associated with `SbomChecker()` can be found in [`sbom_checker.py`](ntia_conformance_checker/sbom_checker.py).

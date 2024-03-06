@@ -21,7 +21,7 @@ class SbomChecker:
         self.parsing_error = []
         self.doc = self.parse_file()
         if not self.doc:
-            self.ntia_mininum_elements_compliant = False
+            self.ntia_minimum_elements_compliant = False
         else:
             self.validation_messages = None
             if validate:
@@ -37,7 +37,7 @@ class SbomChecker:
             self.components_without_identifiers = (
                 self.get_components_without_identifiers()
             )
-            self.ntia_mininum_elements_compliant = (
+            self.ntia_minimum_elements_compliant = (
                 self.check_ntia_minimum_elements_compliance()
             )
 
@@ -138,7 +138,7 @@ class SbomChecker:
         # pylint: disable=line-too-long
         if self.parsing_error:
             print(
-                f"\nIs this SBOM NTIA minimum element conformant? {self.ntia_mininum_elements_compliant}\n"
+                f"\nIs this SBOM NTIA minimum element conformant? {self.ntia_minimum_elements_compliant}\n"
             )
             print(
                 "The provided document couldn't be parsed, check for ntia minimum elements couldn't be performed.\n"
@@ -149,7 +149,7 @@ class SbomChecker:
 
         else:
             print(
-                f"\nIs this SBOM NTIA minimum element conformant? {self.ntia_mininum_elements_compliant}\n"
+                f"\nIs this SBOM NTIA minimum element conformant? {self.ntia_minimum_elements_compliant}\n"
             )
             print("Individual elements                            | Status")
             print("-------------------------------------------------------")
@@ -257,7 +257,7 @@ class SbomChecker:
         else:
             result["parsingError"] = self.parsing_error
 
-        result["isNtiaConformant"] = self.ntia_mininum_elements_compliant
+        result["isNtiaConformant"] = self.ntia_minimum_elements_compliant
 
         return result
 
@@ -266,7 +266,7 @@ class SbomChecker:
         if self.doc:
             result = (
                 f" <h2>NTIA Conformance Results</h2> "
-                f"<h3>Conformant: {self.ntia_mininum_elements_compliant} </h3>"
+                f"<h3>Conformant: {self.ntia_minimum_elements_compliant} </h3>"
                 f"<table> <tr> "
                 f"<th>Individual Elements</th> <th>Conformant</th> </tr> "
                 f"<tr> <td>All component names provided</td>"
@@ -295,7 +295,7 @@ class SbomChecker:
         else:
             result = f"""
             <h2>NTIA Conformance Results</h2>
-            <h3>Conformant: {self.ntia_mininum_elements_compliant} </h3>
+            <h3>Conformant: {self.ntia_minimum_elements_compliant} </h3>
             <p>The provided document couldn't be parsed, check for ntia minimum elements couldn't be performed.</p>
             <p>The following SPDXParsingError was raised:<p><ul>"""
             for error in self.parsing_error:
