@@ -304,7 +304,7 @@ under the Apache License 2.0 (see: StringUtils.containsWhitespace())</spdx:notic
             </spdx:checksum>
             <spdx:attributionText>The GNU C Library is free software.  See the file COPYING.LIB for copying conditions, and LICENSES for notices about a few contributions that require these additional notices to be distributed.  License copyright years may be listed using range notation, e.g., 1996-2015, indicating that every year in the range, inclusive, is a copyrightable year that would otherwise be listed individually.</spdx:attributionText>
             <spdx:versionInfo>2.11.1</spdx:versionInfo>
-            <spdx:originator>Organization: ExampleCodeInspect (contact@example.com)</spdx:originator>
+            <spdx:originator>NOASSERTION</spdx:originator>
             <spdx:licenseComments>The license for this project changed with the release of version x.y.  The version of the project included here post-dates the license change.</spdx:licenseComments>
             <spdx:validUntilDate>2014-01-29T18:30:22Z</spdx:validUntilDate>
             <spdx:packageFileName>glibc-2.11.1.tar.gz</spdx:packageFileName>

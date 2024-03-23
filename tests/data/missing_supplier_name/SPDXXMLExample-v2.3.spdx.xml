@@ -220,7 +220,7 @@ EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.</extractedText>
 		<licenseInfoFromFiles>LicenseRef-2</licenseInfoFromFiles>
 		<licenseInfoFromFiles>LicenseRef-1</licenseInfoFromFiles>
 		<name>glibc</name>
-		<originator>Organization: ExampleCodeInspect (contact@example.com)</originator>
+		<originator>NOASSERTION</originator>
 		<packageFileName>glibc-2.11.1.tar.gz</packageFileName>
 		<packageVerificationCode>
 			<packageVerificationCodeExcludedFiles>./package.spdx</packageVerificationCodeExcludedFiles>

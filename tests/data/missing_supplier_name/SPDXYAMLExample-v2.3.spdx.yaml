@@ -303,7 +303,7 @@ packages:
   - LicenseRef-2
   - LicenseRef-1
   name: glibc
-  originator: 'Organization: ExampleCodeInspect (contact@example.com)'
+  originator: 'NOASSERTION'
   packageFileName: glibc-2.11.1.tar.gz
   packageVerificationCode:
     packageVerificationCodeExcludedFiles:
