@@ -101,7 +101,7 @@
     "licenseDeclared" : "(LGPL-2.0-only AND LicenseRef-3)",
     "licenseInfoFromFiles" : [ "GPL-2.0-only", "LicenseRef-2", "LicenseRef-1" ],
     "name" : "glibc",
-    "originator" : "Organization: ExampleCodeInspect (contact@example.com)",
+    "originator" : "NOASSERTION",
     "packageFileName" : "glibc-2.11.1.tar.gz",
     "packageVerificationCode" : {
       "packageVerificationCodeExcludedFiles" : [ "./package.spdx" ],

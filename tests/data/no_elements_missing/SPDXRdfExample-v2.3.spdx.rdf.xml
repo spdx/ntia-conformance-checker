@@ -312,7 +312,7 @@ under the Apache License 2.0 (see: StringUtils.containsWhitespace())</spdx:notic
                 <spdx:referenceLocator>acmecorp/acmenator/4.1.3-alpha</spdx:referenceLocator>
               </spdx:ExternalRef>
             </spdx:externalRef>
-            <spdx:supplier>NOASSERTION</spdx:supplier>
+            <spdx:supplier>Organization: ExampleCodeInspect (contact@example.com)</spdx:supplier>
             <spdx:checksum>
               <spdx:Checksum rdf:nodeID="N98510266a7284a1686da4e459dd5e58b">
                 <spdx:checksumValue>aaabd89c926ab525c242e6621f2f5fa73aa4afe3d9e24aed727faaadd6af38b620bdb623dd2b4788b1c8086984af8706</spdx:checksumValue>
@@ -356,7 +356,7 @@ under the Apache License 2.0 (see: StringUtils.containsWhitespace())</spdx:notic
               </spdx:PackageVerificationCode>
             </spdx:packageVerificationCode>
             <spdx:summary>GNU C library.</spdx:summary>
-            <spdx:originator>Organization: ExampleCodeInspect (contact@example.com)</spdx:originator>
+            <spdx:originator>NOASSERTION</spdx:originator>
             <spdx:builtDate>2011-01-29T18:30:22Z</spdx:builtDate>
             <spdx:licenseDeclared>
               <spdx:ConjunctiveLicenseSet rdf:nodeID="N45c3c34ce93d4d769c3edee387495c95">

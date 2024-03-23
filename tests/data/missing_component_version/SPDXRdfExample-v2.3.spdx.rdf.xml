@@ -290,9 +290,9 @@ EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.</spdx:extractedText>
             <spdx:downloadLocation>http://ftp.gnu.org/gnu/glibc/glibc-ports-2.15.tar.gz</spdx:downloadLocation>
             <spdx:name>glibc</spdx:name>
             <doap:homepage>http://ftp.gnu.org/gnu/glibc</doap:homepage>
-            <spdx:originator>Organization: ExampleCodeInspect (contact@example.com)</spdx:originator>
+            <spdx:originator>NOASSERTION</spdx:originator>
             <spdx:builtDate>2011-01-29T18:30:22Z</spdx:builtDate>
-            <spdx:supplier>NOASSERTION</spdx:supplier>
+            <spdx:supplier>Organization: ExampleCodeInspect (contact@example.com)</spdx:supplier>
             <spdx:licenseDeclared>
               <spdx:ConjunctiveLicenseSet rdf:nodeID="Nab63afe52f1e4b309875af1ea705781f">
                 <spdx:member rdf:resource="http://spdx.org/spdxdocs/spdx-example-444504E0-4F89-41D3-9A0C-0305E82C3301#LicenseRef-3"/>

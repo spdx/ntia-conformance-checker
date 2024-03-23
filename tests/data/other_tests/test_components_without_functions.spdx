@@ -21,8 +21,8 @@ PackageName: glibc
 SPDXID: SPDXRef-Package
 PackageVersion: 2.4.57+dfsg-3+deb11u1
 PackageFileName: glibc-2.11.1.tar.gz
-PackageSupplier: NOASSERTION
-PackageOriginator: Organization: ExampleCodeInspect (contact@example.com)
+PackageSupplier: Organization: ExampleCodeInspect (contact@example.com)
+PackageOriginator: NOASSERTION
 PackageDownloadLocation: http://ftp.gnu.org/gnu/glibc/glibc-ports-2.15.tar.gz
 FilesAnalyzed: true
 PackageVerificationCode: d6a770ba38583ed4bb4525bd96e50461655d2758 (excludes: ./package.spdx)
@@ -56,8 +56,8 @@ PackageName:
 SPDXID: SPDXRef-Package1
 PackageVersion: 2.4.57+dfsg-3+deb11u1
 PackageFileName: glibc-2.11.1.tar.gz
-PackageSupplier: NOASSERTION
-PackageOriginator: Organization: ExampleCodeInspect (contact@example.com)
+PackageSupplier: Organization: ExampleCodeInspect (contact@example.com)
+PackageOriginator: NOASSERTION
 PackageDownloadLocation: http://ftp.gnu.org/gnu/glibc/glibc-ports-2.15.tar.gz
 FilesAnalyzed: true
 PackageVerificationCode: d6a770ba38583ed4bb4525bd96e50461655d2758 (excludes: ./package.spdx)
@@ -89,8 +89,8 @@ ValidUntilDate: 2014-01-29T18:30:22Z
 PackageName: glibc-no-version-1
 SPDXID: SPDXRef-Package2
 PackageFileName: glibc-2.11.1.tar.gz
-PackageSupplier: NOASSERTION
-PackageOriginator: Organization: ExampleCodeInspect (contact@example.com)
+PackageSupplier: Organization: ExampleCodeInspect (contact@example.com)
+PackageOriginator: NOASSERTION
 PackageDownloadLocation: http://ftp.gnu.org/gnu/glibc/glibc-ports-2.15.tar.gz
 FilesAnalyzed: true
 PackageVerificationCode: d6a770ba38583ed4bb4525bd96e50461655d2758 (excludes: ./package.spdx)
@@ -122,8 +122,8 @@ ValidUntilDate: 2014-01-29T18:30:22Z
 PackageName: glibc-no-version-2
 SPDXID: SPDXRef-Package3
 PackageFileName: glibc-2.11.1.tar.gz
-PackageSupplier: NOASSERTION
-PackageOriginator: Organization: ExampleCodeInspect (contact@example.com)
+PackageSupplier: Organization: ExampleCodeInspect (contact@example.com)
+PackageOriginator: NOASSERTION
 PackageDownloadLocation: http://ftp.gnu.org/gnu/glibc/glibc-ports-2.15.tar.gz
 FilesAnalyzed: true
 PackageVerificationCode: d6a770ba38583ed4bb4525bd96e50461655d2758 (excludes: ./package.spdx)
@@ -188,8 +188,8 @@ PackageName: glibc-no-identifier
 SPDXID: SPDXRef-Package5
 PackageVersion: 2.4.57+dfsg-3+deb11u1
 PackageFileName: glibc-2.11.1.tar.gz
-PackageSupplier: NOASSERTION
-PackageOriginator: Organization: ExampleCodeInspect (contact@example.com)
+PackageSupplier: Organization: ExampleCodeInspect (contact@example.com)
+PackageOriginator: NOASSERTION
 PackageDownloadLocation: http://ftp.gnu.org/gnu/glibc/glibc-ports-2.15.tar.gz
 FilesAnalyzed: true
 PackageVerificationCode: d6a770ba38583ed4bb4525bd96e50461655d2758 (excludes: ./package.spdx)

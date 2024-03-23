@@ -116,7 +116,9 @@ def test_sbomchecker_missing_supplier_name(test_file):
     assert sbom.dependency_relationships
     assert not sbom.components_without_names
     assert not sbom.components_without_versions
-    TestCase().assertCountEqual(sbom.components_without_suppliers, ["Jena", "Saxon"])
+    TestCase().assertCountEqual(
+        sbom.components_without_suppliers, ["glibc", "Jena", "Saxon"]
+    )
     assert not sbom.components_without_identifiers
     assert not sbom.ntia_minimum_elements_compliant
 
