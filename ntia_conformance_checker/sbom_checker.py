@@ -6,6 +6,7 @@ import logging
 import os
 import sys
 
+from spdx_tools.spdx.model import RelationshipType
 from spdx_tools.spdx.parser import parse_anything
 from spdx_tools.spdx.model.spdx_no_assertion import SpdxNoAssertion
 from spdx_tools.spdx.parser.error import SPDXParsingError
@@ -61,10 +62,19 @@ class SbomChecker:
         return True
 
     def check_dependency_relationships(self):
-        """Check for existence of any relationships."""
-        if len(self.doc.relationships) == 0:
-            return False
-        return True
+        """Check that the document DESCRIBES at least one package."""
+        describes_relationships = [
+            rel
+            for rel in self.doc.relationships
+            if rel.relationship_type == RelationshipType.DESCRIBES
+        ]
+
+        # Check if any of the "DESCRIBES" relationships describe a Package
+        describes_package = any(
+            "Package" in rel.related_spdx_element_id for rel in describes_relationships
+        )
+
+        return describes_package
 
     def get_components_without_names(self):
         """Retrieve SPDX ID of components without names."""
