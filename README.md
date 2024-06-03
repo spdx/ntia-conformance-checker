@@ -20,11 +20,11 @@ As defined by the NTIA, the minimum elements are "the essential pieces that supp
 
 ## Installation
 
-To install use the following command:
+*Installation Method #1*: Install from the [Python Package Index (PyPI)](https://pypi.org/project/ntia-conformance-checker/) with `pip`.
 
 `pip install ntia-conformance-checker`
 
-Alternatively, just clone the repo and install dependencies using the following commands:
+*Installation Method #2*: Install locally. Clone the repo and install dependencies using the following commands:
 
 ```bash
 git clone https://github.com/spdx/ntia-conformance-checker.git
@@ -36,6 +36,20 @@ The tool requires Python 3 (3.8+). It is recommended to use a virtual python env
 if you are using different versions of python. `virtualenv` is a tool for setting up virtual python environments which
 allows you to have all the dependencies for the tool set up in a single environment, or have different environments set
 up for testing using different versions of Python.
+
+*Installation Method #3*: Users comfortable with containers, specifically Docker, can also pull a container that includes `ntia-conformance-checker`.
+
+One version is hosted on [Chainguard's registry](https://images.chainguard.dev/directory/image/ntia-conformance-checker/overview):
+
+```
+docker pull cgr.dev/chainguard/ntia-conformance-checker:latest
+```
+
+Another version is hosted on [Docker Hub](https://hub.docker.com/r/chainguard/ntia-conformance-checker):
+
+```
+docker pull chainguard/ntia-conformance-checker:latest
+```
 
 ## CLI Usage
 
