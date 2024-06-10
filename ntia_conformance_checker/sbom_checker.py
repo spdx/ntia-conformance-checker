@@ -69,9 +69,12 @@ class SbomChecker:
             if rel.relationship_type == RelationshipType.DESCRIBES
         ]
 
+        #A set of all package spdx_ids for quick lookup
+        spdx_id_set = set([package.spdx_id for package in self.doc.packages])
+
         # Check if any of the "DESCRIBES" relationships describe a Package
         describes_package = any(
-            "Package" in rel.related_spdx_element_id for rel in describes_relationships
+            rel.related_spdx_element_id in spdx_id_set for rel in describes_relationships
         )
 
         return describes_package
