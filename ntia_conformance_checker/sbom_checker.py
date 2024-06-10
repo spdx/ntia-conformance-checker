@@ -74,7 +74,8 @@ class SbomChecker:
 
         # Check if any of the "DESCRIBES" relationships describe a Package
         describes_package = any(
-            rel.related_spdx_element_id in spdx_id_set for rel in describes_relationships
+            rel.related_spdx_element_id in spdx_id_set
+            for rel in describes_relationships
         )
 
         return describes_package
