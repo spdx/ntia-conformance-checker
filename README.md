@@ -2,6 +2,7 @@
 ![CodeQL](https://github.com/spdx/ntia-conformance-checker/actions/workflows/codeql.yml/badge.svg)
 [![PyPI version](https://badge.fury.io/py/ntia-conformance-checker.svg)](https://badge.fury.io/py/ntia-conformance-checker)
 [![Pylint Version](https://img.shields.io/badge/linting-pylint-yellow)](https://badge.fury.io/py/ntia-conformance-checker)
+[![OpenSSF Scorecard](https://api.scorecard.dev/projects/github.com/spdx/ntia-conformance-checker/badge)](https://scorecard.dev/viewer/?uri=github.com/spdx/ntia-conformance-checker)
 
 # NTIA Conformance Checker
 
