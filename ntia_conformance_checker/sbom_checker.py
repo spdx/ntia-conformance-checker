@@ -218,7 +218,7 @@ class SbomChecker:
                 print()
             if self.components_without_suppliers:
                 print(
-                    f"Components missing an supplier: {','.join(self.components_without_suppliers)}"
+                    f"Components missing a supplier: {','.join(self.components_without_suppliers)}"
                 )
                 print()
 
