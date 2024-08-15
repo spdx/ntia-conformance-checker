@@ -167,6 +167,7 @@ def test_sbomchecker_bom_alpine_example():
         in sbom.components_without_versions
     )
 
+
 def test_sbomchecker_chainguard_example():
     """Check that SBOM for alpine has component with missing version."""
     test_file = os.path.join(
