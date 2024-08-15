@@ -167,6 +167,17 @@ def test_sbomchecker_bom_alpine_example():
         in sbom.components_without_versions
     )
 
+def test_sbomchecker_chainguard_example():
+    """Check that SBOM for alpine has component with missing version."""
+    test_file = os.path.join(
+        os.path.dirname(__file__),
+        "data",
+        "SPDXSBOMExampleTests",
+        "chainguard.spdx.json",
+    )
+    sbom = sbom_checker.SbomChecker(test_file)
+    assert sbom.ntia_minimum_elements_compliant
+
 
 def test_sbomchecker_alpine_no_package_supplier_name_example():
     """Check that SBOM for alpine with NOASSERTION for supplier parses."""
