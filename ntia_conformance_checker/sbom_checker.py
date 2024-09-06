@@ -116,11 +116,7 @@ class SbomChecker:
 
     def get_components_without_identifiers(self):
         """Retrieve name of components without identifiers."""
-        components_without_identifiers = []
-        for package in self.doc.packages:
-            if not package.spdx_id:
-                components_without_identifiers.append(package.name)
-        return components_without_identifiers
+        return [package.name for package in self.doc.packages if not package.spdx_id]
 
     def check_ntia_minimum_elements_compliance(self):
         """Check overall compliance with NTIA minimum elements."""
