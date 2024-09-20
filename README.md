@@ -38,20 +38,6 @@ if you are using different versions of python. `virtualenv` is a tool for settin
 allows you to have all the dependencies for the tool set up in a single environment, or have different environments set
 up for testing using different versions of Python.
 
-*Installation Method #3*: Users comfortable with containers, specifically Docker, can also pull a container that includes `ntia-conformance-checker`.
-
-One version is hosted on [Chainguard's registry](https://images.chainguard.dev/directory/image/ntia-conformance-checker/overview):
-
-```
-docker pull cgr.dev/chainguard/ntia-conformance-checker:latest
-```
-
-Another version is hosted on [Docker Hub](https://hub.docker.com/r/chainguard/ntia-conformance-checker):
-
-```
-docker pull chainguard/ntia-conformance-checker:latest
-```
-
 ## CLI Usage
 
 ```
