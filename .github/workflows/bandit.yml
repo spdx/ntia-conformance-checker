@@ -11,8 +11,8 @@ jobs:
   bandit:
     runs-on: ubuntu-latest
     steps:
-      - uses: actions/checkout@v2
+      - uses: actions/checkout@ee0669bd1cc54295c223e0bb666b733df41de1c5 # v2
       - name: Run bandit
-        uses: tj-actions/bandit@v5.1
+        uses: tj-actions/bandit@67ccda81837995c1e194e7b010f5ec55e762f204 # v5.1
         with:
           options: "-c bandit.yml -r"
