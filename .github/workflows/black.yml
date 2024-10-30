@@ -12,5 +12,5 @@ jobs:
   lint:
     runs-on: ubuntu-latest
     steps:
-      - uses: actions/checkout@ee0669bd1cc54295c223e0bb666b733df41de1c5 # v2
+      - uses: actions/checkout@11bd71901bbe5b1630ceea73d27597364c9af683 # v2
       - uses: psf/black@1b2427a2b785cc4aac97c19bb4b9a0de063f9547 # stable
