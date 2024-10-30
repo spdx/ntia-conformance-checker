@@ -13,6 +13,6 @@ jobs:
     steps:
       - uses: actions/checkout@11bd71901bbe5b1630ceea73d27597364c9af683 # v2
       - name: Run bandit
-        uses: tj-actions/bandit@67ccda81837995c1e194e7b010f5ec55e762f204 # v5.1
+        uses: tj-actions/bandit@0aed5b3da320e0f26781e5aecbbfc1d268ff07e2 # v5.5
         with:
           options: "-c bandit.yml -r"
