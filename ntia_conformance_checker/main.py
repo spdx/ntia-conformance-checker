@@ -12,10 +12,12 @@ from ntia_conformance_checker.sbom_checker import SbomChecker
 def get_parsed_args():
     """Parse command line arguments"""
     parser = argparse.ArgumentParser(
-        prog="ntia-checker",
         description="Check if SPDX SBOM complies with NTIA minimum elements",
     )
     parser.add_argument("--file", help="Filepath for SPDX SBOM")
+    parser.add_argument(
+        "--comply", choices=["fsct3-min", "ntia"], default="ntia"
+    )
     parser.add_argument(
         "--output",
         choices=["print", "json", "html", "quiet"],

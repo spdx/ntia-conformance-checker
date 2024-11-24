@@ -40,3 +40,4 @@ packages = ["ntia_conformance_checker"]
 
 [project.scripts]
 ntia-checker = "ntia_conformance_checker.main:main"
+sbomcheck = "ntia_conformance_checker.main:main"

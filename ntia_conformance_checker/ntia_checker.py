@@ -15,7 +15,7 @@ from spdx_tools.spdx.validation.document_validator import validate_full_spdx_doc
 class NTIAChecker:
     """NTIA Minimum Elements check."""
 
-    def __init__(self, file, validate=True):
+    def __init__(self, file, validate=True, compliance="ntia"):
         self.file = file
         self.parsing_error = []
         self.doc = self.parse_file()
@@ -115,6 +115,12 @@ class NTIAChecker:
     def get_components_without_identifiers(self):
         """Retrieve name of components without identifiers."""
         return [package.name for package in self.doc.packages if not package.spdx_id]
+
+    def check_compliance(self):
+        """Check overall compliance with NTIA minimum elements."""
+        # This method is provided so we can have a common "check_compliance"
+        # method name across checkers.
+        return self.check_ntia_minimum_elements_compliance()
 
     def check_ntia_minimum_elements_compliance(self):
         """Check overall compliance with NTIA minimum elements."""
