@@ -1,6 +1,7 @@
 """Export functions for usage as library."""
 
-__all__ = ["NTIAChecker", "SbomChecker"]
+__all__ = ["FSCT3Checker", "NTIAChecker", "SbomChecker"]
 
-from ntia_conformance_checker.ntia_checker import NTIAChecker
-from ntia_conformance_checker.sbom_checker import SbomChecker
+from .fsct_checker import FSCT3Checker
+from .ntia_checker import NTIAChecker
+from .sbom_checker import SbomChecker
