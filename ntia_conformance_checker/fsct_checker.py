@@ -5,7 +5,6 @@
 """FSCT Common BOM checking functionality."""
 
 from spdx_tools.spdx.model import RelationshipType
-from spdx_tools.spdx.validation.document_validator import validate_full_spdx_document
 
 from .base_checker import BaseChecker
 
@@ -25,12 +24,9 @@ class FSCT3Checker(BaseChecker):
     """
 
     def __init__(self, file, validate=True, compliance="fsct3-min"):
-        super().__init__(file=file, validate=validate, compliance=compliance)
+        super().__init__(file=file, validate=validate)
 
         if self.doc:
-            self.validation_messages = None
-            if validate:
-                self.validation_messages = validate_full_spdx_document(self.doc)
             self.sbom_name = self.doc.creation_info.name
             self.doc_version = self.check_doc_version()
             self.doc_author = True
@@ -122,7 +118,9 @@ class FSCT3Checker(BaseChecker):
         """Print element-by-element result table."""
         # pylint: disable=line-too-long
         if self.parsing_error:
-            print(f"\nIs this SBOM FSCTv3 Baseline Attributes conformant? {self.compliant}\n")
+            print(
+                f"\nIs this SBOM FSCTv3 Baseline Attributes conformant? {self.compliant}\n"
+            )
             print(
                 "The provided document couldn't be parsed, check for FSCTv3 Baseline Attributes couldn't be performed.\n"
             )
@@ -131,7 +129,9 @@ class FSCT3Checker(BaseChecker):
                 print(error)
 
         else:
-            print(f"\nIs this SBOM FSCTv3 Baseline Attributes conformant? {self.compliant}\n")
+            print(
+                f"\nIs this SBOM FSCTv3 Baseline Attributes conformant? {self.compliant}\n"
+            )
             print("Individual elements                            | Status")
             print("-------------------------------------------------------")
             print(

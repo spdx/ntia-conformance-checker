@@ -12,6 +12,7 @@ from abc import ABC, abstractmethod
 from spdx_tools.spdx.model.spdx_no_assertion import SpdxNoAssertion
 from spdx_tools.spdx.parser import parse_anything
 from spdx_tools.spdx.parser.error import SPDXParsingError
+from spdx_tools.spdx.validation.document_validator import validate_full_spdx_document
 
 
 class BaseChecker(ABC):
@@ -27,17 +28,14 @@ class BaseChecker(ABC):
     @abstractmethod
     def check_compliance(self) -> bool:
         """Abstract method to check compliance."""
-        pass
 
     @abstractmethod
     def check_doc_version(self) -> bool:
         """Abstract method to check SBOM document version."""
-        pass
 
     @abstractmethod
     def check_dependency_relationships(self) -> bool:
         """Abstract method to check dependency relationship requirements."""
-        pass
 
     @abstractmethod
     def print_components_missing_info(self) -> None:
@@ -51,7 +49,6 @@ class BaseChecker(ABC):
         Returns:
             None
         """
-        pass
 
     @abstractmethod
     def print_table_output(self) -> None:
@@ -61,7 +58,6 @@ class BaseChecker(ABC):
         Returns:
             None
         """
-        pass
 
     @abstractmethod
     def output_json(self) -> dict:
@@ -69,14 +65,12 @@ class BaseChecker(ABC):
         Abstract method to create a dict of results for outputting
         to JSON.
         """
-        pass
 
     @abstractmethod
     def output_html(self) -> str:
         """Abstract method to create a result in HTML format."""
-        pass
 
-    def __init__(self, file, validate=True, compliance="ntia"):
+    def __init__(self, file, validate=True):
         """
         Initialize the BaseChecker.
 
@@ -85,13 +79,17 @@ class BaseChecker(ABC):
             validate (bool): Whether to validate the file.
             compliance (str): The compliance standard to be used. Defaults to "ntia".
         """
-        self.compliant = False
         self.file = file
         self.parsing_error = []
         self.doc = self.parse_file()
 
+        self.compliant = False
+        self.validation_messages = ""
+
         if self.doc:
             self.compliant = True
+            if validate:
+                self.validation_messages = validate_full_spdx_document(self.doc)
 
     def get_components_without_identifiers(self) -> list:
         """Retrieve name of components without identifiers."""

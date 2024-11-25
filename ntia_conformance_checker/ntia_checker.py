@@ -5,7 +5,6 @@
 """NTIA minimum elements checking functionality."""
 
 from spdx_tools.spdx.model import RelationshipType
-from spdx_tools.spdx.validation.document_validator import validate_full_spdx_document
 
 from .base_checker import BaseChecker
 
@@ -14,16 +13,13 @@ from .base_checker import BaseChecker
 class NTIAChecker(BaseChecker):
     """NTIA Minimum Elements check."""
 
-    def __init__(self, file, validate=True, compliance="ntia"):
-        super().__init__(file=file, validate=validate, compliance=compliance)
+    def __init__(self, file, validate=True):
+        super().__init__(file=file, validate=validate)
 
         # for backward compatibility
         self.ntia_minimum_elements_compliant = self.compliant
 
         if self.doc:
-            self.validation_messages = None
-            if validate:
-                self.validation_messages = validate_full_spdx_document(self.doc)
             self.sbom_name = self.doc.creation_info.name
             self.doc_version = self.check_doc_version()
             self.doc_author = True
