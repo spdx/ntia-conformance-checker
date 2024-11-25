@@ -25,6 +25,7 @@ def test_sbomchecker_no_errors(test_file):
     assert not sbom.components_without_versions
     assert not sbom.components_without_suppliers
     assert not sbom.components_without_identifiers
+    assert sbom.compliant
     assert sbom.ntia_minimum_elements_compliant
 
 
@@ -78,8 +79,8 @@ def test_sbomchecker_missing_dependency_relationships(test_file):
     assert not sbom.components_without_versions
     assert not sbom.components_without_suppliers
     assert not sbom.components_without_identifiers
+    assert not sbom.compliant
     assert not sbom.ntia_minimum_elements_compliant
-
 
 dirname = os.path.join(os.path.dirname(__file__), "data", "missing_component_version")
 test_files_missing_component_version = [
@@ -99,6 +100,7 @@ def test_sbomchecker_missing_component_version(test_file):
     TestCase().assertCountEqual(sbom.components_without_versions, ["glibc"])
     assert not sbom.components_without_suppliers
     assert not sbom.components_without_identifiers
+    assert not sbom.compliant
     assert not sbom.ntia_minimum_elements_compliant
 
 
@@ -120,6 +122,7 @@ def test_sbomchecker_missing_supplier_name(test_file):
         sbom.components_without_suppliers, ["glibc", "Jena", "Saxon"]
     )
     assert not sbom.components_without_identifiers
+    assert not sbom.compliant
     assert not sbom.ntia_minimum_elements_compliant
 
 
@@ -135,6 +138,7 @@ def test_sbomchecker_missing_unique_identifiers(test_file):
     the document contains an element without SPDXID."""
     sbom_check = sbom_checker.SbomChecker(test_file)
 
+    assert not sbom_check.compliant
     assert not sbom_check.ntia_minimum_elements_compliant
     assert sbom_check.parsing_error
 
@@ -177,6 +181,7 @@ def test_sbomchecker_chainguard_example():
         "chainguard.spdx.json",
     )
     sbom = sbom_checker.SbomChecker(test_file)
+    assert sbom.compliant
     assert sbom.ntia_minimum_elements_compliant
 
 

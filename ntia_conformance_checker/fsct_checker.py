@@ -14,9 +14,12 @@ from spdx_tools.spdx.validation.document_validator import validate_full_spdx_doc
 class FSCT3Checker:
     """FSCT Common SBOM Third Edition checker.
 
-    A set of Baseline Attributes is defined in Section 2.2 of Framing Software Component Transparency: Establishing a Common Software Bill of Materials (SBOM) Third Edition.
+    A set of Baseline Attributes is defined in Section 2.2 of
+    Framing Software Component Transparency:
+    Establishing a Common Software Bill of Materials (SBOM) Third Edition.
     
-    There are three maturity levels (Minimum Expected, Recommended Practice, and Aspirational Goal) for content provided in Attribute entries.
+    There are three maturity levels (Minimum Expected, Recommended Practice,
+    and Aspirational Goal) for content provided in Attribute entries.
     
     See:
     https://www.cisa.gov/resources-tools/resources/framing-software-component-transparency-2024    
@@ -27,7 +30,7 @@ class FSCT3Checker:
         self.parsing_error = []
         self.doc = self.parse_file()
         if not self.doc:
-            self.ntia_minimum_elements_compliant = False
+            self.compliant = False
         else:
             self.validation_messages = None
             if validate:
@@ -43,8 +46,8 @@ class FSCT3Checker:
             self.components_without_identifiers = (
                 self.get_components_without_identifiers()
             )
-            self.ntia_minimum_elements_compliant = (
-                self.check_ntia_minimum_elements_compliance()
+            self.compliant = (
+                self.check_compliance()
             )
 
     def parse_file(self):
@@ -147,7 +150,7 @@ class FSCT3Checker:
         # pylint: disable=line-too-long
         if self.parsing_error:
             print(
-                f"\nIs this SBOM NTIA minimum element conformant? {self.ntia_minimum_elements_compliant}\n"
+                f"\nIs this SBOM NTIA minimum element conformant? {self.compliant}\n"
             )
             print(
                 "The provided document couldn't be parsed, check for ntia minimum elements couldn't be performed.\n"
@@ -158,7 +161,7 @@ class FSCT3Checker:
 
         else:
             print(
-                f"\nIs this SBOM NTIA minimum element conformant? {self.ntia_minimum_elements_compliant}\n"
+                f"\nIs this SBOM NTIA minimum element conformant? {self.compliant}\n"
             )
             print("Individual elements                            | Status")
             print("-------------------------------------------------------")
@@ -266,7 +269,7 @@ class FSCT3Checker:
         else:
             result["parsingError"] = self.parsing_error
 
-        result["isNtiaConformant"] = self.ntia_minimum_elements_compliant
+        result["isFsct3Conformant"] = self.compliant
 
         return result
 
@@ -275,7 +278,7 @@ class FSCT3Checker:
         if self.doc:
             result = (
                 f" <h2>NTIA Conformance Results</h2> "
-                f"<h3>Conformant: {self.ntia_minimum_elements_compliant} </h3>"
+                f"<h3>Conformant: {self.compliant} </h3>"
                 f"<table> <tr> "
                 f"<th>Individual Elements</th> <th>Conformant</th> </tr> "
                 f"<tr> <td>All component names provided</td>"
@@ -304,8 +307,8 @@ class FSCT3Checker:
         else:
             result = f"""
             <h2>NTIA Conformance Results</h2>
-            <h3>Conformant: {self.ntia_minimum_elements_compliant} </h3>
-            <p>The provided document couldn't be parsed, check for ntia minimum elements couldn't be performed.</p>
+            <h3>Conformant: {self.compliant} </h3>
+            <p>The provided document couldn't be parsed, check for minimum elements couldn't be performed.</p>
             <p>The following SPDXParsingError was raised:<p><ul>"""
             for error in self.parsing_error:
                 result += f"""<li>{error}</li>"""

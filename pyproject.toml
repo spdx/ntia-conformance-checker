@@ -16,7 +16,7 @@ maintainers = [
     {name = "SPDX group at the Linux Foundation and others", email = "spdx-implementers+owner@lists.spdx.org"},
 ]
 license = {text = "Apache-2.0"}
-description = "Check SPDX SBOM for NTIA minimum elements"
+description = "Check SPDX SBOM for NTIA minimum elements and common SBOM baseline attributes"
 readme = "README.md"
 classifiers = [
     "Intended Audience :: Developers",
@@ -26,11 +26,25 @@ classifiers = [
     "Programming Language :: Python :: 3.9",
     "Programming Language :: Python :: 3.10",
     "Programming Language :: Python :: 3.11",
+    "Programming Language :: Python :: 3.12",
+    "Programming Language :: Python :: 3.13",
 ]
 urls = {Homepage = "https://github.com/spdx/ntia-conformance-checker"}
 requires-python = ">=3.8"
-keywords = ["spdx", "sbom", "ntia"]
-dependencies = [ "spdx-tools==0.8.3"]
+keywords = [
+    "spdx",
+    "sbom",
+    "ntia",
+    "cisa",
+    "minimum elements",
+    "baseline attributes",
+    "software bill of materials",
+    "bill of materials",
+    "common SBOM",
+    "software package data exchange",
+    "software component transparency",
+]
+dependencies = ["spdx-tools==0.8.3"]
 
 [project.optional-dependencies]
 test = ["pytest"]

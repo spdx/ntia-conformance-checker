@@ -20,7 +20,8 @@ class NTIAChecker:
         self.parsing_error = []
         self.doc = self.parse_file()
         if not self.doc:
-            self.ntia_minimum_elements_compliant = False
+            self.compliant = False
+            self.ntia_minimum_elements_compliant = self.compliant
         else:
             self.validation_messages = None
             if validate:
@@ -36,9 +37,8 @@ class NTIAChecker:
             self.components_without_identifiers = (
                 self.get_components_without_identifiers()
             )
-            self.ntia_minimum_elements_compliant = (
-                self.check_ntia_minimum_elements_compliance()
-            )
+            self.compliant = self.check_compliance()
+            self.ntia_minimum_elements_compliant = self.compliant  # for backward compatibility
 
     def parse_file(self):
         """Parse SBOM document."""
@@ -118,12 +118,6 @@ class NTIAChecker:
 
     def check_compliance(self):
         """Check overall compliance with NTIA minimum elements."""
-        # This method is provided so we can have a common "check_compliance"
-        # method name across checkers.
-        return self.check_ntia_minimum_elements_compliance()
-
-    def check_ntia_minimum_elements_compliance(self):
-        """Check overall compliance with NTIA minimum elements."""
         return all(
             [
                 self.doc_author,
@@ -137,6 +131,13 @@ class NTIAChecker:
             ]
         )
 
+    def check_ntia_minimum_elements_compliance(self):
+        """Check overall compliance with NTIA minimum elements.
+
+        This method is kept for backward compatibility.
+        Please consider using check_compliance() instead."""
+        return self.check_compliance()
+
     def get_total_number_components(self):
         """Retrieve total number of components."""
         return len(self.doc.packages)
@@ -146,7 +147,7 @@ class NTIAChecker:
         # pylint: disable=line-too-long
         if self.parsing_error:
             print(
-                f"\nIs this SBOM NTIA minimum element conformant? {self.ntia_minimum_elements_compliant}\n"
+                f"\nIs this SBOM NTIA minimum element conformant? {self.compliant}\n"
             )
             print(
                 "The provided document couldn't be parsed, check for ntia minimum elements couldn't be performed.\n"
@@ -157,7 +158,7 @@ class NTIAChecker:
 
         else:
             print(
-                f"\nIs this SBOM NTIA minimum element conformant? {self.ntia_minimum_elements_compliant}\n"
+                f"\nIs this SBOM NTIA minimum element conformant? {self.compliant}\n"
             )
             print("Individual elements                            | Status")
             print("-------------------------------------------------------")
@@ -265,7 +266,7 @@ class NTIAChecker:
         else:
             result["parsingError"] = self.parsing_error
 
-        result["isNtiaConformant"] = self.ntia_minimum_elements_compliant
+        result["isNtiaConformant"] = self.compliant
 
         return result
 
@@ -274,7 +275,7 @@ class NTIAChecker:
         if self.doc:
             result = (
                 f" <h2>NTIA Conformance Results</h2> "
-                f"<h3>Conformant: {self.ntia_minimum_elements_compliant} </h3>"
+                f"<h3>Conformant: {self.compliant} </h3>"
                 f"<table> <tr> "
                 f"<th>Individual Elements</th> <th>Conformant</th> </tr> "
                 f"<tr> <td>All component names provided</td>"
@@ -303,7 +304,7 @@ class NTIAChecker:
         else:
             result = f"""
             <h2>NTIA Conformance Results</h2>
-            <h3>Conformant: {self.ntia_minimum_elements_compliant} </h3>
+            <h3>Conformant: {self.compliant} </h3>
             <p>The provided document couldn't be parsed, check for ntia minimum elements couldn't be performed.</p>
             <p>The following SPDXParsingError was raised:<p><ul>"""
             for error in self.parsing_error:

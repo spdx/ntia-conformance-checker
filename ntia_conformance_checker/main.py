@@ -12,11 +12,14 @@ from ntia_conformance_checker.sbom_checker import SbomChecker
 def get_parsed_args():
     """Parse command line arguments"""
     parser = argparse.ArgumentParser(
-        description="Check if SPDX SBOM complies with NTIA minimum elements",
+        description="Check if SPDX SBOM complies with NTIA minimum elements/CISA common SBOM baseline attributes",
     )
     parser.add_argument("--file", help="Filepath for SPDX SBOM")
     parser.add_argument(
-        "--comply", choices=["fsct3-min", "ntia"], default="ntia"
+        "--comply",
+        choices=["fsct3-min", "ntia"],
+        default="ntia",
+        help="Specify which compliance standard to check against",
     )
     parser.add_argument(
         "--output",
@@ -60,7 +63,10 @@ def main():
 
     args = get_parsed_args()
 
-    sbom = SbomChecker(args.file, validate=not args.skip_validation)
+    sbom = SbomChecker(args.file, validate=not args.skip_validation, compliance=args.comply)
+    print(f"Checking SBOM: {args.file}")
+    print(f"Compliance standard: {args.comply}")
+    print(f"SPDX validation: {'enabled' if not args.skip_validation else 'disabled'}")
     if args.output == "print":
         sbom.print_table_output()
         if args.verbose:
@@ -76,7 +82,7 @@ def main():
         html_output = sbom.output_html()
         print(html_output)
     # 0 indicates success
-    sys.exit(0 if sbom.ntia_minimum_elements_compliant else 1)
+    sys.exit(0 if sbom.compliant else 1)
 
 
 if __name__ == "__main__":
