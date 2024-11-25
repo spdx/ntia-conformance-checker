@@ -1,12 +1,15 @@
+# SPDX-FileCopyrightText: 2024 SPDX contributors
+# SPDX-FileType: SOURCE
+# SPDX-License-Identifier: Apache-2.0
+
 """Entrypoint for CLI."""
 
 import argparse
 import json
 import sys
-
 from importlib.metadata import version
 
-from ntia_conformance_checker.sbom_checker import SbomChecker
+from .sbom_checker import SbomChecker
 
 
 def get_parsed_args():
