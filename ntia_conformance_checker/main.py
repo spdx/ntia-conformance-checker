@@ -66,7 +66,9 @@ def main():
 
     args = get_parsed_args()
 
-    sbom = SbomChecker(args.file, validate=not args.skip_validation, compliance=args.comply)
+    sbom = SbomChecker(
+        args.file, validate=not args.skip_validation, compliance=args.comply
+    )
     print(f"Checking SBOM: {args.file}")
     print(f"Compliance standard: {args.comply}")
     print(f"SPDX validation: {'enabled' if not args.skip_validation else 'disabled'}")
