@@ -37,7 +37,7 @@ class SbomChecker(BaseChecker):
             from .ntia_checker import NTIAChecker
 
             return NTIAChecker(file, validate)
-        elif compliance.startswith("fsct"):
+        elif compliance.startswith("fsct3"):
             from .fsct_checker import FSCT3Checker
 
             return FSCT3Checker(file, validate)

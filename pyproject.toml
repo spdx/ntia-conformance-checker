@@ -53,5 +53,9 @@ test = ["pytest"]
 packages = ["ntia_conformance_checker"]
 
 [project.scripts]
+# Both "ntia-checker" and "sbomcheck" are identical.
+# "ntia-checker" is kept for backward compatibility.
+# While "sbomcheck" is introduced for a more generic name,
+# to accommodate other compliance standards.
 ntia-checker = "ntia_conformance_checker.main:main"
 sbomcheck = "ntia_conformance_checker.main:main"

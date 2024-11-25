@@ -6,6 +6,7 @@
 
 __all__ = ["BaseChecker", "FSCT3Checker", "NTIAChecker", "SbomChecker"]
 
+from .base_checker import BaseChecker
 from .fsct_checker import FSCT3Checker
 from .ntia_checker import NTIAChecker
-from .sbom_checker import BaseChecker, SbomChecker
+from .sbom_checker import SbomChecker

@@ -122,16 +122,16 @@ class FSCT3Checker(BaseChecker):
         """Print element-by-element result table."""
         # pylint: disable=line-too-long
         if self.parsing_error:
-            print(f"\nIs this SBOM NTIA minimum element conformant? {self.compliant}\n")
+            print(f"\nIs this SBOM FSCTv3 Baseline Attributes conformant? {self.compliant}\n")
             print(
-                "The provided document couldn't be parsed, check for ntia minimum elements couldn't be performed.\n"
+                "The provided document couldn't be parsed, check for FSCTv3 Baseline Attributes couldn't be performed.\n"
             )
             print("The following SPDXParsingError was raised:\n")
             for error in self.parsing_error:
                 print(error)
 
         else:
-            print(f"\nIs this SBOM NTIA minimum element conformant? {self.compliant}\n")
+            print(f"\nIs this SBOM FSCTv3 Baseline Attributes conformant? {self.compliant}\n")
             print("Individual elements                            | Status")
             print("-------------------------------------------------------")
             print(
