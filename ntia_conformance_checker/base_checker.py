@@ -79,17 +79,32 @@ class BaseChecker(ABC):
             validate (bool): Whether to validate the file.
             compliance (str): The compliance standard to be used. Defaults to "ntia".
         """
-        self.file = file
         self.parsing_error = []
-        self.doc = self.parse_file()
-
-        self.compliant = False
         self.validation_messages = ""
 
+        self.file = file
+        self.doc = self.parse_file()
+
+        self.doc_version = False
+        self.doc_author = False
+        self.doc_timestamp = False
+        self.dependency_relationships = False
+        self.components_without_names = []
+        self.components_without_versions = []
+        self.components_without_suppliers = []
+        self.components_without_identifiers = []
+
+        self.compliant = False
+
         if self.doc:
-            self.compliant = True
             if validate:
                 self.validation_messages = validate_full_spdx_document(self.doc)
+            self.components_without_names = self.get_components_without_names()
+            self.components_without_versions = self.get_components_without_versions()
+            self.components_without_suppliers = self.get_components_without_suppliers()
+            self.components_without_identifiers = (
+                self.get_components_without_identifiers()
+            )
 
     def get_components_without_identifiers(self) -> list:
         """Retrieve name of components without identifiers."""

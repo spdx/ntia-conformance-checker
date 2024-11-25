@@ -22,15 +22,9 @@ class NTIAChecker(BaseChecker):
         if self.doc:
             self.sbom_name = self.doc.creation_info.name
             self.doc_version = self.check_doc_version()
-            self.doc_author = True
-            self.doc_timestamp = True
+            self.doc_author = True  # Assume author is present?
+            self.doc_timestamp = True  # Assume timestamp is present?
             self.dependency_relationships = self.check_dependency_relationships()
-            self.components_without_names = self.get_components_without_names()
-            self.components_without_versions = self.get_components_without_versions()
-            self.components_without_suppliers = self.get_components_without_suppliers()
-            self.components_without_identifiers = (
-                self.get_components_without_identifiers()
-            )
             self.compliant = self.check_compliance()
             # for backward compatibility
             self.ntia_minimum_elements_compliant = self.compliant

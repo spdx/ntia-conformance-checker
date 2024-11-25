@@ -82,6 +82,7 @@ def test_sbomchecker_missing_dependency_relationships(test_file):
     assert not sbom.compliant
     assert not sbom.ntia_minimum_elements_compliant
 
+
 dirname = os.path.join(os.path.dirname(__file__), "data", "missing_component_version")
 test_files_missing_component_version = [
     os.path.join(dirname, fn) for fn in os.listdir(dirname)

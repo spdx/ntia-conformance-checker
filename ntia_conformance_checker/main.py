@@ -15,7 +15,8 @@ from .sbom_checker import SbomChecker
 def get_parsed_args():
     """Parse command line arguments"""
     parser = argparse.ArgumentParser(
-        description="Check if SPDX SBOM complies with NTIA minimum elements/CISA common SBOM baseline attributes",
+        description="Check if SPDX SBOM complies with NTIA minimum elements/"
+        "FSCT Common SBOM baseline attributes",
     )
     parser.add_argument("--file", help="Filepath for SPDX SBOM")
     parser.add_argument(
