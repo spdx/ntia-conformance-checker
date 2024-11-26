@@ -8,7 +8,7 @@ import logging
 import os
 import sys
 from abc import ABC, abstractmethod
-from typing import cast, List, Optional, Tuple, Union
+from typing import List, Optional, Tuple, Union, cast
 
 from spdx_tools.spdx.model import Document
 from spdx_tools.spdx.model.spdx_no_assertion import SpdxNoAssertion
@@ -96,6 +96,7 @@ class BaseChecker(ABC):
         self.components_without_suppliers = []
         self.components_without_identifiers = []
         self.components_without_concluded_licenses = []
+        self.components_without_copyright_texts = []
 
         self.compliant = False
 
@@ -109,8 +110,11 @@ class BaseChecker(ABC):
             self.components_without_identifiers = (
                 self.get_components_without_identifiers()
             )
-            self.get_components_without_concluded_licenses = (
+            self.components_without_concluded_licenses = (
                 self.get_components_without_concluded_licenses()
+            )
+            self.components_without_copyright_texts = (
+                self.get_components_without_copyright_texts()
             )
 
     def get_components_without_concluded_licenses(
@@ -120,11 +124,13 @@ class BaseChecker(ABC):
         Retrieve names and/or SPDX IDs of components without concluded licenses.
 
         Args:
-            return_tuples (bool): If True, return a list of tuples with component names and SPDX IDs.
+            return_tuples (bool): If True, return a list of tuples with
+                                  component names and SPDX IDs.
                                   If False, return a list of component names.
 
         Returns:
-            Union[List[str], List[Tuple[str, str]]]: A list of component names or a list of tuples with component names and SPDX IDs.
+            Union[List[str], List[Tuple[str, str]]]: A list of component names
+            or a list of tuples with component names and SPDX IDs.
         """
         if return_tuples:
             components_name_id: List[Tuple[str, str]] = []
@@ -145,6 +151,40 @@ class BaseChecker(ABC):
                     components_name.append(package.name)
             return components_name
 
+    def get_components_without_copyright_texts(
+        self, return_tuples=False
+    ) -> Union[List[str], List[Tuple[str, str]]]:
+        """
+        Retrieve names and/or SPDX IDs of components without copyright texts.
+
+        Args:
+            return_tuples (bool): If True, return a list of tuples with
+                                  component names and SPDX IDs.
+                                  If False, return a list of component names.
+
+        Returns:
+            Union[List[str], List[Tuple[str, str]]]: A list of component names
+            or a list of tuples with component names and SPDX IDs.
+        """
+        if return_tuples:
+            components_name_id: List[Tuple[str, str]] = []
+            for package in self.doc.packages:
+                no_license = package.copyright_text is None or isinstance(
+                    package.copyright_text, SpdxNoAssertion
+                )
+                if no_license:
+                    components_name_id.append((package.name, package.spdx_id))
+            return components_name_id
+        else:
+            components_name: List[str] = []
+            for package in self.doc.packages:
+                no_license = package.copyright_text is None or isinstance(
+                    package.copyright_text, SpdxNoAssertion
+                )
+                if no_license:
+                    components_name.append(package.name)
+            return components_name
+
     def get_components_without_identifiers(self) -> list[str]:
         """
         Retrieve name of components without identifiers.
@@ -159,11 +199,13 @@ class BaseChecker(ABC):
         Retrieve SPDX ID of components without names.
 
         Args:
-            return_tuples (bool): If True, return a list of tuples with component names and SPDX IDs.
+            return_tuples (bool): If True, return a list of tuples with
+                                  component names and SPDX IDs.
                                   If False, return a list of component names.
 
         Returns:
-            Union[List[str], List[Tuple[str, str]]]: A list of component names or a list of tuples with component names and SPDX IDs.
+            Union[List[str], List[Tuple[str, str]]]: A list of component names
+            or a list of tuples with component names and SPDX IDs.
         """
         components_without_names = []
         for package in self.doc.packages:
@@ -178,11 +220,13 @@ class BaseChecker(ABC):
         Retrieve names and/or SPDX IDs of components without suppliers.
 
         Args:
-            return_tuples (bool): If True, return a list of tuples with component names and SPDX IDs.
+            return_tuples (bool): If True, return a list of tuples with
+                                  component names and SPDX IDs.
                                   If False, return a list of component names.
 
         Returns:
-            Union[List[str], List[Tuple[str, str]]]: A list of component names or a list of tuples with component names and SPDX IDs.
+            Union[List[str], List[Tuple[str, str]]]: A list of component names
+            or a list of tuples with component names and SPDX IDs.
         """
         if return_tuples:
             components_name_id: List[Tuple[str, str]] = []
@@ -210,11 +254,13 @@ class BaseChecker(ABC):
         Retrieve name and/or SPDX ID of components without versions.
 
         Args:
-            return_tuples (bool): If True, return a list of tuples with component names and SPDX IDs.
+            return_tuples (bool): If True, return a list of tuples with
+                                  component names and SPDX IDs.
                                   If False, return a list of component names.
 
         Returns:
-            Union[List[str], List[Tuple[str, str]]]: A list of component names or a list of tuples with component names and SPDX IDs.
+            Union[List[str], List[Tuple[str, str]]]: A list of component names
+            or a list of tuples with component names and SPDX IDs.
         """
         if return_tuples:
             components_name_id: List[Tuple[str, str]] = []
@@ -243,7 +289,8 @@ class BaseChecker(ABC):
         Parse SBOM document.
 
         Returns:
-            Optional[Document]: The parsed SBOM document if successful, otherwise None.
+            Optional[Document]: The parsed SBOM document if successful,
+            otherwise None.
         """
         # check if file exists
         if not os.path.exists(self.file):

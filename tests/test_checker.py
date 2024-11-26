@@ -127,7 +127,7 @@ test_files_missing_concluded_license = [
 def test_sbomchecker_missing_concluded_license(test_file):
     sbom_check = FSCT3Checker(test_file)
 
-    assert not sbom_check.components_without_concluded_licenses
+    assert sbom_check.components_without_concluded_licenses
     assert not sbom_check.compliant
 
 

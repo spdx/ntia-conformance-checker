@@ -74,6 +74,7 @@ class FSCT3Checker(BaseChecker):
                 not self.components_without_identifiers,
                 not self.components_without_suppliers,
                 not self.components_without_concluded_licenses,
+                not self.components_without_copyright_texts,
                 not self.validation_messages,
             ]
         )
@@ -92,23 +93,38 @@ class FSCT3Checker(BaseChecker):
                 print("No components with missing information.")
             if self.components_without_names:
                 print(
-                    f"Components missing a name: {','.join(self.components_without_names)}"
+                    "Components missing a name: "
+                    f"{','.join(self.components_without_names)}"
                 )
                 print()
             if self.components_without_versions:
                 print(
-                    f"Components missing a version: {','.join(self.components_without_versions)}"
+                    "Components missing a version: "
+                    f"{','.join(self.components_without_versions)}"
                 )
                 print()
             if self.components_without_identifiers:
                 print(
-                    f"Components missing an identifier: "
+                    "Components missing an identifier: "
                     f"{','.join(self.components_without_identifiers)}"
                 )
                 print()
             if self.components_without_suppliers:
                 print(
-                    f"Components missing a supplier: {','.join(self.components_without_suppliers)}"
+                    "Components missing a supplier: "
+                    f"{','.join(self.components_without_suppliers)}"
+                )
+                print()
+            if self.components_without_concluded_licenses:
+                print(
+                    "Components missing a license: "
+                    f"{','.join(self.components_without_concluded_licenses)}"
+                )
+                print()
+            if self.components_without_copyright_texts:
+                print(
+                    "Components missing a copyright notice: "
+                    f"{','.join(self.components_without_copyright_texts)}"
                 )
                 print()
 
