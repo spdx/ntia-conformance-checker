@@ -8,13 +8,17 @@ from unittest import TestCase
 import pytest
 
 import ntia_conformance_checker.sbom_checker as sbom_checker
+from ntia_conformance_checker import FSCT3Checker, NTIAChecker
+
+### Test no element missing
 
 dirname = os.path.join(os.path.dirname(__file__), "data", "no_elements_missing")
 test_files = [os.path.join(dirname, fn) for fn in os.listdir(dirname)]
 
 
 @pytest.mark.parametrize("test_file", test_files)
-def test_sbomchecker_no_errors(test_file):
+def test_sbomchecker_ntia_no_errors(test_file):
+    # No compliance argument is given to SbomChecker; Default is "ntia"
     sbom = sbom_checker.SbomChecker(test_file)
     assert sbom.file == test_file
     assert sbom.doc_version
@@ -28,6 +32,56 @@ def test_sbomchecker_no_errors(test_file):
     assert sbom.compliant
     assert sbom.ntia_minimum_elements_compliant
 
+
+@pytest.mark.parametrize("test_file", test_files)
+def test_sbomchecker_fsct3_no_errors(test_file):
+    sbom = sbom_checker.SbomChecker(test_file, compliance="fsct3-min")
+    assert sbom.file == test_file
+    assert sbom.doc_version
+    assert sbom.doc_author
+    assert sbom.doc_timestamp
+    assert sbom.dependency_relationships
+    assert not sbom.components_without_names
+    assert not sbom.components_without_versions
+    assert not sbom.components_without_suppliers
+    assert not sbom.components_without_identifiers
+    assert not sbom.components_without_concluded_licenses
+    assert sbom.compliant
+
+
+@pytest.mark.parametrize("test_file", test_files)
+def test_ntiachecker_no_errors(test_file):
+    sbom = NTIAChecker(test_file)
+    assert sbom.file == test_file
+    assert sbom.doc_version
+    assert sbom.doc_author
+    assert sbom.doc_timestamp
+    assert sbom.dependency_relationships
+    assert not sbom.components_without_names
+    assert not sbom.components_without_versions
+    assert not sbom.components_without_suppliers
+    assert not sbom.components_without_identifiers
+    assert sbom.compliant
+    assert sbom.ntia_minimum_elements_compliant
+
+
+@pytest.mark.parametrize("test_file", test_files)
+def test_fsct3checker_no_errors(test_file):
+    sbom = FSCT3Checker(test_file)
+    assert sbom.file == test_file
+    assert sbom.doc_version
+    assert sbom.doc_author
+    assert sbom.doc_timestamp
+    assert sbom.dependency_relationships
+    assert not sbom.components_without_names
+    assert not sbom.components_without_versions
+    assert not sbom.components_without_suppliers
+    assert not sbom.components_without_identifiers
+    assert not sbom.components_without_concluded_licenses
+    assert sbom.compliant
+
+
+### Test missing author name
 
 dirname = os.path.join(os.path.dirname(__file__), "data", "missing_author_name")
 test_files_missing_author_name = [
@@ -45,6 +99,8 @@ def test_sbomchecker_missing_author_name(test_file):
     assert sbom_check.parsing_error
 
 
+### Test missing timestamp
+
 dirname = os.path.join(os.path.dirname(__file__), "data", "missing_timestamp")
 test_files_missing_timestamp = [os.path.join(dirname, fn) for fn in os.listdir(dirname)]
 
@@ -58,6 +114,24 @@ def test_sbomchecker_missing_timestamp(test_file):
     assert not sbom_check.ntia_minimum_elements_compliant
     assert sbom_check.parsing_error
 
+
+### Test missing concluded licenses
+
+dirname = os.path.join(os.path.dirname(__file__), "data", "missing_concluded_license")
+test_files_missing_concluded_license = [
+    os.path.join(dirname, fn) for fn in os.listdir(dirname)
+]
+
+
+@pytest.mark.parametrize("test_file", test_files_missing_concluded_license)
+def test_sbomchecker_missing_concluded_license(test_file):
+    sbom_check = FSCT3Checker(test_file)
+
+    assert not sbom_check.components_without_concluded_licenses
+    assert not sbom_check.compliant
+
+
+### Test missing dependency relationships
 
 dirname = os.path.join(
     os.path.dirname(__file__), "data", "missing_dependency_relationships"
@@ -83,6 +157,8 @@ def test_sbomchecker_missing_dependency_relationships(test_file):
     assert not sbom.ntia_minimum_elements_compliant
 
 
+### Test missing component version
+
 dirname = os.path.join(os.path.dirname(__file__), "data", "missing_component_version")
 test_files_missing_component_version = [
     os.path.join(dirname, fn) for fn in os.listdir(dirname)
@@ -104,6 +180,8 @@ def test_sbomchecker_missing_component_version(test_file):
     assert not sbom.compliant
     assert not sbom.ntia_minimum_elements_compliant
 
+
+### Test missing supplier name
 
 dirname = os.path.join(os.path.dirname(__file__), "data", "missing_supplier_name")
 files = [os.path.join(dirname, fn) for fn in os.listdir(dirname)]
@@ -127,6 +205,8 @@ def test_sbomchecker_missing_supplier_name(test_file):
     assert not sbom.ntia_minimum_elements_compliant
 
 
+### Test missing unique identifiers
+
 dirname = os.path.join(os.path.dirname(__file__), "data", "missing_unique_identifiers")
 test_files_missing_unique_identifiers = [
     os.path.join(dirname, fn) for fn in os.listdir(dirname)
@@ -142,6 +222,9 @@ def test_sbomchecker_missing_unique_identifiers(test_file):
     assert not sbom_check.compliant
     assert not sbom_check.ntia_minimum_elements_compliant
     assert sbom_check.parsing_error
+
+
+### Test SBOM example from various sources
 
 
 def test_sbomchecker_tern_photon_example():
@@ -197,6 +280,9 @@ def test_sbomchecker_alpine_no_package_supplier_name_example():
     sbom = sbom_checker.SbomChecker(test_file)
     got = sbom.output_json()
     assert not got["componentSuppliers"]["allProvided"]
+
+
+### Other tests
 
 
 def test_sbomchecker_output_json():
