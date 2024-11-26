@@ -73,6 +73,7 @@ class FSCT3Checker(BaseChecker):
                 not self.components_without_versions,
                 not self.components_without_identifiers,
                 not self.components_without_suppliers,
+                not self.components_without_concluded_licenses,
                 not self.validation_messages,
             ]
         )

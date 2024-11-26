@@ -8,7 +8,7 @@ import logging
 import os
 import sys
 from abc import ABC, abstractmethod
-from typing import List, Tuple, Union
+from typing import cast, List, Optional, Tuple, Union
 
 from spdx_tools.spdx.model import Document
 from spdx_tools.spdx.model.spdx_no_assertion import SpdxNoAssertion
@@ -85,7 +85,7 @@ class BaseChecker(ABC):
         self.validation_messages = ""
 
         self.file = file
-        self.doc = self.parse_file()
+        self.doc = self.parse_file()  # Document or None
 
         self.doc_version = False
         self.doc_author = False
@@ -95,16 +95,12 @@ class BaseChecker(ABC):
         self.components_without_versions = []
         self.components_without_suppliers = []
         self.components_without_identifiers = []
+        self.components_without_concluded_licenses = []
 
         self.compliant = False
 
-        self.validation_messages = []
-        self.components_without_names = []
-        self.components_without_versions = []
-        self.components_without_suppliers = []
-        self.components_without_identifiers = []
-
         if self.doc:
+            self.doc = cast(Document, self.doc)
             if validate:
                 self.validation_messages = validate_full_spdx_document(self.doc)
             self.components_without_names = self.get_components_without_names()
@@ -113,21 +109,62 @@ class BaseChecker(ABC):
             self.components_without_identifiers = (
                 self.get_components_without_identifiers()
             )
+            self.get_components_without_concluded_licenses = (
+                self.get_components_without_concluded_licenses()
+            )
+
+    def get_components_without_concluded_licenses(
+        self, return_tuples=False
+    ) -> Union[List[str], List[Tuple[str, str]]]:
+        """
+        Retrieve names and/or SPDX IDs of components without concluded licenses.
+
+        Args:
+            return_tuples (bool): If True, return a list of tuples with component names and SPDX IDs.
+                                  If False, return a list of component names.
+
+        Returns:
+            Union[List[str], List[Tuple[str, str]]]: A list of component names or a list of tuples with component names and SPDX IDs.
+        """
+        if return_tuples:
+            components_name_id: List[Tuple[str, str]] = []
+            for package in self.doc.packages:
+                no_license = package.license_concluded is None or isinstance(
+                    package.license_concluded, SpdxNoAssertion
+                )
+                if no_license:
+                    components_name_id.append((package.name, package.spdx_id))
+            return components_name_id
+        else:
+            components_name: List[str] = []
+            for package in self.doc.packages:
+                no_license = package.license_concluded is None or isinstance(
+                    package.license_concluded, SpdxNoAssertion
+                )
+                if no_license:
+                    components_name.append(package.name)
+            return components_name
 
     def get_components_without_identifiers(self) -> list[str]:
-        """Retrieve name of components without identifiers."""
+        """
+        Retrieve name of components without identifiers.
+
+        Returns:
+            List[str]: A list of component names that do not have identifiers.
+        """
         return [package.name for package in self.doc.packages if not package.spdx_id]
 
-    # def get_components_without_licenses(self) -> list:
-    #     """Retrieve SPDX ID of components without licenses."""
-    #     components_without_licenses = []
-    #     for package in self.doc.packages:
-    #         no_license = package.extracted_licensing_info is None
-
-    #     return components_without_licenses
-
     def get_components_without_names(self) -> list[str]:
-        """Retrieve SPDX ID of components without names."""
+        """
+        Retrieve SPDX ID of components without names.
+
+        Args:
+            return_tuples (bool): If True, return a list of tuples with component names and SPDX IDs.
+                                  If False, return a list of component names.
+
+        Returns:
+            Union[List[str], List[Tuple[str, str]]]: A list of component names or a list of tuples with component names and SPDX IDs.
+        """
         components_without_names = []
         for package in self.doc.packages:
             if not package.name:
@@ -142,7 +179,7 @@ class BaseChecker(ABC):
 
         Args:
             return_tuples (bool): If True, return a list of tuples with component names and SPDX IDs.
-                                If False, return a list of component names.
+                                  If False, return a list of component names.
 
         Returns:
             Union[List[str], List[Tuple[str, str]]]: A list of component names or a list of tuples with component names and SPDX IDs.
@@ -169,7 +206,16 @@ class BaseChecker(ABC):
     def get_components_without_versions(
         self, return_tuples=False
     ) -> Union[List[str], List[Tuple[str, str]]]:
-        """Retrieve name and/or SPDX ID of components without versions."""
+        """
+        Retrieve name and/or SPDX ID of components without versions.
+
+        Args:
+            return_tuples (bool): If True, return a list of tuples with component names and SPDX IDs.
+                                  If False, return a list of component names.
+
+        Returns:
+            Union[List[str], List[Tuple[str, str]]]: A list of component names or a list of tuples with component names and SPDX IDs.
+        """
         if return_tuples:
             components_name_id: List[Tuple[str, str]] = []
             for package in self.doc.packages:
@@ -184,11 +230,21 @@ class BaseChecker(ABC):
             return components_name
 
     def get_total_number_components(self) -> int:
-        """Retrieve total number of components."""
+        """
+        Retrieve total number of components.
+
+        Returns:
+            int: The total number of components.
+        """
         return len(self.doc.packages)
 
-    def parse_file(self) -> Union[Document, None]:
-        """Parse SBOM document."""
+    def parse_file(self) -> Optional[Document]:
+        """
+        Parse SBOM document.
+
+        Returns:
+            Optional[Document]: The parsed SBOM document if successful, otherwise None.
+        """
         # check if file exists
         if not os.path.exists(self.file):
             logging.error("Filename %s not found.", self.file)
