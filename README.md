@@ -40,7 +40,7 @@ up for testing using different versions of Python.
 
 ## CLI Usage
 
-```
+```text
 Usage: ntia-checker [OPTIONS]
 
 Options:
@@ -57,7 +57,7 @@ The user can then analyze a particular file:
 ntia-checker --file sbom.json
 ```
 
-To generare the output in machine-readable JSON, run:
+To generate the output in machine-readable JSON, run:
 
 ```bash
 ntia-checker --file sbom.spdx --output json
