@@ -72,6 +72,7 @@ class BaseChecker(ABC):
     def output_html(self) -> str:
         """Abstract method to create a result in HTML format."""
 
+    # pylint: disable=too-many-instance-attributes
     def __init__(self, file, validate=True, compliance=""):
         """
         Initialize the BaseChecker.
