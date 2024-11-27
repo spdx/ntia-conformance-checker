@@ -76,18 +76,15 @@ def main():
     )
 
     # Log messages
-    logging.info(f"Checking SBOM: {args.file}")
-    logging.info(f"Compliance standard: {args.comply}")
+    logging.info("Checking SBOM: %s", args.file)
+    logging.info("Compliance standard: %s", args.comply)
     logging.info(
-        f"SPDX validation: {'enabled' if not args.skip_validation else 'disabled'}"
+        "SPDX validation: %s", "enabled" if not args.skip_validation else "disabled"
     )
-    logging.info(f"Parsing: {'OK' if not sbom.parsing_error else 'Failed'}")
-    if not args.skip_validation and not sbom.parsing_error:
-        logging.info(
-            f"Validation: {'OK' if not sbom.validation_messages else 'Failed'}"
-        )
+    logging.info("Parsing: %s", "OK" if not sbom.parsing_error else "Failed")
+    logging.info("Validation: %s", "OK" if not sbom.validation_messages else "Failed")
     if not sbom.parsing_error:
-        logging.info(f"SBOM name: {sbom.sbom_name}")
+        logging.info("SBOM name: %s", sbom.sbom_name)
 
     if args.output == "print":
         sbom.print_table_output()
