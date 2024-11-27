@@ -3,7 +3,6 @@
 # SPDX-License-Identifier: Apache-2.0
 
 """NTIA minimum elements checking functionality."""
-from typing import Any, Dict
 
 from spdx_tools.spdx.model import RelationshipType
 
@@ -24,6 +23,7 @@ class NTIAChecker(BaseChecker):
             self.doc_timestamp = True  # Assume timestamp is present?
             self.dependency_relationships = self.check_dependency_relationships()
             self.compliant = self.check_compliance()
+
             # for backward compatibility
             self.ntia_minimum_elements_compliant = self.compliant
 

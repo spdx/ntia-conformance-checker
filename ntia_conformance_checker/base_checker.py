@@ -32,12 +32,9 @@ class BaseChecker(ABC):
     doc: Optional[Document] = None
 
     parsing_error: List[str] = []
-    validation_messages: str = ""
+    validation_messages: Optional[List[str]] = None
 
-    doc_version: bool = False
-    doc_author: bool = False
-    doc_timestamp: bool = False
-    dependency_relationships: bool = False
+    sbom_name: str = ""
     components_without_names: List[str] = []
     components_without_versions: List[str] = []
     components_without_suppliers: List[str] = []
@@ -45,8 +42,14 @@ class BaseChecker(ABC):
     components_without_concluded_licenses: List[str] = []
     components_without_copyright_texts: List[str] = []
 
+    doc_version: bool = False
+    doc_author: bool = False
+    doc_timestamp: bool = False
+    dependency_relationships: bool = False
+
     compliant: bool = False
-    # for backward compatibility
+
+    # an alias of "compliant", for backward compatibility
     ntia_minimum_elements_compliant: bool = compliant
 
     @abstractmethod
@@ -350,4 +353,5 @@ class BaseChecker(ABC):
         except SPDXParsingError as err:
             self.parsing_error.extend(err.get_messages())
             return None
-        return doc
+
+        return cast(Document, doc)
