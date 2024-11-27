@@ -17,6 +17,7 @@ from spdx_tools.spdx.parser.error import SPDXParsingError
 from spdx_tools.spdx.validation.document_validator import validate_full_spdx_document
 
 
+# pylint: disable=too-many-instance-attributes
 class BaseChecker(ABC):
     """Base class for all compliance checkers.
 
@@ -72,7 +73,6 @@ class BaseChecker(ABC):
     def output_html(self) -> str:
         """Abstract method to create a result in HTML format."""
 
-    # pylint: disable=too-many-instance-attributes
     def __init__(self, file, validate=True, compliance=""):
         """
         Initialize the BaseChecker.
