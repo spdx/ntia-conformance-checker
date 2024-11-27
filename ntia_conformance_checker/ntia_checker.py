@@ -26,9 +26,6 @@ class NTIAChecker(BaseChecker):
             # for backward compatibility
             self.ntia_minimum_elements_compliant = self.compliant
 
-        print(self.parsing_error)
-        #print(self.validation_messages)
-
     def check_doc_version(self):
         """Check for SPDX document version."""
         if str(self.doc.creation_info.spdx_version) not in ["SPDX-2.2", "SPDX-2.3"]:
