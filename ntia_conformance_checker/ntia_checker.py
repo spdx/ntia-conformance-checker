@@ -3,6 +3,7 @@
 # SPDX-License-Identifier: Apache-2.0
 
 """NTIA minimum elements checking functionality."""
+from typing import Any, Dict
 
 from spdx_tools.spdx.model import RelationshipType
 
@@ -150,7 +151,7 @@ class NTIAChecker(BaseChecker):
                 for message in self.validation_messages:
                     print(message.validation_message)
 
-    def output_json(self) -> dict:
+    def output_json(self):
         """Create a dict of results for outputting to JSON."""
         # instantiate dict and fields that have > 1 level
         result = {}

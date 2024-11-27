@@ -293,6 +293,7 @@ def test_sbomchecker_output_json():
     got = sbom.output_json()
     assert got["sbomName"] == "xyz-0.1.0"
     assert not got["isNtiaConformant"]
+    assert not got["isConformant"]
     assert got["authorNameProvided"]
     assert got["timestampProvided"]
     assert got["dependencyRelationshipsProvided"]
