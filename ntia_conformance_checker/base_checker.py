@@ -99,6 +99,8 @@ class BaseChecker(ABC):
         self.components_without_copyright_texts = []
 
         self.compliant = False
+        # for backward compatibility
+        self.ntia_minimum_elements_compliant = self.compliant
 
         if self.doc:
             self.doc = cast(Document, self.doc)
@@ -141,15 +143,15 @@ class BaseChecker(ABC):
                 if no_license:
                     components_name_id.append((package.name, package.spdx_id))
             return components_name_id
-        else:
-            components_name: List[str] = []
-            for package in self.doc.packages:
-                no_license = package.license_concluded is None or isinstance(
-                    package.license_concluded, SpdxNoAssertion
-                )
-                if no_license:
-                    components_name.append(package.name)
-            return components_name
+
+        components_name: List[str] = []
+        for package in self.doc.packages:
+            no_license = package.license_concluded is None or isinstance(
+                package.license_concluded, SpdxNoAssertion
+            )
+            if no_license:
+                components_name.append(package.name)
+        return components_name
 
     def get_components_without_copyright_texts(
         self, return_tuples=False
@@ -175,15 +177,15 @@ class BaseChecker(ABC):
                 if no_license:
                     components_name_id.append((package.name, package.spdx_id))
             return components_name_id
-        else:
-            components_name: List[str] = []
-            for package in self.doc.packages:
-                no_license = package.copyright_text is None or isinstance(
-                    package.copyright_text, SpdxNoAssertion
-                )
-                if no_license:
-                    components_name.append(package.name)
-            return components_name
+
+        components_name: List[str] = []
+        for package in self.doc.packages:
+            no_license = package.copyright_text is None or isinstance(
+                package.copyright_text, SpdxNoAssertion
+            )
+            if no_license:
+                components_name.append(package.name)
+        return components_name
 
     def get_components_without_identifiers(self) -> list[str]:
         """
@@ -237,15 +239,15 @@ class BaseChecker(ABC):
                 if no_supplier:
                     components_name_id.append((package.name, package.spdx_id))
             return components_name_id
-        else:
-            components_name: List[str] = []
-            for package in self.doc.packages:
-                no_supplier = package.supplier is None or isinstance(
-                    package.supplier, SpdxNoAssertion
-                )
-                if no_supplier:
-                    components_name.append(package.name)
-            return components_name
+
+        components_name: List[str] = []
+        for package in self.doc.packages:
+            no_supplier = package.supplier is None or isinstance(
+                package.supplier, SpdxNoAssertion
+            )
+            if no_supplier:
+                components_name.append(package.name)
+        return components_name
 
     def get_components_without_versions(
         self, return_tuples=False
@@ -268,12 +270,12 @@ class BaseChecker(ABC):
                 if not package.version:
                     components_name_id.append((package.name, package.spdx_id))
             return components_name_id
-        else:
-            components_name: List[str] = []
-            for package in self.doc.packages:
-                if not package.version:
-                    components_name.append(package.name)
-            return components_name
+
+        components_name: List[str] = []
+        for package in self.doc.packages:
+            if not package.version:
+                components_name.append(package.name)
+        return components_name
 
     def get_total_number_components(self) -> int:
         """

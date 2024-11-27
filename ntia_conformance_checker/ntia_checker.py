@@ -16,9 +16,6 @@ class NTIAChecker(BaseChecker):
     def __init__(self, file, validate=True):
         super().__init__(file=file, validate=validate)
 
-        # for backward compatibility
-        self.ntia_minimum_elements_compliant = self.compliant
-
         if self.doc:
             self.sbom_name = self.doc.creation_info.name
             self.doc_version = self.check_doc_version()
