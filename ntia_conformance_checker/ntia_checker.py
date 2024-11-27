@@ -26,6 +26,9 @@ class NTIAChecker(BaseChecker):
             # for backward compatibility
             self.ntia_minimum_elements_compliant = self.compliant
 
+        print(self.parsing_error)
+        #print(self.validation_messages)
+
     def check_doc_version(self):
         """Check for SPDX document version."""
         if str(self.doc.creation_info.spdx_version) not in ["SPDX-2.2", "SPDX-2.3"]:
@@ -87,23 +90,23 @@ class NTIAChecker(BaseChecker):
                 print("No components with missing information.")
             if self.components_without_names:
                 print(
-                    f"Components missing a name: {','.join(self.components_without_names)}"
+                    f"Components missing a name: {', '.join(self.components_without_names)}"
                 )
                 print()
             if self.components_without_versions:
                 print(
-                    f"Components missing a version: {','.join(self.components_without_versions)}"
+                    f"Components missing a version: {', '.join(self.components_without_versions)}"
                 )
                 print()
             if self.components_without_identifiers:
                 print(
                     f"Components missing an identifier: "
-                    f"{','.join(self.components_without_identifiers)}"
+                    f"{', '.join(self.components_without_identifiers)}"
                 )
                 print()
             if self.components_without_suppliers:
                 print(
-                    f"Components missing a supplier: {','.join(self.components_without_suppliers)}"
+                    f"Components missing a supplier: {', '.join(self.components_without_suppliers)}"
                 )
                 print()
 
@@ -154,46 +157,52 @@ class NTIAChecker(BaseChecker):
         """Create a dict of results for outputting to JSON."""
         # instantiate dict and fields that have > 1 level
         result = {}
+        result["complianceStandard"] = self.compliance_standard
         result["parsingError"] = self.parsing_error
         result["isConformant"] = self.compliant
         result["isNtiaConformant"] = self.compliant  # for backward compatibility
 
-        if not self.parsing_error:
-            result["sbomName"] = self.sbom_name
-            result["componentNames"] = {}
-            result["componentVersions"] = {}
-            result["componentIdentifiers"] = {}
-            result["componentSuppliers"] = {}
+        result["sbomName"] = self.sbom_name
+        result["componentNames"] = {}
+        result["componentVersions"] = {}
+        result["componentIdentifiers"] = {}
+        result["componentSuppliers"] = {}
 
-            result["authorNameProvided"] = self.doc_author
-            result["timestampProvided"] = self.doc_timestamp
-            result["dependencyRelationshipsProvided"] = self.dependency_relationships
+        result["authorNameProvided"] = self.doc_author
+        result["timestampProvided"] = self.doc_timestamp
+        result["dependencyRelationshipsProvided"] = self.dependency_relationships
 
-            result["componentNames"][
-                "nonconformantComponents"
-            ] = self.components_without_names
-            result["componentNames"]["allProvided"] = not self.components_without_names
-            result["componentVersions"][
-                "nonconformantComponents"
-            ] = self.components_without_versions
-            result["componentVersions"][
-                "allProvided"
-            ] = not self.components_without_versions
-            result["componentIdentifiers"][
-                "nonconformantComponents"
-            ] = self.components_without_identifiers
-            result["componentIdentifiers"][
-                "allProvided"
-            ] = not self.components_without_identifiers
-            result["componentSuppliers"][
-                "nonconformantComponents"
-            ] = self.components_without_suppliers
-            result["componentSuppliers"][
-                "allProvided"
-            ] = not self.components_without_suppliers
-            result["totalNumberComponents"] = self.get_total_number_components()
-            if self.validation_messages:
-                result["validationMessages"] = list(map(str, self.validation_messages))
+        result["componentNames"][
+            "nonconformantComponents"
+        ] = self.components_without_names
+        result["componentNames"]["allProvided"] = not self.components_without_names
+
+        result["componentVersions"][
+            "nonconformantComponents"
+        ] = self.components_without_versions
+        result["componentVersions"][
+            "allProvided"
+        ] = not self.components_without_versions
+
+        result["componentIdentifiers"][
+            "nonconformantComponents"
+        ] = self.components_without_identifiers
+        result["componentIdentifiers"][
+            "allProvided"
+        ] = not self.components_without_identifiers
+
+        result["componentSuppliers"][
+            "nonconformantComponents"
+        ] = self.components_without_suppliers
+        result["componentSuppliers"][
+            "allProvided"
+        ] = not self.components_without_suppliers
+
+        result["totalNumberComponents"] = self.get_total_number_components()
+
+        result["validationMessages"] = []
+        if self.validation_messages:
+            result["validationMessages"] = list(map(str, self.validation_messages))
 
         return result
 

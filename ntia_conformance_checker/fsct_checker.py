@@ -94,37 +94,37 @@ class FSCT3Checker(BaseChecker):
             if self.components_without_names:
                 print(
                     "Components missing a name: "
-                    f"{','.join(self.components_without_names)}"
+                    f"{', '.join(self.components_without_names)}"
                 )
                 print()
             if self.components_without_versions:
                 print(
                     "Components missing a version: "
-                    f"{','.join(self.components_without_versions)}"
+                    f"{', '.join(self.components_without_versions)}"
                 )
                 print()
             if self.components_without_identifiers:
                 print(
                     "Components missing an identifier: "
-                    f"{','.join(self.components_without_identifiers)}"
+                    f"{', '.join(self.components_without_identifiers)}"
                 )
                 print()
             if self.components_without_suppliers:
                 print(
                     "Components missing a supplier: "
-                    f"{','.join(self.components_without_suppliers)}"
+                    f"{', '.join(self.components_without_suppliers)}"
                 )
                 print()
             if self.components_without_concluded_licenses:
                 print(
                     "Components missing a license: "
-                    f"{','.join(self.components_without_concluded_licenses)}"
+                    f"{', '.join(self.components_without_concluded_licenses)}"
                 )
                 print()
             if self.components_without_copyright_texts:
                 print(
                     "Components missing a copyright notice: "
-                    f"{','.join(self.components_without_copyright_texts)}"
+                    f"{', '.join(self.components_without_copyright_texts)}"
                 )
                 print()
 
@@ -179,46 +179,65 @@ class FSCT3Checker(BaseChecker):
         """Create a dict of results for outputting to JSON."""
         # instantiate dict and fields that have > 1 level
         result = {}
+        result["complianceStandard"] = self.compliance_standard
         result["parsingError"] = self.parsing_error
         result["isConformant"] = self.compliant
 
-        if not self.parsing_error:
-            result["complianceStandard"] = self.compliance_standard
-            result["sbomName"] = self.sbom_name
-            result["componentNames"] = {}
-            result["componentVersions"] = {}
-            result["componentIdentifiers"] = {}
-            result["componentSuppliers"] = {}
+        result["sbomName"] = self.sbom_name
+        result["componentNames"] = {}
+        result["componentVersions"] = {}
+        result["componentIdentifiers"] = {}
+        result["componentSuppliers"] = {}
 
-            result["authorNameProvided"] = self.doc_author
-            result["timestampProvided"] = self.doc_timestamp
-            result["dependencyRelationshipsProvided"] = self.dependency_relationships
+        result["authorNameProvided"] = self.doc_author
+        result["timestampProvided"] = self.doc_timestamp
+        result["dependencyRelationshipsProvided"] = self.dependency_relationships
 
-            result["componentNames"][
-                "nonconformantComponents"
-            ] = self.components_without_names
-            result["componentNames"]["allProvided"] = not self.components_without_names
-            result["componentVersions"][
-                "nonconformantComponents"
-            ] = self.components_without_versions
-            result["componentVersions"][
-                "allProvided"
-            ] = not self.components_without_versions
-            result["componentIdentifiers"][
-                "nonconformantComponents"
-            ] = self.components_without_identifiers
-            result["componentIdentifiers"][
-                "allProvided"
-            ] = not self.components_without_identifiers
-            result["componentSuppliers"][
-                "nonconformantComponents"
-            ] = self.components_without_suppliers
-            result["componentSuppliers"][
-                "allProvided"
-            ] = not self.components_without_suppliers
-            result["totalNumberComponents"] = self.get_total_number_components()
-            if self.validation_messages:
-                result["validationMessages"] = list(map(str, self.validation_messages))
+        result["componentNames"][
+            "nonconformantComponents"
+        ] = self.components_without_names
+        result["componentNames"]["allProvided"] = not self.components_without_names
+
+        result["componentVersions"][
+            "nonconformantComponents"
+        ] = self.components_without_versions
+        result["componentVersions"][
+            "allProvided"
+        ] = not self.components_without_versions
+
+        result["componentIdentifiers"][
+            "nonconformantComponents"
+        ] = self.components_without_identifiers
+        result["componentIdentifiers"][
+            "allProvided"
+        ] = not self.components_without_identifiers
+
+        result["componentSuppliers"][
+            "nonconformantComponents"
+        ] = self.components_without_suppliers
+        result["componentSuppliers"][
+            "allProvided"
+        ] = not self.components_without_suppliers
+
+        result["componentConcludedLicenses"][
+            "nonconformantComponents"
+        ] = self.components_without_concluded_licenses
+        result["componentConcludedLicenses"][
+            "allProvided"
+        ] = not self.components_without_concluded_licenses
+
+        result["componentCopyrightText"][
+            "nonconformantComponents"
+        ] = self.components_without_copyright_texts
+        result["componentCopyrightText"][
+            "allProvided"
+        ] = not self.components_without_copyright_texts
+
+        result["totalNumberComponents"] = self.get_total_number_components()
+
+        result["validationMessages"] = []
+        if self.validation_messages:
+            result["validationMessages"] = list(map(str, self.validation_messages))
 
         return result
 

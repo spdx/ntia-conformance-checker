@@ -70,9 +70,17 @@ def main():
     sbom = SbomChecker(
         args.file, validate=not args.skip_validation, compliance=args.comply
     )
-    print(f"Checking SBOM: {args.file}")
-    print(f"Compliance standard: {args.comply}")
-    print(f"SPDX validation: {'enabled' if not args.skip_validation else 'disabled'}")
+    if args.verbose:
+        print(f"Checking SBOM: {args.file}")
+        print(f"Compliance standard: {args.comply}")
+        print(
+            f"SPDX validation: {'enabled' if not args.skip_validation else 'disabled'}"
+        )
+        print(f"Parsing: {'OK' if not sbom.parsing_error else 'Failed'}")
+        print(f"Validation: {'OK' if not sbom.validation_messages else 'Failed'}")
+        if not sbom.parsing_error:
+            print(f"SBOM name: {sbom.sbom_name}")
+
     if args.output == "print":
         sbom.print_table_output()
         if args.verbose:
