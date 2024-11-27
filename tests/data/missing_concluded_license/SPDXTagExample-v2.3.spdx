@@ -47,10 +47,10 @@ PackageName: glibc
 SPDXID: SPDXRef-Package
 PackageVersion: 2.11.1
 PackageFileName: glibc-2.11.1.tar.gz
-PackageSupplier: NOASSERTION
+PackageSupplier: Organization: ExampleCodeInspect (contact@example.com)
 PackageOriginator: Organization: ExampleCodeInspect (contact@example.com)
 PackageDownloadLocation: http://ftp.gnu.org/gnu/glibc/glibc-ports-2.15.tar.gz
-FilesAnalyzed: True
+FilesAnalyzed: true
 PackageVerificationCode: d6a770ba38583ed4bb4525bd96e50461655d2758 (excludes: ./package.spdx)
 PackageChecksum: MD5: 624c1abb3664f4b35547e7c73864ad24
 PackageChecksum: SHA1: 85ed0817af83a24ad8da68c2b5094de69833983c
@@ -58,7 +58,7 @@ PackageChecksum: SHA256: 11b6d3ee554eedf79299905a98f9b9a04e498210b59f15094c916c9
 PackageChecksum: BLAKE2b-384: aaabd89c926ab525c242e6621f2f5fa73aa4afe3d9e24aed727faaadd6af38b620bdb623dd2b4788b1c8086984af8706
 PackageHomePage: http://ftp.gnu.org/gnu/glibc
 PackageSourceInfo: uses glibc-2_11-branch from git://sourceware.org/git/glibc.git.
-PackageLicenseConcluded:
+PackageLicenseConcluded: NOASSERTION
 PackageLicenseInfoFromFiles: GPL-2.0-only
 PackageLicenseInfoFromFiles: LicenseRef-2
 PackageLicenseInfoFromFiles: LicenseRef-1

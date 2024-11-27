@@ -6,6 +6,7 @@
 
 import argparse
 import json
+import logging
 import sys
 from importlib.metadata import version
 
@@ -67,19 +68,26 @@ def main():
 
     args = get_parsed_args()
 
+    log_level = logging.DEBUG if args.verbose else logging.INFO
+    logging.basicConfig(level=log_level, format="%(levelname)s: %(message)s")
+
     sbom = SbomChecker(
         args.file, validate=not args.skip_validation, compliance=args.comply
     )
-    if args.verbose:
-        print(f"Checking SBOM: {args.file}")
-        print(f"Compliance standard: {args.comply}")
-        print(
-            f"SPDX validation: {'enabled' if not args.skip_validation else 'disabled'}"
+
+    # Log messages
+    logging.info(f"Checking SBOM: {args.file}")
+    logging.info(f"Compliance standard: {args.comply}")
+    logging.info(
+        f"SPDX validation: {'enabled' if not args.skip_validation else 'disabled'}"
+    )
+    logging.info(f"Parsing: {'OK' if not sbom.parsing_error else 'Failed'}")
+    if not args.skip_validation and not sbom.parsing_error:
+        logging.info(
+            f"Validation: {'OK' if not sbom.validation_messages else 'Failed'}"
         )
-        print(f"Parsing: {'OK' if not sbom.parsing_error else 'Failed'}")
-        print(f"Validation: {'OK' if not sbom.validation_messages else 'Failed'}")
-        if not sbom.parsing_error:
-            print(f"SBOM name: {sbom.sbom_name}")
+    if not sbom.parsing_error:
+        logging.info(f"SBOM name: {sbom.sbom_name}")
 
     if args.output == "print":
         sbom.print_table_output()
