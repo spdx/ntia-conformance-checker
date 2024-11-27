@@ -6,16 +6,16 @@ build-backend = "setuptools.build_meta"
 name = "ntia_conformance_checker"
 version = "3.0.2"
 authors = [
-    {name = "Josh Lin", email = "linynjosh@gmail.com"},
-    {name = "John Speed Meyers", email = "johnmeyersster@gmail.com"}
+    { name = "Josh Lin", email = "linynjosh@gmail.com" },
+    { name = "John Speed Meyers", email = "johnmeyersster@gmail.com" },
 ]
 maintainers = [
-    {name = "John Speed Meyers", email = "johnmeyersster@gmail.com"},
-    {name = "Gary O'Neall", email = "gary@sourceauditor.com"},
-    {name = "Josh Lin", email = "linynjosh@gmail.com"},
-    {name = "SPDX group at the Linux Foundation and others", email = "spdx-implementers+owner@lists.spdx.org"},
+    { name = "John Speed Meyers", email = "johnmeyersster@gmail.com" },
+    { name = "Gary O'Neall", email = "gary@sourceauditor.com" },
+    { name = "Josh Lin", email = "linynjosh@gmail.com" },
+    { name = "SPDX group at the Linux Foundation and others", email = "spdx-implementers+owner@lists.spdx.org" },
 ]
-license = {text = "Apache-2.0"}
+license = { text = "Apache-2.0" }
 description = "Check SPDX SBOM for NTIA minimum elements and common SBOM baseline attributes"
 readme = "README.md"
 classifiers = [
@@ -28,8 +28,11 @@ classifiers = [
     "Programming Language :: Python :: 3.11",
     "Programming Language :: Python :: 3.12",
     "Programming Language :: Python :: 3.13",
+    "Topic :: Security",
+    "Topic :: Software Development :: Libraries :: Python Modules",
+    "Topic :: System :: Systems Administration",
 ]
-urls = {Homepage = "https://github.com/spdx/ntia-conformance-checker"}
+urls = { Homepage = "https://github.com/spdx/ntia-conformance-checker" }
 requires-python = ">=3.8"
 keywords = [
     "spdx",
@@ -49,9 +52,6 @@ dependencies = ["spdx-tools==0.8.3"]
 [project.optional-dependencies]
 test = ["pytest"]
 
-[tool.setuptools]
-packages = ["ntia_conformance_checker"]
-
 [project.scripts]
 # Both "ntia-checker" and "sbomcheck" are identical.
 # "ntia-checker" is kept for backward compatibility.
@@ -59,3 +59,6 @@ packages = ["ntia_conformance_checker"]
 # to accommodate other compliance standards.
 ntia-checker = "ntia_conformance_checker.main:main"
 sbomcheck = "ntia_conformance_checker.main:main"
+
+[tool.setuptools]
+packages = ["ntia_conformance_checker"]

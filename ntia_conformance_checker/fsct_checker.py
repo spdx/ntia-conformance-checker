@@ -179,7 +179,11 @@ class FSCT3Checker(BaseChecker):
         """Create a dict of results for outputting to JSON."""
         # instantiate dict and fields that have > 1 level
         result = {}
+        result["parsingError"] = self.parsing_error
+        result["isConformant"] = self.compliant
+
         if not self.parsing_error:
+            result["complianceStandard"] = self.compliance_standard
             result["sbomName"] = self.sbom_name
             result["componentNames"] = {}
             result["componentVersions"] = {}
@@ -190,35 +194,31 @@ class FSCT3Checker(BaseChecker):
             result["timestampProvided"] = self.doc_timestamp
             result["dependencyRelationshipsProvided"] = self.dependency_relationships
 
-            result["componentNames"]["nonconformantComponents"] = (
-                self.components_without_names
-            )
+            result["componentNames"][
+                "nonconformantComponents"
+            ] = self.components_without_names
             result["componentNames"]["allProvided"] = not self.components_without_names
-            result["componentVersions"]["nonconformantComponents"] = (
-                self.components_without_versions
-            )
+            result["componentVersions"][
+                "nonconformantComponents"
+            ] = self.components_without_versions
             result["componentVersions"][
                 "allProvided"
             ] = not self.components_without_versions
-            result["componentIdentifiers"]["nonconformantComponents"] = (
-                self.components_without_identifiers
-            )
+            result["componentIdentifiers"][
+                "nonconformantComponents"
+            ] = self.components_without_identifiers
             result["componentIdentifiers"][
                 "allProvided"
             ] = not self.components_without_identifiers
-            result["componentSuppliers"]["nonconformantComponents"] = (
-                self.components_without_suppliers
-            )
+            result["componentSuppliers"][
+                "nonconformantComponents"
+            ] = self.components_without_suppliers
             result["componentSuppliers"][
                 "allProvided"
             ] = not self.components_without_suppliers
             result["totalNumberComponents"] = self.get_total_number_components()
             if self.validation_messages:
                 result["validationMessages"] = list(map(str, self.validation_messages))
-        else:
-            result["parsingError"] = self.parsing_error
-
-        result["isFsct3Conformant"] = self.compliant
 
         return result
 

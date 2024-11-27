@@ -72,7 +72,7 @@ class BaseChecker(ABC):
     def output_html(self) -> str:
         """Abstract method to create a result in HTML format."""
 
-    def __init__(self, file, validate=True):
+    def __init__(self, file, validate=True, compliance=""):
         """
         Initialize the BaseChecker.
 
@@ -81,6 +81,7 @@ class BaseChecker(ABC):
             validate (bool): Whether to validate the file.
             compliance (str): The compliance standard to be used. Defaults to "ntia".
         """
+        self.compliance_standard = compliance
         self.parsing_error = []
         self.validation_messages = ""
 
