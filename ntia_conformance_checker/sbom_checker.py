@@ -46,13 +46,14 @@ class SbomChecker(BaseChecker):
             from .ntia_checker import NTIAChecker
 
             return NTIAChecker(file, validate)
-        elif compliance.startswith("fsct3"):
+
+        if compliance.startswith("fsct3"):
             # pylint: disable=import-outside-toplevel
             from .fsct_checker import FSCT3Checker
 
             return FSCT3Checker(file, validate)
-        else:
-            raise ValueError(f"Unknown compliance standard: {compliance}")
+
+        raise ValueError(f"Unknown compliance standard: {compliance}")
 
     def check_compliance(self) -> bool:
         raise NotImplementedError("This method should be implemented by subclasses.")
