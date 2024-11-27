@@ -16,6 +16,7 @@ from spdx_tools.spdx.parser.error import SPDXParsingError
 from spdx_tools.spdx.validation.document_validator import validate_full_spdx_document
 
 
+# pylint: disable=too-many-instance-attributes
 class BaseChecker(ABC):
     """Base class for all compliance checkers.
 

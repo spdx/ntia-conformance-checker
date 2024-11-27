@@ -9,7 +9,6 @@ from spdx_tools.spdx.model import RelationshipType
 from .base_checker import BaseChecker
 
 
-# pylint: disable=too-many-instance-attributes
 class NTIAChecker(BaseChecker):
     """NTIA Minimum Elements check."""
 
