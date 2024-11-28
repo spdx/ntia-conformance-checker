@@ -77,7 +77,7 @@ Options:
                          - fsct3-min: FSCT3 Baseline Attributes-Minimum Expected
                          - ntia: NTIA minimum elements
                          [default: ntia]
-  --output [print|json|html|quiet]
+  --output [html|json|print|quiet]
                          Output format  [default: print]
   --output_path TEXT     Filepath for optionally storing output.
   --skip-validation      Specify whether to skip validation
