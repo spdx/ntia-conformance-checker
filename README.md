@@ -72,12 +72,12 @@ Usage: sbomcheck [OPTIONS]
 
 Options:
   --file TEXT            The file to be parsed
-  --comply [fsct3-min,ntia]
+  --comply [fsct3-min|ntia]
                          Specify which compliance standard to check against
                          - fsct3-min: FSCT3 Baseline Attributes-Minimum Expected
                          - ntia: NTIA minimum elements
                          [default: ntia]
-  --output [print,json,html,quiet]
+  --output [print|json|html|quiet]
                          Output format  [default: print]
   --output_path TEXT     Filepath for optionally storing output.
   --skip-validation      Specify whether to skip validation
@@ -126,7 +126,7 @@ by a community of SPDX adopters and enthusiasts.
 
 ## License
 
-[Apache-2.0](LICENSE)
+[Apache-2.0](./LICENSE)
 
 ## Dependencies
 
