@@ -1,3 +1,7 @@
+# SPDX-FileCopyrightText: 2024 SPDX contributors
+# SPDX-FileType: SOURCE
+# SPDX-License-Identifier: Apache-2.0
+
 [build-system]
 requires = ["setuptools>=61.2", "setuptools_scm[toml]>=3.4.3"]
 build-backend = "setuptools.build_meta"
@@ -8,6 +12,7 @@ version = "3.0.2"
 authors = [
     { name = "Josh Lin", email = "linynjosh@gmail.com" },
     { name = "John Speed Meyers", email = "johnmeyersster@gmail.com" },
+    { name = "Arthit Suriyawongkul", email = "arthit@gmail.com" },
 ]
 maintainers = [
     { name = "John Speed Meyers", email = "johnmeyersster@gmail.com" },

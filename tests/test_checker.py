@@ -1,3 +1,7 @@
+# SPDX-FileCopyrightText: 2024 SPDX contributors
+# SPDX-FileType: SOURCE
+# SPDX-License-Identifier: Apache-2.0
+
 """Tests using pytest framework."""
 
 # pylint: disable=missing-function-docstring,import-error,consider-using-from-import
@@ -356,7 +360,7 @@ def test_components_without_functions():
     assert components == ["glibc-no-supplier"]
     components = sbom.get_components_without_suppliers(return_tuples=True)
     assert components == [("glibc-no-supplier", "SPDXRef-Package4")]
-    # Not sure how to test this. If any package misses the SPDXID the whole file seems to be
-    # invalid.
+    # Not sure how to test this.
+    # If any package misses the SPDXID the whole file seems to be invalid.
     # components = sbom.get_components_without_identifiers()
     # assert components == ["glibc-no-identifier"]
