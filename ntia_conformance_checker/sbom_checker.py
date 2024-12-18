@@ -1,310 +1,77 @@
-"""Main minimum elements checking functionality."""
+# SPDX-FileCopyrightText: 2024 SPDX contributors
+# SPDX-FileType: SOURCE
+# SPDX-License-Identifier: Apache-2.0
 
-# pylint: disable=import-error
+"""Main checking functionality."""
 
-import logging
-import os
-import sys
-
-from spdx_tools.spdx.model import RelationshipType
-from spdx_tools.spdx.parser import parse_anything
-from spdx_tools.spdx.model.spdx_no_assertion import SpdxNoAssertion
-from spdx_tools.spdx.parser.error import SPDXParsingError
-from spdx_tools.spdx.validation.document_validator import validate_full_spdx_document
+from .base_checker import BaseChecker
 
 
-# pylint: disable=too-many-instance-attributes
-class SbomChecker:
-    """SBOM minimum elements check."""
+class SbomChecker(BaseChecker):
+    """
+    SBOM checker factory.
 
-    def __init__(self, file, validate=True):
-        self.file = file
-        self.parsing_error = []
-        self.doc = self.parse_file()
-        if not self.doc:
-            self.ntia_minimum_elements_compliant = False
-        else:
-            self.validation_messages = None
-            if validate:
-                self.validation_messages = validate_full_spdx_document(self.doc)
-            self.sbom_name = self.doc.creation_info.name
-            self.doc_version = self.check_doc_version()
-            self.doc_author = True
-            self.doc_timestamp = True
-            self.dependency_relationships = self.check_dependency_relationships()
-            self.components_without_names = self.get_components_without_names()
-            self.components_without_versions = self.get_components_without_versions()
-            self.components_without_suppliers = self.get_components_without_suppliers()
-            self.components_without_identifiers = (
-                self.get_components_without_identifiers()
-            )
-            self.ntia_minimum_elements_compliant = (
-                self.check_ntia_minimum_elements_compliance()
-            )
+    Post-v3.0.2, SbomChecker acts like a factory that returns
+    a subclass of BaseChecker based on the given "compliance" argument
+    during instantiation.
 
-    def parse_file(self):
-        """Parse SBOM document."""
-        # check if file exists
-        if not os.path.exists(self.file):
-            logging.error("Filename %s not found.", self.file)
-            sys.exit(1)
-        try:
-            doc = parse_anything.parse_file(self.file)
-        except SPDXParsingError as err:
-            self.parsing_error.extend(err.get_messages())
-            return None
-        return doc
+    Currently there are two compliance standards available:
+    - "ntia" (default), returns an instance of NTIAChecker
+      - NTIAChecker has the same behavior as the original SbomChecker
+    - "fsct3-min", returns an instance of FSCT3Checker
+      - FSCT3Checker is a new checker for FSCT 3rd Edition Baseline Attributes
 
-    def check_doc_version(self):
-        """Check for SPDX document version."""
-        if str(self.doc.creation_info.spdx_version) not in ["SPDX-2.2", "SPDX-2.3"]:
-            return False
-        return True
+    If "compliance" is not recognized, SbomChecker raises a ValueError.
+    """
 
-    def check_dependency_relationships(self):
-        """Check that the document DESCRIBES at least one package."""
-        describes_relationships = [
-            rel
-            for rel in self.doc.relationships
-            if rel.relationship_type == RelationshipType.DESCRIBES
-        ]
+    # Note that all NTIA-specific functionalities are moved to
+    # .ntia_checker.NTIAChecker, and common functionalities that can be shared
+    # among checkers of different compliance standards are moved to
+    # .base_checker.BaseChecker.
 
-        # A set of all package spdx_ids for quick lookup
-        spdx_id_set = {package.spdx_id for package in self.doc.packages}
+    def __new__(cls, file, validate=True, compliance="ntia"):
+        """
+        Returns an instance of a specific compliance checker.
 
-        # Check if any of the "DESCRIBES" relationships describe a Package
-        describes_package = any(
-            rel.related_spdx_element_id in spdx_id_set
-            for rel in describes_relationships
-        )
+        Args:
+            file (str): The file to be checked.
+            validate (bool): Whether to validate the file.
+            compliance (str): The compliance standard to be used. Defaults to "ntia".
 
-        return describes_package
+        Returns:
+            BaseChecker: An instance of a specific compliance checker.
+        """
+        if compliance == "ntia":
+            # pylint: disable=import-outside-toplevel
+            from .ntia_checker import NTIAChecker
 
-    def get_components_without_names(self):
-        """Retrieve SPDX ID of components without names."""
-        components_without_names = []
-        for package in self.doc.packages:
-            if not package.name:
-                components_without_names.append(package.spdx_id)
-        return components_without_names
+            return NTIAChecker(file, validate)
 
-    def get_components_without_versions(self, return_tuples=False):
-        """Retrieve name and/or SPDX ID of components without versions."""
-        components_without_versions = []
-        for package in self.doc.packages:
-            if not package.version:
-                if return_tuples:
-                    components_without_versions.append((package.name, package.spdx_id))
-                else:
-                    components_without_versions.append(package.name)
-        return components_without_versions
+        if compliance.startswith("fsct3"):
+            # pylint: disable=import-outside-toplevel
+            from .fsct_checker import FSCT3Checker
 
-    def get_components_without_suppliers(self, return_tuples=False):
-        """Retrieve name and/or SPDX ID of components without suppliers."""
-        components_without_suppliers = []
-        for package in self.doc.packages:
-            no_supplier = package.supplier is None or isinstance(
-                package.supplier, SpdxNoAssertion
-            )
-            if no_supplier:
-                if return_tuples:
-                    components_without_suppliers.append((package.name, package.spdx_id))
-                else:
-                    components_without_suppliers.append(package.name)
+            return FSCT3Checker(file, validate)
 
-        return components_without_suppliers
+        raise ValueError(f"Unknown compliance standard: {compliance}")
 
-    def get_components_without_identifiers(self):
-        """Retrieve name of components without identifiers."""
-        return [package.name for package in self.doc.packages if not package.spdx_id]
+    def check_compliance(self) -> bool:
+        raise NotImplementedError("This method should be implemented by subclasses.")
 
-    def check_ntia_minimum_elements_compliance(self):
-        """Check overall compliance with NTIA minimum elements."""
-        return all(
-            [
-                self.doc_author,
-                self.doc_timestamp,
-                self.dependency_relationships,
-                not self.components_without_names,
-                not self.components_without_versions,
-                not self.components_without_identifiers,
-                not self.components_without_suppliers,
-                not self.validation_messages,
-            ]
-        )
+    def check_doc_version(self) -> bool:
+        raise NotImplementedError("This method should be implemented by subclasses.")
 
-    def get_total_number_components(self):
-        """Retrieve total number of components."""
-        return len(self.doc.packages)
+    def check_dependency_relationships(self) -> bool:
+        raise NotImplementedError("This method should be implemented by subclasses.")
 
-    def print_table_output(self):
-        """Print element-by-element result table."""
-        # pylint: disable=line-too-long
-        if self.parsing_error:
-            print(
-                f"\nIs this SBOM NTIA minimum element conformant? {self.ntia_minimum_elements_compliant}\n"
-            )
-            print(
-                "The provided document couldn't be parsed, check for ntia minimum elements couldn't be performed.\n"
-            )
-            print("The following SPDXParsingError was raised:\n")
-            for error in self.parsing_error:
-                print(error)
+    def print_components_missing_info(self) -> None:
+        raise NotImplementedError("This method should be implemented by subclasses.")
 
-        else:
-            print(
-                f"\nIs this SBOM NTIA minimum element conformant? {self.ntia_minimum_elements_compliant}\n"
-            )
-            print("Individual elements                            | Status")
-            print("-------------------------------------------------------")
-            print(
-                f"All component names provided?                  | {not self.components_without_names}"
-            )
-            print(
-                f"All component versions provided?               | {not self.components_without_versions}"
-            )
-            print(
-                f"All component identifiers provided?            | {not self.components_without_identifiers}"
-            )
-            print(
-                f"All component suppliers provided?              | {not self.components_without_suppliers}"
-            )
-            print(f"SBOM author name provided?                     | {self.doc_author}")
-            print(
-                f"SBOM creation timestamp provided?              | {self.doc_timestamp}"
-            )
-            print(
-                f"Dependency relationships provided?             | {self.dependency_relationships}\n"
-            )
-            if self.validation_messages:
-                print(
-                    "The provided document is not valid according to the SPDX specification. "
-                    "The following errors were found:\n"
-                )
-                for message in self.validation_messages:
-                    print(message.validation_message)
+    def print_table_output(self) -> None:
+        raise NotImplementedError("This method should be implemented by subclasses.")
 
-    def print_components_missing_info(self):
-        """Print detailed info about which components are missing info."""
-        if not self.parsing_error:
-            if all(
-                [
-                    not self.components_without_names,
-                    not self.components_without_versions,
-                    not self.components_without_identifiers,
-                    not self.components_without_suppliers,
-                ]
-            ):
-                print("No components with missing information.")
-            if self.components_without_names:
-                print(
-                    f"Components missing a name: {','.join(self.components_without_names)}"
-                )
-                print()
-            if self.components_without_versions:
-                print(
-                    f"Components missing a version: {','.join(self.components_without_versions)}"
-                )
-                print()
-            if self.components_without_identifiers:
-                print(
-                    f"Components missing an identifier: "
-                    f"{','.join(self.components_without_identifiers)}"
-                )
-                print()
-            if self.components_without_suppliers:
-                print(
-                    f"Components missing a supplier: {','.join(self.components_without_suppliers)}"
-                )
-                print()
+    def output_json(self) -> dict:
+        raise NotImplementedError("This method should be implemented by subclasses.")
 
-    def output_json(self):
-        """Create a dict of results for outputting to JSON."""
-        # instantiate dict and fields that have > 1 level
-        result = {}
-        if not self.parsing_error:
-            result["sbomName"] = self.sbom_name
-            result["componentNames"] = {}
-            result["componentVersions"] = {}
-            result["componentIdentifiers"] = {}
-            result["componentSuppliers"] = {}
-
-            result["authorNameProvided"] = self.doc_author
-            result["timestampProvided"] = self.doc_timestamp
-            result["dependencyRelationshipsProvided"] = self.dependency_relationships
-
-            result["componentNames"][
-                "nonconformantComponents"
-            ] = self.components_without_names
-            result["componentNames"]["allProvided"] = not self.components_without_names
-            result["componentVersions"][
-                "nonconformantComponents"
-            ] = self.components_without_versions
-            result["componentVersions"][
-                "allProvided"
-            ] = not self.components_without_versions
-            result["componentIdentifiers"][
-                "nonconformantComponents"
-            ] = self.components_without_identifiers
-            result["componentIdentifiers"][
-                "allProvided"
-            ] = not self.components_without_identifiers
-            result["componentSuppliers"][
-                "nonconformantComponents"
-            ] = self.components_without_suppliers
-            result["componentSuppliers"][
-                "allProvided"
-            ] = not self.components_without_suppliers
-            result["totalNumberComponents"] = self.get_total_number_components()
-            if self.validation_messages:
-                result["validationMessages"] = list(map(str, self.validation_messages))
-        else:
-            result["parsingError"] = self.parsing_error
-
-        result["isNtiaConformant"] = self.ntia_minimum_elements_compliant
-
-        return result
-
-    def output_html(self):
-        """Print HTML of output."""
-        if self.doc:
-            result = (
-                f" <h2>NTIA Conformance Results</h2> "
-                f"<h3>Conformant: {self.ntia_minimum_elements_compliant} </h3>"
-                f"<table> <tr> "
-                f"<th>Individual Elements</th> <th>Conformant</th> </tr> "
-                f"<tr> <td>All component names provided</td>"
-                f" <td>{not self.components_without_names}</td> </tr> "
-                f"<tr> <td>All component versions provided</td>"
-                f" <td>{not self.components_without_versions}</td> </tr> "
-                f"<tr> <td>All component identifiers provided</td> "
-                f"<td>{not self.components_without_identifiers}</td> </tr> "
-                f"<tr> <td>All component suppliers provided</td> "
-                f"<td>{not self.components_without_suppliers}</td> "
-                f"</tr> <tr> <td>SBOM author name provided</td> "
-                f"<td>{self.doc_author}</td> </tr> "
-                f"<tr> <td>SBOM creation timestamp provided</td> "
-                f"<td>{self.doc_timestamp}</td> </tr> "
-                f"<tr> <td>Dependency relationships provided?</td> "
-                f"<td>{self.dependency_relationships}</td> </tr> "
-                f"</table>"
-            )
-            if self.validation_messages:
-                result += (
-                    "<p>The provided document is not valid according to the SPDX specification. "
-                    "The following errors were found:</p>\n"
-                )
-            for message in self.validation_messages:
-                result += f"<p>{message.validation_message}</p>\n"
-        else:
-            result = f"""
-            <h2>NTIA Conformance Results</h2>
-            <h3>Conformant: {self.ntia_minimum_elements_compliant} </h3>
-            <p>The provided document couldn't be parsed, check for ntia minimum elements couldn't be performed.</p>
-            <p>The following SPDXParsingError was raised:<p><ul>"""
-            for error in self.parsing_error:
-                result += f"""<li>{error}</li>"""
-
-            result += """</ul>"""
-
-        return result
+    def output_html(self) -> str:
+        raise NotImplementedError("This method should be implemented by subclasses.")

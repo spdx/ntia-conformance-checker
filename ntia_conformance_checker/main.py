@@ -1,21 +1,31 @@
+# SPDX-FileCopyrightText: 2024 SPDX contributors
+# SPDX-FileType: SOURCE
+# SPDX-License-Identifier: Apache-2.0
+
 """Entrypoint for CLI."""
 
 import argparse
 import json
+import logging
 import sys
-
 from importlib.metadata import version
 
-from ntia_conformance_checker.sbom_checker import SbomChecker
+from .sbom_checker import SbomChecker
 
 
 def get_parsed_args():
     """Parse command line arguments"""
     parser = argparse.ArgumentParser(
-        prog="ntia-checker",
-        description="Check if SPDX SBOM complies with NTIA minimum elements",
+        description="Check if SPDX SBOM complies with NTIA minimum elements/"
+        "FSCT Common SBOM baseline attributes",
     )
     parser.add_argument("--file", help="Filepath for SPDX SBOM")
+    parser.add_argument(
+        "--comply",
+        choices=["fsct3-min", "ntia"],
+        default="ntia",
+        help="Specify which compliance standard to check against",
+    )
     parser.add_argument(
         "--output",
         choices=["print", "json", "html", "quiet"],
@@ -58,7 +68,24 @@ def main():
 
     args = get_parsed_args()
 
-    sbom = SbomChecker(args.file, validate=not args.skip_validation)
+    log_level = logging.DEBUG if args.verbose else logging.INFO
+    logging.basicConfig(level=log_level, format="%(levelname)s: %(message)s")
+
+    sbom = SbomChecker(
+        args.file, validate=not args.skip_validation, compliance=args.comply
+    )
+
+    # Log messages
+    logging.info("Checking SBOM: %s", args.file)
+    logging.info("Compliance standard: %s", args.comply)
+    logging.info(
+        "SPDX validation: %s", "enabled" if not args.skip_validation else "disabled"
+    )
+    logging.info("Parsing: %s", "OK" if not sbom.parsing_error else "Failed")
+    logging.info("Validation: %s", "OK" if not sbom.validation_messages else "Failed")
+    if not sbom.parsing_error:
+        logging.info("SBOM name: %s", sbom.sbom_name)
+
     if args.output == "print":
         sbom.print_table_output()
         if args.verbose:
@@ -74,7 +101,7 @@ def main():
         html_output = sbom.output_html()
         print(html_output)
     # 0 indicates success
-    sys.exit(0 if sbom.ntia_minimum_elements_compliant else 1)
+    sys.exit(0 if sbom.compliant else 1)
 
 
 if __name__ == "__main__":

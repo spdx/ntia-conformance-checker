@@ -1,3 +1,7 @@
+# SPDX-FileCopyrightText: 2024 SPDX contributors
+# SPDX-FileType: SOURCE
+# SPDX-License-Identifier: Apache-2.0
+
 [build-system]
 requires = ["setuptools>=61.2", "setuptools_scm[toml]>=3.4.3"]
 build-backend = "setuptools.build_meta"
@@ -6,17 +10,18 @@ build-backend = "setuptools.build_meta"
 name = "ntia_conformance_checker"
 version = "3.0.2"
 authors = [
-    {name = "Josh Lin", email = "linynjosh@gmail.com"},
-    {name = "John Speed Meyers", email = "johnmeyersster@gmail.com"}
+    { name = "Josh Lin", email = "linynjosh@gmail.com" },
+    { name = "John Speed Meyers", email = "johnmeyersster@gmail.com" },
+    { name = "Arthit Suriyawongkul", email = "arthit@gmail.com" },
 ]
 maintainers = [
-    {name = "John Speed Meyers", email = "johnmeyersster@gmail.com"},
-    {name = "Gary O'Neall", email = "gary@sourceauditor.com"},
-    {name = "Josh Lin", email = "linynjosh@gmail.com"},
-    {name = "SPDX group at the Linux Foundation and others", email = "spdx-implementers+owner@lists.spdx.org"},
+    { name = "John Speed Meyers", email = "johnmeyersster@gmail.com" },
+    { name = "Gary O'Neall", email = "gary@sourceauditor.com" },
+    { name = "Josh Lin", email = "linynjosh@gmail.com" },
+    { name = "SPDX group at the Linux Foundation and others", email = "spdx-implementers+owner@lists.spdx.org" },
 ]
-license = {text = "Apache-2.0"}
-description = "Check SPDX SBOM for NTIA minimum elements"
+license = { text = "Apache-2.0" }
+description = "Check SPDX SBOM for NTIA minimum elements and common SBOM baseline attributes"
 readme = "README.md"
 classifiers = [
     "Intended Audience :: Developers",
@@ -26,17 +31,39 @@ classifiers = [
     "Programming Language :: Python :: 3.9",
     "Programming Language :: Python :: 3.10",
     "Programming Language :: Python :: 3.11",
+    "Programming Language :: Python :: 3.12",
+    "Programming Language :: Python :: 3.13",
+    "Topic :: Security",
+    "Topic :: Software Development :: Libraries :: Python Modules",
+    "Topic :: System :: Systems Administration",
 ]
-urls = {Homepage = "https://github.com/spdx/ntia-conformance-checker"}
+urls = { Homepage = "https://github.com/spdx/ntia-conformance-checker" }
 requires-python = ">=3.8"
-keywords = ["spdx", "sbom", "ntia"]
-dependencies = [ "spdx-tools==0.8.3"]
+keywords = [
+    "spdx",
+    "sbom",
+    "ntia",
+    "cisa",
+    "minimum elements",
+    "baseline attributes",
+    "software bill of materials",
+    "bill of materials",
+    "common SBOM",
+    "software package data exchange",
+    "software component transparency",
+]
+dependencies = ["spdx-tools==0.8.3"]
 
 [project.optional-dependencies]
 test = ["pytest"]
 
+[project.scripts]
+# Both "ntia-checker" and "sbomcheck" are identical.
+# "ntia-checker" is kept for backward compatibility.
+# While "sbomcheck" is introduced for a more generic name,
+# to accommodate other compliance standards.
+ntia-checker = "ntia_conformance_checker.main:main"
+sbomcheck = "ntia_conformance_checker.main:main"
+
 [tool.setuptools]
 packages = ["ntia_conformance_checker"]
-
-[project.scripts]
-ntia-checker = "ntia_conformance_checker.main:main"
