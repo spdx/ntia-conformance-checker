@@ -10,6 +10,8 @@ This tool determines whether a [SPDX](https://spdx.dev/) software bill of
 materials (SBOM) document contains informational items as required by a
 certain specification.
 
+## Conformance
+
 Currently, the only supported specification is the
 2021 National Telecommunications and Information Administration (NTIA)
 ["minimum elements."][ntia]
@@ -40,6 +42,12 @@ FSCT3 also requires these Baseline Attributes:
 
 - License
 - Copyright Holder
+
+More comparison ofSBOM requirements and their mapping to SPDX can be found in
+[this slide][sbom-reqs] from Takashi Ninjouji of SBOM Sub-WG of OpenChain Japan,
+presented at SPDX General Meeting 2024-12-05.
+
+[sbom-reqs]: https://drive.google.com/file/d/14HZGYD7pSSWEmtaHZzWrzPhxCXaCnloJ/view    
 
 ## Installation
 
