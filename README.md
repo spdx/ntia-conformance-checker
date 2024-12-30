@@ -43,8 +43,8 @@ FSCT3 also requires these Baseline Attributes:
 - License
 - Copyright Holder
 
-More comparison ofSBOM requirements and their mapping to SPDX can be found in
-[this slide][sbom-reqs] from Takashi Ninjouji of SBOM Sub-WG of OpenChain Japan,
+More comparison of SBOM requirements and their mapping to SPDX can be found in
+[this slide][sbom-reqs] from Takashi Ninjouji of OpenChain Japan SBOM Sub-WG,
 presented at SPDX General Meeting 2024-12-05.
 
 [sbom-reqs]: https://drive.google.com/file/d/14HZGYD7pSSWEmtaHZzWrzPhxCXaCnloJ/view    
