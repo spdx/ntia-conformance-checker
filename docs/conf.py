@@ -1,21 +1,25 @@
-# Configuration file for the Sphinx documentation builder.
-#
-# This file only contains a selection of the most common options. For a full
-# list see the documentation:
-# https://www.sphinx-doc.org/en/master/usage/configuration.html
+# SPDX-FileCopyrightText: 2024 SPDX contributors
+# SPDX-FileType: SOURCE
+# SPDX-License-Identifier: Apache-2.0
 
-# -- Path setup --------------------------------------------------------------
+"""
+Sphinx documentation builder configuration file.
+
+For a full list of available options, see:
+https://www.sphinx-doc.org/en/master/usage/configuration.html
+"""
 
 import os
 import sys
 
+# Path setup
 sys.path.insert(0, os.path.abspath(".."))
 
 # -- Project information -----------------------------------------------------
 
-project = "NTIA Conformance Checker"
-project_copyright = "2022-%Y SPDX contributors"
-author = "SPDX contributors"
+project = "NTIA Conformance Checker"  # pylint: disable=C0103
+project_copyright = "2022-%Y SPDX contributors"  # pylint: disable=C0103
+author = "SPDX contributors"  # pylint: disable=C0103
 
 # -- General configuration ---------------------------------------------------
 
@@ -38,10 +42,9 @@ exclude_patterns: list[str] = []
 
 # -- Options for HTML output -------------------------------------------------
 
-# The theme to use for HTML and HTML Help pages.  See the documentation for
-# a list of builtin themes.
-#
-html_theme = "sphinx_rtd_theme"
+# The theme to use for HTML and HTML Help pages.
+# See the documentation for a list of builtin themes.
+html_theme = "sphinx_rtd_theme"  # pylint: disable=C0103
 
 # Add any paths that contain custom static files (such as style sheets) here,
 # relative to this directory. They are copied after the builtin static files,
