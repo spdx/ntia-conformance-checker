@@ -9,7 +9,7 @@ NTIA Conformance Checker's documentation
    :maxdepth: 2
    :caption: Contents:
 
-   ntia_conformance_checker
+   modules
 
 Indices and tables
 ==================

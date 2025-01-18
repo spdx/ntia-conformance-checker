@@ -16,9 +16,10 @@ class SbomChecker(BaseChecker):
     during instantiation.
 
     Currently there are two compliance standards available:
-    - "ntia" (default), returns an instance of NTIAChecker
+
+    - **"ntia" (default)**, returns an instance of NTIAChecker
       - NTIAChecker has the same behavior as the original SbomChecker
-    - "fsct3-min", returns an instance of FSCT3Checker
+    - **"fsct3-min"**, returns an instance of FSCT3Checker
       - FSCT3Checker is a new checker for FSCT 3rd Edition Baseline Attributes
 
     If "compliance" is not recognized, SbomChecker raises a ValueError.
