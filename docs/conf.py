@@ -14,11 +14,8 @@ sys.path.insert(0, os.path.abspath(".."))
 # -- Project information -----------------------------------------------------
 
 project = "NTIA Conformance Checker"
-copyright = "2024, SPDX contributors"
+project_copyright = "2022-%Y SPDX contributors"
 author = "SPDX contributors"
-
-# The full version, including alpha/beta/rc tags
-release = "3.1.0"
 
 # -- General configuration ---------------------------------------------------
 
