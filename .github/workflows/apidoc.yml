@@ -33,6 +33,7 @@ jobs:
 
     - name: Build documentation
       run: |
+        sphinx-apidoc -o docs/ ntia_conformance_checker/
         cd docs
         make html
 
