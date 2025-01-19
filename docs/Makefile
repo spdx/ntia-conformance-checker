@@ -1,4 +1,8 @@
-# Minimal makefile for Sphinx documentation
+# SPDX-FileCopyrightText: 2024 SPDX contributors
+# SPDX-FileType: SOURCE
+# SPDX-License-Identifier: Apache-2.0
+
+# Makefile for Sphinx documentation
 
 # You can set these variables from the command line.
 SPHINXOPTS    = 
