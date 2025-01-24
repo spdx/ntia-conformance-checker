@@ -66,11 +66,26 @@ Here's the process to make changes to the codebase:
     git branch -d fix-or-improve-something
     ```
 
-# How to run tests
+## How to run tests
 
-The tests framework is using pytest:
+The tests framework is using [pytest][]:
 
-```
+```sh
 pip install pytest
 pytest -vvs
 ```
+
+[pytest]: https://docs.pytest.org/
+
+## How to generate API documentation
+
+This package uses [Sphinx][] to generate API documentation from
+Python docstrings.
+
+```sh
+sphinx-apidoc -o docs/ ntia_conformance_checker/
+cd docs
+make html
+```
+
+[sphinx]: https://www.sphinx-doc.org/
