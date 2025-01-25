@@ -47,7 +47,7 @@ More comparison of SBOM requirements and their mapping to SPDX can be found in
 [this slide][sbom-reqs] from Takashi Ninjouji of OpenChain Japan SBOM Sub-WG,
 presented at SPDX General Meeting 2024-12-05.
 
-[sbom-reqs]: https://drive.google.com/file/d/14HZGYD7pSSWEmtaHZzWrzPhxCXaCnloJ/view    
+[sbom-reqs]: https://drive.google.com/file/d/14HZGYD7pSSWEmtaHZzWrzPhxCXaCnloJ/view
 
 ## Installation
 
@@ -117,6 +117,9 @@ sbom_checker = SbomChecker("SBOM_filepath")
 
 print(sbom_checker.compliant)
 ```
+
+See the API documentation at:
+<https://spdx.github.io/ntia-conformance-checker/>
 
 Additional properties and methods can be found in `BaseChecker` class
 at [`base_checker.py`](ntia_conformance_checker/base_checker.py).
