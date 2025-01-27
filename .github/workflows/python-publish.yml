@@ -15,19 +15,20 @@ jobs:
        # see: https://docs.pypi.org/trusted-publishers/
        id-token: write
     steps:
-    - uses: actions/checkout@11bd71901bbe5b1630ceea73d27597364c9af683 # v3
+    - name: Checkout repository
+      uses: actions/checkout@11bd71901bbe5b1630ceea73d27597364c9af683  # v4.2.2
     - name: Set up Python
-      uses: actions/setup-python@0b93645e9fea7318ecaed2b359559ac225c90a2b # v3
+      uses: actions/setup-python@0b93645e9fea7318ecaed2b359559ac225c90a2b  # v5.3.0
       with:
         python-version: '3.9'
     - name: Install dependencies
       run: |
-        python -m pip install --upgrade pip
-        pip install build
+        pip install pip==25.0
+        pip install build==1.2.2.post1
     - name: Build package
       run: python -m build
     - name: Publish package
-      uses: pypa/gh-action-pypi-publish@67339c736fd9354cd4f8cb0b744f2b82a74b5c70
+      uses: pypa/gh-action-pypi-publish@67339c736fd9354cd4f8cb0b744f2b82a74b5c70  # v1.12.4
       with:
         user: __token__
         password: ${{ secrets.PYPI_API_TOKEN }}
