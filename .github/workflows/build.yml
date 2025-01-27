@@ -19,7 +19,7 @@ jobs:
         python-version: "3.9"
     - name: Install dependencies
       run: |
-        pip install -r ./github/requirements/build.txt
+        pip install -r .github/requirements/build.txt
         pipenv install --dev
     - name: Test with pytest
       env:
