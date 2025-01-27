@@ -19,8 +19,11 @@ jobs:
         python-version: "3.9"
     - name: Install dependencies
       run: |
-        pip install -r .github/requirements/build.txt
-        pipenv install --dev
+        pip install pip==25.0
+        pip install pipenv==2024.4.1
+        # use --pre flag to enable use of prerelease package versions
+        pipenv install
+        pipenv install pytest==8.3.4 coverage==7.6.10
     - name: Test with pytest
       env:
           # This token is provided by Actions,
