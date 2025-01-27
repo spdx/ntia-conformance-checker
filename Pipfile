@@ -7,8 +7,6 @@ name = "pypi"
 spdx-tools = '0.8.3'
 
 [dev-packages]
-coverage = "7.6.10"
-pytest = "8.3.4"
 
 [requires]
 python_version = "3.9"
