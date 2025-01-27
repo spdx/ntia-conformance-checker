@@ -23,8 +23,7 @@ jobs:
         python-version: '3.9'
     - name: Install dependencies
       run: |
-        pip install pip==25.0
-        pip install build==1.2.2.post1
+        pip install -r ./github/requirements/python-publish.txt
     - name: Build package
       run: python -m build
     - name: Publish package
