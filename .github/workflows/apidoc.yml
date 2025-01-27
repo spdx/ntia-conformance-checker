@@ -11,7 +11,9 @@ on:
   workflow_dispatch:
 
 permissions:
-  contents: write
+  contents: read  # Grant read permission to repository contents
+  pages: write  # Grant write permission to GitHub Pages
+  id-token: write  # Required for deploying to GitHub Pages
 
 jobs:
   build-docs:
