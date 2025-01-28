@@ -4,6 +4,9 @@ on:
   release:
     types: [published]
 
+permissions:
+  contents: read
+
 jobs:
   deploy:
     runs-on: ubuntu-latest
@@ -11,7 +14,6 @@ jobs:
        # 'id-token: write' is mandatory for trusted publishing
        # see: https://docs.pypi.org/trusted-publishers/
        id-token: write
-       contents: read
 
     steps:
     - name: Checkout repository
