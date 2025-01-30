@@ -127,7 +127,7 @@ Specific properties and methods for a particular specification can be found
 at the checker for that specification. For example, `NTIAChecker` class
 at [`ntia_checker.py`](ntia_conformance_checker/ntia_checker.py).
 
-## Usage from Web-based Interface
+## Online Usage
 
 With the SPDX Online Tool, you can check the SBOM conformance without the need
 to install the Python package.
