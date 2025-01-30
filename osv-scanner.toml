@@ -1,0 +1,38 @@
+[[IgnoredVulns]]
+id = "CVE-2022-48174"
+reason = "Alpine/BusyBox-related, which is not used by this package. The matching vulnerability data may come from an SBOM test file in /tests directory."
+
+[[IgnoredVulns]]
+id = "CVE-2023-42363"
+reason = "Alpine/BusyBox-related, which is not used by this package. The matching vulnerability data may come from an SBOM test file in /tests directory."
+
+[[IgnoredVulns]]
+id = "CVE-2023-42364"
+reason = "Alpine/BusyBox-related, which is not used by this package. The matching vulnerability data may come from an SBOM test file in /tests directory."
+
+[[IgnoredVulns]]
+id = "CVE-2023-42365"
+reason = "Alpine/BusyBox-related, which is not used by this package. The matching vulnerability data may come from an SBOM test file in /tests directory."
+
+[[IgnoredVulns]]
+id = "CVE-2023-42366"
+reason = "Alpine/BusyBox-related, which is not used by this package. The matching vulnerability data may come from an SBOM test file in /tests directory."
+
+[[IgnoredVulns]]
+id = "GHSA-269g-pwp5-87pp"
+reason = "Maven/JUnit-related, which is not used by this package. The matching vulnerability data may come from an SBOM test file in /tests directory."
+
+# We can also ignore the entire category of vulnerabilities,
+# using PackageOverrides
+
+# # ignore packages named "busybox" in the Alpine ecosystem
+# [[PackageOverrides]]
+# name = "busybox"
+# ecosystem = "Alpine"
+# ignore = true
+
+# # ignore packages named "junit:junit" in the Maven ecosystem
+# [[PackageOverrides]]
+# name = "junit:junit"
+# ecosystem = "Maven"
+# ignore = true

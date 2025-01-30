@@ -1,4 +1,0 @@
-# ignore everything in the current directory
-[[PackageOverrides]]
-ignore = true
-reason = "This directory contains SBOM test files. A SBOM test file may contains data that represent vulnerabilities of a system, but that system is not this particular ntia-conformance-checker package."
