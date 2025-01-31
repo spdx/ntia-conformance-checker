@@ -1,0 +1,32 @@
+# OSV-Scanner configuration file
+# See configuration documentation at:
+# https://google.github.io/osv-scanner/configuration/
+
+[[IgnoredVulns]]
+id = "CVE-2022-48174"
+reason = "Alpine/BusyBox-related, which is not used by ntia-conformance-checker."
+
+[[IgnoredVulns]]
+id = "CVE-2023-42363"
+reason = "Alpine/BusyBox-related, which is not used by ntia-conformance-checker."
+
+[[IgnoredVulns]]
+id = "CVE-2023-42364"
+reason = "Alpine/BusyBox-related, which is not used by ntia-conformance-checker."
+
+[[IgnoredVulns]]
+id = "CVE-2023-42365"
+reason = "Alpine/BusyBox-related, which is not used by ntia-conformance-checker."
+
+[[IgnoredVulns]]
+id = "CVE-2023-42366"
+reason = "Alpine/BusyBox-related, which is not used by ntia-conformance-checker."
+
+# We can also ignore the entire category of vulnerabilities,
+# using PackageOverrides
+
+# # ignore packages named "busybox" in the Alpine ecosystem
+# [[PackageOverrides]]
+# name = "busybox"
+# ecosystem = "Alpine"
+# ignore = true

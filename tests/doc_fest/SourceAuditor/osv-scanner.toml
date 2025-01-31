@@ -1,0 +1,16 @@
+# OSV-Scanner configuration file
+# See configuration documentation at:
+# https://google.github.io/osv-scanner/configuration/
+
+[[IgnoredVulns]]
+id = "GHSA-269g-pwp5-87pp"
+reason = "Maven/JUnit-related, which is not used by ntia-conformance-checker."
+
+# We can also ignore the entire category of vulnerabilities,
+# using PackageOverrides
+
+# # ignore packages named "junit:junit" in the Maven ecosystem
+# [[PackageOverrides]]
+# name = "junit:junit"
+# ecosystem = "Maven"
+# ignore = true
