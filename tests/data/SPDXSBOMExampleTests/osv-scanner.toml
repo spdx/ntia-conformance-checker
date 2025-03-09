@@ -2,6 +2,9 @@
 # See configuration documentation at:
 # https://google.github.io/osv-scanner/configuration/
 
+# the OSV scanner finds vulnerabilities in the SBOMs in this folder
+# but this folder is SBOMs for testing-purposes only.
+
 [[IgnoredVulns]]
 id = "CVE-2022-48174"
 reason = "Alpine/BusyBox-related, which is not used by ntia-conformance-checker."
@@ -20,6 +23,10 @@ reason = "Alpine/BusyBox-related, which is not used by ntia-conformance-checker.
 
 [[IgnoredVulns]]
 id = "CVE-2023-42366"
+reason = "Alpine/BusyBox-related, which is not used by ntia-conformance-checker."
+
+[[IgnoredVulns]]
+id = "CVE-2025-26519"
 reason = "Alpine/BusyBox-related, which is not used by ntia-conformance-checker."
 
 # We can also ignore the entire category of vulnerabilities,
