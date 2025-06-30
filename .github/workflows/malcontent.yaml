@@ -13,6 +13,6 @@ jobs:
         with:
           fetch-depth: 0
       
-      - uses: chainguard-dev/malcontent-action@93bad3a2bbadfec044b6ec423d740686d8f00d50 # v0.3
+      - uses: chainguard-dev/malcontent-action@053384afe0bb069ba7e2996bd8c0863731406002 # v0.4
         with:
           github-token: ${{ secrets.GITHUB_TOKEN }}
