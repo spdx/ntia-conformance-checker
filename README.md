@@ -54,7 +54,9 @@ presented at SPDX General Meeting 2024-12-05.
 *Installation Method #1*:
 Install from the [Python Package Index (PyPI)][pypi] with `pip`.
 
-`pip install ntia-conformance-checker`
+```bash
+pip install ntia-conformance-checker
+```
 
 *Installation Method #2*: Install locally.
 Clone the repo and install dependencies using the following commands:
