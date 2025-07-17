@@ -223,7 +223,7 @@ class BaseChecker(ABC):
                 components_name.append(package.name)
         return components_name
 
-    def get_components_without_identifiers(self) -> list[str]:
+    def get_components_without_identifiers(self) -> List[str]:
         """
         Retrieve name of components without identifiers.
 
@@ -235,7 +235,7 @@ class BaseChecker(ABC):
 
         return [package.name for package in self.doc.packages if not package.spdx_id]
 
-    def get_components_without_names(self) -> list[str]:
+    def get_components_without_names(self) -> List[str]:
         """
         Retrieve SPDX ID of components without names.
 
