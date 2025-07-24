@@ -18,6 +18,7 @@ maintainers = [
     { name = "John Speed Meyers", email = "johnmeyersster@gmail.com" },
     { name = "Gary O'Neall", email = "gary@sourceauditor.com" },
     { name = "Josh Lin", email = "linynjosh@gmail.com" },
+    { name = "Arthit Suriyawongkul", email = "arthit@gmail.com" },
     { name = "SPDX group at the Linux Foundation and others", email = "spdx-implementers+owner@lists.spdx.org" },
 ]
 license = { text = "Apache-2.0" }
@@ -27,7 +28,6 @@ classifiers = [
     "Intended Audience :: Developers",
     "Intended Audience :: System Administrators",
     "License :: OSI Approved :: Apache Software License",
-    "Programming Language :: Python :: 3.8",
     "Programming Language :: Python :: 3.9",
     "Programming Language :: Python :: 3.10",
     "Programming Language :: Python :: 3.11",
@@ -38,7 +38,7 @@ classifiers = [
     "Topic :: System :: Systems Administration",
 ]
 urls = { Homepage = "https://github.com/spdx/ntia-conformance-checker" }
-requires-python = ">=3.8"
+requires-python = ">=3.9"
 keywords = [
     "spdx",
     "sbom",

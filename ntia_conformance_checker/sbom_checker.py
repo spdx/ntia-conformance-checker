@@ -4,6 +4,8 @@
 
 """Main checking functionality."""
 
+from typing import Any
+
 from .base_checker import BaseChecker
 
 
@@ -30,7 +32,7 @@ class SbomChecker(BaseChecker):
     # among checkers of different compliance standards are moved to
     # .base_checker.BaseChecker.
 
-    def __new__(cls, file, validate=True, compliance="ntia"):
+    def __new__(cls, file: str, validate: bool = True, compliance: str = "ntia"):
         """
         Returns an instance of a specific compliance checker.
 
@@ -71,7 +73,7 @@ class SbomChecker(BaseChecker):
     def print_table_output(self) -> None:
         raise NotImplementedError("This method should be implemented by subclasses.")
 
-    def output_json(self) -> dict:
+    def output_json(self) -> dict[str, Any]:
         raise NotImplementedError("This method should be implemented by subclasses.")
 
     def output_html(self) -> str:

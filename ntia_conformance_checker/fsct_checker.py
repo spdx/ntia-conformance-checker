@@ -4,7 +4,9 @@
 
 """FSCT Common BOM checking functionality."""
 
-from spdx_tools.spdx.model import RelationshipType
+from typing import Any
+
+from spdx_tools.spdx.model.relationship import RelationshipType
 
 from .base_checker import BaseChecker
 
@@ -23,7 +25,7 @@ class FSCT3Checker(BaseChecker):
     https://www.cisa.gov/resources-tools/resources/framing-software-component-transparency-2024
     """
 
-    def __init__(self, file, validate=True, compliance="fsct3-min"):
+    def __init__(self, file: str, validate: bool = True, compliance: str = "fsct3-min"):
         super().__init__(file=file, validate=validate)
 
         if compliance != "fsct3-min":
@@ -39,12 +41,19 @@ class FSCT3Checker(BaseChecker):
 
     def check_doc_version(self):
         """Check for SPDX document version."""
-        if str(self.doc.creation_info.spdx_version) not in ["SPDX-2.2", "SPDX-2.3"]:
+        if (
+            not self.doc
+            or not self.doc.creation_info
+            or str(self.doc.creation_info.spdx_version) not in ["SPDX-2.2", "SPDX-2.3"]
+        ):
             return False
         return True
 
     def check_dependency_relationships(self):
         """Check that the document DESCRIBES at least one package."""
+        if not self.doc or not self.doc.relationships:
+            return False
+
         describes_relationships = [
             rel
             for rel in self.doc.relationships
@@ -175,10 +184,10 @@ class FSCT3Checker(BaseChecker):
                 for message in self.validation_messages:
                     print(message.validation_message)
 
-    def output_json(self):
+    def output_json(self) -> dict[str, Any]:
         """Create a dict of results for outputting to JSON."""
         # instantiate dict and fields that have > 1 level
-        result = {}
+        result: dict[str, Any] = {}
         result["complianceStandard"] = self.compliance_standard
         result["parsingError"] = self.parsing_error
         result["isConformant"] = self.compliant
@@ -270,8 +279,8 @@ class FSCT3Checker(BaseChecker):
                     "<p>The provided document is not valid according to the SPDX specification. "
                     "The following errors were found:</p>\n"
                 )
-            for message in self.validation_messages:
-                result += f"<p>{message.validation_message}</p>\n"
+                for message in self.validation_messages:
+                    result += f"<p>{message.validation_message}</p>\n"
         else:
             result = f"""
             <h2>FSCTv3-Minimum Expected Conformance Results</h2>

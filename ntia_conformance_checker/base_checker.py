@@ -7,9 +7,9 @@ import logging
 import os
 import sys
 from abc import ABC, abstractmethod
-from typing import Any, Dict, List, Optional, Tuple, Union, cast
+from typing import Any, cast
 
-from spdx_tools.spdx.model import Document
+from spdx_tools.spdx.model.document import Document
 from spdx_tools.spdx.model.spdx_no_assertion import SpdxNoAssertion
 from spdx_tools.spdx.parser import parse_anything
 from spdx_tools.spdx.parser.error import SPDXParsingError
@@ -30,18 +30,18 @@ class BaseChecker(ABC):
     compliance_standard: str = ""
 
     file: str = ""
-    doc: Optional[Document] = None
+    doc: Document | None = None
 
-    parsing_error: List[str] = []
-    validation_messages: Optional[List[str]] = None
+    parsing_error: list[str] = []
+    validation_messages: list[str] | None = None
 
     sbom_name: str = ""
-    components_without_names: List[str] = []
-    components_without_versions: List[str] = []
-    components_without_suppliers: List[str] = []
-    components_without_identifiers: List[str] = []
-    components_without_concluded_licenses: List[str] = []
-    components_without_copyright_texts: List[str] = []
+    components_without_names: list[str] = []
+    components_without_versions: list[str] = []
+    components_without_suppliers: list[str] = []
+    components_without_identifiers: list[str] = []
+    components_without_concluded_licenses: list[str] = []
+    components_without_copyright_texts: list[str] = []
 
     doc_version: bool = False
     doc_author: bool = False
@@ -88,7 +88,7 @@ class BaseChecker(ABC):
         """
 
     @abstractmethod
-    def output_json(self) -> Dict[str, Any]:
+    def output_json(self) -> dict[str, Any]:
         """
         Abstract method to create a dict of results for outputting
         to JSON.
@@ -98,7 +98,7 @@ class BaseChecker(ABC):
     def output_html(self) -> str:
         """Abstract method to create a result in HTML format."""
 
-    def __init__(self, file, validate=True, compliance=""):
+    def __init__(self, file: str, validate: bool = True, compliance: str = ""):
         """
         Initialize the BaseChecker.
 
@@ -112,7 +112,6 @@ class BaseChecker(ABC):
         self.doc = self.parse_file()  # Document or None
 
         if self.doc:
-            self.doc = cast(Document, self.doc)
             if validate:
                 self.validation_messages = validate_full_spdx_document(self.doc)
             self.components_without_names = self.get_components_without_names()
@@ -129,8 +128,8 @@ class BaseChecker(ABC):
             )
 
     def get_components_without_concluded_licenses(
-        self, return_tuples=False
-    ) -> Union[List[str], List[Tuple[str, str]]]:
+        self, return_tuples: bool = False
+    ) -> list[str] | list[tuple[str, str]]:
         """
         Retrieve names and/or SPDX IDs of components without concluded licenses.
 
@@ -148,7 +147,7 @@ class BaseChecker(ABC):
             return []
 
         if return_tuples:
-            components_name_id: List[Tuple[str, str]] = []
+            components_name_id: list[tuple[str, str]] = []
             for package in self.doc.packages:
                 no_license = (
                     package.license_concluded is None
@@ -162,7 +161,7 @@ class BaseChecker(ABC):
                     components_name_id.append((package.name, package.spdx_id))
             return components_name_id
 
-        components_name: List[str] = []
+        components_name: list[str] = []
         for package in self.doc.packages:
             no_license = (
                 package.license_concluded is None
@@ -177,8 +176,8 @@ class BaseChecker(ABC):
         return components_name
 
     def get_components_without_copyright_texts(
-        self, return_tuples=False
-    ) -> Union[List[str], List[Tuple[str, str]]]:
+        self, return_tuples: bool = False
+    ) -> list[str] | list[tuple[str, str]]:
         """
         Retrieve names and/or SPDX IDs of components without copyright texts.
 
@@ -195,7 +194,7 @@ class BaseChecker(ABC):
             return []
 
         if return_tuples:
-            components_name_id: List[Tuple[str, str]] = []
+            components_name_id: list[tuple[str, str]] = []
             for package in self.doc.packages:
                 no_license = (
                     package.copyright_text is None
@@ -209,7 +208,7 @@ class BaseChecker(ABC):
                     components_name_id.append((package.name, package.spdx_id))
             return components_name_id
 
-        components_name: List[str] = []
+        components_name: list[str] = []
         for package in self.doc.packages:
             no_license = (
                 package.copyright_text is None
@@ -251,15 +250,15 @@ class BaseChecker(ABC):
         if not self.doc:
             return []
 
-        components_without_names = []
+        components_without_names: list[str] = []
         for package in self.doc.packages:
             if not package.name:
                 components_without_names.append(package.spdx_id)
         return components_without_names
 
     def get_components_without_suppliers(
-        self, return_tuples=False
-    ) -> Union[List[str], List[Tuple[str, str]]]:
+        self, return_tuples: bool = False
+    ) -> list[str] | list[tuple[str, str]]:
         """
         Retrieve names and/or SPDX IDs of components without suppliers.
 
@@ -276,7 +275,7 @@ class BaseChecker(ABC):
             return []
 
         if return_tuples:
-            components_name_id: List[Tuple[str, str]] = []
+            components_name_id: list[tuple[str, str]] = []
             for package in self.doc.packages:
                 no_supplier = package.supplier is None or isinstance(
                     package.supplier, SpdxNoAssertion
@@ -285,7 +284,7 @@ class BaseChecker(ABC):
                     components_name_id.append((package.name, package.spdx_id))
             return components_name_id
 
-        components_name: List[str] = []
+        components_name: list[str] = []
         for package in self.doc.packages:
             no_supplier = package.supplier is None or isinstance(
                 package.supplier, SpdxNoAssertion
@@ -295,8 +294,8 @@ class BaseChecker(ABC):
         return components_name
 
     def get_components_without_versions(
-        self, return_tuples=False
-    ) -> Union[List[str], List[Tuple[str, str]]]:
+        self, return_tuples: bool = False
+    ) -> list[str] | list[tuple[str, str]]:
         """
         Retrieve name and/or SPDX ID of components without versions.
 
@@ -313,13 +312,13 @@ class BaseChecker(ABC):
             return []
 
         if return_tuples:
-            components_name_id: List[Tuple[str, str]] = []
+            components_name_id: list[tuple[str, str]] = []
             for package in self.doc.packages:
                 if not package.version:
                     components_name_id.append((package.name, package.spdx_id))
             return components_name_id
 
-        components_name: List[str] = []
+        components_name: list[str] = []
         for package in self.doc.packages:
             if not package.version:
                 components_name.append(package.name)
@@ -337,7 +336,7 @@ class BaseChecker(ABC):
 
         return len(self.doc.packages)
 
-    def parse_file(self) -> Optional[Document]:
+    def parse_file(self) -> Document | None:
         """
         Parse SBOM document.
 
