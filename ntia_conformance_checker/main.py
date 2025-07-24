@@ -9,6 +9,7 @@ import json
 import logging
 import sys
 from importlib.metadata import version
+from typing import Any
 
 from .sbom_checker import SbomChecker
 
