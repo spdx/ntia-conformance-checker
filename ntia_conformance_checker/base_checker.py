@@ -113,18 +113,24 @@ class BaseChecker(ABC):
 
         if self.doc:
             if validate:
-                self.validation_messages = validate_full_spdx_document(self.doc)
+                self.validation_messages = [
+                    str(msg) for msg in validate_full_spdx_document(self.doc)
+                ]
             self.components_without_names = self.get_components_without_names()
-            self.components_without_versions = self.get_components_without_versions()
-            self.components_without_suppliers = self.get_components_without_suppliers()
+            self.components_without_versions = cast(
+                list[str], self.get_components_without_versions()
+            )  # with return_tuples=False, always get list[str]
+            self.components_without_suppliers = cast(
+                list[str], self.get_components_without_suppliers()
+            )
             self.components_without_identifiers = (
                 self.get_components_without_identifiers()
             )
-            self.components_without_concluded_licenses = (
-                self.get_components_without_concluded_licenses()
+            self.components_without_concluded_licenses = cast(
+                list[str], self.get_components_without_concluded_licenses()
             )
-            self.components_without_copyright_texts = (
-                self.get_components_without_copyright_texts()
+            self.components_without_copyright_texts = cast(
+                list[str], self.get_components_without_copyright_texts()
             )
 
     def get_components_without_concluded_licenses(
