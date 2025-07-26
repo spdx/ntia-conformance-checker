@@ -17,9 +17,7 @@ class NTIAChecker(BaseChecker):
     """NTIA Minimum Elements check."""
 
     def __init__(self, file: str, validate: bool = True, compliance: str = "ntia"):
-        super().__init__(file=file, validate=validate)
-
-        self.compliance_standard = "ntia"
+        super().__init__(file=file, validate=validate, compliance=compliance)
 
         if self.doc:
             self.sbom_name = self.doc.creation_info.name
@@ -161,7 +159,7 @@ class NTIAChecker(BaseChecker):
                     "The following errors were found:\n"
                 )
                 for message in self.validation_messages:
-                    print(message.validation_message)
+                    print(message)
 
     def output_json(self) -> Dict[str, Any]:
         """Create a dict of results for outputting to JSON."""
@@ -240,13 +238,14 @@ class NTIAChecker(BaseChecker):
                 f"<td>{self.dependency_relationships}</td> </tr> "
                 f"</table>"
             )
+
             if self.validation_messages:
                 result += (
                     "<p>The provided document is not valid according to the SPDX specification. "
                     "The following errors were found:</p>\n"
                 )
                 for message in self.validation_messages:
-                    result += f"<p>{message.validation_message}</p>\n"
+                    result += f"<p>{message}</p>\n"
         else:
             result = f"""
             <h2>NTIA Conformance Results</h2>

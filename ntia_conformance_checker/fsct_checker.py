@@ -28,14 +28,12 @@ class FSCT3Checker(BaseChecker):
     """
 
     def __init__(self, file: str, validate: bool = True, compliance: str = "fsct3-min"):
-        super().__init__(file=file, validate=validate)
+        super().__init__(file=file, validate=validate, compliance=compliance)
 
         if compliance != "fsct3-min":
             raise ValueError(
                 "Only FSCTv3 Baseline Attributes Minimum Expected compliance is supported."
             )
-
-        self.compliance_standard = "fsct3-min"
 
         if self.doc:
             self.sbom_name = self.doc.creation_info.name
@@ -188,7 +186,7 @@ class FSCT3Checker(BaseChecker):
                     "The following errors were found:\n"
                 )
                 for message in self.validation_messages:
-                    print(message.validation_message)
+                    print(message)
 
     def output_json(self) -> Dict[str, Any]:
         """Create a dict of results for outputting to JSON."""
@@ -286,7 +284,7 @@ class FSCT3Checker(BaseChecker):
                     "The following errors were found:</p>\n"
                 )
                 for message in self.validation_messages:
-                    result += f"<p>{message.validation_message}</p>\n"
+                    result += f"<p>{message}</p>\n"
         else:
             result = f"""
             <h2>FSCTv3-Minimum Expected Conformance Results</h2>
