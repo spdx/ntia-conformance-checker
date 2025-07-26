@@ -4,7 +4,11 @@
 
 """NTIA minimum elements checking functionality."""
 
-from spdx_tools.spdx.model import RelationshipType
+from __future__ import annotations
+
+from typing import Any, Dict
+
+from spdx_tools.spdx.model.relationship import RelationshipType
 
 from .base_checker import BaseChecker
 
@@ -12,8 +16,8 @@ from .base_checker import BaseChecker
 class NTIAChecker(BaseChecker):
     """NTIA Minimum Elements check."""
 
-    def __init__(self, file, validate=True, compliance="ntia"):
-        super().__init__(file=file, validate=validate)
+    def __init__(self, file: str, validate: bool = True, compliance: str = "ntia"):
+        super().__init__(file=file, validate=validate, compliance=compliance)
 
         if self.doc:
             self.sbom_name = self.doc.creation_info.name
@@ -28,12 +32,19 @@ class NTIAChecker(BaseChecker):
 
     def check_doc_version(self):
         """Check for SPDX document version."""
-        if str(self.doc.creation_info.spdx_version) not in ["SPDX-2.2", "SPDX-2.3"]:
+        if (
+            not self.doc
+            or not self.doc.creation_info
+            or str(self.doc.creation_info.spdx_version) not in ["SPDX-2.2", "SPDX-2.3"]
+        ):
             return False
         return True
 
     def check_dependency_relationships(self):
         """Check that the document DESCRIBES at least one package."""
+        if not self.doc or not self.doc.relationships:
+            return False
+
         describes_relationships = [
             rel
             for rel in self.doc.relationships
@@ -150,10 +161,10 @@ class NTIAChecker(BaseChecker):
                 for message in self.validation_messages:
                     print(message.validation_message)
 
-    def output_json(self):
+    def output_json(self) -> Dict[str, Any]:
         """Create a dict of results for outputting to JSON."""
         # instantiate dict and fields that have > 1 level
-        result = {}
+        result: Dict[str, Any] = {}
         result["complianceStandard"] = self.compliance_standard
         result["parsingError"] = self.parsing_error
         result["isConformant"] = self.compliant
@@ -227,13 +238,14 @@ class NTIAChecker(BaseChecker):
                 f"<td>{self.dependency_relationships}</td> </tr> "
                 f"</table>"
             )
+
             if self.validation_messages:
                 result += (
                     "<p>The provided document is not valid according to the SPDX specification. "
                     "The following errors were found:</p>\n"
                 )
-            for message in self.validation_messages:
-                result += f"<p>{message.validation_message}</p>\n"
+                for message in self.validation_messages:
+                    result += f"<p>{message.validation_message}</p>\n"
         else:
             result = f"""
             <h2>NTIA Conformance Results</h2>

@@ -8,16 +8,17 @@ build-backend = "setuptools.build_meta"
 
 [project]
 name = "ntia_conformance_checker"
-version = "3.2.0"
+version = "3.2.1"
 authors = [
     { name = "Josh Lin", email = "linynjosh@gmail.com" },
     { name = "John Speed Meyers", email = "johnmeyersster@gmail.com" },
-    { name = "Arthit Suriyawongkul", email = "arthit@gmail.com" },
+    { name = "Arthit Suriyawongkul", email = "suriyawa@tcd.ie" },
 ]
 maintainers = [
     { name = "John Speed Meyers", email = "johnmeyersster@gmail.com" },
     { name = "Gary O'Neall", email = "gary@sourceauditor.com" },
     { name = "Josh Lin", email = "linynjosh@gmail.com" },
+    { name = "Arthit Suriyawongkul", email = "suriyawa@tcd.ie" },
     { name = "SPDX group at the Linux Foundation and others", email = "spdx-implementers+owner@lists.spdx.org" },
 ]
 license = { text = "Apache-2.0" }
@@ -51,6 +52,7 @@ keywords = [
     "common SBOM",
     "software package data exchange",
     "software component transparency",
+    "supply chain security",
 ]
 dependencies = ["spdx-tools==0.8.3"]
 
