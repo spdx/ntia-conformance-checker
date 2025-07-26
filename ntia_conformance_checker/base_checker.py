@@ -117,7 +117,11 @@ class BaseChecker(ABC):
         if self.doc:
             if validate:
                 self.validation_messages = [
-                    str(msg) for msg in validate_full_spdx_document(self.doc)
+                    f"SPDX ID: {msg.context.spdx_id} | "
+                    f"Parent ID: {msg.context.parent_id} | "
+                    f"Element Type: {msg.context.element_type} | "
+                    f"{msg.validation_message}"
+                    for msg in validate_full_spdx_document(self.doc)
                 ]
             self.components_without_names = self.get_components_without_names()
             self.components_without_versions = cast(
