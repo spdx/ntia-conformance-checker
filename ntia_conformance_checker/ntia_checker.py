@@ -19,6 +19,8 @@ class NTIAChecker(BaseChecker):
     def __init__(self, file: str, validate: bool = True, compliance: str = "ntia"):
         super().__init__(file=file, validate=validate)
 
+        self.compliance_standard = "ntia"
+
         if self.doc:
             self.sbom_name = self.doc.creation_info.name
             self.doc_version = self.check_doc_version()

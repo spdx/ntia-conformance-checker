@@ -31,7 +31,9 @@ class FSCT3Checker(BaseChecker):
         super().__init__(file=file, validate=validate)
 
         if compliance != "fsct3-min":
-            raise ValueError("Only FSCTv3 Minimum Expected compliance is supported.")
+            raise ValueError("Only FSCTv3 Baseline Attributes Minimum Expected compliance is supported.")
+        
+        self.compliance_standard = "fsct3-min"
 
         if self.doc:
             self.sbom_name = self.doc.creation_info.name
