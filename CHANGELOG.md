@@ -12,8 +12,8 @@ and this project adheres to [Semantic Versioning][semver].
 - Print validation context along with validation message (#274).
 - Add type hints and make it stays compatible with Python 3.8 (#272).
   - Note: The next major version may adopt
-    [PEP 585](https://www.python.org/dev/peps/pep-0585/) and
-    [PEP 604](https://www.python.org/dev/peps/pep-0604/)
+    [PEP 585](https://peps.python.org/pep-0585/) and
+    [PEP 604](https://peps.python.org/pep-0604/)
     which will require Python 3.9 and Python 3.10.
 
 ### Fixed
