@@ -145,10 +145,16 @@ class NTIAChecker(BaseChecker):
             if self.validation_messages:
                 print(
                     "The provided document is not valid according to the SPDX specification. "
-                    "The following errors were found:\n"
+                    "The following errors were found:\n\n"
                 )
-                for message in self.validation_messages:
-                    print(message.validation_message)
+                for msg in self.validation_messages:
+                    print("Validation message:")
+                    print(msg.validation_message)
+                    print("Validation context:")
+                    print(f"- SPDX ID: {msg.context.spdx_id}")
+                    print(f"- Parent ID: {msg.context.parent_id}")
+                    print(f"- Element type: {msg.context.element_type}")
+                    print()
 
     def output_json(self):
         """Create a dict of results for outputting to JSON."""
@@ -232,8 +238,19 @@ class NTIAChecker(BaseChecker):
                     "<p>The provided document is not valid according to the SPDX specification. "
                     "The following errors were found:</p>\n"
                 )
-            for message in self.validation_messages:
-                result += f"<p>{message.validation_message}</p>\n"
+                result += "<ul>\n"
+                for msg in self.validation_messages:
+                    result += "<li>\n"
+                    result += "<p><strong>Validation message:</strong></p>\n"
+                    result += f"<p>{msg.validation_message}</p>\n"
+                    result += "<p><strong>Validation context:</strong></p>\n"
+                    result += "<ul>\n"
+                    result += f"<li>SPDX ID: {msg.context.spdx_id}</li>\n"
+                    result += f"<li>Parent ID: {msg.context.parent_id}</li>\n"
+                    result += f"<li>Element type: {msg.context.element_type}</li>\n"
+                    result += "</ul>\n"
+                    result += "</li>\n"
+                result += "</ul>\n"
         else:
             result = f"""
             <h2>NTIA Conformance Results</h2>
