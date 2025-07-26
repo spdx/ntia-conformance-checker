@@ -159,7 +159,7 @@ class NTIAChecker(BaseChecker):
                     "The following errors were found:\n"
                 )
                 for message in self.validation_messages:
-                    print(message)
+                    print(message.validation_message)
 
     def output_json(self) -> Dict[str, Any]:
         """Create a dict of results for outputting to JSON."""
@@ -245,7 +245,7 @@ class NTIAChecker(BaseChecker):
                     "The following errors were found:</p>\n"
                 )
                 for message in self.validation_messages:
-                    result += f"<p>{message}</p>\n"
+                    result += f"<p>{message.validation_message}</p>\n"
         else:
             result = f"""
             <h2>NTIA Conformance Results</h2>

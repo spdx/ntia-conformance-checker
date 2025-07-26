@@ -18,7 +18,7 @@ and this project adheres to [Semantic Versioning][semver].
 
 ### Fixed
 
-- Fix type cast to avoid lint errors.
+- Fix `BaseChecker.validation_messages` type to `List[ValidationMessage]`.
 - Fix return type of `get_components_without_concluded_licenses`,
   `get_components_without_copyright_texts`, `get_components_without_suppliers`,
   and `get_components_without_versions`

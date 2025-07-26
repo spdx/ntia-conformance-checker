@@ -17,6 +17,7 @@ from spdx_tools.spdx.model.spdx_no_assertion import SpdxNoAssertion
 from spdx_tools.spdx.parser import parse_anything
 from spdx_tools.spdx.parser.error import SPDXParsingError
 from spdx_tools.spdx.validation.document_validator import validate_full_spdx_document
+from spdx_tools.spdx.validation.validation_message import ValidationMessage
 
 
 # pylint: disable=too-many-instance-attributes
@@ -36,7 +37,7 @@ class BaseChecker(ABC):
     doc: Optional[Document] = None
 
     parsing_error: List[str] = []
-    validation_messages: Optional[List[str]] = None
+    validation_messages: List[ValidationMessage] = []
 
     sbom_name: str = ""
     components_without_names: List[str] = []
@@ -116,13 +117,7 @@ class BaseChecker(ABC):
 
         if self.doc:
             if validate:
-                self.validation_messages = [
-                    f"SPDX ID: {msg.context.spdx_id} | "
-                    f"Parent ID: {msg.context.parent_id} | "
-                    f"Element Type: {msg.context.element_type} | "
-                    f"{msg.validation_message}"
-                    for msg in validate_full_spdx_document(self.doc)
-                ]
+                self.validation_messages = validate_full_spdx_document(self.doc)
             self.components_without_names = self.get_components_without_names()
             self.components_without_versions = cast(
                 List[str], self.get_components_without_versions()
