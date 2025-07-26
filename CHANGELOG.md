@@ -9,20 +9,20 @@ and this project adheres to [Semantic Versioning][semver].
 
 ### Changed
 
+- Print validation context along with validation message (#274).
 - Add type hints and make it stays compatible with Python 3.8 (#272).
   - Note: The next major version may adopt
     [PEP 585](https://www.python.org/dev/peps/pep-0585/) and
     [PEP 604](https://www.python.org/dev/peps/pep-0604/)
     which will require Python 3.9 and Python 3.10.
-- Print validation context along with validation message.
 
 ### Fixed
 
-- Fix `BaseChecker.validation_messages` type to `List[ValidationMessage]`.
+- Fix `BaseChecker.validation_messages` type to `List[ValidationMessage]` (#272).
 - Fix return type of `get_components_without_concluded_licenses`,
   `get_components_without_copyright_texts`, `get_components_without_suppliers`,
   and `get_components_without_versions`
-  to honour the `return_tuples` parameter.
+  to honour the `return_tuples` parameter (#272).
 
 ## [3.2.0] - 2025-03-12
 
