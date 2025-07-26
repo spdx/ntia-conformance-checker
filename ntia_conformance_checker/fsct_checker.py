@@ -4,7 +4,9 @@
 
 """FSCT Common BOM checking functionality."""
 
-from typing import Any
+from __future__ import annotations
+
+from typing import Any, Dict
 
 from spdx_tools.spdx.model.relationship import RelationshipType
 
@@ -184,10 +186,10 @@ class FSCT3Checker(BaseChecker):
                 for message in self.validation_messages:
                     print(message.validation_message)
 
-    def output_json(self) -> dict[str, Any]:
+    def output_json(self) -> Dict[str, Any]:
         """Create a dict of results for outputting to JSON."""
         # instantiate dict and fields that have > 1 level
-        result: dict[str, Any] = {}
+        result: Dict[str, Any] = {}
         result["complianceStandard"] = self.compliance_standard
         result["parsingError"] = self.parsing_error
         result["isConformant"] = self.compliant

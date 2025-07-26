@@ -4,7 +4,9 @@
 
 """Main checking functionality."""
 
-from typing import Any
+from __future__ import annotations
+
+from typing import Any, Dict
 
 from .base_checker import BaseChecker
 
@@ -73,7 +75,7 @@ class SbomChecker(BaseChecker):
     def print_table_output(self) -> None:
         raise NotImplementedError("This method should be implemented by subclasses.")
 
-    def output_json(self) -> dict[str, Any]:
+    def output_json(self) -> Dict[str, Any]:
         raise NotImplementedError("This method should be implemented by subclasses.")
 
     def output_html(self) -> str:

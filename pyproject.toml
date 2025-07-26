@@ -28,6 +28,7 @@ classifiers = [
     "Intended Audience :: Developers",
     "Intended Audience :: System Administrators",
     "License :: OSI Approved :: Apache Software License",
+    "Programming Language :: Python :: 3.8",
     "Programming Language :: Python :: 3.9",
     "Programming Language :: Python :: 3.10",
     "Programming Language :: Python :: 3.11",
@@ -38,7 +39,7 @@ classifiers = [
     "Topic :: System :: Systems Administration",
 ]
 urls = { Homepage = "https://github.com/spdx/ntia-conformance-checker" }
-requires-python = ">=3.9"
+requires-python = ">=3.8"
 keywords = [
     "spdx",
     "sbom",
@@ -51,6 +52,7 @@ keywords = [
     "common SBOM",
     "software package data exchange",
     "software component transparency",
+    "supply chain security",
 ]
 dependencies = ["spdx-tools==0.8.3"]
 

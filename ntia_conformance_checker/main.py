@@ -4,12 +4,14 @@
 
 """Entrypoint for CLI."""
 
+from __future__ import annotations
+
 import argparse
 import json
 import logging
 import sys
 from importlib.metadata import version
-from typing import Any
+from typing import Any, Dict
 
 from .sbom_checker import SbomChecker
 
@@ -92,7 +94,7 @@ def main():
         if args.verbose:
             sbom.print_components_missing_info()
     if args.output == "json":
-        result_dict: dict[str, Any] = sbom.output_json()
+        result_dict: Dict[str, Any] = sbom.output_json()
         if args.output_path:
             with open(args.output_path, "w", encoding="utf-8") as outfile:
                 json.dump(result_dict, outfile)
