@@ -159,13 +159,15 @@ class NTIAChecker(BaseChecker):
                     "The following errors were found:\n\n"
                 )
                 for msg in self.validation_messages:
-                    print("Validation message:")
-                    print(msg.validation_message)
-                    print("Validation context:")
-                    print(f"- SPDX ID: {msg.context.spdx_id}")
-                    print(f"- Parent ID: {msg.context.parent_id}")
-                    print(f"- Element type: {msg.context.element_type}")
-                    print()
+                    if msg.validation_message:
+                        print("Validation message:")
+                        print(msg.validation_message)
+                        if msg.context:
+                            print("Validation context:")
+                            print(f"- SPDX ID: {msg.context.spdx_id}")
+                            print(f"- Parent ID: {msg.context.parent_id}")
+                            print(f"- Element type: {msg.context.element_type}")
+                        print()
 
     def output_json(self) -> Dict[str, Any]:
         """Create a dict of results for outputting to JSON."""
@@ -225,7 +227,7 @@ class NTIAChecker(BaseChecker):
         if self.doc:
             result = (
                 f" <h2>NTIA Conformance Results</h2> "
-                f"<h3>Conformant: {self.compliant} </h3>"
+                f"<h3>Conformant: {self.compliant}</h3>"
                 f"<table> <tr> "
                 f"<th>Individual Elements</th> <th>Conformant</th> </tr> "
                 f"<tr> <td>All component names provided</td>"
@@ -252,22 +254,26 @@ class NTIAChecker(BaseChecker):
                 )
                 result += "<ul>\n"
                 for msg in self.validation_messages:
-                    result += "<li>\n"
-                    result += "<p><strong>Validation message:</strong></p>\n"
-                    result += f"<p>{msg.validation_message}</p>\n"
-                    result += "<p><strong>Validation context:</strong></p>\n"
-                    result += "<ul>\n"
-                    result += f"<li>SPDX ID: {msg.context.spdx_id}</li>\n"
-                    result += f"<li>Parent ID: {msg.context.parent_id}</li>\n"
-                    result += f"<li>Element type: {msg.context.element_type}</li>\n"
-                    result += "</ul>\n"
-                    result += "</li>\n"
+                    if msg.validation_message:
+                        result += "<li>\n"
+                        result += "<p><strong>Validation message:</strong></p>\n"
+                        result += f"<p>{msg.validation_message}</p>\n"
+                        if msg.context:
+                            result += "<p><strong>Validation context:</strong></p>\n"
+                            result += "<ul>\n"
+                            result += f"<li>SPDX ID: {msg.context.spdx_id}</li>\n"
+                            result += f"<li>Parent ID: {msg.context.parent_id}</li>\n"
+                            result += (
+                                f"<li>Element type: {msg.context.element_type}</li>\n"
+                            )
+                            result += "</ul>\n"
+                        result += "</li>\n"
                 result += "</ul>\n"
         else:
             result = f"""
             <h2>NTIA Conformance Results</h2>
-            <h3>Conformant: {self.compliant} </h3>
-            <p>The provided document couldn't be parsed, check for ntia minimum elements couldn't be performed.</p>
+            <h3>Conformant: {self.compliant}</h3>
+            <p>The provided document couldn't be parsed, check for NTIA Minimum Elements couldn't be performed.</p>
             <p>The following SPDXParsingError was raised:<p><ul>"""
             for error in self.parsing_error:
                 result += f"""<li>{error}</li>"""
