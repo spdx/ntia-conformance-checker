@@ -90,7 +90,7 @@ def main():
         logging.info("SBOM name: %s", sbom.sbom_name)
 
     if args.output == "print":
-        sbom.print_table_output()
+        sbom.print_table_output(verbose=args.verbose)
         if args.verbose:
             sbom.print_components_missing_info()
     if args.output == "json":

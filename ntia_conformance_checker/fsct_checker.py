@@ -141,7 +141,7 @@ class FSCT3Checker(BaseChecker):
                 )
                 print()
 
-    def print_table_output(self):
+    def print_table_output(self, verbose: bool = False) -> None:
         """Print element-by-element result table."""
         # pylint: disable=line-too-long
         if self.parsing_error:
@@ -186,14 +186,12 @@ class FSCT3Checker(BaseChecker):
             if self.validation_messages:
                 print(
                     "The provided document is not valid according to the SPDX specification. "
-                    "The following errors were found:\n\n"
+                    "The following errors were found:\n"
                 )
                 for msg in self.validation_messages:
                     if msg.validation_message:
-                        print("Validation message:")
                         print(msg.validation_message)
-                        if msg.context:
-                            print("Validation context:")
+                        if verbose and msg.context:
                             print(f"- SPDX ID: {msg.context.spdx_id}")
                             print(f"- Parent ID: {msg.context.parent_id}")
                             print(f"- Element type: {msg.context.element_type}")

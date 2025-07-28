@@ -1,3 +1,9 @@
+---
+SPDX-FileCopyrightText: 2025 SPDX contributors
+SPDX-FileType: DOCUMENTATION
+SPDX-License-Identifier: Apache-2.0
+---
+
 # Changelog
 
 All notable changes to this project will be documented in this file.
@@ -9,7 +15,7 @@ and this project adheres to [Semantic Versioning][semver].
 
 ### Changed
 
-- Print validation context along with validation message (#274).
+- Print validation context along with validation message (#274, #276).
 - Add type hints and make it stays compatible with Python 3.8 (#272).
   - Note: The next major version may adopt
     [PEP 585](https://peps.python.org/pep-0585/) and
