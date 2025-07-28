@@ -76,7 +76,7 @@ class FSCT3Checker(BaseChecker):
         return describes_package
 
     def check_compliance(self):
-        """Check overall compliance with FSCTv3 Minimum Expected"""
+        """Check overall compliance with FSCTv3 Baseline Attributes Minimum Expected"""
         return all(
             [
                 self.doc_author,
@@ -146,10 +146,12 @@ class FSCT3Checker(BaseChecker):
         # pylint: disable=line-too-long
         if self.parsing_error:
             print(
-                f"\nIs this SBOM FSCTv3 Baseline Attributes conformant? {self.compliant}\n"
+                "\nIs this SBOM FSCTv3 Baseline Attributes "
+                f"Minimum Expected conformant? {self.compliant}\n"
             )
             print(
-                "The provided document couldn't be parsed, check for FSCTv3 Baseline Attributes couldn't be performed.\n"
+                "The provided document couldn't be parsed, "
+                "check for FSCTv3 Baseline Attributes couldn't be performed.\n"
             )
             print("The following SPDXParsingError was raised:\n")
             for error in self.parsing_error:
@@ -157,7 +159,8 @@ class FSCT3Checker(BaseChecker):
 
         else:
             print(
-                f"\nIs this SBOM FSCTv3 Baseline Attributes conformant? {self.compliant}\n"
+                "\nIs this SBOM FSCTv3 Baseline Attributes "
+                f"Minimum Expected conformant? {self.compliant}\n"
             )
             print("Individual elements                            | Status")
             print("-------------------------------------------------------")
@@ -183,10 +186,18 @@ class FSCT3Checker(BaseChecker):
             if self.validation_messages:
                 print(
                     "The provided document is not valid according to the SPDX specification. "
-                    "The following errors were found:\n"
+                    "The following errors were found:\n\n"
                 )
-                for message in self.validation_messages:
-                    print(message.validation_message)
+                for msg in self.validation_messages:
+                    if msg.validation_message:
+                        print("Validation message:")
+                        print(msg.validation_message)
+                        if msg.context:
+                            print("Validation context:")
+                            print(f"- SPDX ID: {msg.context.spdx_id}")
+                            print(f"- Parent ID: {msg.context.parent_id}")
+                            print(f"- Element type: {msg.context.element_type}")
+                        print()
 
     def output_json(self) -> Dict[str, Any]:
         """Create a dict of results for outputting to JSON."""
@@ -258,8 +269,8 @@ class FSCT3Checker(BaseChecker):
         """Create a HTML of results."""
         if self.doc:
             result = (
-                f" <h2>FSCTv3-Minimum Expected Conformance Results</h2> "
-                f"<h3>Conformant: {self.compliant} </h3>"
+                f"<h2>FSCTv3 Baseline Attributes Minimum Expected Conformance Results</h2>"
+                f"<h3>Conformant: {self.compliant}</h3>"
                 f"<table> <tr> "
                 f"<th>Individual Elements</th> <th>Conformant</th> </tr> "
                 f"<tr> <td>All component names provided</td>"
@@ -283,13 +294,28 @@ class FSCT3Checker(BaseChecker):
                     "<p>The provided document is not valid according to the SPDX specification. "
                     "The following errors were found:</p>\n"
                 )
-                for message in self.validation_messages:
-                    result += f"<p>{message.validation_message}</p>\n"
+                result += "<ul>\n"
+                for msg in self.validation_messages:
+                    if msg.validation_message:
+                        result += "<li>\n"
+                        result += "<p><strong>Validation message:</strong></p>\n"
+                        result += f"<p>{msg.validation_message}</p>\n"
+                        if msg.context:
+                            result += "<p><strong>Validation context:</strong></p>\n"
+                            result += "<ul>\n"
+                            result += f"<li>SPDX ID: {msg.context.spdx_id}</li>\n"
+                            result += f"<li>Parent ID: {msg.context.parent_id}</li>\n"
+                            result += (
+                                f"<li>Element type: {msg.context.element_type}</li>\n"
+                            )
+                            result += "</ul>\n"
+                        result += "</li>\n"
+                result += "</ul>\n"
         else:
             result = f"""
-            <h2>FSCTv3-Minimum Expected Conformance Results</h2>
-            <h3>Conformant: {self.compliant} </h3>
-            <p>The provided document couldn't be parsed, check for minimum elements couldn't be performed.</p>
+            <h2>FSCTv3 Baseline Attributes Minimum Expected Conformance Results</h2>
+            <h3>Conformant: {self.compliant}</h3>
+            <p>The provided document couldn't be parsed, check for baseline attributes couldn't be performed.</p>
             <p>The following SPDXParsingError was raised:<p><ul>"""
             for error in self.parsing_error:
                 result += f"""<li>{error}</li>"""
