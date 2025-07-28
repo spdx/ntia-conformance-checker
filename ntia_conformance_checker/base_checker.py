@@ -83,7 +83,7 @@ class BaseChecker(ABC):
         """
 
     @abstractmethod
-    def print_table_output(self) -> None:
+    def print_table_output(self, verbose: bool = False) -> None:
         """
         Abstract method to print element-by-element result table.
 

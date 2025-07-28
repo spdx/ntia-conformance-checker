@@ -72,7 +72,7 @@ class SbomChecker(BaseChecker):
     def print_components_missing_info(self) -> None:
         raise NotImplementedError("This method should be implemented by subclasses.")
 
-    def print_table_output(self) -> None:
+    def print_table_output(self, verbose: bool = False) -> None:
         raise NotImplementedError("This method should be implemented by subclasses.")
 
     def output_json(self) -> Dict[str, Any]:
