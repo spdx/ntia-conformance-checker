@@ -246,10 +246,18 @@
             <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">validation_messages</span><span class="p">:</span>
                 <span class="nb">print</span><span class="p">(</span>
                     <span class="s2">&quot;The provided document is not valid according to the SPDX specification. &quot;</span>
-                    <span class="s2">&quot;The following errors were found:</span><span class="se">\n</span><span class="s2">&quot;</span>
+                    <span class="s2">&quot;The following errors were found:</span><span class="se">\n\n</span><span class="s2">&quot;</span>
                 <span class="p">)</span>
-                <span class="k">for</span> <span class="n">message</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">validation_messages</span><span class="p">:</span>
-                    <span class="nb">print</span><span class="p">(</span><span class="n">message</span><span class="o">.</span><span class="n">validation_message</span><span class="p">)</span></div>
+                <span class="k">for</span> <span class="n">msg</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">validation_messages</span><span class="p">:</span>
+                    <span class="k">if</span> <span class="n">msg</span><span class="o">.</span><span class="n">validation_message</span><span class="p">:</span>
+                        <span class="nb">print</span><span class="p">(</span><span class="s2">&quot;Validation message:&quot;</span><span class="p">)</span>
+                        <span class="nb">print</span><span class="p">(</span><span class="n">msg</span><span class="o">.</span><span class="n">validation_message</span><span class="p">)</span>
+                        <span class="k">if</span> <span class="n">msg</span><span class="o">.</span><span class="n">context</span><span class="p">:</span>
+                            <span class="nb">print</span><span class="p">(</span><span class="s2">&quot;Validation context:&quot;</span><span class="p">)</span>
+                            <span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;- SPDX ID: </span><span class="si">{</span><span class="n">msg</span><span class="o">.</span><span class="n">context</span><span class="o">.</span><span class="n">spdx_id</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
+                            <span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;- Parent ID: </span><span class="si">{</span><span class="n">msg</span><span class="o">.</span><span class="n">context</span><span class="o">.</span><span class="n">parent_id</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
+                            <span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;- Element type: </span><span class="si">{</span><span class="n">msg</span><span class="o">.</span><span class="n">context</span><span class="o">.</span><span class="n">element_type</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
+                        <span class="nb">print</span><span class="p">()</span></div>
 
 
 <div class="viewcode-block" id="NTIAChecker.output_json">
@@ -315,7 +323,7 @@
         <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">doc</span><span class="p">:</span>
             <span class="n">result</span> <span class="o">=</span> <span class="p">(</span>
                 <span class="sa">f</span><span class="s2">&quot; &lt;h2&gt;NTIA Conformance Results&lt;/h2&gt; &quot;</span>
-                <span class="sa">f</span><span class="s2">&quot;&lt;h3&gt;Conformant: </span><span class="si">{</span><span class="bp">self</span><span class="o">.</span><span class="n">compliant</span><span class="si">}</span><span class="s2"> &lt;/h3&gt;&quot;</span>
+                <span class="sa">f</span><span class="s2">&quot;&lt;h3&gt;Conformant: </span><span class="si">{</span><span class="bp">self</span><span class="o">.</span><span class="n">compliant</span><span class="si">}</span><span class="s2">&lt;/h3&gt;&quot;</span>
                 <span class="sa">f</span><span class="s2">&quot;&lt;table&gt; &lt;tr&gt; &quot;</span>
                 <span class="sa">f</span><span class="s2">&quot;&lt;th&gt;Individual Elements&lt;/th&gt; &lt;th&gt;Conformant&lt;/th&gt; &lt;/tr&gt; &quot;</span>
                 <span class="sa">f</span><span class="s2">&quot;&lt;tr&gt; &lt;td&gt;All component names provided&lt;/td&gt;&quot;</span>
@@ -340,13 +348,28 @@
                     <span class="s2">&quot;&lt;p&gt;The provided document is not valid according to the SPDX specification. &quot;</span>
                     <span class="s2">&quot;The following errors were found:&lt;/p&gt;</span><span class="se">\n</span><span class="s2">&quot;</span>
                 <span class="p">)</span>
-                <span class="k">for</span> <span class="n">message</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">validation_messages</span><span class="p">:</span>
-                    <span class="n">result</span> <span class="o">+=</span> <span class="sa">f</span><span class="s2">&quot;&lt;p&gt;</span><span class="si">{</span><span class="n">message</span><span class="o">.</span><span class="n">validation_message</span><span class="si">}</span><span class="s2">&lt;/p&gt;</span><span class="se">\n</span><span class="s2">&quot;</span>
+                <span class="n">result</span> <span class="o">+=</span> <span class="s2">&quot;&lt;ul&gt;</span><span class="se">\n</span><span class="s2">&quot;</span>
+                <span class="k">for</span> <span class="n">msg</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">validation_messages</span><span class="p">:</span>
+                    <span class="k">if</span> <span class="n">msg</span><span class="o">.</span><span class="n">validation_message</span><span class="p">:</span>
+                        <span class="n">result</span> <span class="o">+=</span> <span class="s2">&quot;&lt;li&gt;</span><span class="se">\n</span><span class="s2">&quot;</span>
+                        <span class="n">result</span> <span class="o">+=</span> <span class="s2">&quot;&lt;p&gt;&lt;strong&gt;Validation message:&lt;/strong&gt;&lt;/p&gt;</span><span class="se">\n</span><span class="s2">&quot;</span>
+                        <span class="n">result</span> <span class="o">+=</span> <span class="sa">f</span><span class="s2">&quot;&lt;p&gt;</span><span class="si">{</span><span class="n">msg</span><span class="o">.</span><span class="n">validation_message</span><span class="si">}</span><span class="s2">&lt;/p&gt;</span><span class="se">\n</span><span class="s2">&quot;</span>
+                        <span class="k">if</span> <span class="n">msg</span><span class="o">.</span><span class="n">context</span><span class="p">:</span>
+                            <span class="n">result</span> <span class="o">+=</span> <span class="s2">&quot;&lt;p&gt;&lt;strong&gt;Validation context:&lt;/strong&gt;&lt;/p&gt;</span><span class="se">\n</span><span class="s2">&quot;</span>
+                            <span class="n">result</span> <span class="o">+=</span> <span class="s2">&quot;&lt;ul&gt;</span><span class="se">\n</span><span class="s2">&quot;</span>
+                            <span class="n">result</span> <span class="o">+=</span> <span class="sa">f</span><span class="s2">&quot;&lt;li&gt;SPDX ID: </span><span class="si">{</span><span class="n">msg</span><span class="o">.</span><span class="n">context</span><span class="o">.</span><span class="n">spdx_id</span><span class="si">}</span><span class="s2">&lt;/li&gt;</span><span class="se">\n</span><span class="s2">&quot;</span>
+                            <span class="n">result</span> <span class="o">+=</span> <span class="sa">f</span><span class="s2">&quot;&lt;li&gt;Parent ID: </span><span class="si">{</span><span class="n">msg</span><span class="o">.</span><span class="n">context</span><span class="o">.</span><span class="n">parent_id</span><span class="si">}</span><span class="s2">&lt;/li&gt;</span><span class="se">\n</span><span class="s2">&quot;</span>
+                            <span class="n">result</span> <span class="o">+=</span> <span class="p">(</span>
+                                <span class="sa">f</span><span class="s2">&quot;&lt;li&gt;Element type: </span><span class="si">{</span><span class="n">msg</span><span class="o">.</span><span class="n">context</span><span class="o">.</span><span class="n">element_type</span><span class="si">}</span><span class="s2">&lt;/li&gt;</span><span class="se">\n</span><span class="s2">&quot;</span>
+                            <span class="p">)</span>
+                            <span class="n">result</span> <span class="o">+=</span> <span class="s2">&quot;&lt;/ul&gt;</span><span class="se">\n</span><span class="s2">&quot;</span>
+                        <span class="n">result</span> <span class="o">+=</span> <span class="s2">&quot;&lt;/li&gt;</span><span class="se">\n</span><span class="s2">&quot;</span>
+                <span class="n">result</span> <span class="o">+=</span> <span class="s2">&quot;&lt;/ul&gt;</span><span class="se">\n</span><span class="s2">&quot;</span>
         <span class="k">else</span><span class="p">:</span>
             <span class="n">result</span> <span class="o">=</span> <span class="sa">f</span><span class="s2">&quot;&quot;&quot;</span>
 <span class="s2">            &lt;h2&gt;NTIA Conformance Results&lt;/h2&gt;</span>
-<span class="s2">            &lt;h3&gt;Conformant: </span><span class="si">{</span><span class="bp">self</span><span class="o">.</span><span class="n">compliant</span><span class="si">}</span><span class="s2"> &lt;/h3&gt;</span>
-<span class="s2">            &lt;p&gt;The provided document couldn&#39;t be parsed, check for ntia minimum elements couldn&#39;t be performed.&lt;/p&gt;</span>
+<span class="s2">            &lt;h3&gt;Conformant: </span><span class="si">{</span><span class="bp">self</span><span class="o">.</span><span class="n">compliant</span><span class="si">}</span><span class="s2">&lt;/h3&gt;</span>
+<span class="s2">            &lt;p&gt;The provided document couldn&#39;t be parsed, check for NTIA Minimum Elements couldn&#39;t be performed.&lt;/p&gt;</span>
 <span class="s2">            &lt;p&gt;The following SPDXParsingError was raised:&lt;p&gt;&lt;ul&gt;&quot;&quot;&quot;</span>
             <span class="k">for</span> <span class="n">error</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">parsing_error</span><span class="p">:</span>
                 <span class="n">result</span> <span class="o">+=</span> <span class="sa">f</span><span class="s2">&quot;&quot;&quot;&lt;li&gt;</span><span class="si">{</span><span class="n">error</span><span class="si">}</span><span class="s2">&lt;/li&gt;&quot;&quot;&quot;</span>
