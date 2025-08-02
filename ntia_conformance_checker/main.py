@@ -84,19 +84,18 @@ def detect_spdx_version(file: str) -> str:
             # Skip comments
             if line.startswith("#") or line.startswith("//"):
                 continue
-            # SPDX 2.x tag:value flat text file
-            if line.startswith("SPDXVersion:"):
-                return line.split(":")[-1].strip().split("-")[-1]
-            # SPDX 2.x JSON
-            # Can be cases that the SPDX version is in another line,
+            # SPDX 2.x
+            # Can have cases that the SPDX version is in another line,
             # to handle that later with regular expression
-            if ("'spdxVersion'" in line) or ('"spdxVersion"' in line):
+            if (
+                line.startswith("SPDXVersion:")  # tag:value
+                or ('"spdxVersion"' in line)  # JSON
+                or ("'spdxVersion'" in line)  # JSON
+                or line.startswith("spdxVersion:")  # YAML
+            ):
                 return line.split(":")[-1].strip().strip("\"',").split("-")[-1]
-            # SPDX 2.x YAML
-            if line.startswith("spdxVersion:"):
-                return line.split(":")[-1].strip().strip("\"'").split("-")[-1]
             # SPDX 2.x XML
-            # Can be cases that the SPDX version is in another line,
+            # Can have cases that the SPDX version is in another line,
             # to handle that later with regular expression
             if line.startswith("<spdxVersion>"):
                 return (
@@ -106,7 +105,7 @@ def detect_spdx_version(file: str) -> str:
                     .split("-")[-1]
                 )
             # SPDX 2.x RDF XML
-            # Can be cases that the SPDX version is in another line,
+            # Can have cases that the SPDX version is in another line,
             # to handle that later with regular expression
             if line.startswith("<spdx:specVersion>"):
                 return (
@@ -116,6 +115,8 @@ def detect_spdx_version(file: str) -> str:
                     .split("-")[-1]
                 )
             # SPDX 3.x JSON-LD
+            # Can have cases that the RDF URL is in another line,
+            # to handle that later with regular expression
             if "@context" in line and "spdx.org/rdf/3" in line:
                 return line.split("spdx.org/rdf/")[-1].split("/")[0]
 
@@ -139,8 +140,13 @@ def main():
     spdx_version = detect_spdx_version(args.file)
     logging.info("Detected SPDX version: %s", spdx_version)
 
-    # Only support 2.2 and 2.3
-    if not (spdx_version.startswith("2.2") or spdx_version.startswith("2.3")):
+    # Only support 2.2 and 2.3, check only major and minor version
+    v = spdx_version.split(".")
+    if len(v) > 2:
+        v = f"{v[0]}.{v[1]}"
+    else:
+        v = spdx_version
+    if v not in ["2.2", "2.3", "Unknown"]:  # If unknown, leave it to the checker
         logging.error(
             "Unsupported SPDX version: %s. Only SPDX 2.2 and 2.3 are supported.",
             spdx_version,
