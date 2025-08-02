@@ -107,10 +107,10 @@ def detect_spdx_version(file: str) -> str:
             # SPDX 2.x RDF XML
             # Can have cases that the SPDX version is in another line,
             # to handle that later with regular expression
-            if line.startswith("<spdx:specVersion>"):
+            if ":specVersion>" in line:
                 return (
-                    line.split("<spdx:specVersion>")[-1]
-                    .split("</spdx:specVersion>")[0]
+                    line.split(":specVersion>")[1]
+                    .split("<")[0]
                     .strip()
                     .split("-")[-1]
                 )
