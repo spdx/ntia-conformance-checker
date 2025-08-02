@@ -66,6 +66,62 @@ def get_parsed_args():
     return args
 
 
+def detect_spdx_version(file: str) -> str:
+    """
+    Check the SPDX version of the SBOM file.
+
+    XLS file format is not supported.
+
+    Args:
+        file (str): The file to be checked.
+
+    Returns:
+        str: The SPDX version of the SBOM.
+    """
+    with open(file, "r", encoding="utf-8") as f:
+        for line in f:
+            line = line.strip()
+            # Skip comments
+            if line.startswith("#") or line.startswith("//"):
+                continue
+            # SPDX 2.x tag:value flat text file
+            if line.startswith("SPDXVersion:"):
+                return line.split(":")[-1].strip().split("-")[-1]
+            # SPDX 2.x JSON
+            # Can be cases that the SPDX version is in another line,
+            # to handle that later with regular expression
+            if ("'spdxVersion'" in line) or ('"spdxVersion"' in line):
+                return line.split(":")[-1].strip().strip("\"',").split("-")[-1]
+            # SPDX 2.x YAML
+            if line.startswith("spdxVersion:"):
+                return line.split(":")[-1].strip().strip("\"'").split("-")[-1]
+            # SPDX 2.x XML
+            # Can be cases that the SPDX version is in another line,
+            # to handle that later with regular expression
+            if line.startswith("<spdxVersion>"):
+                return (
+                    line.split("<spdxVersion>")[-1]
+                    .split("</spdxVersion>")[0]
+                    .strip()
+                    .split("-")[-1]
+                )
+            # SPDX 2.x RDF XML
+            # Can be cases that the SPDX version is in another line,
+            # to handle that later with regular expression
+            if line.startswith("<spdx:specVersion>"):
+                return (
+                    line.split("<spdx:specVersion>")[-1]
+                    .split("</spdx:specVersion>")[0]
+                    .strip()
+                    .split("-")[-1]
+                )
+            # SPDX 3.x JSON-LD
+            if "@context" in line and "spdx.org/rdf/3" in line:
+                return line.split("spdx.org/rdf/")[-1].split("/")[0]
+
+    return "Unknown"
+
+
 def main():
     """Entrypoint for CLI application."""
 
@@ -74,16 +130,28 @@ def main():
     log_level = logging.DEBUG if args.verbose else logging.INFO
     logging.basicConfig(level=log_level, format="%(levelname)s: %(message)s")
 
-    sbom = SbomChecker(
-        args.file, validate=not args.skip_validation, compliance=args.comply
-    )
-
-    # Log messages
-    logging.info("Checking SBOM: %s", args.file)
     logging.info("Compliance standard: %s", args.comply)
     logging.info(
         "SPDX validation: %s", "enabled" if not args.skip_validation else "disabled"
     )
+    logging.info("Checking SBOM: %s", args.file)
+
+    spdx_version = detect_spdx_version(args.file)
+    logging.info("Detected SPDX version: %s", spdx_version)
+
+    # Only support 2.2 and 2.3
+    if not (spdx_version.startswith("2.2") or spdx_version.startswith("2.3")):
+        logging.error(
+            "Unsupported SPDX version: %s. Only SPDX 2.2 and 2.3 are supported.",
+            spdx_version,
+        )
+        sys.exit(1)
+
+    # Check SPDX 2 SBOM
+    sbom = SbomChecker(
+        args.file, validate=not args.skip_validation, compliance=args.comply
+    )
+
     logging.info("Parsing: %s", "OK" if not sbom.parsing_error else "Failed")
     logging.info("Validation: %s", "OK" if not sbom.validation_messages else "Failed")
     if not sbom.parsing_error:
