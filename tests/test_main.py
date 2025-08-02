@@ -9,7 +9,7 @@
 from pathlib import Path
 from typing import List, Tuple
 
-from ntia_conformance_checker.main import detect_spdx_version
+from ntia_conformance_checker.main import get_spdx_version
 
 spdx2_2_dir = Path(__file__).parent / "data" / "missing_component_name"
 spdx2_3_dir = Path(__file__).parent / "data" / "missing_timestamp"
@@ -31,7 +31,7 @@ detect_version_test: List[Tuple[Path, str]] = [
 
 def test_detect_spdx_version():
     for file_path, expected_version in detect_version_test:
-        version = detect_spdx_version(str(file_path))
+        version = get_spdx_version(str(file_path))
         assert (
             version == expected_version
         ), f"Expected {expected_version}, got {version} for {file_path}"

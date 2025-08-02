@@ -66,7 +66,7 @@ def get_parsed_args():
     return args
 
 
-def detect_spdx_version(file: str) -> str:
+def get_spdx_version(file: str) -> str:
     """
     Check the SPDX version of the SBOM file.
 
@@ -134,7 +134,7 @@ def main():
     )
     logging.info("Checking SBOM: %s", args.file)
 
-    spdx_version = detect_spdx_version(args.file)
+    spdx_version = get_spdx_version(args.file)
     logging.info("Detected SPDX version: %s", spdx_version)
 
     # Only support 2.2 and 2.3, check only major and minor version
