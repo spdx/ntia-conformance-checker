@@ -109,10 +109,7 @@ def detect_spdx_version(file: str) -> str:
             # to handle that later with regular expression
             if ":specVersion>" in line:
                 return (
-                    line.split(":specVersion>")[1]
-                    .split("<")[0]
-                    .strip()
-                    .split("-")[-1]
+                    line.split(":specVersion>")[1].split("<")[0].strip().split("-")[-1]
                 )
             # SPDX 3.x JSON-LD
             # Can have cases that the RDF URL is in another line,
