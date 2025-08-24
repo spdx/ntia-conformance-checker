@@ -92,7 +92,7 @@ def get_spdx_version(file: str) -> tuple[int, ...]:
     except SPDXParsingError as exc:
         logging.debug("spdx_tools parser failed: %s", exc)
         doc = None
-    except Exception as exc:
+    except (ValueError, TypeError, OSError) as exc:
         logging.debug("Unexpected error while parsing with spdx_tools: %s", exc)
         doc = None
 
@@ -111,7 +111,7 @@ def get_spdx_version(file: str) -> tuple[int, ...]:
     try:
         with open(file, "r", encoding="utf-8") as f:
             content = f.read()
-    except Exception as exc:
+    except (OSError, UnicodeDecodeError) as exc:
         logging.debug("Could not read file: %s", exc)
         return tuple()
 
