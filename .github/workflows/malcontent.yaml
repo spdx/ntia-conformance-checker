@@ -1,18 +1,1 @@
-name: Malcontent Malware Analysis
-on:
-  pull_request:
 
-jobs:
-  malcontent:
-    runs-on: ubuntu-latest
-    permissions:
-      contents: read
-      pull-requests: write
-    steps:
-      - uses: actions/checkout@08c6903cd8c0fde910a37f88322edcfb5dd907a8 # v5.0.0
-        with:
-          fetch-depth: 0
-      
-      - uses: chainguard-dev/malcontent-action@053384afe0bb069ba7e2996bd8c0863731406002 # v0.4
-        with:
-          github-token: ${{ secrets.GITHUB_TOKEN }}
