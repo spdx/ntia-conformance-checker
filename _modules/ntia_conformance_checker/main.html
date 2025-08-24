@@ -80,11 +80,17 @@
 <span class="kn">import</span><span class="w"> </span><span class="nn">argparse</span>
 <span class="kn">import</span><span class="w"> </span><span class="nn">json</span>
 <span class="kn">import</span><span class="w"> </span><span class="nn">logging</span>
+<span class="kn">import</span><span class="w"> </span><span class="nn">re</span>
 <span class="kn">import</span><span class="w"> </span><span class="nn">sys</span>
 <span class="kn">from</span><span class="w"> </span><span class="nn">importlib.metadata</span><span class="w"> </span><span class="kn">import</span> <span class="n">version</span>
 <span class="kn">from</span><span class="w"> </span><span class="nn">typing</span><span class="w"> </span><span class="kn">import</span> <span class="n">Any</span><span class="p">,</span> <span class="n">Dict</span>
 
+<span class="kn">from</span><span class="w"> </span><span class="nn">spdx_tools.spdx.parser.error</span><span class="w"> </span><span class="kn">import</span> <span class="n">SPDXParsingError</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">spdx_tools.spdx.parser.parse_anything</span><span class="w"> </span><span class="kn">import</span> <span class="n">parse_file</span> <span class="k">as</span> <span class="n">spdx2_parse_file</span>
+
 <span class="kn">from</span><span class="w"> </span><span class="nn">.sbom_checker</span><span class="w"> </span><span class="kn">import</span> <span class="n">SbomChecker</span>
+
+<span class="n">SUPPORT_SPDX_VERSIONS</span> <span class="o">=</span> <span class="p">[</span><span class="s2">&quot;2.2&quot;</span><span class="p">,</span> <span class="s2">&quot;2.3&quot;</span><span class="p">]</span>
 
 
 <div class="viewcode-block" id="get_parsed_args">
@@ -140,6 +146,82 @@
 
 
 
+<div class="viewcode-block" id="get_spdx_version">
+<a class="viewcode-back" href="../../ntia_conformance_checker.html#ntia_conformance_checker.main.get_spdx_version">[docs]</a>
+<span class="k">def</span><span class="w"> </span><span class="nf">get_spdx_version</span><span class="p">(</span><span class="n">file</span><span class="p">:</span> <span class="nb">str</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">tuple</span><span class="p">[</span><span class="nb">int</span><span class="p">,</span> <span class="o">...</span><span class="p">]:</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    Check the SPDX version of the SBOM file.</span>
+
+<span class="sd">    XLS file format is not supported.</span>
+
+<span class="sd">    Args:</span>
+<span class="sd">        file (str): The file to be checked.</span>
+
+<span class="sd">    Returns:</span>
+<span class="sd">        str: The SPDX version of the SBOM.</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+
+    <span class="c1"># Try parsing the file with spdx_tools first</span>
+    <span class="n">doc</span> <span class="o">=</span> <span class="kc">None</span>
+    <span class="k">try</span><span class="p">:</span>
+        <span class="n">doc</span> <span class="o">=</span> <span class="n">spdx2_parse_file</span><span class="p">(</span><span class="n">file</span><span class="p">)</span>
+    <span class="k">except</span> <span class="n">SPDXParsingError</span> <span class="k">as</span> <span class="n">exc</span><span class="p">:</span>
+        <span class="n">logging</span><span class="o">.</span><span class="n">debug</span><span class="p">(</span><span class="s2">&quot;spdx_tools parser failed: </span><span class="si">%s</span><span class="s2">&quot;</span><span class="p">,</span> <span class="n">exc</span><span class="p">)</span>
+        <span class="n">doc</span> <span class="o">=</span> <span class="kc">None</span>
+    <span class="k">except</span> <span class="p">(</span><span class="ne">ValueError</span><span class="p">,</span> <span class="ne">TypeError</span><span class="p">,</span> <span class="ne">OSError</span><span class="p">)</span> <span class="k">as</span> <span class="n">exc</span><span class="p">:</span>
+        <span class="n">logging</span><span class="o">.</span><span class="n">debug</span><span class="p">(</span><span class="s2">&quot;Unexpected error while parsing with spdx_tools: </span><span class="si">%s</span><span class="s2">&quot;</span><span class="p">,</span> <span class="n">exc</span><span class="p">)</span>
+        <span class="n">doc</span> <span class="o">=</span> <span class="kc">None</span>
+
+    <span class="c1"># If parsing was successful, return the version tuple. e.g. (2, 3) for 2.3.</span>
+    <span class="k">if</span> <span class="n">doc</span><span class="p">:</span>
+        <span class="n">ver</span> <span class="o">=</span> <span class="nb">getattr</span><span class="p">(</span><span class="n">doc</span><span class="o">.</span><span class="n">creation_info</span><span class="p">,</span> <span class="s2">&quot;spdx_version&quot;</span><span class="p">,</span> <span class="kc">None</span><span class="p">)</span>
+        <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">ver</span><span class="p">,</span> <span class="nb">str</span><span class="p">):</span>
+            <span class="n">m</span> <span class="o">=</span> <span class="n">re</span><span class="o">.</span><span class="n">search</span><span class="p">(</span><span class="sa">r</span><span class="s2">&quot;SPDX-(\d+)\.(\d+)&quot;</span><span class="p">,</span> <span class="n">ver</span><span class="p">)</span>
+            <span class="k">if</span> <span class="n">m</span><span class="p">:</span>
+                <span class="k">return</span> <span class="p">(</span><span class="nb">int</span><span class="p">(</span><span class="n">m</span><span class="o">.</span><span class="n">group</span><span class="p">(</span><span class="mi">1</span><span class="p">)),</span> <span class="nb">int</span><span class="p">(</span><span class="n">m</span><span class="o">.</span><span class="n">group</span><span class="p">(</span><span class="mi">2</span><span class="p">)))</span>  <span class="c1"># Returns (MAJOR, MINOR)</span>
+
+    <span class="c1"># Fallback: inspect file content with regular expressions.</span>
+    <span class="c1"># There are cases of incomplete or invalid SPDX files that spdx_tools cannot parse.</span>
+    <span class="c1"># This will also cover SPDX 3 format.</span>
+    <span class="n">content</span> <span class="o">=</span> <span class="s2">&quot;&quot;</span>
+    <span class="k">try</span><span class="p">:</span>
+        <span class="k">with</span> <span class="nb">open</span><span class="p">(</span><span class="n">file</span><span class="p">,</span> <span class="s2">&quot;r&quot;</span><span class="p">,</span> <span class="n">encoding</span><span class="o">=</span><span class="s2">&quot;utf-8&quot;</span><span class="p">)</span> <span class="k">as</span> <span class="n">f</span><span class="p">:</span>
+            <span class="n">content</span> <span class="o">=</span> <span class="n">f</span><span class="o">.</span><span class="n">read</span><span class="p">()</span>
+    <span class="k">except</span> <span class="p">(</span><span class="ne">OSError</span><span class="p">,</span> <span class="ne">UnicodeDecodeError</span><span class="p">)</span> <span class="k">as</span> <span class="n">exc</span><span class="p">:</span>
+        <span class="n">logging</span><span class="o">.</span><span class="n">debug</span><span class="p">(</span><span class="s2">&quot;Could not read file: </span><span class="si">%s</span><span class="s2">&quot;</span><span class="p">,</span> <span class="n">exc</span><span class="p">)</span>
+        <span class="k">return</span> <span class="nb">tuple</span><span class="p">()</span>
+
+    <span class="c1"># Match MAJOR.MINOR.PATCH version</span>
+    <span class="n">patterns</span> <span class="o">=</span> <span class="p">[</span>
+        <span class="n">re</span><span class="o">.</span><span class="n">compile</span><span class="p">(</span>
+            <span class="sa">r</span><span class="s2">&quot;^\s*SPDXVersion\s*:\s*SPDX-(\d+)\.(\d+)(\.(\d+))?&quot;</span><span class="p">,</span> <span class="n">re</span><span class="o">.</span><span class="n">MULTILINE</span>
+        <span class="p">),</span>  <span class="c1"># SPDX 2 tag:value # SPDXVersion: SPDX-2.2</span>
+        <span class="n">re</span><span class="o">.</span><span class="n">compile</span><span class="p">(</span>
+            <span class="sa">r</span><span class="s2">&quot;[&#39;</span><span class="se">\&quot;</span><span class="s2">]spdxVersion[&#39;</span><span class="se">\&quot;</span><span class="s2">]\s*:\s*[&#39;</span><span class="se">\&quot;</span><span class="s2">]SPDX-(\d+)\.(\d+)(\.(\d+))?&quot;</span>
+        <span class="p">),</span>  <span class="c1"># SPDX 2 JSON # &quot;spdxVersion&quot;: &quot;SPDX-2.2.1&quot;</span>
+        <span class="n">re</span><span class="o">.</span><span class="n">compile</span><span class="p">(</span>
+            <span class="sa">r</span><span class="s2">&quot;^\s*spdxVersion\s*:\s*[&#39;</span><span class="se">\&quot;</span><span class="s2">]?SPDX-(\d+)\.(\d+)(\.(\d+))?&quot;</span><span class="p">,</span> <span class="n">re</span><span class="o">.</span><span class="n">MULTILINE</span>
+        <span class="p">),</span>  <span class="c1"># SPDX 2 YAML # spdxVersion: &#39;SPDX-2.2&#39; or spdxVersion: SPDX-2.2</span>
+        <span class="n">re</span><span class="o">.</span><span class="n">compile</span><span class="p">(</span>
+            <span class="sa">r</span><span class="s2">&quot;&lt;spdxVersion&gt;\s*SPDX-(\d+)\.(\d+)(\.(\d+))?\s*&lt;/spdxVersion&gt;&quot;</span>
+        <span class="p">),</span>  <span class="c1"># SPDX 2 XML # &lt;spdxVersion&gt;SPDX-2.2&lt;/spdxVersion&gt;</span>
+        <span class="n">re</span><span class="o">.</span><span class="n">compile</span><span class="p">(</span>
+            <span class="sa">r</span><span class="s2">&quot;[:&lt;]specVersion&gt;\s*SPDX-(\d+)\.(\d+)(\.(\d+))?\s*&lt;&quot;</span>
+        <span class="p">),</span>  <span class="c1"># SPDX 2 RDF XML # &lt;spdx:specVersion&gt;SPDX-2.2&lt;/spdx:specVersion&gt;</span>
+        <span class="n">re</span><span class="o">.</span><span class="n">compile</span><span class="p">(</span>
+            <span class="sa">r</span><span class="s2">&quot;[\&#39;</span><span class="se">\&quot;</span><span class="s2">]@context[\&#39;</span><span class="se">\&quot;</span><span class="s2">]\s*:\s*[\&#39;</span><span class="se">\&quot;</span><span class="s2">]https?://spdx\.org/rdf/(\d+)\.(\d+)(\.(\d+))?/&quot;</span>
+        <span class="p">),</span>  <span class="c1"># SPDX 3 JSON-LD # &quot;@context&quot;: &quot;https://spdx.org/rdf/3.0/spdx-context.jsonld&quot;</span>
+    <span class="p">]</span>
+
+    <span class="k">for</span> <span class="n">pat</span> <span class="ow">in</span> <span class="n">patterns</span><span class="p">:</span>
+        <span class="n">m</span> <span class="o">=</span> <span class="n">pat</span><span class="o">.</span><span class="n">search</span><span class="p">(</span><span class="n">content</span><span class="p">)</span>
+        <span class="k">if</span> <span class="n">m</span><span class="p">:</span>
+            <span class="k">return</span> <span class="p">(</span><span class="nb">int</span><span class="p">(</span><span class="n">m</span><span class="o">.</span><span class="n">group</span><span class="p">(</span><span class="mi">1</span><span class="p">)),</span> <span class="nb">int</span><span class="p">(</span><span class="n">m</span><span class="o">.</span><span class="n">group</span><span class="p">(</span><span class="mi">2</span><span class="p">)))</span>  <span class="c1"># Returns (MAJOR, MINOR)</span>
+
+    <span class="k">return</span> <span class="nb">tuple</span><span class="p">()</span></div>
+
+
+
 <div class="viewcode-block" id="main">
 <a class="viewcode-back" href="../../ntia_conformance_checker.html#ntia_conformance_checker.main.main">[docs]</a>
 <span class="k">def</span><span class="w"> </span><span class="nf">main</span><span class="p">():</span>
@@ -150,16 +232,31 @@
     <span class="n">log_level</span> <span class="o">=</span> <span class="n">logging</span><span class="o">.</span><span class="n">DEBUG</span> <span class="k">if</span> <span class="n">args</span><span class="o">.</span><span class="n">verbose</span> <span class="k">else</span> <span class="n">logging</span><span class="o">.</span><span class="n">INFO</span>
     <span class="n">logging</span><span class="o">.</span><span class="n">basicConfig</span><span class="p">(</span><span class="n">level</span><span class="o">=</span><span class="n">log_level</span><span class="p">,</span> <span class="nb">format</span><span class="o">=</span><span class="s2">&quot;</span><span class="si">%(levelname)s</span><span class="s2">: </span><span class="si">%(message)s</span><span class="s2">&quot;</span><span class="p">)</span>
 
-    <span class="n">sbom</span> <span class="o">=</span> <span class="n">SbomChecker</span><span class="p">(</span>
-        <span class="n">args</span><span class="o">.</span><span class="n">file</span><span class="p">,</span> <span class="n">validate</span><span class="o">=</span><span class="ow">not</span> <span class="n">args</span><span class="o">.</span><span class="n">skip_validation</span><span class="p">,</span> <span class="n">compliance</span><span class="o">=</span><span class="n">args</span><span class="o">.</span><span class="n">comply</span>
-    <span class="p">)</span>
-
-    <span class="c1"># Log messages</span>
-    <span class="n">logging</span><span class="o">.</span><span class="n">info</span><span class="p">(</span><span class="s2">&quot;Checking SBOM: </span><span class="si">%s</span><span class="s2">&quot;</span><span class="p">,</span> <span class="n">args</span><span class="o">.</span><span class="n">file</span><span class="p">)</span>
     <span class="n">logging</span><span class="o">.</span><span class="n">info</span><span class="p">(</span><span class="s2">&quot;Compliance standard: </span><span class="si">%s</span><span class="s2">&quot;</span><span class="p">,</span> <span class="n">args</span><span class="o">.</span><span class="n">comply</span><span class="p">)</span>
     <span class="n">logging</span><span class="o">.</span><span class="n">info</span><span class="p">(</span>
         <span class="s2">&quot;SPDX validation: </span><span class="si">%s</span><span class="s2">&quot;</span><span class="p">,</span> <span class="s2">&quot;enabled&quot;</span> <span class="k">if</span> <span class="ow">not</span> <span class="n">args</span><span class="o">.</span><span class="n">skip_validation</span> <span class="k">else</span> <span class="s2">&quot;disabled&quot;</span>
     <span class="p">)</span>
+    <span class="n">logging</span><span class="o">.</span><span class="n">info</span><span class="p">(</span><span class="s2">&quot;Checking SBOM: </span><span class="si">%s</span><span class="s2">&quot;</span><span class="p">,</span> <span class="n">args</span><span class="o">.</span><span class="n">file</span><span class="p">)</span>
+
+    <span class="n">spdx_version</span> <span class="o">=</span> <span class="n">get_spdx_version</span><span class="p">(</span><span class="n">args</span><span class="o">.</span><span class="n">file</span><span class="p">)</span>
+    <span class="n">spdx_version_str</span> <span class="o">=</span> <span class="p">(</span>
+        <span class="sa">f</span><span class="s2">&quot;</span><span class="si">{</span><span class="n">spdx_version</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span><span class="si">}</span><span class="s2">.</span><span class="si">{</span><span class="n">spdx_version</span><span class="p">[</span><span class="mi">1</span><span class="p">]</span><span class="si">}</span><span class="s2">&quot;</span> <span class="k">if</span> <span class="n">spdx_version</span> <span class="k">else</span> <span class="s2">&quot;Unknown&quot;</span>
+    <span class="p">)</span>
+    <span class="n">logging</span><span class="o">.</span><span class="n">info</span><span class="p">(</span><span class="s2">&quot;Detected SPDX version: </span><span class="si">%s</span><span class="s2">&quot;</span><span class="p">,</span> <span class="n">spdx_version_str</span><span class="p">)</span>
+
+    <span class="k">if</span> <span class="n">spdx_version_str</span> <span class="ow">not</span> <span class="ow">in</span> <span class="n">SUPPORT_SPDX_VERSIONS</span><span class="p">:</span>
+        <span class="n">logging</span><span class="o">.</span><span class="n">error</span><span class="p">(</span>
+            <span class="s2">&quot;Unsupported SPDX version: </span><span class="si">%s</span><span class="s2">. Only supports versions: </span><span class="si">%s</span><span class="s2">&quot;</span><span class="p">,</span>
+            <span class="n">spdx_version_str</span><span class="p">,</span>
+            <span class="s2">&quot;, &quot;</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">SUPPORT_SPDX_VERSIONS</span><span class="p">),</span>
+        <span class="p">)</span>
+        <span class="n">sys</span><span class="o">.</span><span class="n">exit</span><span class="p">(</span><span class="mi">1</span><span class="p">)</span>
+
+    <span class="c1"># Check SPDX 2 SBOM</span>
+    <span class="n">sbom</span> <span class="o">=</span> <span class="n">SbomChecker</span><span class="p">(</span>
+        <span class="n">args</span><span class="o">.</span><span class="n">file</span><span class="p">,</span> <span class="n">validate</span><span class="o">=</span><span class="ow">not</span> <span class="n">args</span><span class="o">.</span><span class="n">skip_validation</span><span class="p">,</span> <span class="n">compliance</span><span class="o">=</span><span class="n">args</span><span class="o">.</span><span class="n">comply</span>
+    <span class="p">)</span>
+
     <span class="n">logging</span><span class="o">.</span><span class="n">info</span><span class="p">(</span><span class="s2">&quot;Parsing: </span><span class="si">%s</span><span class="s2">&quot;</span><span class="p">,</span> <span class="s2">&quot;OK&quot;</span> <span class="k">if</span> <span class="ow">not</span> <span class="n">sbom</span><span class="o">.</span><span class="n">parsing_error</span> <span class="k">else</span> <span class="s2">&quot;Failed&quot;</span><span class="p">)</span>
     <span class="n">logging</span><span class="o">.</span><span class="n">info</span><span class="p">(</span><span class="s2">&quot;Validation: </span><span class="si">%s</span><span class="s2">&quot;</span><span class="p">,</span> <span class="s2">&quot;OK&quot;</span> <span class="k">if</span> <span class="ow">not</span> <span class="n">sbom</span><span class="o">.</span><span class="n">validation_messages</span> <span class="k">else</span> <span class="s2">&quot;Failed&quot;</span><span class="p">)</span>
     <span class="k">if</span> <span class="ow">not</span> <span class="n">sbom</span><span class="o">.</span><span class="n">parsing_error</span><span class="p">:</span>

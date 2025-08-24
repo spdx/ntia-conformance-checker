@@ -56,6 +56,7 @@
 </li>
 <li class="toctree-l3"><a class="reference internal" href="#module-ntia_conformance_checker.main">ntia_conformance_checker.main module</a><ul>
 <li class="toctree-l4"><a class="reference internal" href="#ntia_conformance_checker.main.get_parsed_args"><code class="docutils literal notranslate"><span class="pre">get_parsed_args()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="#ntia_conformance_checker.main.get_spdx_version"><code class="docutils literal notranslate"><span class="pre">get_spdx_version()</span></code></a></li>
 <li class="toctree-l4"><a class="reference internal" href="#ntia_conformance_checker.main.main"><code class="docutils literal notranslate"><span class="pre">main()</span></code></a></li>
 </ul>
 </li>
@@ -481,6 +482,24 @@ and Aspirational Goal) for content provided in Attribute entries.</p>
 <dt class="sig sig-object py" id="ntia_conformance_checker.main.get_parsed_args">
 <span class="sig-prename descclassname"><span class="pre">ntia_conformance_checker.main.</span></span><span class="sig-name descname"><span class="pre">get_parsed_args</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span><a class="reference internal" href="_modules/ntia_conformance_checker/main.html#get_parsed_args"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#ntia_conformance_checker.main.get_parsed_args" title="Link to this definition"></a></dt>
 <dd><p>Parse command line arguments</p>
+</dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="ntia_conformance_checker.main.get_spdx_version">
+<span class="sig-prename descclassname"><span class="pre">ntia_conformance_checker.main.</span></span><span class="sig-name descname"><span class="pre">get_spdx_version</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">file</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">tuple</span><span class="p"><span class="pre">[</span></span><span class="pre">int</span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="p"><span class="pre">...</span></span><span class="p"><span class="pre">]</span></span></span></span><a class="reference internal" href="_modules/ntia_conformance_checker/main.html#get_spdx_version"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#ntia_conformance_checker.main.get_spdx_version" title="Link to this definition"></a></dt>
+<dd><p>Check the SPDX version of the SBOM file.</p>
+<p>XLS file format is not supported.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><p><strong>file</strong> (<em>str</em>) – The file to be checked.</p>
+</dd>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
+<dd class="field-even"><p>The SPDX version of the SBOM.</p>
+</dd>
+<dt class="field-odd">Return type<span class="colon">:</span></dt>
+<dd class="field-odd"><p>str</p>
+</dd>
+</dl>
 </dd></dl>
 
 <dl class="py function">
