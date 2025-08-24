@@ -2,7 +2,7 @@
 # SPDX-FileType: SOURCE
 # SPDX-License-Identifier: Apache-2.0
 
-"""Tests using pytest framework."""
+"""Tests checkers"""
 
 # pylint: disable=missing-function-docstring,import-error,consider-using-from-import
 
