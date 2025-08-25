@@ -72,26 +72,26 @@ def get_parsed_args():
     return args
 
 
-def get_spdx_version(filename: str) -> Tuple[int, ...]:
+def get_spdx_version(file_name: str) -> Tuple[int, ...]:
     """
     Check the SPDX version of the SBOM file.
 
     XLS file format is not supported.
 
     Args:
-        filename (str): The name of the file to be checked.
+        file_name (str): The name of the file to be checked.
 
     Returns:
         Tuple[int, ...]: The SPDX version of the SBOM. E.g. (2, 3) for version 2.3.
     """
-    if filename.lower().endswith(".xls") or filename.lower().endswith(".xlsx"):
-        logging.debug("XLS file format is not supported")
+    if file_name.lower().endswith(".xls") or file_name.lower().endswith(".xlsx"):
+        logging.debug("Excel file format is not supported")
         return tuple()
 
     # Try parsing the file with spdx_tools first
     doc = None
     try:
-        doc = spdx2_parse_file(filename)
+        doc = spdx2_parse_file(file_name)
     except SPDXParsingError as exc:
         logging.debug("spdx_tools parser failed: %s", exc)
         doc = None
@@ -112,7 +112,7 @@ def get_spdx_version(filename: str) -> Tuple[int, ...]:
     # This will also cover SPDX 3 format.
     content = ""
     try:
-        with open(filename, "r", encoding="utf-8") as f:
+        with open(file_name, "r", encoding="utf-8") as f:
             content = f.read()
     except (OSError, UnicodeDecodeError) as exc:
         logging.debug("Could not read file: %s", exc)
