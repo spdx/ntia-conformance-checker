@@ -36,13 +36,13 @@ jobs:
           pip install mypy pyrefly pyright pytype
       - name: mypy type check
         run: |
-          mypy ntia_conformance_checker
+          mypy ntia_conformance_checker tests
       - name: pyrefly type check
         run: |
-          pyrefly check
+          pyrefly check ntia_conformance_checker tests
       - name: pyright type check
         run: |
-          pyright .
+          pyright ntia_conformance_checker tests
       - name: pytype type check
         run: |
-          pytype ntia_conformance_checker
+          pytype ntia_conformance_checker tests
