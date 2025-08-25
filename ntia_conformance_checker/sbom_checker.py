@@ -82,12 +82,6 @@ class SbomChecker(BaseChecker):
     def check_compliance(self) -> bool:
         raise NotImplementedError("This method is not implemented by SbomChecker.")
 
-    def check_doc_version(self) -> bool:
-        raise NotImplementedError("This method is not implemented by SbomChecker.")
-
-    def check_dependency_relationships(self) -> bool:
-        raise NotImplementedError("This method is not implemented by SbomChecker.")
-
     def print_components_missing_info(self) -> None:
         raise NotImplementedError("This method is not implemented by SbomChecker.")
 

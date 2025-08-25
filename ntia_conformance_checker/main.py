@@ -179,6 +179,7 @@ def main():
         )
         sys.exit(1)
 
+    sbom = None
     if spdx_version[0] == 2:
         sbom = SbomChecker(
             args.file,
@@ -193,7 +194,8 @@ def main():
             compliance=args.comply,
             sbom_spec="spdx3",
         )
-    else:
+
+    if not sbom:
         logging.error("Unsupported SBOM specification")
         sys.exit(1)
 

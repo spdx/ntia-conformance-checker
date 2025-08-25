@@ -66,6 +66,7 @@ class BaseChecker(ABC):
     @abstractmethod
     def check_compliance(self) -> bool:
         """Abstract method to check compliance."""
+        raise NotImplementedError
 
     @abstractmethod
     def print_components_missing_info(self) -> None:
@@ -79,6 +80,7 @@ class BaseChecker(ABC):
         Returns:
             None
         """
+        raise NotImplementedError
 
     @abstractmethod
     def print_table_output(self, verbose: bool = False) -> None:
@@ -88,6 +90,7 @@ class BaseChecker(ABC):
         Returns:
             None
         """
+        raise NotImplementedError
 
     @abstractmethod
     def output_json(self) -> Dict[str, Any]:
@@ -95,10 +98,12 @@ class BaseChecker(ABC):
         Abstract method to create a dict of results for outputting
         to JSON.
         """
+        raise NotImplementedError
 
     @abstractmethod
     def output_html(self) -> str:
         """Abstract method to create a result in HTML format."""
+        raise NotImplementedError
 
     def __init__(
         self,
@@ -210,6 +215,7 @@ class BaseChecker(ABC):
         if not self.doc:
             return ""
 
+        # SPDX 2
         if self.sbom_spec == "spdx2":
             if self.doc.creation_info and self.doc.creation_info.name:
                 return self.doc.creation_info.name

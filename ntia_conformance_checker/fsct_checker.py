@@ -185,7 +185,14 @@ class FSCT3Checker(BaseChecker):
         # instantiate dict and fields that have > 1 level
         result: Dict[str, Any] = {}
         result["complianceStandard"] = self.compliance_standard
+        result["sbomSpec"] = self.sbom_spec
+
+        result["validationMessages"] = []
+        if self.validation_messages:
+            result["validationMessages"] = list(map(str, self.validation_messages))
+
         result["parsingError"] = self.parsing_error
+
         result["isConformant"] = self.compliant
 
         result["sbomName"] = self.sbom_name
@@ -240,13 +247,9 @@ class FSCT3Checker(BaseChecker):
 
         result["totalNumberComponents"] = self.get_total_number_components()
 
-        result["validationMessages"] = []
-        if self.validation_messages:
-            result["validationMessages"] = list(map(str, self.validation_messages))
-
         return result
 
-    def output_html(self):
+    def output_html(self) -> str:
         """Create a HTML of results."""
         if self.doc:
             result = (
