@@ -13,11 +13,15 @@ from abc import ABC, abstractmethod
 from typing import Any, Dict, List, Optional, Tuple, Union, cast
 
 from spdx_tools.spdx.model.document import Document
+from spdx_tools.spdx.model.relationship import RelationshipType
 from spdx_tools.spdx.model.spdx_no_assertion import SpdxNoAssertion
 from spdx_tools.spdx.parser import parse_anything
 from spdx_tools.spdx.parser.error import SPDXParsingError
 from spdx_tools.spdx.validation.document_validator import validate_full_spdx_document
 from spdx_tools.spdx.validation.validation_message import ValidationMessage
+
+SUPPORTED_SBOM_SPECS = {"spdx2"}
+SUPPORTED_SPDX2_VERSIONS = {"SPDX-2.2", "SPDX-2.3"}
 
 
 # pylint: disable=too-many-instance-attributes
@@ -31,10 +35,12 @@ class BaseChecker(ABC):
     such as `check_compliance` and `output_json`.
     """
 
-    compliance_standard: str = ""
+    compliance_standard: str = ""  # fsct3-min, ntia
+    sbom_spec: str = ""  # spdx2, spdx3
+    # file_format: str = ""  # json, rdf-xml, tag-value, yaml, xml
 
     file: str = ""
-    doc: Optional[Document] = None
+    doc: Optional[Document] = None  # TODO: Add SPDX 3 document type
 
     parsing_error: List[str] = []
     validation_messages: List[ValidationMessage] = []
@@ -60,14 +66,6 @@ class BaseChecker(ABC):
     @abstractmethod
     def check_compliance(self) -> bool:
         """Abstract method to check compliance."""
-
-    @abstractmethod
-    def check_doc_version(self) -> bool:
-        """Abstract method to check SBOM document version."""
-
-    @abstractmethod
-    def check_dependency_relationships(self) -> bool:
-        """Abstract method to check dependency relationship requirements."""
 
     @abstractmethod
     def print_components_missing_info(self) -> None:
@@ -102,22 +100,43 @@ class BaseChecker(ABC):
     def output_html(self) -> str:
         """Abstract method to create a result in HTML format."""
 
-    def __init__(self, file: str, validate: bool = True, compliance: str = ""):
+    def __init__(
+        self,
+        file: str,
+        validate: bool = True,
+        compliance: str = "",
+        sbom_spec: str = "spdx2",
+    ):
         """
         Initialize the BaseChecker.
 
         Args:
-            file (str): The file to be checked.
+            file (str): The name of the file to be checked.
             validate (bool): Whether to validate the file.
-            compliance (str): The compliance standard to be used. Defaults to "ntia".
+            compliance (str): The compliance standard to be used.
+            sbom_spec (str): The SBOM specification to be used.
         """
         self.compliance_standard = compliance
+        self.sbom_spec = sbom_spec
+        # self.file_format = ""
+
         self.file = file
-        self.doc = self.parse_file()  # Document or None
+
+        if sbom_spec == "spdx2":
+            self.doc = self.parse_file()
+        elif sbom_spec == "spdx3":
+            # TODO: Add SPDX 3 parsing
+            self.doc = None
+        else:
+            raise ValueError(f"Unsupported SBOM specification: {sbom_spec}")
 
         if self.doc:
             if validate:
-                self.validation_messages = validate_full_spdx_document(self.doc)
+                if sbom_spec == "spdx2":
+                    self.validation_messages = validate_full_spdx_document(self.doc)
+                else:
+                    pass
+
             self.components_without_names = self.get_components_without_names()
             self.components_without_versions = cast(
                 List[str], self.get_components_without_versions()
@@ -134,6 +153,70 @@ class BaseChecker(ABC):
             self.components_without_copyright_texts = cast(
                 List[str], self.get_components_without_copyright_texts()
             )
+
+    def check_doc_version(self) -> bool:
+        """Check for if the SPDX document version exists."""
+        if not self.doc:
+            return False
+
+        # SPDX 2
+        if self.sbom_spec == "spdx2":
+            if (
+                not self.doc.creation_info
+                or str(self.doc.creation_info.spdx_version)
+                not in SUPPORTED_SPDX2_VERSIONS
+            ):
+                return False
+
+            return True
+
+        # SPDX 3
+        # TODO: Check for SPDX 3
+        return False
+
+    def check_dependency_relationships(self) -> bool:
+        """Check if the SPDX document DESCRIBES at least one package."""
+        if not self.doc:
+            return False
+
+        # SPDX 2
+        if self.sbom_spec == "spdx2":
+            if not self.doc.relationships:
+                return False
+
+            describes_relationships = [
+                rel
+                for rel in self.doc.relationships
+                if rel.relationship_type == RelationshipType.DESCRIBES
+            ]
+
+            # A set of all package spdx_ids for quick lookup
+            spdx_id_set = {package.spdx_id for package in self.doc.packages}
+
+            # Check if any of the "DESCRIBES" relationships describe a Package
+            describes_package = any(
+                rel.related_spdx_element_id in spdx_id_set
+                for rel in describes_relationships
+            )
+
+            return describes_package
+
+        # SPDX 3
+        # TODO: Check for SPDX 3
+        return False
+
+    def get_sbom_name(self) -> str:
+        """Retrieve the name of the SBOM."""
+        if not self.doc:
+            return ""
+
+        if self.sbom_spec == "spdx2":
+            if self.doc.creation_info and self.doc.creation_info.name:
+                return self.doc.creation_info.name
+            return ""
+
+        # SPDX 3
+        return ""
 
     def get_components_without_concluded_licenses(
         self, return_tuples: bool = False
