@@ -29,11 +29,8 @@ jobs:
         cache: "pip"
     - name: Install dependencies
       run: |
-        pip install pip==25.0
-        pip install pipenv==2024.4.1
-        # use --pre flag to enable use of prerelease package versions
-        pipenv install
-        pipenv install pytest==8.3.5 coverage==7.6.10
+        pip install -U pip
+        pip install coverage>=7.6 pipenv==2024.4.1 pytest==8.3.5 
     - name: Test with pytest
       env:
           # This token is provided by Actions,
