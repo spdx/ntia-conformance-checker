@@ -497,7 +497,7 @@ class BaseChecker(ABC):
         if not os.path.exists(self.file):
             logging.error("Filename %s not found.", self.file)
             sys.exit(1)
-        
+
         # SPDX 2
         try:
             doc = parse_anything.parse_file(self.file)
