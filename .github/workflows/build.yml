@@ -27,10 +27,13 @@ jobs:
       with:
         python-version: ${{ matrix.python-version }}
         cache: "pip"
-    - name: Install dependencies
+    - name: Install test dependencies
       run: |
         pip install -U pip
-        pip install coverage>=7.6 pytest==8.3.5 
+        pip install coverage>=7.6 pytest==8.3.5
+    - name: Install ntia-conformance-checker
+      run: |
+        pip install .
     - name: Test with pytest
       env:
           # This token is provided by Actions,
