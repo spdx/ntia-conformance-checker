@@ -104,7 +104,7 @@ def test_sbomchecker_missing_author_name(test_file):
         assert not sbom_check.ntia_minimum_elements_compliant
         assert sbom_check.parsing_error
     except BeartypeCallHintParamViolation:
-        pytest.skip("Beartype type violation due to missing author field")
+        pytest.xfail("Beartype type violation due to missing author field")
 
 
 ### Test missing timestamp
@@ -123,7 +123,7 @@ def test_sbomchecker_missing_timestamp(test_file):
         assert not sbom_check.ntia_minimum_elements_compliant
         assert sbom_check.parsing_error
     except BeartypeCallHintParamViolation:
-        pytest.skip("Beartype type violation due to missing timestamp field")
+        pytest.xfail("Beartype type violation due to missing timestamp field")
 
 
 ### Test missing concluded licenses
@@ -235,7 +235,7 @@ def test_sbomchecker_missing_unique_identifiers(test_file):
         assert not sbom_check.ntia_minimum_elements_compliant
         assert sbom_check.parsing_error
     except BeartypeCallHintParamViolation:
-        pytest.skip("Beartype type violation due to missing unique identifier field")
+        pytest.xfail("Beartype type violation due to missing unique identifier field")
 
 
 ### Test SBOM example from various sources

@@ -27,11 +27,14 @@ jobs:
       with:
         python-version: ${{ matrix.python-version }}
         cache: "pip"
-    - name: Install test dependencies
+    - name: Install dependencies
       run: |
         pip install -U pip
-        pip install coverage>=7.6 pytest==8.3.5
-    - name: Install ntia-conformance-checker
+        pip install build
+    - name: Build package
+      run: |
+        python -m build
+    - name: Install package
       run: |
         pip install .
     - name: Test with pytest
@@ -40,5 +43,6 @@ jobs:
           # you do not need to create your own token
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
       run: |
+        pip install ".[test]"
         coverage run -m pytest
         coverage xml -o coverage/python.xml

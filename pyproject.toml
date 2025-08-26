@@ -21,13 +21,12 @@ maintainers = [
     { name = "Arthit Suriyawongkul", email = "suriyawa@tcd.ie" },
     { name = "SPDX group at the Linux Foundation and others", email = "spdx-implementers+owner@lists.spdx.org" },
 ]
-license = { text = "Apache-2.0" }
+license = "Apache-2.0"
 description = "Check SPDX SBOM for NTIA minimum elements and common SBOM baseline attributes"
 readme = "README.md"
 classifiers = [
     "Intended Audience :: Developers",
     "Intended Audience :: System Administrators",
-    "License :: OSI Approved :: Apache Software License",
     "Programming Language :: Python :: 3.8",
     "Programming Language :: Python :: 3.9",
     "Programming Language :: Python :: 3.10",
@@ -54,10 +53,10 @@ keywords = [
     "software component transparency",
     "supply chain security",
 ]
-dependencies = ["spdx-tools==0.8.3"]
+dependencies = ["spdx-python-model==0.0.2", "spdx-tools==0.8.3"]
 
 [project.optional-dependencies]
-test = ["pytest"]
+test = ["coverage==7.6.10", "pytest==8.4.1"]
 
 [project.scripts]
 # Both "ntia-checker" and "sbomcheck" are identical.
