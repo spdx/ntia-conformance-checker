@@ -41,5 +41,5 @@ def test_detect_spdx_version():
             ), f"Expected {expected_version}, got {version} for {file_path}"
         except BeartypeCallHintParamViolation:
             pytest.xfail(
-                "Beartype type violation due to missing field in SPDX document"
+                "Beartype type violation (assigning None) due to missing field in SPDX document"
             )
