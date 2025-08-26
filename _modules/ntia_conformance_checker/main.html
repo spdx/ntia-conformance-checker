@@ -83,7 +83,7 @@
 <span class="kn">import</span><span class="w"> </span><span class="nn">re</span>
 <span class="kn">import</span><span class="w"> </span><span class="nn">sys</span>
 <span class="kn">from</span><span class="w"> </span><span class="nn">importlib.metadata</span><span class="w"> </span><span class="kn">import</span> <span class="n">version</span>
-<span class="kn">from</span><span class="w"> </span><span class="nn">typing</span><span class="w"> </span><span class="kn">import</span> <span class="n">Any</span><span class="p">,</span> <span class="n">Dict</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">typing</span><span class="w"> </span><span class="kn">import</span> <span class="n">Any</span><span class="p">,</span> <span class="n">Dict</span><span class="p">,</span> <span class="n">Tuple</span>
 
 <span class="kn">from</span><span class="w"> </span><span class="nn">spdx_tools.spdx.parser.error</span><span class="w"> </span><span class="kn">import</span> <span class="n">SPDXParsingError</span>
 <span class="kn">from</span><span class="w"> </span><span class="nn">spdx_tools.spdx.parser.parse_anything</span><span class="w"> </span><span class="kn">import</span> <span class="n">parse_file</span> <span class="k">as</span> <span class="n">spdx2_parse_file</span>
@@ -148,18 +148,21 @@
 
 <div class="viewcode-block" id="get_spdx_version">
 <a class="viewcode-back" href="../../ntia_conformance_checker.html#ntia_conformance_checker.main.get_spdx_version">[docs]</a>
-<span class="k">def</span><span class="w"> </span><span class="nf">get_spdx_version</span><span class="p">(</span><span class="n">file</span><span class="p">:</span> <span class="nb">str</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">tuple</span><span class="p">[</span><span class="nb">int</span><span class="p">,</span> <span class="o">...</span><span class="p">]:</span>
+<span class="k">def</span><span class="w"> </span><span class="nf">get_spdx_version</span><span class="p">(</span><span class="n">file</span><span class="p">:</span> <span class="nb">str</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Tuple</span><span class="p">[</span><span class="nb">int</span><span class="p">,</span> <span class="o">...</span><span class="p">]:</span>
 <span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">    Check the SPDX version of the SBOM file.</span>
 
 <span class="sd">    XLS file format is not supported.</span>
 
 <span class="sd">    Args:</span>
-<span class="sd">        file (str): The file to be checked.</span>
+<span class="sd">        file (str): The name of the file to be checked.</span>
 
 <span class="sd">    Returns:</span>
-<span class="sd">        str: The SPDX version of the SBOM.</span>
+<span class="sd">        Tuple[int, ...]: The SPDX version of the SBOM. E.g. (2, 3) for version 2.3.</span>
 <span class="sd">    &quot;&quot;&quot;</span>
+    <span class="k">if</span> <span class="n">file</span><span class="o">.</span><span class="n">lower</span><span class="p">()</span><span class="o">.</span><span class="n">endswith</span><span class="p">(</span><span class="s2">&quot;.xls&quot;</span><span class="p">)</span> <span class="ow">or</span> <span class="n">file</span><span class="o">.</span><span class="n">lower</span><span class="p">()</span><span class="o">.</span><span class="n">endswith</span><span class="p">(</span><span class="s2">&quot;.xlsx&quot;</span><span class="p">):</span>
+        <span class="n">logging</span><span class="o">.</span><span class="n">debug</span><span class="p">(</span><span class="s2">&quot;Excel file format is not supported&quot;</span><span class="p">)</span>
+        <span class="k">return</span> <span class="nb">tuple</span><span class="p">()</span>
 
     <span class="c1"># Try parsing the file with spdx_tools first</span>
     <span class="n">doc</span> <span class="o">=</span> <span class="kc">None</span>
