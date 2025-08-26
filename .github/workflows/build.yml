@@ -29,8 +29,8 @@ jobs:
         cache: "pip"
     - name: Install dependencies
       run: |
-        pip install -U pip
-        pip install build
+        pip install pip==25.2
+        pip install build==1.3.0
     - name: Build package
       run: |
         python -m build
