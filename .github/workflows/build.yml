@@ -30,12 +30,12 @@ jobs:
     - name: Install dependencies
       run: |
         pip install -U pip
-        pip install coverage>=7.6 pipenv==2024.4.1 pytest==8.3.5 
+        pip install coverage>=7.6 pytest==8.3.5 
     - name: Test with pytest
       env:
           # This token is provided by Actions,
           # you do not need to create your own token
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
       run: |
-        pipenv run coverage run -m pytest
-        pipenv run coverage xml -o coverage/python.xml
+        coverage run -m pytest
+        coverage xml -o coverage/python.xml
