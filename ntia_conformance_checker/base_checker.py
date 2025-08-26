@@ -40,7 +40,7 @@ class BaseChecker(ABC):
     # file_format: str = ""  # json, rdf-xml, tag-value, yaml, xml
 
     file: str = ""
-    doc: Optional[Document] = None  # TODO: Add SPDX 3 document type
+    doc: Optional[Document] = None  # Add SPDX 3 document type support here
 
     parsing_error: List[str] = []
     validation_messages: List[ValidationMessage] = []
@@ -130,7 +130,7 @@ class BaseChecker(ABC):
         if sbom_spec == "spdx2":
             self.doc = self.parse_file()
         elif sbom_spec == "spdx3":
-            # TODO: Add SPDX 3 parsing
+            # Add SPDX 3 parsing here
             self.doc = None
         else:
             raise ValueError(f"Unsupported SBOM specification: {sbom_spec}")
@@ -176,7 +176,7 @@ class BaseChecker(ABC):
             return True
 
         # SPDX 3
-        # TODO: Check for SPDX 3
+        # Add code to check document version for SPDX 3 here
         return False
 
     def check_dependency_relationships(self) -> bool:
@@ -207,7 +207,7 @@ class BaseChecker(ABC):
             return describes_package
 
         # SPDX 3
-        # TODO: Check for SPDX 3
+        # Add code to check dependency relationships for SPDX 3 here
         return False
 
     def get_sbom_name(self) -> str:
@@ -222,6 +222,7 @@ class BaseChecker(ABC):
             return ""
 
         # SPDX 3
+        # Add code to retrieve SBOM name for SPDX 3 here
         return ""
 
     def get_components_without_concluded_licenses(
