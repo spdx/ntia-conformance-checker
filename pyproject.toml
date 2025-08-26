@@ -53,7 +53,7 @@ keywords = [
     "software component transparency",
     "supply chain security",
 ]
-dependencies = ["spdx-tools==0.8.3"]
+dependencies = ["spdx-python-model==0.0.2", "spdx-tools==0.8.3"]
 
 [project.optional-dependencies]
 test = ["pytest"]
