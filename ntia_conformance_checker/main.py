@@ -19,7 +19,7 @@ from spdx_tools.spdx.parser.parse_anything import parse_file as spdx2_parse_file
 
 from .sbom_checker import SbomChecker
 
-SUPPORT_SPDX_VERSIONS = ["2.2", "2.3"]
+SUPPORTED_SPDX_VERSIONS = {"2.2", "2.3"}
 
 
 def get_parsed_args():
@@ -34,6 +34,12 @@ def get_parsed_args():
         choices=["fsct3-min", "ntia"],
         default="ntia",
         help="Specify which compliance standard to check against",
+    )
+    parser.add_argument(
+        "--sbom-spec",
+        choices=["spdx2", "spdx3"],
+        default="spdx2",
+        help="Specify SBOM specification",
     )
     parser.add_argument(
         "--output",
@@ -51,7 +57,7 @@ def get_parsed_args():
     parser.add_argument(
         "--version",
         action="store_true",
-        help="Display version of ntia-conformance-checker",
+        help="Display version of sbomcheck",
     )
     parser.add_argument(
         "--skip-validation",
@@ -168,18 +174,33 @@ def main():
     )
     logging.info("Detected SPDX version: %s", spdx_version_str)
 
-    if spdx_version_str not in SUPPORT_SPDX_VERSIONS:
+    if spdx_version_str not in SUPPORTED_SPDX_VERSIONS:
         logging.error(
             "Unsupported SPDX version: %s. Only supports versions: %s",
             spdx_version_str,
-            ", ".join(SUPPORT_SPDX_VERSIONS),
+            ", ".join(sorted(SUPPORTED_SPDX_VERSIONS)),
         )
         sys.exit(1)
 
-    # Check SPDX 2 SBOM
-    sbom = SbomChecker(
-        args.file, validate=not args.skip_validation, compliance=args.comply
-    )
+    sbom = None
+    if spdx_version[0] == 2:
+        sbom = SbomChecker(
+            args.file,
+            validate=not args.skip_validation,
+            compliance=args.comply,
+            sbom_spec="spdx2",
+        )
+    elif spdx_version[0] == 3:
+        sbom = SbomChecker(
+            args.file,
+            validate=not args.skip_validation,
+            compliance=args.comply,
+            sbom_spec="spdx3",
+        )
+
+    if not sbom:
+        logging.error("Unsupported SBOM specification")
+        sys.exit(1)
 
     logging.info("Parsing: %s", "OK" if not sbom.parsing_error else "Failed")
     logging.info("Validation: %s", "OK" if not sbom.validation_messages else "Failed")

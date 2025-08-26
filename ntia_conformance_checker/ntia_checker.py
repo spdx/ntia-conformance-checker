@@ -6,9 +6,8 @@
 
 from __future__ import annotations
 
+import warnings
 from typing import Any, Dict
-
-from spdx_tools.spdx.model.relationship import RelationshipType
 
 from .base_checker import BaseChecker
 
@@ -16,11 +15,31 @@ from .base_checker import BaseChecker
 class NTIAChecker(BaseChecker):
     """NTIA Minimum Elements check."""
 
-    def __init__(self, file: str, validate: bool = True, compliance: str = "ntia"):
-        super().__init__(file=file, validate=validate, compliance=compliance)
+    def __init__(
+        self,
+        file: str,
+        validate: bool = True,
+        compliance: str = "ntia",
+        sbom_spec: str = "spdx2",
+    ):
+        """
+        Initialize the NTIA Minimum Element Checker.
+
+        Args:
+            file (str): The name of the file to be checked.
+            validate (bool): Whether to validate the file.
+            compliance (str): The compliance standard to be used.
+            sbom_spec (str): The SBOM specification to be used.
+        """
+        super().__init__(
+            file=file, validate=validate, compliance=compliance, sbom_spec=sbom_spec
+        )
+
+        if compliance not in {"ntia"}:
+            raise ValueError("Only NTIA Minimum Element compliance is supported.")
 
         if self.doc:
-            self.sbom_name = self.doc.creation_info.name
+            self.sbom_name = self.get_sbom_name()
             self.doc_version = self.check_doc_version()
             self.doc_author = True  # Assume author is present?
             self.doc_timestamp = True  # Assume timestamp is present?
@@ -30,39 +49,7 @@ class NTIAChecker(BaseChecker):
             # for backward compatibility
             self.ntia_minimum_elements_compliant = self.compliant
 
-    def check_doc_version(self):
-        """Check for SPDX document version."""
-        if (
-            not self.doc
-            or not self.doc.creation_info
-            or str(self.doc.creation_info.spdx_version) not in ["SPDX-2.2", "SPDX-2.3"]
-        ):
-            return False
-        return True
-
-    def check_dependency_relationships(self):
-        """Check that the document DESCRIBES at least one package."""
-        if not self.doc or not self.doc.relationships:
-            return False
-
-        describes_relationships = [
-            rel
-            for rel in self.doc.relationships
-            if rel.relationship_type == RelationshipType.DESCRIBES
-        ]
-
-        # A set of all package spdx_ids for quick lookup
-        spdx_id_set = {package.spdx_id for package in self.doc.packages}
-
-        # Check if any of the "DESCRIBES" relationships describe a Package
-        describes_package = any(
-            rel.related_spdx_element_id in spdx_id_set
-            for rel in describes_relationships
-        )
-
-        return describes_package
-
-    def check_compliance(self):
+    def check_compliance(self) -> bool:
         """Check overall compliance with NTIA minimum elements."""
         return all(
             [
@@ -77,14 +64,20 @@ class NTIAChecker(BaseChecker):
             ]
         )
 
-    def check_ntia_minimum_elements_compliance(self):
+    def check_ntia_minimum_elements_compliance(self) -> bool:
         """Check overall compliance with NTIA minimum elements.
 
         This method is kept for backward compatibility.
         Please consider using check_compliance() instead."""
+        warnings.warn(
+            "NTIAChecker.check_ntia_minimum_elements_compliance is deprecated; "
+            "use check_compliance() instead.",
+            DeprecationWarning,
+            stacklevel=2,
+        )
         return self.check_compliance()
 
-    def print_components_missing_info(self):
+    def print_components_missing_info(self) -> None:
         """Print detailed info about which components are missing info."""
         if not self.parsing_error:
             if all(
@@ -172,7 +165,14 @@ class NTIAChecker(BaseChecker):
         # instantiate dict and fields that have > 1 level
         result: Dict[str, Any] = {}
         result["complianceStandard"] = self.compliance_standard
+        result["sbomSpec"] = self.sbom_spec
+
+        result["validationMessages"] = []
+        if self.validation_messages:
+            result["validationMessages"] = list(map(str, self.validation_messages))
+
         result["parsingError"] = self.parsing_error
+
         result["isConformant"] = self.compliant
         result["isNtiaConformant"] = self.compliant  # for backward compatibility
 
@@ -214,13 +214,9 @@ class NTIAChecker(BaseChecker):
 
         result["totalNumberComponents"] = self.get_total_number_components()
 
-        result["validationMessages"] = []
-        if self.validation_messages:
-            result["validationMessages"] = list(map(str, self.validation_messages))
-
         return result
 
-    def output_html(self):
+    def output_html(self) -> str:
         """Create a HTML of results."""
         if self.doc:
             result = (
