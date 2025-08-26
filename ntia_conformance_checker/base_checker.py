@@ -241,7 +241,9 @@ class BaseChecker(ABC):
             or a list of tuples with component names and SPDX IDs.
         """
         # Note: concluded license is mandatory in SPDX-2.2 and SPDX-2.3
-        if return_tuples:
+
+        # SPDX 2
+        if self.sbom_spec == "spdx2" and return_tuples:
             components_name_id: List[Tuple[str, str]] = []
             if not self.doc or not self.doc.packages:
                 return components_name_id
@@ -259,21 +261,27 @@ class BaseChecker(ABC):
                     components_name_id.append((package.name, package.spdx_id))
             return components_name_id
 
-        components_name: List[str] = []
-        if not self.doc or not self.doc.packages:
-            return components_name
-        for package in self.doc.packages:
-            no_license = (
-                package.license_concluded is None
-                or isinstance(package.license_concluded, SpdxNoAssertion)
-                or (
-                    isinstance(package.license_concluded, str)
-                    and package.license_concluded.strip() == ""
+        if self.sbom_spec == "spdx2" and not return_tuples:
+            components_name: List[str] = []
+            if not self.doc or not self.doc.packages:
+                return components_name
+            for package in self.doc.packages:
+                no_license = (
+                    package.license_concluded is None
+                    or isinstance(package.license_concluded, SpdxNoAssertion)
+                    or (
+                        isinstance(package.license_concluded, str)
+                        and package.license_concluded.strip() == ""
+                    )
                 )
-            )
-            if no_license:
-                components_name.append(package.name)
-        return components_name
+                if no_license:
+                    components_name.append(package.name)
+            return components_name
+
+        # SPDX 3
+        # Add code to retrieve components without concluded licenses for SPDX 3 here
+
+        return []
 
     def get_components_without_copyright_texts(
         self, return_tuples: bool = False
@@ -290,7 +298,8 @@ class BaseChecker(ABC):
             Union[List[str], List[Tuple[str, str]]]: A list of component names
             or a list of tuples with component names and SPDX IDs.
         """
-        if return_tuples:
+        # SPDX 2
+        if self.sbom_spec == "spdx2" and return_tuples:
             components_name_id: List[Tuple[str, str]] = []
             if not self.doc or not self.doc.packages:
                 return components_name_id
@@ -307,21 +316,26 @@ class BaseChecker(ABC):
                     components_name_id.append((package.name, package.spdx_id))
             return components_name_id
 
-        components_name: List[str] = []
-        if not self.doc or not self.doc.packages:
-            return components_name
-        for package in self.doc.packages:
-            no_license = (
-                package.copyright_text is None
-                or isinstance(package.copyright_text, SpdxNoAssertion)
-                or (
-                    isinstance(package.copyright_text, str)
-                    and package.copyright_text.strip() == ""
+        if self.sbom_spec == "spdx2" and not return_tuples:
+            components_name: List[str] = []
+            if not self.doc or not self.doc.packages:
+                return components_name
+            for package in self.doc.packages:
+                no_license = (
+                    package.copyright_text is None
+                    or isinstance(package.copyright_text, SpdxNoAssertion)
+                    or (
+                        isinstance(package.copyright_text, str)
+                        and package.copyright_text.strip() == ""
+                    )
                 )
-            )
-            if no_license:
-                components_name.append(package.name)
-        return components_name
+                if no_license:
+                    components_name.append(package.name)
+            return components_name
+
+        # SPDX 3
+        # Add code to retrieve components without copyright texts for SPDX 3 here
+        return []
 
     def get_components_without_identifiers(self) -> List[str]:
         """
@@ -333,7 +347,15 @@ class BaseChecker(ABC):
         if not self.doc:
             return []
 
-        return [package.name for package in self.doc.packages if not package.spdx_id]
+        # SPDX 2
+        if self.sbom_spec == "spdx2":
+            return [
+                package.name for package in self.doc.packages if not package.spdx_id
+            ]
+
+        # SPDX 3
+        # Add code to retrieve components without identifiers for SPDX 3 here
+        return []
 
     def get_components_without_names(self) -> List[str]:
         """
@@ -351,11 +373,17 @@ class BaseChecker(ABC):
         if not self.doc:
             return []
 
-        components_without_names: List[str] = []
-        for package in self.doc.packages:
-            if not package.name:
-                components_without_names.append(package.spdx_id)
-        return components_without_names
+        # SPDX 2
+        if self.sbom_spec == "spdx2":
+            components_without_names: List[str] = []
+            for package in self.doc.packages:
+                if not package.name:
+                    components_without_names.append(package.spdx_id)
+            return components_without_names
+
+        # SPDX 3
+        # Add code to retrieve components without names for SPDX 3 here
+        return []
 
     def get_components_without_suppliers(
         self, return_tuples: bool = False
@@ -372,7 +400,8 @@ class BaseChecker(ABC):
             Union[List[str], List[Tuple[str, str]]]: A list of component names
             or a list of tuples with component names and SPDX IDs.
         """
-        if return_tuples:
+        # SPDX 2
+        if self.sbom_spec == "spdx2" and return_tuples:
             components_name_id: List[Tuple[str, str]] = []
             if not self.doc or not self.doc.packages:
                 return components_name_id
@@ -384,16 +413,21 @@ class BaseChecker(ABC):
                     components_name_id.append((package.name, package.spdx_id))
             return components_name_id
 
-        components_name: List[str] = []
-        if not self.doc or not self.doc.packages:
+        if self.sbom_spec == "spdx2" and not return_tuples:
+            components_name: List[str] = []
+            if not self.doc or not self.doc.packages:
+                return components_name
+            for package in self.doc.packages:
+                no_supplier = package.supplier is None or isinstance(
+                    package.supplier, SpdxNoAssertion
+                )
+                if no_supplier:
+                    components_name.append(package.name)
             return components_name
-        for package in self.doc.packages:
-            no_supplier = package.supplier is None or isinstance(
-                package.supplier, SpdxNoAssertion
-            )
-            if no_supplier:
-                components_name.append(package.name)
-        return components_name
+
+        # SPDX 3
+        # Add code to retrieve components without suppliers for SPDX 3 here
+        return []
 
     def get_components_without_versions(
         self, return_tuples: bool = False
@@ -410,7 +444,8 @@ class BaseChecker(ABC):
             Union[List[str], List[Tuple[str, str]]]: A list of component names
             or a list of tuples with component names and SPDX IDs.
         """
-        if return_tuples:
+        # SPDX 2
+        if self.sbom_spec == "spdx2" and return_tuples:
             components_name_id: List[Tuple[str, str]] = []
             if not self.doc or not self.doc.packages:
                 return components_name_id
@@ -419,13 +454,18 @@ class BaseChecker(ABC):
                     components_name_id.append((package.name, package.spdx_id))
             return components_name_id
 
-        components_name: List[str] = []
-        if not self.doc or not self.doc.packages:
+        if self.sbom_spec == "spdx2" and not return_tuples:
+            components_name: List[str] = []
+            if not self.doc or not self.doc.packages:
+                return components_name
+            for package in self.doc.packages:
+                if not package.version:
+                    components_name.append(package.name)
             return components_name
-        for package in self.doc.packages:
-            if not package.version:
-                components_name.append(package.name)
-        return components_name
+
+        # SPDX 3
+        # Add code to retrieve components without versions for SPDX 3 here
+        return []
 
     def get_total_number_components(self) -> int:
         """
@@ -437,7 +477,13 @@ class BaseChecker(ABC):
         if not self.doc:
             return 0
 
-        return len(self.doc.packages)
+        # SPDX 2
+        if self.sbom_spec == "spdx2":
+            return len(self.doc.packages)
+
+        # SPDX 3
+        # Add code to retrieve total number of components for SPDX 3 here
+        return 0
 
     def parse_file(self) -> Optional[Document]:
         """
@@ -451,6 +497,8 @@ class BaseChecker(ABC):
         if not os.path.exists(self.file):
             logging.error("Filename %s not found.", self.file)
             sys.exit(1)
+        
+        # SPDX 2
         try:
             doc = parse_anything.parse_file(self.file)
         except SPDXParsingError as err:
@@ -458,3 +506,14 @@ class BaseChecker(ABC):
             return None
 
         return cast(Document, doc)
+
+    # def parse_spdx3_file(self) -> Optional[spdx3.Spdx3Document]:
+    #     """
+    #     Parse SPDX 3 SBOM document.
+
+    #     Returns:
+    #         Optional[Document]: The parsed SPDX 3 SBOM document if successful,
+    #         otherwise None.
+    #     """
+    #     # Add code to parse SPDX 3 files here
+    #     return None
