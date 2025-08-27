@@ -51,6 +51,9 @@ presented at SPDX General Meeting 2024-12-05.
 
 ## Installation
 
+This tool requires Python 3.8+.
+Its dependencies may require a more recent version of Python.
+
 *Installation Method #1*:
 Install from the [Python Package Index (PyPI)][pypi] with `pip`.
 
@@ -58,7 +61,7 @@ Install from the [Python Package Index (PyPI)][pypi] with `pip`.
 pip install ntia-conformance-checker
 ```
 
-*Installation Method #2*: Install locally.
+*Installation Method #2*: Install from local source.
 Clone the repo and install dependencies using the following commands:
 
 ```bash
@@ -67,13 +70,11 @@ cd ntia-conformance-checker
 pip install .
 ```
 
-The tool requires Python 3 (3.8+).
-It is recommended to use a virtual python environment especially
-if you are using different versions of python.
-`virtualenv` is a tool for setting up virtual python environments which
-allows you to have all the dependencies for the tool set up in a single
-environment, or have different environments set up for testing using different
-versions of Python.
+It is recommended to use a virtual environment, especially
+if you work with multiple Python versions.
+`virtualenv` is a tool for creating isolated Python environments;
+it lets you keep a project's dependencies in a single environment
+or create separate environments for testing with different Python versions.
 
 ## CLI Usage
 

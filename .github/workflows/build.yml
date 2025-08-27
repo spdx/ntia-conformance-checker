@@ -3,13 +3,19 @@ name: build
 on:
   pull_request:
     branches: [ "main" ]
+    paths-ignore: [ '**.md', 'docs/**' ]
 
 permissions:
   contents: read
 
 jobs:
   build:
-    runs-on: ubuntu-latest
+    strategy:
+      matrix:
+        os: ["ubuntu-latest", "windows-latest", "macos-latest"]
+        python-version: ["3.13", "3.12", "3.11", "3.10", "3.9"]
+
+    runs-on: ${{ matrix.os }}
     permissions:
       pull-requests: write
 
@@ -19,19 +25,24 @@ jobs:
     - name: Set up Python
       uses: actions/setup-python@a26af69be951a213d495a4c3e4e4022e16d87065  # v5.6.0
       with:
-        python-version: "3.9"
+        python-version: ${{ matrix.python-version }}
+        cache: "pip"
     - name: Install dependencies
       run: |
-        pip install pip==25.0
-        pip install pipenv==2024.4.1
-        # use --pre flag to enable use of prerelease package versions
-        pipenv install
-        pipenv install pytest==8.3.4 coverage==7.6.10
+        pip install pip==25.2
+        pip install build==1.3.0
+    - name: Build package
+      run: |
+        python -m build
+    - name: Install package
+      run: |
+        pip install .
     - name: Test with pytest
       env:
           # This token is provided by Actions,
           # you do not need to create your own token
           GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
       run: |
-        pipenv run coverage run -m pytest
-        pipenv run coverage xml -o coverage/python.xml
+        pip install ".[test]"
+        coverage run -m pytest
+        coverage xml -o coverage/python.xml
