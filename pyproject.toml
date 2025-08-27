@@ -8,7 +8,7 @@ build-backend = "setuptools.build_meta"
 
 [project]
 name = "ntia_conformance_checker"
-version = "3.2.1"
+version = "3.3-dev"
 authors = [
     { name = "Josh Lin", email = "linynjosh@gmail.com" },
     { name = "John Speed Meyers", email = "johnmeyersster@gmail.com" },
@@ -21,13 +21,12 @@ maintainers = [
     { name = "Arthit Suriyawongkul", email = "suriyawa@tcd.ie" },
     { name = "SPDX group at the Linux Foundation and others", email = "spdx-implementers+owner@lists.spdx.org" },
 ]
-license = { text = "Apache-2.0" }
+license = "Apache-2.0"
 description = "Check SPDX SBOM for NTIA minimum elements and common SBOM baseline attributes"
 readme = "README.md"
 classifiers = [
     "Intended Audience :: Developers",
     "Intended Audience :: System Administrators",
-    "License :: OSI Approved :: Apache Software License",
     "Programming Language :: Python :: 3.9",
     "Programming Language :: Python :: 3.10",
     "Programming Language :: Python :: 3.11",
