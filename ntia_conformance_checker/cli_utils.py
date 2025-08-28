@@ -10,59 +10,97 @@ import argparse
 import logging
 import re
 import sys
-
 from importlib.metadata import version
 from typing import Optional, Tuple
+
 from spdx_tools.spdx.parser.error import SPDXParsingError
 from spdx_tools.spdx.parser.parse_anything import parse_file as spdx2_parse_file
 
+from .base_checker import (
+    DEFAULT_COMPLIANCE_STANDARD,
+    DEFAULT_SBOM_SPEC,
+    SUPPORTED_COMPLIANCE_STANDARDS,
+    SUPPORTED_SBOM_SPECS,
+)
 
-def get_parsed_args():
+
+def do_parsed_args():
     """Parse command line arguments"""
     parser = argparse.ArgumentParser(
-        description="Check if SPDX SBOM complies with NTIA minimum elements/"
+        description="Check if an SPDX SBOM complies with NTIA minimum elements/"
         "FSCT Common SBOM baseline attributes",
+        formatter_class=argparse.RawDescriptionHelpFormatter,
+        epilog=(
+            "Examples:\n"
+            "  sbomcheck sbom.spdx\n"
+            "  sbomcheck --output json --output-file report.json sbom.yaml\n"
+            "  sbomcheck --sbom-spec spdx3 --skip-validation sbom.json\n"
+        ),
     )
-    parser.add_argument("--file", help="Filepath for SPDX SBOM")
     parser.add_argument(
-        "--comply",
-        choices=["fsct3-min", "ntia"],
-        default="ntia",
-        help="Specify which compliance standard to check against",
+        "file", metavar="PATH", nargs="?", help="Filepath for SBOM input"
     )
     parser.add_argument(
+        "--file",  # for backward compatibility
+        dest="file_opt",
+        help=argparse.SUPPRESS,  # hide from help
+    )
+    parser.add_argument(
+        "-s",
         "--sbom-spec",
-        choices=["spdx2", "spdx3"],
-        default="spdx2",
-        help="Specify SBOM specification",
+        choices=sorted(SUPPORTED_SBOM_SPECS),
+        default=DEFAULT_SBOM_SPEC,
+        help=f"SBOM specification of the input file; default: {DEFAULT_SBOM_SPEC}",
     )
     parser.add_argument(
-        "--output",
-        choices=["print", "json", "html", "quiet"],
-        default="print",
-        help="Specify type of output",
-    )
-    parser.add_argument(
-        "-v",
-        "--verbose",
-        action="store_true",
-        help="Specify whether output should be verbose",
-    )
-    parser.add_argument("--output_path", help="Filepath for optionally storing output")
-    parser.add_argument(
-        "--version",
-        action="store_true",
-        help="Display version of sbomcheck",
+        "-c",
+        "--comply",
+        choices=sorted(SUPPORTED_COMPLIANCE_STANDARDS),
+        default=DEFAULT_COMPLIANCE_STANDARD,
+        help=f"Compliance standard to check against; default: {DEFAULT_COMPLIANCE_STANDARD}",
     )
     parser.add_argument(
         "--skip-validation",
         action="store_true",
         default=False,
-        help="Specify whether to skip validation",
+        help="If specified, skip validation",
+    )
+    parser.add_argument(
+        "--output",
+        choices=["print", "json", "html", "quiet"],
+        default="print",
+        help="Type of compliance report output; default: print, which prints to console",
+    )
+    parser.add_argument(
+        "-o",
+        "--output-file",
+        metavar="PATH",
+        help="Filepath for compliance report output; if omitted, prints to console",
+    )
+    parser.add_argument(
+        "--output_path",  # for backward compatibility
+        dest="output_path",
+        help=argparse.SUPPRESS,  # hide from help
+    )
+    parser.add_argument(
+        "-v",
+        "--verbose",
+        action="store_true",
+        help="If specified, print more information",
+    )
+    parser.add_argument(
+        "-V",
+        "--version",
+        action="store_true",
+        help="Display version of sbomcheck",
     )
 
     args = parser.parse_args()
 
+    if getattr(args, "file_opt", None):
+        args.file = args.file_opt
+
+    print(args)
     if not args.file:
         if args.version:
             print(version("ntia-conformance-checker"))

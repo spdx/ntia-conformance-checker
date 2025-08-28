@@ -11,17 +11,16 @@ import logging
 import sys
 from typing import Any, Dict, Optional, Tuple
 
-from .base_checker import SUPPORTED_SBOM_SPECS
-from .cli_utils import get_parsed_args, get_spdx_version
+from .base_checker import SUPPORTED_SBOM_SPECS, SUPPORTED_SPDX_VERSIONS
+from .cli_utils import do_parsed_args, get_spdx_version
 from .sbom_checker import SbomChecker
-
-SUPPORTED_SPDX_VERSIONS = {(2, 2), (2, 3), (3, 0)}
 
 
 def main() -> None:
     """Entrypoint for CLI application."""
 
-    args = get_parsed_args()
+    args = do_parsed_args()
+
 
     log_level = logging.DEBUG if args.verbose else logging.INFO
     logging.basicConfig(level=log_level, format="%(levelname)s: %(message)s")
@@ -52,7 +51,7 @@ def main() -> None:
             "Unsupported SPDX version: %d.%d. Supported: %s",
             spdx_version[0],
             spdx_version[1],
-            ", ".join(f"{a}.{b}" for a, b in sorted(SUPPORTED_SPDX_VERSIONS)),
+            ", ".join(f"{maj}.{min}" for maj, min in sorted(SUPPORTED_SPDX_VERSIONS)),
         )
         sys.exit(1)
 

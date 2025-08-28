@@ -22,9 +22,20 @@ from spdx_tools.spdx.validation.document_validator import validate_full_spdx_doc
 from spdx_tools.spdx.validation.validation_message import ValidationMessage
 
 SUPPORTED_SBOM_SPECS = {"spdx2"}
-SUPPORTED_SPDX2_VERSIONS = {"SPDX-2.2", "SPDX-2.3"}
-SUPPORTED_SPDX3_VERSIONS = {"3.0"}
+DEFAULT_SBOM_SPEC = "spdx2"
 
+SUPPORTED_SPDX_VERSIONS = {(2, 2), (2, 3), (3, 0)}
+
+SUPPORTED_COMPLIANCE_STANDARDS = {"fsct3-min", "ntia"}
+DEFAULT_COMPLIANCE_STANDARD = "ntia"
+
+# For easy checking of SPDX version strings
+SUPPORTED_SPDX2_VERSIONS = {
+    f"SPDX-{maj}.{min}" for (maj, min) in SUPPORTED_SPDX_VERSIONS if maj == 2
+}
+SUPPORTED_SPDX3_VERSIONS = {
+    f"{maj}.{min}" for (maj, min) in SUPPORTED_SPDX_VERSIONS if maj == 3
+}
 
 # pylint: disable=too-many-instance-attributes
 class BaseChecker(ABC):
@@ -112,7 +123,7 @@ class BaseChecker(ABC):
         file: str,
         validate: bool = True,
         compliance: str = "",
-        sbom_spec: str = "spdx2",
+        sbom_spec: str = DEFAULT_SBOM_SPEC,
     ):
         """
         Initialize the BaseChecker.
