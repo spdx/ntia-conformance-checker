@@ -12,7 +12,7 @@ import re
 import sys
 
 from importlib.metadata import version
-from typing import Tuple
+from typing import Optional, Tuple
 from spdx_tools.spdx.parser.error import SPDXParsingError
 from spdx_tools.spdx.parser.parse_anything import parse_file as spdx2_parse_file
 
@@ -73,7 +73,7 @@ def get_parsed_args():
     return args
 
 
-def get_spdx_version(file: str) -> Tuple[int, ...]:
+def get_spdx_version(file: str) -> Optional[Tuple[int, int]]:
     """
     Detect the SPDX version of the SBOM file.
 
@@ -83,11 +83,11 @@ def get_spdx_version(file: str) -> Tuple[int, ...]:
         file (str): The name of the file to be checked.
 
     Returns:
-        Tuple[int, ...]: The SPDX version of the SBOM. E.g. (2, 3) for version 2.3.
+        Tuple[int, int]: The SPDX major.minor version of the SBOM. E.g. (2, 3) for version 2.3.
     """
     if file.lower().endswith(".xls") or file.lower().endswith(".xlsx"):
         logging.debug("Excel file format is not supported")
-        return tuple()
+        return None
 
     # Try parsing the file with spdx_tools first
     doc = None
@@ -117,7 +117,7 @@ def get_spdx_version(file: str) -> Tuple[int, ...]:
             content = f.read()
     except (OSError, UnicodeDecodeError) as exc:
         logging.debug("Could not read file: %s", exc)
-        return tuple()
+        return None
 
     # Match MAJOR.MINOR.PATCH version
     patterns = [
@@ -146,4 +146,4 @@ def get_spdx_version(file: str) -> Tuple[int, ...]:
         if m:
             return (int(m.group(1)), int(m.group(2)))  # Returns (MAJOR, MINOR)
 
-    return tuple()
+    return None

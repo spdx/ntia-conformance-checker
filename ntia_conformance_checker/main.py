@@ -9,12 +9,13 @@ from __future__ import annotations
 import json
 import logging
 import sys
-from typing import Any, Dict
+from typing import Any, Dict, Optional, Tuple
 
+from .base_checker import SUPPORTED_SBOM_SPECS
 from .cli_utils import get_parsed_args, get_spdx_version
 from .sbom_checker import SbomChecker
 
-SUPPORTED_SPDX_VERSIONS = {"2.2", "2.3"}
+SUPPORTED_SPDX_VERSIONS = {(2, 2), (2, 3), (3, 0)}
 
 
 def main() -> None:
@@ -25,40 +26,41 @@ def main() -> None:
     log_level = logging.DEBUG if args.verbose else logging.INFO
     logging.basicConfig(level=log_level, format="%(levelname)s: %(message)s")
 
+    logging.info("Checking SBOM: %s", args.file)
+    logging.info("SBOM specification: %s", args.sbom_spec)
     logging.info("Compliance standard: %s", args.comply)
     logging.info(
         "SPDX validation: %s", "enabled" if not args.skip_validation else "disabled"
     )
-    logging.info("Checking SBOM: %s", args.file)
 
-    spdx_version = get_spdx_version(args.file)
-    spdx_version_str = (
-        f"{spdx_version[0]}.{spdx_version[1]}" if spdx_version else "Unknown"
-    )
-    logging.info("Detected SPDX version: %s", spdx_version_str)
-
-    if spdx_version_str not in SUPPORTED_SPDX_VERSIONS:
+    if args.sbom_spec not in SUPPORTED_SBOM_SPECS:
         logging.error(
-            "Unsupported SPDX version: %s. Only supports versions: %s",
-            spdx_version_str,
-            ", ".join(sorted(SUPPORTED_SPDX_VERSIONS)),
+            "Unsupported SBOM specification: %s. Supported: %s",
+            args.sbom_spec,
+            ", ".join(sorted(SUPPORTED_SBOM_SPECS)),
         )
         sys.exit(1)
 
-    sbom_spec: str = ""
-    if spdx_version[0] == 2:
-        sbom_spec = "spdx2"
-    elif spdx_version[0] == 3:
-        sbom_spec = "spdx3"
-    else:
-        logging.error("Unsupported SBOM specification")
+    spdx_version: Optional[Tuple[int, int]] = get_spdx_version(args.file)
+    if not spdx_version:
+        logging.error("Could not determine SPDX version from SBOM.")
+        sys.exit(1)
+    logging.info("Detected SPDX version: %d.%d", spdx_version[0], spdx_version[1])
+
+    if spdx_version not in SUPPORTED_SPDX_VERSIONS:
+        logging.error(
+            "Unsupported SPDX version: %d.%d. Supported: %s",
+            spdx_version[0],
+            spdx_version[1],
+            ", ".join(f"{a}.{b}" for a, b in sorted(SUPPORTED_SPDX_VERSIONS)),
+        )
         sys.exit(1)
 
     sbom = SbomChecker(
         args.file,
         validate=not args.skip_validation,
         compliance=args.comply,
-        sbom_spec=sbom_spec,
+        sbom_spec=args.sbom_spec,
     )
 
     logging.info("Parsing: %s", "OK" if not sbom.parsing_error else "Failed")
@@ -70,18 +72,18 @@ def main() -> None:
         sbom.print_table_output(verbose=args.verbose)
         if args.verbose:
             sbom.print_components_missing_info()
-    if args.output == "json":
+    elif args.output == "json":
         result_dict: Dict[str, Any] = sbom.output_json()
         if args.output_path:
             with open(args.output_path, "w", encoding="utf-8") as outfile:
                 json.dump(result_dict, outfile)
         else:
             print(json.dumps(result_dict, indent=2))
-    if args.output == "html":
+    elif args.output == "html":
         html_output = sbom.output_html()
         print(html_output)
-    # 0 indicates success
-    sys.exit(0 if sbom.compliant else 1)
+
+    sys.exit(0 if sbom.compliant else 1)  # 0 indicates success
 
 
 if __name__ == "__main__":
