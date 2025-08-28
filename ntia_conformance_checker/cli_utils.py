@@ -100,7 +100,6 @@ def do_parsed_args():
     if getattr(args, "file_opt", None):
         args.file = args.file_opt
 
-    print(args)
     if not args.file:
         if args.version:
             print(version("ntia-conformance-checker"))

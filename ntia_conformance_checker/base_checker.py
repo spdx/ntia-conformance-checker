@@ -37,6 +37,7 @@ SUPPORTED_SPDX3_VERSIONS = {
     f"{maj}.{min}" for (maj, min) in SUPPORTED_SPDX_VERSIONS if maj == 3
 }
 
+
 # pylint: disable=too-many-instance-attributes
 class BaseChecker(ABC):
     """Base class for all compliance checkers.

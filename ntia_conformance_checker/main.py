@@ -21,7 +21,6 @@ def main() -> None:
 
     args = do_parsed_args()
 
-
     log_level = logging.DEBUG if args.verbose else logging.INFO
     logging.basicConfig(level=log_level, format="%(levelname)s: %(message)s")
 
