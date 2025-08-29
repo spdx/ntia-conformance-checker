@@ -20,22 +20,47 @@ from .base_checker import (
     DEFAULT_COMPLIANCE_STANDARD,
     DEFAULT_SBOM_SPEC,
     SUPPORTED_COMPLIANCE_STANDARDS,
+    SUPPORTED_COMPLIANCE_STANDARDS_DESC,
     SUPPORTED_SBOM_SPECS,
+    SUPPORTED_SBOM_SPECS_DESC,
 )
 
 
 def do_parsed_args():
+    OUTPUT_CHOICES = {
+        "print": "Print report to console",
+        "json": "Output report in JSON format",
+        "html": "Output report in HTML format",
+        "quiet": "No output unless there are errors",
+    }
+
+    epilog_text = (
+        "choices:\n"
+        "  SBOM specifications (for --sbom-spec):\n"
+        + "\n".join(
+            f"    {k:<11} {v}" for k, v in sorted(SUPPORTED_SBOM_SPECS_DESC.items())
+        )
+        + "\n\n"
+        "  Compliance standards (for --comply):\n"
+        + "\n".join(
+            f"    {k:<11} {v}"
+            for k, v in sorted(SUPPORTED_COMPLIANCE_STANDARDS_DESC.items())
+        )
+        + "\n\n"
+        "  Output types (for --output):\n"
+        + "\n".join(f"    {k:<11} {v}" for k, v in OUTPUT_CHOICES.items())
+        + "\n\n"
+        "Examples:\n"
+        "  sbomcheck sbom.spdx\n"
+        "  sbomcheck --output json --output-file report.json sbom.yaml\n"
+        "  sbomcheck --sbom-spec spdx3 --skip-validation sbom.json\n"
+    )
+
     """Parse command line arguments"""
     parser = argparse.ArgumentParser(
-        description="Check if an SPDX SBOM complies with NTIA minimum elements/"
-        "FSCT Common SBOM baseline attributes",
+        description="Check if an SPDX SBOM complies with/conforms to a compliance standard/conformance requirements.",
         formatter_class=argparse.RawDescriptionHelpFormatter,
-        epilog=(
-            "Examples:\n"
-            "  sbomcheck sbom.spdx\n"
-            "  sbomcheck --output json --output-file report.json sbom.yaml\n"
-            "  sbomcheck --sbom-spec spdx3 --skip-validation sbom.json\n"
-        ),
+        epilog=epilog_text,
     )
     parser.add_argument(
         "file", metavar="PATH", nargs="?", help="Filepath for SBOM input"
@@ -50,26 +75,31 @@ def do_parsed_args():
         "--sbom-spec",
         choices=sorted(SUPPORTED_SBOM_SPECS),
         default=DEFAULT_SBOM_SPEC,
-        help=f"SBOM specification of the input file; default: {DEFAULT_SBOM_SPEC}",
+        help=f"SBOM specification of the input file; see below for details [default: {DEFAULT_SBOM_SPEC}]",
     )
     parser.add_argument(
         "-c",
         "--comply",
         choices=sorted(SUPPORTED_COMPLIANCE_STANDARDS),
         default=DEFAULT_COMPLIANCE_STANDARD,
-        help=f"Compliance standard to check against; default: {DEFAULT_COMPLIANCE_STANDARD}",
+        help=f"Compliance standards to check against; see below for details [default: {DEFAULT_COMPLIANCE_STANDARD}]",
+    )
+    parser.add_argument(
+        "--conform",  # alias of --comply
+        dest="comply",
+        help=argparse.SUPPRESS,  # hide from help
     )
     parser.add_argument(
         "--skip-validation",
         action="store_true",
         default=False,
-        help="If specified, skip validation",
+        help="Skip validation",
     )
     parser.add_argument(
         "--output",
-        choices=["print", "json", "html", "quiet"],
+        choices=sorted(OUTPUT_CHOICES),
         default="print",
-        help="Type of compliance report output; default: print, which prints to console",
+        help="Type of compliance report output; see below for details [default: print]",
     )
     parser.add_argument(
         "-o",
@@ -79,14 +109,22 @@ def do_parsed_args():
     )
     parser.add_argument(
         "--output_path",  # for backward compatibility
-        dest="output_path",
+        dest="output_file",
         help=argparse.SUPPRESS,  # hide from help
     )
+#    parser.add_argument(
+#        "-q",
+#        "--quiet",
+#        action="store_const",
+#        dest="output",
+#        const="quiet",
+#        help="Suppress normal output",
+#    )
     parser.add_argument(
         "-v",
         "--verbose",
         action="store_true",
-        help="If specified, print more information",
+        help="Print more information (debug)",
     )
     parser.add_argument(
         "-V",
@@ -107,6 +145,15 @@ def do_parsed_args():
         parser.print_help()
         sys.exit(0)
 
+    logging.basicConfig(
+        level=(
+            logging.CRITICAL
+            if getattr(args, "quiet", "") == "quiet"
+            else (logging.INFO if getattr(args, "verbose", False) else logging.WARNING)
+        ),
+        format="%(levelname)s: %(message)s",
+    )
+
     return args
 
 
@@ -123,7 +170,7 @@ def get_spdx_version(file: str) -> Optional[Tuple[int, int]]:
         Tuple[int, int]: The SPDX major.minor version of the SBOM. E.g. (2, 3) for version 2.3.
     """
     if file.lower().endswith(".xls") or file.lower().endswith(".xlsx"):
-        logging.debug("Excel file format is not supported")
+        logging.warning("Excel file format is not supported")
         return None
 
     # Try parsing the file with spdx_tools first
@@ -131,10 +178,10 @@ def get_spdx_version(file: str) -> Optional[Tuple[int, int]]:
     try:
         doc = spdx2_parse_file(file)
     except SPDXParsingError as exc:
-        logging.debug("spdx_tools parser failed: %s", exc)
+        logging.warning("spdx_tools parser failed: %s", exc)
         doc = None
     except (ValueError, TypeError, OSError) as exc:
-        logging.debug("Unexpected error while parsing with spdx_tools: %s", exc)
+        logging.warning("Unexpected error while parsing with spdx_tools: %s", exc)
         doc = None
 
     # If parsing was successful, return the version tuple. e.g. (2, 3) for 2.3.
@@ -153,7 +200,7 @@ def get_spdx_version(file: str) -> Optional[Tuple[int, int]]:
         with open(file, "r", encoding="utf-8") as f:
             content = f.read()
     except (OSError, UnicodeDecodeError) as exc:
-        logging.debug("Could not read file: %s", exc)
+        logging.warning("Could not read file: %s", exc)
         return None
 
     # Match MAJOR.MINOR.PATCH version

@@ -24,10 +24,10 @@ def main() -> None:
     log_level = logging.DEBUG if args.verbose else logging.INFO
     logging.basicConfig(level=log_level, format="%(levelname)s: %(message)s")
 
-    logging.info("Checking SBOM: %s", args.file)
-    logging.info("SBOM specification: %s", args.sbom_spec)
-    logging.info("Compliance standard: %s", args.comply)
-    logging.info(
+    logging.debug("Checking SBOM: %s", args.file)
+    logging.debug("SBOM specification: %s", args.sbom_spec)
+    logging.debug("Compliance standard: %s", args.comply)
+    logging.debug(
         "SPDX validation: %s", "enabled" if not args.skip_validation else "disabled"
     )
 
@@ -43,7 +43,7 @@ def main() -> None:
     if not spdx_version:
         logging.error("Could not determine SPDX version from SBOM.")
         sys.exit(1)
-    logging.info("Detected SPDX version: %d.%d", spdx_version[0], spdx_version[1])
+    logging.debug("Detected SPDX version: %d.%d", spdx_version[0], spdx_version[1])
 
     if spdx_version not in SUPPORTED_SPDX_VERSIONS:
         logging.error(
@@ -72,8 +72,8 @@ def main() -> None:
             sbom.print_components_missing_info()
     elif args.output == "json":
         result_dict: Dict[str, Any] = sbom.output_json()
-        if args.output_path:
-            with open(args.output_path, "w", encoding="utf-8") as outfile:
+        if args.output_file:
+            with open(args.output_file, "w", encoding="utf-8") as outfile:
                 json.dump(result_dict, outfile)
         else:
             print(json.dumps(result_dict, indent=2))

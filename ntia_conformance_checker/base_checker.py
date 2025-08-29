@@ -21,15 +21,23 @@ from spdx_tools.spdx.parser.error import SPDXParsingError
 from spdx_tools.spdx.validation.document_validator import validate_full_spdx_document
 from spdx_tools.spdx.validation.validation_message import ValidationMessage
 
-SUPPORTED_SBOM_SPECS = {"spdx2"}
+
+SUPPORTED_SBOM_SPECS_DESC = {
+    "spdx2": "Software Package Data Exchange (SPDX) 2.x",
+    "spdx3": "System Package Data Exchange (SPDX) 3.x",
+}
 DEFAULT_SBOM_SPEC = "spdx2"
+SUPPORTED_SBOM_SPECS = set(SUPPORTED_SBOM_SPECS_DESC.keys())
 
-SUPPORTED_SPDX_VERSIONS = {(2, 2), (2, 3), (3, 0)}
-
-SUPPORTED_COMPLIANCE_STANDARDS = {"fsct3-min", "ntia"}
+SUPPORTED_COMPLIANCE_STANDARDS_DESC = {
+    # "cisasbom2025": "2025 CISA SBOM Minimum Elements",
+    "fsct3-min": "2024 CISA Framing Software Component Transparency Baseline Attributes (minimum expectation)",
+    "ntia": "2021 NTIA SBOM Minimum Elements",
+}
 DEFAULT_COMPLIANCE_STANDARD = "ntia"
+SUPPORTED_COMPLIANCE_STANDARDS = set(SUPPORTED_COMPLIANCE_STANDARDS_DESC.keys())
 
-# For easy checking of SPDX version strings
+SUPPORTED_SPDX_VERSIONS = {(2, 2), (2, 3), (3, 0)}  # (Major, Minor)
 SUPPORTED_SPDX2_VERSIONS = {
     f"SPDX-{maj}.{min}" for (maj, min) in SUPPORTED_SPDX_VERSIONS if maj == 2
 }
@@ -40,7 +48,7 @@ SUPPORTED_SPDX3_VERSIONS = {
 
 # pylint: disable=too-many-instance-attributes
 class BaseChecker(ABC):
-    """Base class for all compliance checkers.
+    """Base class for all compliance/conformance checkers.
 
     This base class contains methods for common tasks like file loading
     and parsing.
@@ -67,19 +75,19 @@ class BaseChecker(ABC):
     components_without_concluded_licenses: List[str] = []
     components_without_copyright_texts: List[str] = []
 
-    doc_version: bool = False  # Has SPDX document version
-    doc_author: bool = False  # Has SPDX document author
-    doc_timestamp: bool = False  # Has SPDX document creation timestamp
-    dependency_relationships: bool = False  # Has DESCRIBES relationship
+    doc_version: bool = False  # Has SPDX document version?
+    doc_author: bool = False  # Has SPDX document author?
+    doc_timestamp: bool = False  # Has SPDX document creation timestamp?
+    dependency_relationships: bool = False  # Has DESCRIBES relationship?
 
-    compliant: bool = False  # Is SBOM compliant with the chosen standard
+    compliant: bool = False  # Is SBOM compliant with the chosen standard?
 
-    # an alias of "compliant", for backward compatibility
+    # An alias of "compliant", for backward compatibility
     ntia_minimum_elements_compliant: bool = compliant
 
     @abstractmethod
     def check_compliance(self) -> bool:
-        """Abstract method to check compliance."""
+        """Abstract method to check compliance/conformance."""
         raise NotImplementedError
 
     @abstractmethod
@@ -125,7 +133,7 @@ class BaseChecker(ABC):
         validate: bool = True,
         compliance: str = "",
         sbom_spec: str = DEFAULT_SBOM_SPEC,
-    ):
+    ) -> None:
         """
         Initialize the BaseChecker.
 
