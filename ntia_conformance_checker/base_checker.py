@@ -31,8 +31,11 @@ SUPPORTED_SBOM_SPECS = set(SUPPORTED_SBOM_SPECS_DESC.keys())
 
 SUPPORTED_COMPLIANCE_STANDARDS_DESC = {
     # "cisasbom2025": "2025 CISA SBOM Minimum Elements",
-    "fsct3-min": "2024 CISA Framing Software Component Transparency Baseline Attributes (minimum expectation)",
+    # https://www.cisa.gov/resources-tools/resources/2025-minimum-elements-software-bill-materials-sbom
+    "fsct3-min": "2024 CISA Framing Software Component Transparency (minimum expectation)",
+    # https://www.cisa.gov/resources-tools/resources/framing-software-component-transparency-2024
     "ntia": "2021 NTIA SBOM Minimum Elements",
+    # https://www.ntia.gov/report/2021/minimum-elements-software-bill-materials-sbom
 }
 DEFAULT_COMPLIANCE_STANDARD = "ntia"
 SUPPORTED_COMPLIANCE_STANDARDS = set(SUPPORTED_COMPLIANCE_STANDARDS_DESC.keys())

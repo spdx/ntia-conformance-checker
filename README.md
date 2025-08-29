@@ -103,7 +103,7 @@ choices:
     spdx3       System Package Data Exchange (SPDX) 3.x
 
   Compliance standards (for --comply):
-    fsct3-min   2024 CISA Framing Software Component Transparency Baseline Attributes (minimum expectation)
+    fsct3-min   2024 CISA Framing Software Component Transparency (minimum expectation)
     ntia        2021 NTIA SBOM Minimum Elements
 
   Output types (for --output):

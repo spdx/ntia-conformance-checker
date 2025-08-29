@@ -12,7 +12,7 @@ from .base_checker import BaseChecker
 
 
 class FSCT3Checker(BaseChecker):
-    """FSCT Common SBOM Third Edition checker.
+    """FSCTv3 checker.
 
     A set of Baseline Attributes is defined in Section 2.2 of
     Framing Software Component Transparency:
@@ -33,7 +33,7 @@ class FSCT3Checker(BaseChecker):
         sbom_spec: str = "spdx2",
     ):
         """
-        Initialize the FSCT Common SBOM Third Edition checker.
+        Initialize the FSCTv3 checker.
 
         Args:
             file (str): The name of the file to be checked.
@@ -46,9 +46,7 @@ class FSCT3Checker(BaseChecker):
         )
 
         if compliance not in {"fsct3-min"}:
-            raise ValueError(
-                "Only FSCTv3 Baseline Attributes Minimum Expected compliance is supported."
-            )
+            raise ValueError("Only FSCTv3 Minimum Expected compliance is supported.")
 
         if self.doc:
             self.sbom_name = self.get_sbom_name()
@@ -59,7 +57,7 @@ class FSCT3Checker(BaseChecker):
             self.compliant = self.check_compliance()
 
     def check_compliance(self) -> bool:
-        """Check overall compliance with FSCTv3 Baseline Attributes Minimum Expected"""
+        """Check overall compliance with FSCTv3 Minimum Expected"""
         return all(
             [
                 self.doc_author,
@@ -129,12 +127,11 @@ class FSCT3Checker(BaseChecker):
         # pylint: disable=line-too-long
         if self.parsing_error:
             print(
-                "\nIs this SBOM FSCTv3 Baseline Attributes "
-                f"Minimum Expected conformant? {self.compliant}\n"
+                f"\nIs this SBOM FSCTv3 Minimum Expected conformant? {self.compliant}\n"
             )
             print(
                 "The provided document couldn't be parsed, "
-                "check for FSCTv3 Baseline Attributes couldn't be performed.\n"
+                "check for FSCTv3 Minimum Expected couldn't be performed.\n"
             )
             print("The following SPDXParsingError was raised:\n")
             for error in self.parsing_error:
@@ -142,8 +139,7 @@ class FSCT3Checker(BaseChecker):
 
         else:
             print(
-                "\nIs this SBOM FSCTv3 Baseline Attributes "
-                f"Minimum Expected conformant? {self.compliant}\n"
+                f"\nIs this SBOM FSCTv3 Minimum Expected conformant? {self.compliant}\n"
             )
             print("Individual elements                            | Status")
             print("-------------------------------------------------------")
@@ -255,7 +251,7 @@ class FSCT3Checker(BaseChecker):
         """Create a HTML of results."""
         if self.doc:
             result = (
-                f"<h2>FSCTv3 Baseline Attributes Minimum Expected Conformance Results</h2>"
+                f"<h2>FSCTv3 Minimum Expected Conformance Results</h2>"
                 f"<h3>Conformant: {self.compliant}</h3>"
                 f"<table> <tr> "
                 f"<th>Individual Elements</th> <th>Conformant</th> </tr> "
@@ -299,7 +295,7 @@ class FSCT3Checker(BaseChecker):
                 result += "</ul>\n"
         else:
             result = f"""
-            <h2>FSCTv3 Baseline Attributes Minimum Expected Conformance Results</h2>
+            <h2>FSCTv3 Minimum Expected Conformance Results</h2>
             <h3>Conformant: {self.compliant}</h3>
             <p>The provided document couldn't be parsed, check for baseline attributes couldn't be performed.</p>
             <p>The following SPDXParsingError was raised:<p><ul>"""

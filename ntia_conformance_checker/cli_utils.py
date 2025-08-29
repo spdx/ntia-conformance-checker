@@ -25,14 +25,16 @@ from .base_checker import (
     SUPPORTED_SBOM_SPECS_DESC,
 )
 
+_OUTPUT_CHOICES = {
+    "print": "Print report to console",
+    "json": "Output report in JSON format",
+    "html": "Output report in HTML format",
+    "quiet": "No output unless there are errors",
+}
 
-def do_parsed_args():
-    OUTPUT_CHOICES = {
-        "print": "Print report to console",
-        "json": "Output report in JSON format",
-        "html": "Output report in HTML format",
-        "quiet": "No output unless there are errors",
-    }
+
+def do_parsed_args() -> argparse.Namespace:
+    """Parse command line arguments."""
 
     epilog_text = (
         "choices:\n"
@@ -48,7 +50,7 @@ def do_parsed_args():
         )
         + "\n\n"
         "  Output types (for --output):\n"
-        + "\n".join(f"    {k:<11} {v}" for k, v in OUTPUT_CHOICES.items())
+        + "\n".join(f"    {k:<11} {v}" for k, v in sorted(_OUTPUT_CHOICES.items()))
         + "\n\n"
         "Examples:\n"
         "  sbomcheck sbom.spdx\n"
@@ -56,9 +58,8 @@ def do_parsed_args():
         "  sbomcheck --sbom-spec spdx3 --skip-validation sbom.json\n"
     )
 
-    """Parse command line arguments"""
     parser = argparse.ArgumentParser(
-        description="Check if an SPDX SBOM complies with/conforms to a compliance standard/conformance requirements.",
+        description="Check if an SPDX SBOM complies with a compliance standard.",
         formatter_class=argparse.RawDescriptionHelpFormatter,
         epilog=epilog_text,
     )
@@ -75,14 +76,16 @@ def do_parsed_args():
         "--sbom-spec",
         choices=sorted(SUPPORTED_SBOM_SPECS),
         default=DEFAULT_SBOM_SPEC,
-        help=f"SBOM specification of the input file; see below for details [default: {DEFAULT_SBOM_SPEC}]",
+        help="SBOM specification of the input file; see below for details "
+            f"[default: {DEFAULT_SBOM_SPEC}]",
     )
     parser.add_argument(
         "-c",
         "--comply",
         choices=sorted(SUPPORTED_COMPLIANCE_STANDARDS),
         default=DEFAULT_COMPLIANCE_STANDARD,
-        help=f"Compliance standards to check against; see below for details [default: {DEFAULT_COMPLIANCE_STANDARD}]",
+        help="Compliance standards to check against; see below for details "
+            f"[default: {DEFAULT_COMPLIANCE_STANDARD}]",
     )
     parser.add_argument(
         "--conform",  # alias of --comply
@@ -97,7 +100,7 @@ def do_parsed_args():
     )
     parser.add_argument(
         "--output",
-        choices=sorted(OUTPUT_CHOICES),
+        choices=sorted(_OUTPUT_CHOICES),
         default="print",
         help="Type of compliance report output; see below for details [default: print]",
     )
@@ -112,14 +115,14 @@ def do_parsed_args():
         dest="output_file",
         help=argparse.SUPPRESS,  # hide from help
     )
-#    parser.add_argument(
-#        "-q",
-#        "--quiet",
-#        action="store_const",
-#        dest="output",
-#        const="quiet",
-#        help="Suppress normal output",
-#    )
+    # parser.add_argument(
+    #     "-q",
+    #     "--quiet",
+    #     action="store_const",
+    #     dest="output",
+    #     const="quiet",
+    #     help="Suppress normal output",
+    # )
     parser.add_argument(
         "-v",
         "--verbose",
