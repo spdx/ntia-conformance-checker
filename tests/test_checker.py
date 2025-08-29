@@ -7,10 +7,12 @@
 # pylint: disable=missing-function-docstring,import-error,consider-using-from-import
 
 import os
+from pathlib import Path
 from unittest import TestCase
 
 import pytest
 from beartype.roar import BeartypeCallHintParamViolation
+from spdx_python_model import v3_0_1 as spdx3  # type: ignore # import-untyped
 
 import ntia_conformance_checker.sbom_checker as sbom_checker
 from ntia_conformance_checker import FSCT3Checker, NTIAChecker
@@ -300,6 +302,21 @@ def test_sbomchecker_alpine_no_package_supplier_name_example():
     sbom = sbom_checker.SbomChecker(test_file)
     got = sbom.output_json()
     assert not got["componentSuppliers"]["allProvided"]
+
+
+### Test SPDX 3 SBOM examples
+
+
+def test_sbomchecker_spdx3_no_sbom_example():
+    test_file = Path(__file__).parent / "data" / "spdx3" / "has_no_sbom.json"
+    sbom = sbom_checker.SbomChecker(str(test_file), sbom_spec="spdx3")
+    assert sbom is not None
+    assert sbom.doc is not None
+    assert isinstance(sbom.doc, spdx3.SpdxDocument)
+    assert (
+        getattr(sbom.doc, "spdxId")
+        == "https://swinslow.net/spdx-examples/example1/hello-v3-specv3/document0"
+    )
 
 
 ### Other tests

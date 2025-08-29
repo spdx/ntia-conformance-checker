@@ -161,7 +161,7 @@ class BaseChecker(ABC):
             self.doc = self.parse_file()
         elif sbom_spec == "spdx3":
             # Add SPDX 3 parsing here
-            self.doc = None
+            self.doc = self.parse_spdx3_file()
         else:
             raise ValueError(f"Unsupported SBOM specification: {sbom_spec}")
 
@@ -544,7 +544,7 @@ class BaseChecker(ABC):
             Optional[Document]: The parsed SPDX 2 SBOM document if successful,
             otherwise None.
         """
-        if not self.file or self.file.strip() == "":
+        if not self.file or str(self.file).strip() == "":
             logging.error("No file path provided.")
             return None
 
@@ -574,7 +574,7 @@ class BaseChecker(ABC):
 
         See: https://spdx.github.io/spdx-spec/v3.0/model/Core/Classes/SpdxDocument/
         """
-        if not self.file or self.file.strip() == "":
+        if not self.file or str(self.file).strip() == "":
             logging.error("No file path provided.")
             return None
 
@@ -584,7 +584,8 @@ class BaseChecker(ABC):
 
         object_set: spdx3.SHACLObjectSet = spdx3.SHACLObjectSet()
         try:
-            spdx3.JSONLDDeserializer().read(self.file, object_set)
+            with open(self.file, encoding="utf-8") as f:
+                spdx3.JSONLDDeserializer().read(f, object_set)
         except (OSError, json.JSONDecodeError) as err:
             logging.warning("SPDX3 deserialization failed: %s", err)
             self.parsing_error.append(str(err))
