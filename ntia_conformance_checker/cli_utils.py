@@ -76,16 +76,20 @@ def do_parsed_args() -> argparse.Namespace:
         "--sbom-spec",
         choices=sorted(SUPPORTED_SBOM_SPECS),
         default=DEFAULT_SBOM_SPEC,
-        help="SBOM specification of the input file; see below for details "
-        + f"[default: {DEFAULT_SBOM_SPEC}]",
+        help=(
+            "SBOM specification of the input file; see below for details "
+            f"[default: {DEFAULT_SBOM_SPEC}]"
+        ),
     )
     parser.add_argument(
         "-c",
         "--comply",
         choices=sorted(SUPPORTED_COMPLIANCE_STANDARDS),
         default=DEFAULT_COMPLIANCE_STANDARD,
-        help="Compliance standards to check against; see below for details "
-        + f"[default: {DEFAULT_COMPLIANCE_STANDARD}]",
+        help=(
+            "Compliance standards to check against; see below for details "
+            f"[default: {DEFAULT_COMPLIANCE_STANDARD}]"
+        ),
     )
     parser.add_argument(
         "--conform",  # alias of --comply

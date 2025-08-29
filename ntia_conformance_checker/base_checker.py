@@ -599,7 +599,10 @@ class BaseChecker(ABC):
         # SPDX 3 as well, so the print/HTML/JSON output functions can be reused.
 
         if not spdx_documents:
-            error_msg = "No SpdxDocument object found in the SPDX 3 JSON file. Expected exactly one."
+            error_msg = (
+                "No SpdxDocument object found in the SPDX 3 JSON file. "
+                "Expected exactly one."
+            )
             logging.error(error_msg)
             self.validation_messages.append(
                 ValidationMessage(error_msg, ValidationContext())
@@ -624,23 +627,23 @@ class BaseChecker(ABC):
             context = ValidationContext(parent_id=doc_id)
             logging.error(error_msg)
             self.validation_messages.append(ValidationMessage(error_msg, context))
-            return doc
-
-        if len(root_element) != 1:
+        elif len(root_element) != 1:
             error_msg = (
                 "Multiple root elements found in SpdxDocument. Allows exactly one."
             )
             context = ValidationContext(parent_id=doc_id)
             logging.error(error_msg)
             self.validation_messages.append(ValidationMessage(error_msg, context))
-            return doc
-
-        root_element = root_element[0]
-        if not isinstance(root_element, (spdx3.Bom, spdx3.software_Sbom)):
-            error_msg = f"The root element must be of type Bom or software_Sbom. Found: {type(root_element)}"
-            root_element_id = getattr(root_element, "spdxId", None)
-            context = ValidationContext(parent_id=doc_id, spdx_id=root_element_id)
-            logging.error(error_msg)
-            self.validation_messages.append(ValidationMessage(error_msg, context))
+        else:
+            root_element = root_element[0]
+            if not isinstance(root_element, (spdx3.Bom, spdx3.software_Sbom)):
+                error_msg = (
+                    "The root element must be of type Bom or software_Sbom. "
+                    f"Found: {type(root_element)}"
+                )
+                root_element_id = getattr(root_element, "spdxId", None)
+                context = ValidationContext(parent_id=doc_id, spdx_id=root_element_id)
+                logging.error(error_msg)
+                self.validation_messages.append(ValidationMessage(error_msg, context))
 
         return doc
