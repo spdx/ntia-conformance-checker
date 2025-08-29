@@ -2,7 +2,7 @@
 # SPDX-FileType: SOURCE
 # SPDX-License-Identifier: Apache-2.0
 
-"""NTIA minimum elements checking functionality."""
+"""NTIA Minimum Elements checking functionality."""
 
 from __future__ import annotations
 
