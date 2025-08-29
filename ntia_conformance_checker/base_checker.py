@@ -168,6 +168,7 @@ class BaseChecker(ABC):
         if self.doc:
             if validate:
                 if sbom_spec == "spdx2":
+                    self.doc = cast(Document, self.doc)
                     self.validation_messages = validate_full_spdx_document(self.doc)
                 else:
                     pass
