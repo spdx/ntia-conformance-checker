@@ -21,6 +21,8 @@ class FSCT3Checker(BaseChecker):
     There are three maturity levels (Minimum Expected, Recommended Practice,
     and Aspirational Goal) for content provided in Attribute entries.
 
+    This checker currently only checks for Minimum Expected maturity level.
+
     See:
     https://www.cisa.gov/resources-tools/resources/framing-software-component-transparency-2024
     """
