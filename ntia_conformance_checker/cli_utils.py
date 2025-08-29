@@ -14,7 +14,7 @@ from importlib.metadata import version
 from typing import Optional, Tuple
 
 from spdx_tools.spdx.parser.error import SPDXParsingError
-from spdx_tools.spdx.parser.parse_anything import parse_file as spdx2_parse_file
+from spdx_tools.spdx.parser.parse_anything import parse_file as parse_spdx2_file
 
 from .base_checker import (
     DEFAULT_COMPLIANCE_STANDARD,
@@ -164,7 +164,7 @@ def do_parsed_args() -> argparse.Namespace:
     return args
 
 
-def get_spdx_version(file: str) -> Optional[Tuple[int, int]]:
+def get_spdx_version(file: str, sbom_spec="spdx2") -> Optional[Tuple[int, int]]:
     """
     Detect the SPDX version of the SBOM file.
 
@@ -182,14 +182,15 @@ def get_spdx_version(file: str) -> Optional[Tuple[int, int]]:
 
     # Try parsing the file with spdx_tools first
     doc = None
-    try:
-        doc = spdx2_parse_file(file)
-    except SPDXParsingError as exc:
-        logging.warning("spdx_tools parser failed: %s", exc)
-        doc = None
-    except (ValueError, TypeError, OSError) as exc:
-        logging.warning("Unexpected error while parsing with spdx_tools: %s", exc)
-        doc = None
+    if sbom_spec == "spdx2":
+        try:
+            doc = parse_spdx2_file(file)
+        except SPDXParsingError as exc:
+            logging.warning("spdx_tools parser failed: %s", exc)
+            doc = None
+        except (ValueError, TypeError, OSError) as exc:
+            logging.warning("Unexpected error while parsing with spdx_tools: %s", exc)
+            doc = None
 
     # If parsing was successful, return the version tuple. e.g. (2, 3) for 2.3.
     if doc:

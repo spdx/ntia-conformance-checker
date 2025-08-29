@@ -541,7 +541,7 @@ class BaseChecker(ABC):
         Parse SPDX 2 SBOM document.
 
         Returns:
-            Optional[Document]: The parsed SPDX 2 SBOM document if successful,
+            Optional[Document]: An SPDX 2 SBOM document if successful,
             otherwise None.
         """
         if not self.file or str(self.file).strip() == "":

@@ -39,7 +39,9 @@ def main() -> None:
         )
         sys.exit(1)
 
-    spdx_version: Optional[Tuple[int, int]] = get_spdx_version(args.file)
+    spdx_version: Optional[Tuple[int, int]] = get_spdx_version(
+        args.file, sbom_spec=args.sbom_spec
+    )
     if not spdx_version:
         logging.error("Could not determine SPDX version from SBOM.")
         sys.exit(1)
