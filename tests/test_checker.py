@@ -318,7 +318,7 @@ def test_sbomchecker_spdx3_no_sbom_example():
         == "https://swinslow.net/spdx-examples/example1/hello-v3-specv3/document0"
     )
     assert getattr(sbom.doc, "name") == "hello"
-    assert sbom.name == getattr(sbom.doc, "name")  # Test if get_sbom_name() works properly
+    assert sbom.sbom_name == getattr(sbom.doc, "name")  # Test if get_sbom_name() works properly
 
 
 ### Other tests
