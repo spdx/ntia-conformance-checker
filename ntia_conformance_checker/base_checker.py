@@ -160,7 +160,9 @@ class BaseChecker(ABC):
         if sbom_spec == "spdx2":
             self.doc = self.parse_file()
         elif sbom_spec == "spdx3":
-            # Add SPDX 3 parsing here
+            logging.warning(
+                "SPDX 3 support is under development. Do not use in production."
+            )
             self.doc = self.parse_spdx3_file()
         else:
             raise ValueError(f"Unsupported SBOM specification: {sbom_spec}")
