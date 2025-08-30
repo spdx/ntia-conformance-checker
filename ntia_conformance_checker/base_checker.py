@@ -160,8 +160,10 @@ class BaseChecker(ABC):
 
         self.file = file
 
+        # SPDX 2
         if sbom_spec == "spdx2":
             self.doc = self.parse_file()
+        # SPDX 3
         elif sbom_spec == "spdx3":
             logging.warning(
                 "SPDX 3 support is under development. "
@@ -215,13 +217,15 @@ class BaseChecker(ABC):
 
         doc_spec_version: Optional[str] = None
 
+        # SPDX 2
         if self.sbom_spec == "spdx2":
             self.doc = cast(Document, self.doc)
             doc_creation_info = getattr(self.doc, "creation_info", None)
             if doc_creation_info:
                 doc_spec_version = getattr(doc_creation_info, "spdx_version", None)
 
-        if self.sbom_spec == "spdx3":
+        # SPDX 3
+        if self.sbom_spec == "spdx3" and self.__spdx3_doc:
             doc_creation_info = getattr(self.__spdx3_doc, "creationInfo", None)
             if doc_creation_info:
                 doc_spec_version = getattr(doc_creation_info, "specVersion", None)
@@ -263,7 +267,7 @@ class BaseChecker(ABC):
             return describes_package
 
         # SPDX 3
-        if self.sbom_spec == "spdx3":
+        if self.sbom_spec == "spdx3" and self.__spdx3_doc:
             return False
 
         return False
@@ -275,13 +279,15 @@ class BaseChecker(ABC):
 
         name: str = ""
 
+        # SPDX 2
         if self.sbom_spec == "spdx2":
             self.doc = cast(Document, self.doc)
             doc_creation_info = getattr(self.doc, "creation_info", None)
             if doc_creation_info:
                 name = getattr(doc_creation_info, "name", "")
 
-        if self.sbom_spec == "spdx3":
+        # SPDX 3
+        if self.sbom_spec == "spdx3" and self.__spdx3_doc:
             name = getattr(self.__spdx3_doc, "name", "")
 
         return name
@@ -455,6 +461,8 @@ class BaseChecker(ABC):
         # Add code to retrieve components without names for SPDX 3 here
         return []
 
+    # pylint: disable=too-many-branches
+    # pylint: disable=too-many-return-statements
     def get_components_without_suppliers(
         self, return_tuples: bool = False
     ) -> Union[List[str], List[Tuple[str, str]]]:
@@ -499,7 +507,33 @@ class BaseChecker(ABC):
             return components_name
 
         # SPDX 3
-        # Add code to retrieve components without suppliers for SPDX 3 here
+        if self.sbom_spec == "spdx3" and self.__spdx3_doc:
+            if return_tuples:
+                components_name_id: List[Tuple[str, str]] = []
+                for obj in self.doc.foreach_type(spdx3.Artifact):
+                    obj = cast(spdx3.Artifact, obj)
+                    artifact_name = getattr(obj, "name", "").strip()
+                    artifact_id = getattr(obj, "spdxId", "").strip()
+                    supplier = getattr(obj, "suppliedBy", None)
+                    supplier_name = (
+                        getattr(supplier, "name", "").strip() if supplier else ""
+                    )
+                    if not supplier or supplier_name == "":
+                        components_name_id.append((artifact_name, artifact_id))
+                return components_name_id
+
+            components_name: List[str] = []
+            for obj in self.doc.foreach_type(spdx3.Artifact):
+                obj = cast(spdx3.Artifact, obj)
+                artifact_name = getattr(obj, "name", "").strip()
+                supplier = getattr(obj, "suppliedBy", None)
+                supplier_name = (
+                    getattr(supplier, "name", "").strip() if supplier else ""
+                )
+                if not supplier or supplier_name == "":
+                    components_name.append(artifact_name)
+            return components_name
+
         return []
 
     def get_components_without_versions(
