@@ -2,7 +2,7 @@
 # SPDX-FileType: SOURCE
 # SPDX-License-Identifier: Apache-2.0
 
-"""NTIA minimum elements checking functionality."""
+"""NTIA Minimum Elements checking functionality."""
 
 from __future__ import annotations
 
@@ -164,6 +164,10 @@ class NTIAChecker(BaseChecker):
         """Create a dict of results for outputting to JSON."""
         # instantiate dict and fields that have > 1 level
         result: Dict[str, Any] = {}
+
+        result["isConformant"] = self.compliant
+        result["isNtiaConformant"] = self.compliant  # for backward compatibility
+
         result["complianceStandard"] = self.compliance_standard
         result["sbomSpec"] = self.sbom_spec
 
@@ -172,9 +176,6 @@ class NTIAChecker(BaseChecker):
             result["validationMessages"] = list(map(str, self.validation_messages))
 
         result["parsingError"] = self.parsing_error
-
-        result["isConformant"] = self.compliant
-        result["isNtiaConformant"] = self.compliant  # for backward compatibility
 
         result["sbomName"] = self.sbom_name
         result["componentNames"] = {}
