@@ -169,14 +169,13 @@ class BaseChecker(ABC):
                 "Do not use in production."
             )
             object_set = self.parse_spdx3_file()
-            self.doc = object_set
-
-            if object_set:
+            if not object_set:
+                logging.error("Failed to parse the SPDX 3 file.")
+            else:
+                self.doc = object_set
                 _doc, _validation_messages = validate_spdx3_document(object_set)
                 if not _doc or _validation_messages:
-                    logging.error(
-                        "Failed to extract SpdxDocument from the SPDX 3 file."
-                    )
+                    logging.error("SpdxDocument not found or invalid.")
                 self.__spdx3_doc = _doc  # cache the extracted SpdxDocument
                 self.validation_messages.extend(_validation_messages)
         else:
@@ -624,25 +623,24 @@ def validate_spdx3_document(
     object_set: spdx3.SHACLObjectSet,
 ) -> Tuple[Optional[spdx3.SpdxDocument], List[ValidationMessage]]:
     """
-    Validate an SHACLObjectSet.
-
-    This function will also validate that there is exactly one SpdxDocument in
-    the SHACLObjectSet, and that SpdxDocument has exactly one rootElement of type
-    Bom or Software/Sbom.
+    Validate an SHACLObjectSet if it contains a valid SpdxDocument.
 
     The SPDX 3.0 specification states that "Any instance of serialization of
     SPDX data MUST NOT contain more than one SpdxDocument element definition."
-    For the purpose of BOM/SBOM application, we also require that the SpdxDocument
-    has a Bom or Software/Sbom as its rootElement.
 
     See: https://spdx.github.io/spdx-spec/v3.0/model/Core/Classes/SpdxDocument/
+
+    For the purpose of BOM/SBOM application, it also requires that the
+    SpdxDocument should have a Bom or Software/Sbom as its rootElement.
+
+    See: https://github.com/spdx/ntia-conformance-checker/issues/268
 
     Args:
         object_set (spdx3.SHACLObjectSet): The SHACLObjectSet containing
                                             the SPDX 3 document.
     Returns:
         Optional[spdx3.SpdxDocument]: An SpdxDocument if found, otherwise None.
-        List[ValidationMessage]: A list of validation messages. Empty means no errors.
+        List[ValidationMessage]: A list of validation messages. Empty if no errors.
 
     """
     # Note that we use spdx_tools.spdx.validation.validation_message,
