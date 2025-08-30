@@ -161,7 +161,9 @@ class BaseChecker(ABC):
             self.doc = self.parse_file()
         elif sbom_spec == "spdx3":
             logging.warning(
-                "SPDX 3 support is under development. Do not use in production."
+                "SPDX 3 support is under development. "
+                "Some features may not work as expected. "
+                "Do not use in production."
             )
             self.doc = self.parse_spdx3_file()
         else:
@@ -193,6 +195,7 @@ class BaseChecker(ABC):
             )
 
     def get_doc_spec_version(self) -> Optional[str]:
+        """Retrieve the document's specification version."""
         if not self.doc:
             return None
 
