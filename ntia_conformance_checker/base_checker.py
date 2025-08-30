@@ -172,7 +172,7 @@ class BaseChecker(ABC):
             self.doc = object_set
 
             if object_set:
-                _doc, _validation_messages = get_spdx3_document(object_set)
+                _doc, _validation_messages = validate_spdx3_document(object_set)
                 if not _doc or _validation_messages:
                     logging.error(
                         "Failed to extract SpdxDocument from the SPDX 3 file."
@@ -620,11 +620,11 @@ class BaseChecker(ABC):
 # Static functions outside the class
 
 
-def get_spdx3_document(
+def validate_spdx3_document(
     object_set: spdx3.SHACLObjectSet,
 ) -> Tuple[Optional[spdx3.SpdxDocument], List[ValidationMessage]]:
     """
-    Get an SpdxDocument from an SHACLObjectSet.
+    Validate an SHACLObjectSet.
 
     This function will also validate that there is exactly one SpdxDocument in
     the SHACLObjectSet, and that SpdxDocument has exactly one rootElement of type
