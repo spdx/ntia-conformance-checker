@@ -24,7 +24,6 @@ from spdx_tools.spdx.validation.validation_message import (
     ValidationMessage,
 )
 
-
 SUPPORTED_SBOM_SPECS_DESC = {
     "spdx2": "Software Package Data Exchange (SPDX) 2.x",
     "spdx3": "System Package Data Exchange (SPDX) 3.x",
@@ -70,7 +69,11 @@ class BaseChecker(ABC):
     # file_format: str = ""  # json, rdf-xml, tag-value, yaml, xml
 
     file: str = ""
-    doc: Union[Document, spdx3.SpdxDocument, None] = None
+    # For SPDX 3, we have to use SHACLObjectSet instead of SpdxDocument,
+    # because we need access to relationships and other elements that are not
+    # part of SpdxDocument.
+    doc: Union[Document, spdx3.SHACLObjectSet, None] = None
+    __spdx3_doc: Optional[spdx3.SpdxDocument] = None  # cached SPDX 3 document
 
     parsing_error: List[str] = []
     validation_messages: List[ValidationMessage] = []
@@ -165,8 +168,20 @@ class BaseChecker(ABC):
                 "Some features may not work as expected. "
                 "Do not use in production."
             )
-            self.doc = self.parse_spdx3_file()
+            object_set = self.parse_spdx3_file()
+            self.doc = object_set
+
+            if object_set:
+                _doc, _validation_messages = get_spdx3_document(object_set)
+                if not _doc or _validation_messages:
+                    logging.error(
+                        "Failed to extract SpdxDocument from the SPDX 3 file."
+                    )
+                self.__spdx3_doc = _doc  # cache the extracted SpdxDocument
+                self.validation_messages.extend(_validation_messages)
         else:
+            # We can add a heuristic to detect the spec from the file content here,
+            # in case sbom_spec is not provided or invalid.
             raise ValueError(f"Unsupported SBOM specification: {sbom_spec}")
 
         if self.doc:
@@ -208,8 +223,7 @@ class BaseChecker(ABC):
                 doc_spec_version = getattr(doc_creation_info, "spdx_version", None)
 
         if self.sbom_spec == "spdx3":
-            self.doc = cast(spdx3.SpdxDocument, self.doc)
-            doc_creation_info = getattr(self.doc, "creationInfo", None)
+            doc_creation_info = getattr(self.__spdx3_doc, "creationInfo", None)
             if doc_creation_info:
                 doc_spec_version = getattr(doc_creation_info, "specVersion", None)
 
@@ -250,7 +264,9 @@ class BaseChecker(ABC):
             return describes_package
 
         # SPDX 3
-        # Add code to check dependency relationships for SPDX 3 here
+        if self.sbom_spec == "spdx3":
+            return False
+
         return False
 
     def get_sbom_name(self) -> str:
@@ -267,8 +283,7 @@ class BaseChecker(ABC):
                 name = getattr(doc_creation_info, "name", "")
 
         if self.sbom_spec == "spdx3":
-            self.doc = cast(spdx3.SpdxDocument, self.doc)
-            name = getattr(self.doc, "name", "")
+            name = getattr(self.__spdx3_doc, "name", "")
 
         return name
 
@@ -574,19 +589,13 @@ class BaseChecker(ABC):
 
         return cast(Document, doc)
 
-    def parse_spdx3_file(self) -> Optional[spdx3.SpdxDocument]:
+    def parse_spdx3_file(self) -> Optional[spdx3.SHACLObjectSet]:
         """
         Parse SPDX 3 SBOM document.
 
         Returns:
-            Optional[spdx3.SpdxDocument]: An SPDX 3 SpdxDocument if successful,
+            Optional[spdx3.SHACLObjectSet]: An SHACLObjectSet if successful,
             otherwise None.
-
-        SPDX 3.0 specification states that
-        "Any instance of serialization of SPDX data MUST NOT contain more than
-        one SpdxDocument element definition."
-
-        See: https://spdx.github.io/spdx-spec/v3.0/model/Core/Classes/SpdxDocument/
         """
         if not self.file or str(self.file).strip() == "":
             logging.error("No file path provided.")
@@ -605,60 +614,82 @@ class BaseChecker(ABC):
             self.parsing_error.append(str(err))
             return None
 
-        spdx_documents: List[spdx3.SpdxDocument] = list(
-            object_set.foreach_type(spdx3.SpdxDocument)
+        return object_set
+
+
+# Static functions outside the class
+
+
+def get_spdx3_document(
+    object_set: spdx3.SHACLObjectSet,
+) -> Tuple[Optional[spdx3.SpdxDocument], List[ValidationMessage]]:
+    """
+    Get an SpdxDocument from an SHACLObjectSet.
+
+    This function will also validate that there is exactly one SpdxDocument in
+    the SHACLObjectSet, and that SpdxDocument has exactly one rootElement of type
+    Bom or Software/Sbom.
+
+    The SPDX 3.0 specification states that "Any instance of serialization of
+    SPDX data MUST NOT contain more than one SpdxDocument element definition."
+    For the purpose of BOM/SBOM application, we also require that the SpdxDocument
+    has a Bom or Software/Sbom as its rootElement.
+
+    See: https://spdx.github.io/spdx-spec/v3.0/model/Core/Classes/SpdxDocument/
+
+    Args:
+        object_set (spdx3.SHACLObjectSet): The SHACLObjectSet containing
+                                            the SPDX 3 document.
+    Returns:
+        Optional[spdx3.SpdxDocument]: An SpdxDocument if found, otherwise None.
+        List[ValidationMessage]: A list of validation messages. Empty means no errors.
+
+    """
+    # Note that we use spdx_tools.spdx.validation.validation_message,
+    # which is originally meant for SPDX 2, to report validation errors for
+    # SPDX 3 as well, so the print/HTML/JSON output functions can be reused.
+
+    doc: Optional[spdx3.SpdxDocument] = None
+    validation_messages: List[ValidationMessage] = []
+
+    spdx_documents: List[spdx3.SpdxDocument] = list(
+        object_set.foreach_type(spdx3.SpdxDocument)
+    )
+
+    if not spdx_documents:
+        error_msg = (
+            "No SpdxDocument object found in the SPDX 3 JSON file. "
+            "Expected exactly one."
         )
+        validation_messages.append(ValidationMessage(error_msg, ValidationContext()))
+        return (doc, validation_messages)
 
-        # Note that we use spdx_tools.spdx.validation.validation_message,
-        # which is originally meant for SPDX 2, to report validation errors for
-        # SPDX 3 as well, so the print/HTML/JSON output functions can be reused.
+    if len(spdx_documents) != 1:
+        error_msg = "Multiple SpdxDocument objects found. Allows exactly one."
+        validation_messages.append(ValidationMessage(error_msg, ValidationContext()))
+        return (doc, validation_messages)
 
-        if not spdx_documents:
+    doc = spdx_documents[0]
+    doc_id = getattr(doc, "spdxId", None)
+    root_element = getattr(doc, "rootElement", None)
+
+    if not root_element:
+        error_msg = "No rootElement found in the SpdxDocument. Expected exactly one."
+        context = ValidationContext(parent_id=doc_id)
+        validation_messages.append(ValidationMessage(error_msg, context))
+    elif len(root_element) != 1:
+        error_msg = "Multiple root elements found in SpdxDocument. Allows exactly one."
+        context = ValidationContext(parent_id=doc_id)
+        validation_messages.append(ValidationMessage(error_msg, context))
+    else:
+        root_element = root_element[0]
+        if not isinstance(root_element, (spdx3.Bom, spdx3.software_Sbom)):
             error_msg = (
-                "No SpdxDocument object found in the SPDX 3 JSON file. "
-                "Expected exactly one."
+                "The root element must be of type Bom or software_Sbom. "
+                f"Found: {type(root_element)}"
             )
-            logging.error(error_msg)
-            self.validation_messages.append(
-                ValidationMessage(error_msg, ValidationContext())
-            )
-            return None
+            root_element_id = getattr(root_element, "spdxId", None)
+            context = ValidationContext(parent_id=doc_id, spdx_id=root_element_id)
+            validation_messages.append(ValidationMessage(error_msg, context))
 
-        if len(spdx_documents) != 1:
-            error_msg = "Multiple SpdxDocument objects found. Allows exactly one."
-            logging.error(error_msg)
-            self.validation_messages.append(
-                ValidationMessage(error_msg, ValidationContext())
-            )
-
-        doc: spdx3.SpdxDocument = spdx_documents[0]
-        doc_id = getattr(doc, "spdxId", None)
-        root_element = getattr(doc, "rootElement", None)
-
-        if not root_element:
-            error_msg = (
-                "No rootElement found in the SpdxDocument. Expected exactly one."
-            )
-            context = ValidationContext(parent_id=doc_id)
-            logging.error(error_msg)
-            self.validation_messages.append(ValidationMessage(error_msg, context))
-        elif len(root_element) != 1:
-            error_msg = (
-                "Multiple root elements found in SpdxDocument. Allows exactly one."
-            )
-            context = ValidationContext(parent_id=doc_id)
-            logging.error(error_msg)
-            self.validation_messages.append(ValidationMessage(error_msg, context))
-        else:
-            root_element = root_element[0]
-            if not isinstance(root_element, (spdx3.Bom, spdx3.software_Sbom)):
-                error_msg = (
-                    "The root element must be of type Bom or software_Sbom. "
-                    f"Found: {type(root_element)}"
-                )
-                root_element_id = getattr(root_element, "spdxId", None)
-                context = ValidationContext(parent_id=doc_id, spdx_id=root_element_id)
-                logging.error(error_msg)
-                self.validation_messages.append(ValidationMessage(error_msg, context))
-
-        return doc
+    return (doc, validation_messages)

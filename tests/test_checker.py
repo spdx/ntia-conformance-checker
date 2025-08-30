@@ -312,15 +312,8 @@ def test_sbomchecker_spdx3_no_sbom_example():
     sbom = sbom_checker.SbomChecker(str(test_file), sbom_spec="spdx3")
     assert sbom is not None
     assert sbom.doc is not None
-    assert isinstance(sbom.doc, spdx3.SpdxDocument)
-    assert (
-        getattr(sbom.doc, "spdxId")
-        == "https://swinslow.net/spdx-examples/example1/hello-v3-specv3/document0"
-    )
-    assert getattr(sbom.doc, "name") == "hello"
-    assert sbom.sbom_name == getattr(
-        sbom.doc, "name"
-    )  # Test if get_sbom_name() works properly
+    assert isinstance(sbom.doc, spdx3.SHACLObjectSet)
+    assert sbom.sbom_name == "hello"
 
 
 ### Other tests
