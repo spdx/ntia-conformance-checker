@@ -190,25 +190,30 @@ class BaseChecker(ABC):
                 List[str], self.get_components_without_copyright_texts()
             )
 
-    def check_doc_version(self) -> bool:
-        """Check for if the SPDX document version exists."""
+    def get_doc_spec_version(self) -> Optional[str]:
         if not self.doc:
-            return False
+            return None
 
-        # SPDX 2
+        doc_spec_version: Optional[str] = None
+
         if self.sbom_spec == "spdx2":
             self.doc = cast(Document, self.doc)
-            if (
-                not self.doc.creation_info
-                or str(self.doc.creation_info.spdx_version)
-                not in SUPPORTED_SPDX2_VERSIONS
-            ):
-                return False
+            doc_creation_info = getattr(self.doc, "creation_info", None)
+            if doc_creation_info:
+                doc_spec_version = getattr(doc_creation_info, "spdx_version", None)
 
+        if self.sbom_spec == "spdx3":
+            self.doc = cast(spdx3.SpdxDocument, self.doc)
+            doc_creation_info = getattr(self.doc, "creationInfo", None)
+            if doc_creation_info:
+                doc_spec_version = getattr(doc_creation_info, "specVersion", None)
+
+        return doc_spec_version
+
+    def check_doc_version(self) -> bool:
+        """Check if the document's specification version exists."""
+        if self.get_doc_spec_version():
             return True
-
-        # SPDX 3
-        # Add code to check document version for SPDX 3 here
         return False
 
     def check_dependency_relationships(self) -> bool:
@@ -248,16 +253,19 @@ class BaseChecker(ABC):
         if not self.doc:
             return ""
 
-        # SPDX 2
+        name: str = ""
+
         if self.sbom_spec == "spdx2":
             self.doc = cast(Document, self.doc)
-            if self.doc.creation_info and self.doc.creation_info.name:
-                return self.doc.creation_info.name
-            return ""
+            doc_creation_info = getattr(self.doc, "creation_info", None)
+            if doc_creation_info:
+                name = getattr(doc_creation_info, "name", "")
 
-        # SPDX 3
-        # Add code to retrieve SBOM name for SPDX 3 here
-        return ""
+        if self.sbom_spec == "spdx3":
+            self.doc = cast(spdx3.SpdxDocument, self.doc)
+            name = getattr(self.doc, "name", "")
+
+        return name
 
     def get_components_without_concluded_licenses(
         self, return_tuples: bool = False
