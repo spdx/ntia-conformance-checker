@@ -10,7 +10,7 @@ import json
 import logging
 import os
 from abc import ABC, abstractmethod
-from typing import Any, Dict, List, Optional, Tuple, Union, cast
+from typing import Any, Dict, Iterator, List, Optional, Tuple, Union, cast
 
 from spdx_python_model import v3_0_1 as spdx3  # type: ignore # import-untyped
 from spdx_tools.spdx.model.document import Document
@@ -508,31 +508,24 @@ class BaseChecker(ABC):
 
         # SPDX 3
         if self.sbom_spec == "spdx3" and self.__spdx3_doc:
-            if return_tuples:
-                components_name_id: List[Tuple[str, str]] = []
-                for obj in self.doc.foreach_type(spdx3.Artifact):
-                    obj = cast(spdx3.Artifact, obj)
-                    artifact_name = getattr(obj, "name", "").strip()
-                    artifact_id = getattr(obj, "spdxId", "").strip()
-                    supplier = getattr(obj, "suppliedBy", None)
-                    supplier_name = (
-                        getattr(supplier, "name", "").strip() if supplier else ""
-                    )
-                    if not supplier or supplier_name == "":
-                        components_name_id.append((artifact_name, artifact_id))
-                return components_name_id
+            self.doc = cast(spdx3.SHACLObjectSet, self.doc)
 
-            components_name: List[str] = []
-            for obj in self.doc.foreach_type(spdx3.Artifact):
-                obj = cast(spdx3.Artifact, obj)
-                artifact_name = getattr(obj, "name", "").strip()
-                supplier = getattr(obj, "suppliedBy", None)
-                supplier_name = (
-                    getattr(supplier, "name", "").strip() if supplier else ""
+            if return_tuples:
+                return [
+                    (name, spdx_id)
+                    for name, spdx_id, supplier_name in _iter_spdx3_artifacts(
+                        self.doc, "suppliedBy"
+                    )
+                    if not supplier_name
+                ]
+
+            return [
+                name
+                for name, _, supplier_name in _iter_spdx3_artifacts(
+                    self.doc, "suppliedBy"
                 )
-                if not supplier or supplier_name == "":
-                    components_name.append(artifact_name)
-            return components_name
+                if not supplier_name
+            ]
 
         return []
 
@@ -725,3 +718,19 @@ def validate_spdx3_document(
             validation_messages.append(ValidationMessage(error_msg, context))
 
     return (doc, validation_messages)
+
+
+def _iter_spdx3_artifacts(
+    object_set: spdx3.SHACLObjectSet, property_name: str
+) -> Iterator[Tuple[str, str, str]]:
+    """Yield (name, spdxId, supplier_name) for each SPDX3 Artifact."""
+
+    for obj in object_set.foreach_type(spdx3.Artifact):
+        obj = cast(spdx3.Artifact, obj)
+        name = (getattr(obj, "name", "") or "").strip()
+        spdx_id = (getattr(obj, "spdxId", "") or "").strip()
+        supplier = getattr(obj, property_name, None)
+        supplier_name = (
+            (getattr(supplier, "name", "") or "").strip() if supplier else ""
+        )
+        yield name, spdx_id, supplier_name
