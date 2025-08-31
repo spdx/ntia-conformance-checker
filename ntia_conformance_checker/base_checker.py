@@ -435,7 +435,7 @@ class BaseChecker(ABC):
         Retrieve name of components without identifiers.
 
         Returns:
-            List[str]: A list of component names that do not have identifiers.
+            List[str]: A list of component names.
         """
         if not self.doc:
             return []
@@ -454,8 +454,8 @@ class BaseChecker(ABC):
             self.doc = cast(spdx3.SHACLObjectSet, self.doc)
 
             return [
-                spdx_id
-                for _, spdx_id, _ in _iter_property_foreach_type(
+                name
+                for name, _, spdx_id in _iter_property_foreach_type(
                     self.doc, spdx3.Element, "spdxId"
                 )
                 if not spdx_id or spdx_id.strip() == ""
@@ -467,14 +467,8 @@ class BaseChecker(ABC):
         """
         Retrieve SPDX ID of components without names.
 
-        Args:
-            return_tuples (bool): If True, return a list of tuples with
-                                  component names and SPDX IDs.
-                                  If False, return a list of component names.
-
         Returns:
-            Union[List[str], List[Tuple[str, str]]]: A list of component names
-            or a list of tuples with component names and SPDX IDs.
+            List[str]: A list of component SPDX IDs.
         """
         if not self.doc:
             return []
@@ -491,7 +485,17 @@ class BaseChecker(ABC):
             return components_without_names
 
         # SPDX 3
-        # Add code to retrieve components without names for SPDX 3 here
+        if self.sbom_spec == "spdx3":
+            self.doc = cast(spdx3.SHACLObjectSet, self.doc)
+
+            return [
+                spdx_id
+                for _, spdx_id, name in _iter_property_foreach_type(
+                    self.doc, spdx3.Element, "name"
+                )
+                if not name or name.strip() == ""
+            ]
+
         return []
 
     # pylint: disable=too-many-branches
