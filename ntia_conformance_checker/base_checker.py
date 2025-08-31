@@ -10,7 +10,7 @@ import json
 import logging
 import os
 from abc import ABC, abstractmethod
-from typing import Any, Dict, Iterator, List, Optional, Tuple, Union, cast
+from typing import Any, Dict, Iterator, List, Optional, Tuple, Type, Union, cast
 
 from spdx_python_model import v3_0_1 as spdx3  # type: ignore # import-untyped
 from spdx_tools.spdx.model.document import Document
@@ -404,7 +404,30 @@ class BaseChecker(ABC):
             return components_name
 
         # SPDX 3
-        # Add code to retrieve components without copyright texts for SPDX 3 here
+        if self.sbom_spec == "spdx3":
+            self.doc = cast(spdx3.SHACLObjectSet, self.doc)
+
+            if return_tuples:
+                return [
+                    (name, spdx_id)
+                    for name, spdx_id, copyright_text in _iter_property_foreach_type(
+                        self.doc, spdx3.software_SoftwareArtifact, "copyrightText"
+                    )
+                    if not copyright_text
+                    or (
+                        isinstance(copyright_text, str) and copyright_text.strip() == ""
+                    )
+                ]
+
+            return [
+                name
+                for name, _, copyright_text in _iter_property_foreach_type(
+                    self.doc, spdx3.software_SoftwareArtifact, "copyrightText"
+                )
+                if not copyright_text
+                or (isinstance(copyright_text, str) and copyright_text.strip() == "")
+            ]
+
         return []
 
     def get_components_without_identifiers(self) -> List[str]:
@@ -427,7 +450,17 @@ class BaseChecker(ABC):
             ]
 
         # SPDX 3
-        # Add code to retrieve components without identifiers for SPDX 3 here
+        if self.sbom_spec == "spdx3":
+            self.doc = cast(spdx3.SHACLObjectSet, self.doc)
+
+            return [
+                spdx_id
+                for _, spdx_id, _ in _iter_property_foreach_type(
+                    self.doc, spdx3.Element, "spdxId"
+                )
+                if not spdx_id or spdx_id.strip() == ""
+            ]
+
         return []
 
     def get_components_without_names(self) -> List[str]:
@@ -507,24 +540,24 @@ class BaseChecker(ABC):
             return components_name
 
         # SPDX 3
-        if self.sbom_spec == "spdx3" and self.__spdx3_doc:
+        if self.sbom_spec == "spdx3":
             self.doc = cast(spdx3.SHACLObjectSet, self.doc)
 
             if return_tuples:
                 return [
                     (name, spdx_id)
-                    for name, spdx_id, supplier_name in _iter_spdx3_artifacts(
-                        self.doc, "suppliedBy"
+                    for name, spdx_id, supplier in _iter_property_foreach_type(
+                        self.doc, spdx3.Artifact, "suppliedBy"
                     )
-                    if not supplier_name
+                    if not supplier or not supplier.name or supplier.name.strip() == ""
                 ]
 
             return [
                 name
-                for name, _, supplier_name in _iter_spdx3_artifacts(
-                    self.doc, "suppliedBy"
+                for name, _, supplier in _iter_property_foreach_type(
+                    self.doc, spdx3.Artifact, "suppliedBy"
                 )
-                if not supplier_name
+                if not supplier or not supplier.name or supplier.name.strip() == ""
             ]
 
         return []
@@ -720,17 +753,27 @@ def validate_spdx3_document(
     return (doc, validation_messages)
 
 
-def _iter_spdx3_artifacts(
-    object_set: spdx3.SHACLObjectSet, property_name: str
-) -> Iterator[Tuple[str, str, str]]:
-    """Yield (name, spdxId, supplier_name) for each SPDX3 Artifact."""
+def _iter_property_foreach_type(
+    object_set: spdx3.SHACLObjectSet,
+    typ: Type[spdx3.SHACLObject] = spdx3.Artifact,
+    property_name: str = "spdxId",
+) -> Iterator[Tuple[str, str, Any]]:
+    """
+    Yield (name, spdxId, property) for each SPDX3 object.
 
-    for obj in object_set.foreach_type(spdx3.Artifact):
-        obj = cast(spdx3.Artifact, obj)
+    Args:
+        object_set (spdx3.SHACLObjectSet): The SHACLObjectSet to iterate over.
+        typ (Type[spdx3.SHACLObject]): The type of SPDX3 object
+        property_name (str): The property name to retrieve.
+
+    Yields:
+        Iterator[Tuple[str, str, Any]]: A tuple containing the name,
+        SPDX ID, and the specified property of the object.
+    """
+
+    for obj in object_set.foreach_type(typ):
+        obj = cast(spdx3.SHACLObject, obj)
         name = (getattr(obj, "name", "") or "").strip()
         spdx_id = (getattr(obj, "spdxId", "") or "").strip()
-        supplier = getattr(obj, property_name, None)
-        supplier_name = (
-            (getattr(supplier, "name", "") or "").strip() if supplier else ""
-        )
-        yield name, spdx_id, supplier_name
+        property = getattr(obj, property_name, None)
+        yield name, spdx_id, property
