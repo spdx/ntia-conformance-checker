@@ -119,14 +119,6 @@ def do_parsed_args() -> argparse.Namespace:
         dest="output_file",
         help=argparse.SUPPRESS,  # hide from help
     )
-    # parser.add_argument(
-    #     "-q",
-    #     "--quiet",
-    #     action="store_const",
-    #     dest="output",
-    #     const="quiet",
-    #     help="Suppress normal output",
-    # )
     parser.add_argument(
         "-v",
         "--verbose",
