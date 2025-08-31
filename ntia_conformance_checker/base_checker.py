@@ -10,7 +10,7 @@ import json
 import logging
 import os
 from abc import ABC, abstractmethod
-from typing import Any, Dict, Iterator, List, Optional, Tuple, Type, Union, cast
+from typing import Any, Dict, Iterator, List, Optional, Set, Tuple, Type, Union, cast
 
 from spdx_python_model import v3_0_1 as spdx3  # type: ignore # import-untyped
 from spdx_tools.spdx.model.document import Document
@@ -412,7 +412,9 @@ class BaseChecker(ABC):
                 return [
                     (name, spdx_id)
                     for name, spdx_id, copyright_text in _iter_property_foreach_type(
-                        self.doc, spdx3.software_SoftwareArtifact, "copyrightText"
+                        self.doc,
+                        spdx3.software_SoftwareArtifact,
+                        "software_copyrightText",
                     )
                     if not copyright_text
                     or (
@@ -423,7 +425,7 @@ class BaseChecker(ABC):
             return [
                 name
                 for name, _, copyright_text in _iter_property_foreach_type(
-                    self.doc, spdx3.software_SoftwareArtifact, "copyrightText"
+                    self.doc, spdx3.software_SoftwareArtifact, "software_copyrightText"
                 )
                 if not copyright_text
                 or (isinstance(copyright_text, str) and copyright_text.strip() == "")
@@ -605,7 +607,26 @@ class BaseChecker(ABC):
             return components_name
 
         # SPDX 3
-        # Add code to retrieve components without versions for SPDX 3 here
+        if self.sbom_spec == "spdx3":
+            self.doc = cast(spdx3.SHACLObjectSet, self.doc)
+
+            if return_tuples:
+                return [
+                    (name, spdx_id)
+                    for name, spdx_id, package_version in _iter_property_foreach_type(
+                        self.doc, spdx3.software_Package, "software_packageVersion"
+                    )
+                    if not package_version or package_version.strip() == ""
+                ]
+
+            return [
+                name
+                for name, _, package_version in _iter_property_foreach_type(
+                    self.doc, spdx3.software_Package, "software_packageVersion"
+                )
+                if not package_version or package_version.strip() == ""
+            ]
+
         return []
 
     def get_total_number_components(self) -> int:
@@ -626,7 +647,11 @@ class BaseChecker(ABC):
             return len(self.doc.packages)
 
         # SPDX 3
-        # Add code to retrieve total number of components for SPDX 3 here
+        if self.sbom_spec == "spdx3":
+            self.doc = cast(spdx3.SHACLObjectSet, self.doc)
+            objects: Set[spdx3.SHACLObject] = getattr(self.doc, "objects", set())
+            return len(objects)
+
         return 0
 
     def parse_file(self) -> Optional[Document]:
