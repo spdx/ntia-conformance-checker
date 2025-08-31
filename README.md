@@ -51,7 +51,7 @@ presented at SPDX General Meeting 2024-12-05.
 
 ## Installation
 
-This tool requires Python 3.8+.
+This tool requires Python 3.9+.
 Its dependencies may require a more recent version of Python.
 
 *Installation Method #1*:
@@ -79,34 +79,55 @@ or create separate environments for testing with different Python versions.
 ## CLI Usage
 
 ```text
-Usage: sbomcheck [OPTIONS]
+usage: sbomcheck [OPTIONS] FILE
+
+  FILE                  Filepath for SBOM input
 
 Options:
-  --file TEXT            The file to be parsed
-  --comply [fsct3-min|ntia]
-                         Specify which compliance standard to check against
-                         - fsct3-min: FSCT3 Baseline Attributes-Minimum Expected
-                         - ntia: NTIA minimum elements
-                         [default: ntia]
-  --output [html|json|print|quiet]
-                         Output format  [default: print]
-  --output_path TEXT     Filepath for optionally storing output.
-  --skip-validation      Specify whether to skip validation
-  -v, --verbose          Use verbose printing
-  --version              Display version of ntia-conformance-checker
-  -h, --help             Show this message and exit.
+  -h, --help            show this help message and exit
+  -s, --sbom-spec {spdx2,spdx3}
+                        SBOM specification of the input file; see below for details [default: spdx2]
+  -c, --comply {fsct3-min,ntia}
+                        Compliance standards to check against; see below for details [default: ntia]
+  --skip-validation     Skip validation
+  --output {html,json,print,quiet}
+                        Type of compliance report output; see below for details [default: print]
+  -o, --output-file PATH
+                        Filepath for compliance report output; if omitted, prints to console
+  -v, --verbose         Print more information (debug)
+  -V, --version         Display version of sbomcheck
+
+choices:
+  SBOM specifications (for --sbom-spec):
+    spdx2       Software Package Data Exchange (SPDX) 2.x
+    spdx3       System Package Data Exchange (SPDX) 3.x
+
+  Compliance standards (for --comply):
+    fsct3-min   2024 CISA Framing Software Component Transparency (minimum expectation)
+    ntia        2021 NTIA SBOM Minimum Elements
+
+  Output types (for --output):
+    print       Print report to console
+    json        Output report in JSON format
+    html        Output report in HTML format
+    quiet       No output unless there are errors
+
+Examples:
+  sbomcheck sbom.spdx
+  sbomcheck --output json --output-file report.json sbom.yaml
+  sbomcheck --sbom-spec spdx3 --skip-validation sbom.json
 ```
 
 The user can then analyze a particular file:
 
 ```bash
-sbomcheck --file sbom.json
+sbomcheck sbom.json
 ```
 
 To generate the output in machine-readable JSON, run:
 
 ```bash
-sbomcheck --file sbom.spdx --output json
+sbomcheck sbom.spdx --output json
 ```
 
 ## Usage as a Library

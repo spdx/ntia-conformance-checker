@@ -8,7 +8,7 @@ build-backend = "setuptools.build_meta"
 
 [project]
 name = "ntia_conformance_checker"
-version = "3.2.1"
+version = "4.0"
 authors = [
     { name = "Josh Lin", email = "linynjosh@gmail.com" },
     { name = "John Speed Meyers", email = "johnmeyersster@gmail.com" },
@@ -22,12 +22,11 @@ maintainers = [
     { name = "SPDX group at the Linux Foundation and others", email = "spdx-implementers+owner@lists.spdx.org" },
 ]
 license = "Apache-2.0"
-description = "Check SPDX SBOM for NTIA minimum elements and common SBOM baseline attributes"
+description = "Check SPDX SBOM for NTIA minimum elements and CISA baseline attributes"
 readme = "README.md"
 classifiers = [
     "Intended Audience :: Developers",
     "Intended Audience :: System Administrators",
-    "Programming Language :: Python :: 3.8",
     "Programming Language :: Python :: 3.9",
     "Programming Language :: Python :: 3.10",
     "Programming Language :: Python :: 3.11",
@@ -38,7 +37,7 @@ classifiers = [
     "Topic :: System :: Systems Administration",
 ]
 urls = { Homepage = "https://github.com/spdx/ntia-conformance-checker" }
-requires-python = ">=3.8"
+requires-python = ">=3.9"
 keywords = [
     "spdx",
     "sbom",
@@ -53,7 +52,7 @@ keywords = [
     "software component transparency",
     "supply chain security",
 ]
-dependencies = ["spdx-tools==0.8.3"]
+dependencies = ["spdx-python-model==0.0.2", "spdx-tools==0.8.3"]
 
 [project.optional-dependencies]
 test = ["beartype==0.21.0", "coverage==7.6.10", "pytest==8.4.1"]
