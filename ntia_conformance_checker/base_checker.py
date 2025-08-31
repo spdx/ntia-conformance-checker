@@ -350,6 +350,7 @@ class BaseChecker(ABC):
         # Add code to retrieve components without concluded licenses for SPDX 3 here
         return []
 
+    # pylint: disable=too-many-return-statements
     def get_components_without_copyright_texts(
         self, return_tuples: bool = False
     ) -> Union[List[str], List[Tuple[str, str]]]:
@@ -779,5 +780,5 @@ def _iter_property_foreach_type(
         obj = cast(spdx3.SHACLObject, obj)
         name = (getattr(obj, "name", "") or "").strip()
         spdx_id = (getattr(obj, "spdxId", "") or "").strip()
-        property = getattr(obj, property_name, None)
-        yield name, spdx_id, property
+        property_ = getattr(obj, property_name, None)
+        yield name, spdx_id, property_
