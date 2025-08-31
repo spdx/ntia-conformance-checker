@@ -51,7 +51,7 @@ presented at SPDX General Meeting 2024-12-05.
 
 ## Installation
 
-This tool requires Python 3.8+.
+This tool requires Python 3.9+.
 Its dependencies may require a more recent version of Python.
 
 *Installation Method #1*:

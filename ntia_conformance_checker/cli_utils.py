@@ -33,7 +33,7 @@ _OUTPUT_CHOICES = {
 }
 
 
-def do_parsed_args() -> argparse.Namespace:
+def get_parsed_args() -> argparse.Namespace:
     """Parse command line arguments."""
 
     epilog_text = (

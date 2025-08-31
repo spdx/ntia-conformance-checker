@@ -12,14 +12,14 @@ import sys
 from typing import Any, Dict, Optional, Tuple
 
 from .base_checker import SUPPORTED_SBOM_SPECS, SUPPORTED_SPDX_VERSIONS
-from .cli_utils import do_parsed_args, get_spdx_version
+from .cli_utils import get_parsed_args, get_spdx_version
 from .sbom_checker import SbomChecker
 
 
 def main() -> None:
     """Entrypoint for CLI application."""
 
-    args = do_parsed_args()
+    args = get_parsed_args()
 
     log_level = logging.DEBUG if args.verbose else logging.INFO
     logging.basicConfig(level=log_level, format="%(levelname)s: %(message)s")
