@@ -6,27 +6,54 @@
 
 from __future__ import annotations
 
+import json
 import logging
 import os
-import sys
 from abc import ABC, abstractmethod
-from typing import Any, Dict, List, Optional, Tuple, Union, cast
+from typing import Any, Dict, Iterator, List, Optional, Tuple, Union, cast
 
+from spdx_python_model import v3_0_1 as spdx3  # type: ignore # import-untyped
 from spdx_tools.spdx.model.document import Document
 from spdx_tools.spdx.model.relationship import RelationshipType
 from spdx_tools.spdx.model.spdx_no_assertion import SpdxNoAssertion
 from spdx_tools.spdx.parser import parse_anything
 from spdx_tools.spdx.parser.error import SPDXParsingError
 from spdx_tools.spdx.validation.document_validator import validate_full_spdx_document
-from spdx_tools.spdx.validation.validation_message import ValidationMessage
+from spdx_tools.spdx.validation.validation_message import (
+    ValidationContext,
+    ValidationMessage,
+)
 
-SUPPORTED_SBOM_SPECS = {"spdx2"}
-SUPPORTED_SPDX2_VERSIONS = {"SPDX-2.2", "SPDX-2.3"}
+SUPPORTED_SBOM_SPECS_DESC = {
+    "spdx2": "Software Package Data Exchange (SPDX) 2.x",
+    "spdx3": "System Package Data Exchange (SPDX) 3.x",
+}
+DEFAULT_SBOM_SPEC = "spdx2"
+SUPPORTED_SBOM_SPECS = set(SUPPORTED_SBOM_SPECS_DESC.keys())
+
+SUPPORTED_COMPLIANCE_STANDARDS_DESC = {
+    # "cisasbom2025": "2025 CISA SBOM Minimum Elements",
+    # https://www.cisa.gov/resources-tools/resources/2025-minimum-elements-software-bill-materials-sbom
+    "fsct3-min": "2024 CISA Framing Software Component Transparency (minimum expectation)",
+    # https://www.cisa.gov/resources-tools/resources/framing-software-component-transparency-2024
+    "ntia": "2021 NTIA SBOM Minimum Elements",
+    # https://www.ntia.gov/report/2021/minimum-elements-software-bill-materials-sbom
+}
+DEFAULT_COMPLIANCE_STANDARD = "ntia"
+SUPPORTED_COMPLIANCE_STANDARDS = set(SUPPORTED_COMPLIANCE_STANDARDS_DESC.keys())
+
+SUPPORTED_SPDX_VERSIONS = {(2, 2), (2, 3), (3, 0)}  # (Major, Minor)
+SUPPORTED_SPDX2_VERSIONS = {
+    f"SPDX-{maj}.{min}" for (maj, min) in SUPPORTED_SPDX_VERSIONS if maj == 2
+}
+SUPPORTED_SPDX3_VERSIONS = {
+    f"{maj}.{min}" for (maj, min) in SUPPORTED_SPDX_VERSIONS if maj == 3
+}
 
 
 # pylint: disable=too-many-instance-attributes
 class BaseChecker(ABC):
-    """Base class for all compliance checkers.
+    """Base class for all compliance/conformance checkers.
 
     This base class contains methods for common tasks like file loading
     and parsing.
@@ -37,10 +64,16 @@ class BaseChecker(ABC):
 
     compliance_standard: str = ""  # fsct3-min, ntia
     sbom_spec: str = ""  # spdx2, spdx3
+
+    # These are detectable by spdx-tools, so not needed for now.
     # file_format: str = ""  # json, rdf-xml, tag-value, yaml, xml
 
     file: str = ""
-    doc: Optional[Document] = None  # Add SPDX 3 document type support here
+    # For SPDX 3, we have to use SHACLObjectSet instead of SpdxDocument,
+    # because we need access to relationships and other elements that are not
+    # part of SpdxDocument.
+    doc: Union[Document, spdx3.SHACLObjectSet, None] = None
+    __spdx3_doc: Optional[spdx3.SpdxDocument] = None  # cached SPDX 3 document
 
     parsing_error: List[str] = []
     validation_messages: List[ValidationMessage] = []
@@ -53,19 +86,19 @@ class BaseChecker(ABC):
     components_without_concluded_licenses: List[str] = []
     components_without_copyright_texts: List[str] = []
 
-    doc_version: bool = False
-    doc_author: bool = False
-    doc_timestamp: bool = False
-    dependency_relationships: bool = False
+    doc_version: bool = False  # Has SPDX document version?
+    doc_author: bool = False  # Has SPDX document author?
+    doc_timestamp: bool = False  # Has SPDX document creation timestamp?
+    dependency_relationships: bool = False  # Has DESCRIBES relationship?
 
-    compliant: bool = False
+    compliant: bool = False  # Is SBOM compliant with the chosen standard?
 
-    # an alias of "compliant", for backward compatibility
+    # An alias of "compliant", for backward compatibility
     ntia_minimum_elements_compliant: bool = compliant
 
     @abstractmethod
     def check_compliance(self) -> bool:
-        """Abstract method to check compliance."""
+        """Abstract method to check compliance/conformance."""
         raise NotImplementedError
 
     @abstractmethod
@@ -110,8 +143,8 @@ class BaseChecker(ABC):
         file: str,
         validate: bool = True,
         compliance: str = "",
-        sbom_spec: str = "spdx2",
-    ):
+        sbom_spec: str = DEFAULT_SBOM_SPEC,
+    ) -> None:
         """
         Initialize the BaseChecker.
 
@@ -127,17 +160,35 @@ class BaseChecker(ABC):
 
         self.file = file
 
+        # SPDX 2
         if sbom_spec == "spdx2":
             self.doc = self.parse_file()
+        # SPDX 3
         elif sbom_spec == "spdx3":
-            # Add SPDX 3 parsing here
-            self.doc = None
+            logging.warning(
+                "SPDX 3 support is under development. "
+                "Some features may not work as expected. "
+                "Do not use in production."
+            )
+            object_set = self.parse_spdx3_file()
+            if not object_set:
+                logging.error("Failed to parse the SPDX 3 file.")
+            else:
+                self.doc = object_set
+                _doc, _validation_messages = validate_spdx3_document(object_set)
+                if not _doc or _validation_messages:
+                    logging.error("SpdxDocument not found or invalid.")
+                self.__spdx3_doc = _doc  # cache the extracted SpdxDocument
+                self.validation_messages.extend(_validation_messages)
         else:
+            # We can add a heuristic to detect the spec from the file content here,
+            # in case sbom_spec is not provided or invalid.
             raise ValueError(f"Unsupported SBOM specification: {sbom_spec}")
 
         if self.doc:
             if validate:
                 if sbom_spec == "spdx2":
+                    self.doc = cast(Document, self.doc)
                     self.validation_messages = validate_full_spdx_document(self.doc)
                 else:
                     pass
@@ -159,24 +210,32 @@ class BaseChecker(ABC):
                 List[str], self.get_components_without_copyright_texts()
             )
 
-    def check_doc_version(self) -> bool:
-        """Check for if the SPDX document version exists."""
+    def get_doc_spec_version(self) -> Optional[str]:
+        """Retrieve the document's specification version."""
         if not self.doc:
-            return False
+            return None
+
+        doc_spec_version: Optional[str] = None
 
         # SPDX 2
         if self.sbom_spec == "spdx2":
-            if (
-                not self.doc.creation_info
-                or str(self.doc.creation_info.spdx_version)
-                not in SUPPORTED_SPDX2_VERSIONS
-            ):
-                return False
-
-            return True
+            self.doc = cast(Document, self.doc)
+            doc_creation_info = getattr(self.doc, "creation_info", None)
+            if doc_creation_info:
+                doc_spec_version = getattr(doc_creation_info, "spdx_version", None)
 
         # SPDX 3
-        # Add code to check document version for SPDX 3 here
+        if self.sbom_spec == "spdx3" and self.__spdx3_doc:
+            doc_creation_info = getattr(self.__spdx3_doc, "creationInfo", None)
+            if doc_creation_info:
+                doc_spec_version = getattr(doc_creation_info, "specVersion", None)
+
+        return doc_spec_version
+
+    def check_doc_version(self) -> bool:
+        """Check if the document's specification version exists."""
+        if self.get_doc_spec_version():
+            return True
         return False
 
     def check_dependency_relationships(self) -> bool:
@@ -186,6 +245,7 @@ class BaseChecker(ABC):
 
         # SPDX 2
         if self.sbom_spec == "spdx2":
+            self.doc = cast(Document, self.doc)
             if not self.doc.relationships:
                 return False
 
@@ -207,7 +267,9 @@ class BaseChecker(ABC):
             return describes_package
 
         # SPDX 3
-        # Add code to check dependency relationships for SPDX 3 here
+        if self.sbom_spec == "spdx3" and self.__spdx3_doc:
+            return False
+
         return False
 
     def get_sbom_name(self) -> str:
@@ -215,15 +277,20 @@ class BaseChecker(ABC):
         if not self.doc:
             return ""
 
+        name: str = ""
+
         # SPDX 2
         if self.sbom_spec == "spdx2":
-            if self.doc.creation_info and self.doc.creation_info.name:
-                return self.doc.creation_info.name
-            return ""
+            self.doc = cast(Document, self.doc)
+            doc_creation_info = getattr(self.doc, "creation_info", None)
+            if doc_creation_info:
+                name = getattr(doc_creation_info, "name", "")
 
         # SPDX 3
-        # Add code to retrieve SBOM name for SPDX 3 here
-        return ""
+        if self.sbom_spec == "spdx3" and self.__spdx3_doc:
+            name = getattr(self.__spdx3_doc, "name", "")
+
+        return name
 
     def get_components_without_concluded_licenses(
         self, return_tuples: bool = False
@@ -241,30 +308,31 @@ class BaseChecker(ABC):
             or a list of tuples with component names and SPDX IDs.
         """
         # Note: concluded license is mandatory in SPDX-2.2 and SPDX-2.3
+        if not self.doc:
+            return []
 
         # SPDX 2
-        if self.sbom_spec == "spdx2" and return_tuples:
-            components_name_id: List[Tuple[str, str]] = []
-            if not self.doc or not self.doc.packages:
+        if self.sbom_spec == "spdx2":
+            self.doc = cast(Document, self.doc)
+            if not self.doc.packages:
+                return []
+
+            if return_tuples:
+                components_name_id: List[Tuple[str, str]] = []
+                for package in self.doc.packages:
+                    no_license = (
+                        package.license_concluded is None
+                        or isinstance(package.license_concluded, SpdxNoAssertion)
+                        or (
+                            isinstance(package.license_concluded, str)
+                            and package.license_concluded.strip() == ""
+                        )
+                    )
+                    if no_license:
+                        components_name_id.append((package.name, package.spdx_id))
                 return components_name_id
 
-            for package in self.doc.packages:
-                no_license = (
-                    package.license_concluded is None
-                    or isinstance(package.license_concluded, SpdxNoAssertion)
-                    or (
-                        isinstance(package.license_concluded, str)
-                        and package.license_concluded.strip() == ""
-                    )
-                )
-                if no_license:
-                    components_name_id.append((package.name, package.spdx_id))
-            return components_name_id
-
-        if self.sbom_spec == "spdx2" and not return_tuples:
             components_name: List[str] = []
-            if not self.doc or not self.doc.packages:
-                return components_name
             for package in self.doc.packages:
                 no_license = (
                     package.license_concluded is None
@@ -280,7 +348,6 @@ class BaseChecker(ABC):
 
         # SPDX 3
         # Add code to retrieve components without concluded licenses for SPDX 3 here
-
         return []
 
     def get_components_without_copyright_texts(
@@ -298,28 +365,31 @@ class BaseChecker(ABC):
             Union[List[str], List[Tuple[str, str]]]: A list of component names
             or a list of tuples with component names and SPDX IDs.
         """
-        # SPDX 2
-        if self.sbom_spec == "spdx2" and return_tuples:
-            components_name_id: List[Tuple[str, str]] = []
-            if not self.doc or not self.doc.packages:
-                return components_name_id
-            for package in self.doc.packages:
-                no_license = (
-                    package.copyright_text is None
-                    or isinstance(package.copyright_text, SpdxNoAssertion)
-                    or (
-                        isinstance(package.copyright_text, str)
-                        and package.copyright_text.strip() == ""
-                    )
-                )
-                if no_license:
-                    components_name_id.append((package.name, package.spdx_id))
-            return components_name_id
+        if not self.doc:
+            return []
 
-        if self.sbom_spec == "spdx2" and not return_tuples:
+        # SPDX 2
+        if self.sbom_spec == "spdx2":
+            self.doc = cast(Document, self.doc)
+            if not self.doc.packages:
+                return []
+
+            if return_tuples:
+                components_name_id: List[Tuple[str, str]] = []
+                for package in self.doc.packages:
+                    no_license = (
+                        package.copyright_text is None
+                        or isinstance(package.copyright_text, SpdxNoAssertion)
+                        or (
+                            isinstance(package.copyright_text, str)
+                            and package.copyright_text.strip() == ""
+                        )
+                    )
+                    if no_license:
+                        components_name_id.append((package.name, package.spdx_id))
+                return components_name_id
+
             components_name: List[str] = []
-            if not self.doc or not self.doc.packages:
-                return components_name
             for package in self.doc.packages:
                 no_license = (
                     package.copyright_text is None
@@ -349,6 +419,9 @@ class BaseChecker(ABC):
 
         # SPDX 2
         if self.sbom_spec == "spdx2":
+            self.doc = cast(Document, self.doc)
+            if not self.doc.packages:
+                return []
             return [
                 package.name for package in self.doc.packages if not package.spdx_id
             ]
@@ -375,6 +448,9 @@ class BaseChecker(ABC):
 
         # SPDX 2
         if self.sbom_spec == "spdx2":
+            self.doc = cast(Document, self.doc)
+            if not self.doc.packages:
+                return []
             components_without_names: List[str] = []
             for package in self.doc.packages:
                 if not package.name:
@@ -385,6 +461,8 @@ class BaseChecker(ABC):
         # Add code to retrieve components without names for SPDX 3 here
         return []
 
+    # pylint: disable=too-many-branches
+    # pylint: disable=too-many-return-statements
     def get_components_without_suppliers(
         self, return_tuples: bool = False
     ) -> Union[List[str], List[Tuple[str, str]]]:
@@ -400,23 +478,26 @@ class BaseChecker(ABC):
             Union[List[str], List[Tuple[str, str]]]: A list of component names
             or a list of tuples with component names and SPDX IDs.
         """
-        # SPDX 2
-        if self.sbom_spec == "spdx2" and return_tuples:
-            components_name_id: List[Tuple[str, str]] = []
-            if not self.doc or not self.doc.packages:
-                return components_name_id
-            for package in self.doc.packages:
-                no_supplier = package.supplier is None or isinstance(
-                    package.supplier, SpdxNoAssertion
-                )
-                if no_supplier:
-                    components_name_id.append((package.name, package.spdx_id))
-            return components_name_id
+        if not self.doc:
+            return []
 
-        if self.sbom_spec == "spdx2" and not return_tuples:
+        # SPDX 2
+        if self.sbom_spec == "spdx2":
+            self.doc = cast(Document, self.doc)
+            if not self.doc.packages:
+                return []
+
+            if return_tuples:
+                components_name_id: List[Tuple[str, str]] = []
+                for package in self.doc.packages:
+                    no_supplier = package.supplier is None or isinstance(
+                        package.supplier, SpdxNoAssertion
+                    )
+                    if no_supplier:
+                        components_name_id.append((package.name, package.spdx_id))
+                return components_name_id
+
             components_name: List[str] = []
-            if not self.doc or not self.doc.packages:
-                return components_name
             for package in self.doc.packages:
                 no_supplier = package.supplier is None or isinstance(
                     package.supplier, SpdxNoAssertion
@@ -426,7 +507,26 @@ class BaseChecker(ABC):
             return components_name
 
         # SPDX 3
-        # Add code to retrieve components without suppliers for SPDX 3 here
+        if self.sbom_spec == "spdx3" and self.__spdx3_doc:
+            self.doc = cast(spdx3.SHACLObjectSet, self.doc)
+
+            if return_tuples:
+                return [
+                    (name, spdx_id)
+                    for name, spdx_id, supplier_name in _iter_spdx3_artifacts(
+                        self.doc, "suppliedBy"
+                    )
+                    if not supplier_name
+                ]
+
+            return [
+                name
+                for name, _, supplier_name in _iter_spdx3_artifacts(
+                    self.doc, "suppliedBy"
+                )
+                if not supplier_name
+            ]
+
         return []
 
     def get_components_without_versions(
@@ -444,20 +544,23 @@ class BaseChecker(ABC):
             Union[List[str], List[Tuple[str, str]]]: A list of component names
             or a list of tuples with component names and SPDX IDs.
         """
-        # SPDX 2
-        if self.sbom_spec == "spdx2" and return_tuples:
-            components_name_id: List[Tuple[str, str]] = []
-            if not self.doc or not self.doc.packages:
-                return components_name_id
-            for package in self.doc.packages:
-                if not package.version:
-                    components_name_id.append((package.name, package.spdx_id))
-            return components_name_id
+        if not self.doc:
+            return []
 
-        if self.sbom_spec == "spdx2" and not return_tuples:
+        # SPDX 2
+        if self.sbom_spec == "spdx2":
+            self.doc = cast(Document, self.doc)
+            if not self.doc.packages:
+                return []
+
+            if return_tuples:
+                components_name_id: List[Tuple[str, str]] = []
+                for package in self.doc.packages:
+                    if not package.version:
+                        components_name_id.append((package.name, package.spdx_id))
+                return components_name_id
+
             components_name: List[str] = []
-            if not self.doc or not self.doc.packages:
-                return components_name
             for package in self.doc.packages:
                 if not package.version:
                     components_name.append(package.name)
@@ -479,6 +582,9 @@ class BaseChecker(ABC):
 
         # SPDX 2
         if self.sbom_spec == "spdx2":
+            self.doc = cast(Document, self.doc)
+            if not self.doc.packages:
+                return 0
             return len(self.doc.packages)
 
         # SPDX 3
@@ -487,18 +593,20 @@ class BaseChecker(ABC):
 
     def parse_file(self) -> Optional[Document]:
         """
-        Parse SBOM document.
+        Parse SPDX 2 SBOM document.
 
         Returns:
-            Optional[Document]: The parsed SBOM document if successful,
+            Optional[Document]: An SPDX 2 SBOM document if successful,
             otherwise None.
         """
-        # check if file exists
-        if not os.path.exists(self.file):
-            logging.error("Filename %s not found.", self.file)
-            sys.exit(1)
+        if not self.file or str(self.file).strip() == "":
+            logging.error("No file path provided.")
+            return None
 
-        # SPDX 2
+        if not os.path.exists(self.file):
+            logging.error("File not found: %s", self.file)
+            return None
+
         try:
             doc = parse_anything.parse_file(self.file)
         except SPDXParsingError as err:
@@ -507,13 +615,122 @@ class BaseChecker(ABC):
 
         return cast(Document, doc)
 
-    # def parse_spdx3_file(self) -> Optional[spdx3.Spdx3Document]:
-    #     """
-    #     Parse SPDX 3 SBOM document.
+    def parse_spdx3_file(self) -> Optional[spdx3.SHACLObjectSet]:
+        """
+        Parse SPDX 3 SBOM document.
 
-    #     Returns:
-    #         Optional[Document]: The parsed SPDX 3 SBOM document if successful,
-    #         otherwise None.
-    #     """
-    #     # Add code to parse SPDX 3 files here
-    #     return None
+        Returns:
+            Optional[spdx3.SHACLObjectSet]: An SHACLObjectSet if successful,
+            otherwise None.
+        """
+        if not self.file or str(self.file).strip() == "":
+            logging.error("No file path provided.")
+            return None
+
+        if not os.path.exists(self.file):
+            logging.error("File not found: %s", self.file)
+            return None
+
+        object_set: spdx3.SHACLObjectSet = spdx3.SHACLObjectSet()
+        try:
+            with open(self.file, encoding="utf-8") as f:
+                spdx3.JSONLDDeserializer().read(f, object_set)
+        except (OSError, json.JSONDecodeError) as err:
+            logging.warning("SPDX3 deserialization failed: %s", err)
+            self.parsing_error.append(str(err))
+            return None
+
+        return object_set
+
+
+# Static functions outside the class
+
+
+def validate_spdx3_document(
+    object_set: spdx3.SHACLObjectSet,
+) -> Tuple[Optional[spdx3.SpdxDocument], List[ValidationMessage]]:
+    """
+    Validate an SHACLObjectSet if it contains a valid SpdxDocument.
+
+    The SPDX 3.0 specification states that "Any instance of serialization of
+    SPDX data MUST NOT contain more than one SpdxDocument element definition."
+
+    See: https://spdx.github.io/spdx-spec/v3.0/model/Core/Classes/SpdxDocument/
+
+    For the purpose of BOM/SBOM application, it also requires that the
+    SpdxDocument should have a Bom or Software/Sbom as its rootElement.
+
+    See: https://github.com/spdx/ntia-conformance-checker/issues/268
+
+    Args:
+        object_set (spdx3.SHACLObjectSet): The SHACLObjectSet containing
+                                            the SPDX 3 document.
+    Returns:
+        Optional[spdx3.SpdxDocument]: An SpdxDocument if found, otherwise None.
+        List[ValidationMessage]: A list of validation messages. Empty if no errors.
+
+    """
+    # Note that we use spdx_tools.spdx.validation.validation_message,
+    # which is originally meant for SPDX 2, to report validation errors for
+    # SPDX 3 as well, so the print/HTML/JSON output functions can be reused.
+
+    doc: Optional[spdx3.SpdxDocument] = None
+    validation_messages: List[ValidationMessage] = []
+
+    spdx_documents: List[spdx3.SpdxDocument] = list(
+        object_set.foreach_type(spdx3.SpdxDocument)
+    )
+
+    if not spdx_documents:
+        error_msg = (
+            "No SpdxDocument object found in the SPDX 3 JSON file. "
+            "Expected exactly one."
+        )
+        validation_messages.append(ValidationMessage(error_msg, ValidationContext()))
+        return (doc, validation_messages)
+
+    if len(spdx_documents) != 1:
+        error_msg = "Multiple SpdxDocument objects found. Allows exactly one."
+        validation_messages.append(ValidationMessage(error_msg, ValidationContext()))
+        return (doc, validation_messages)
+
+    doc = spdx_documents[0]
+    doc_id = getattr(doc, "spdxId", None)
+    root_element = getattr(doc, "rootElement", None)
+
+    if not root_element:
+        error_msg = "No rootElement found in the SpdxDocument. Expected exactly one."
+        context = ValidationContext(parent_id=doc_id)
+        validation_messages.append(ValidationMessage(error_msg, context))
+    elif len(root_element) != 1:
+        error_msg = "Multiple root elements found in SpdxDocument. Allows exactly one."
+        context = ValidationContext(parent_id=doc_id)
+        validation_messages.append(ValidationMessage(error_msg, context))
+    else:
+        root_element = root_element[0]
+        if not isinstance(root_element, (spdx3.Bom, spdx3.software_Sbom)):
+            error_msg = (
+                "The root element must be of type Bom or software_Sbom. "
+                f"Found: {type(root_element)}"
+            )
+            root_element_id = getattr(root_element, "spdxId", None)
+            context = ValidationContext(parent_id=doc_id, spdx_id=root_element_id)
+            validation_messages.append(ValidationMessage(error_msg, context))
+
+    return (doc, validation_messages)
+
+
+def _iter_spdx3_artifacts(
+    object_set: spdx3.SHACLObjectSet, property_name: str
+) -> Iterator[Tuple[str, str, str]]:
+    """Yield (name, spdxId, supplier_name) for each SPDX3 Artifact."""
+
+    for obj in object_set.foreach_type(spdx3.Artifact):
+        obj = cast(spdx3.Artifact, obj)
+        name = (getattr(obj, "name", "") or "").strip()
+        spdx_id = (getattr(obj, "spdxId", "") or "").strip()
+        supplier = getattr(obj, property_name, None)
+        supplier_name = (
+            (getattr(supplier, "name", "") or "").strip() if supplier else ""
+        )
+        yield name, spdx_id, supplier_name
