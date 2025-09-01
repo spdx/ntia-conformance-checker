@@ -3,10 +3,16 @@ name: black-formatter-lint
 on:
   push:
     branches:
-    - main
+      - main
+    paths:
+      - '**/*.py'
+      - 'pyproject.toml'
   pull_request:
     branches:
-    - main
+      - main
+    paths:
+      - '**/*.py'
+      - 'pyproject.toml'
 
 permissions:
   contents: read

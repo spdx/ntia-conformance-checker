@@ -7,13 +7,19 @@ name: Static type check
 on:
   push:
     branches:
-    - main
+      - main
+    paths:
+      - '**/*.py'
+      - 'pyproject.toml'
   pull_request:
     branches:
-    - main
+      - main
+    paths:
+      - '**/*.py'
+      - 'pyproject.toml'
 
 jobs:
-  build:
+  typecheck:
     runs-on: ubuntu-latest
     strategy:
       matrix:
