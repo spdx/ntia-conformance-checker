@@ -198,8 +198,8 @@ def iter_relationship_by_type(
         _rel_type = getattr(obj, "type", "")
         if not _rel_type or _rel_type != rel_type:
             continue
-        from_: spdx3.Element = getattr(obj, "from_", None)
-        to: spdx3.Element = getattr(obj, "to", None)
+        from_: Optional[spdx3.Element] = getattr(obj, "from_", None)
+        to: Optional[spdx3.Element] = getattr(obj, "to", None)
         if not from_ or not to:
             continue
 

@@ -28,7 +28,7 @@ from .spdx3_utils import (
     get_spdx3_packages_from_spdx_bom,
     iter_property_by_obj_type,
     iter_relationship_by_type,
-    validate_spdx3_document
+    validate_spdx3_document,
 )
 
 SUPPORTED_SBOM_SPECS_DESC = {
