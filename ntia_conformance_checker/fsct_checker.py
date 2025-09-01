@@ -51,9 +51,6 @@ class FSCT3Checker(BaseChecker):
             raise ValueError("Only FSCTv3 Minimum Expected compliance is supported.")
 
         if self.doc:
-            self.doc_author = True  # Assume author is present?
-            self.doc_timestamp = True  # Assume timestamp is present?
-            self.dependency_relationships = self.check_dependency_relationships()
             self.compliant = self.check_compliance()
 
     def check_compliance(self) -> bool:

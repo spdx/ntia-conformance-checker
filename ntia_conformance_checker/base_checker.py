@@ -10,7 +10,7 @@ import json
 import logging
 import os
 from abc import ABC, abstractmethod
-from typing import Any, Dict, Iterator, List, Optional, Set, Tuple, Type, Union, cast
+from typing import Any, Dict, List, Optional, Set, Tuple, Union, cast
 
 from spdx_python_model import v3_0_1 as spdx3  # type: ignore # import-untyped
 from spdx_tools.spdx.model.document import Document
@@ -20,8 +20,15 @@ from spdx_tools.spdx.parser import parse_anything
 from spdx_tools.spdx.parser.error import SPDXParsingError
 from spdx_tools.spdx.validation.document_validator import validate_full_spdx_document
 from spdx_tools.spdx.validation.validation_message import (
-    ValidationContext,
     ValidationMessage,
+)
+
+from .spdx3_utils import (
+    get_spdx3_boms_from_spdx_document,
+    get_spdx3_packages_from_spdx_bom,
+    iter_property_by_obj_type,
+    iter_relationship_by_type,
+    validate_spdx3_document
 )
 
 SUPPORTED_SBOM_SPECS_DESC = {
@@ -194,7 +201,12 @@ class BaseChecker(ABC):
                     pass
 
             self.sbom_name = self.get_sbom_name()
+
             self.doc_version = self.check_doc_version()
+            self.doc_author = self.check_author()
+            self.doc_timestamp = self.check_timestamp()
+            self.dependency_relationships = self.check_dependency_relationships()
+
             self.components_without_names = self.get_components_without_names()
             self.components_without_versions = cast(
                 List[str], self.get_components_without_versions()
@@ -212,32 +224,38 @@ class BaseChecker(ABC):
                 List[str], self.get_components_without_copyright_texts()
             )
 
-    def get_doc_spec_version(self) -> Optional[str]:
-        """Retrieve the document's specification version."""
-        if not self.doc:
-            return None
+    def check_doc_version(self) -> bool:
+        """Check if the document's specification version exists."""
+        if self.get_doc_spec_version():
+            return True
+        return False
 
-        doc_spec_version: Optional[str] = None
+    def check_author(self) -> bool:
+        """Check if the author of SBOM data exists."""
+        if not self.doc:
+            return False
 
         # SPDX 2
+        # Note that the spdx-tools's parser will raise an SPDXParsingError
+        # anyway, if the document does not contain a creator.
+        # So in practice, this section should always return True
         if self.sbom_spec == "spdx2":
             self.doc = cast(Document, self.doc)
             doc_creation_info = getattr(self.doc, "creation_info", None)
             if doc_creation_info:
-                doc_spec_version = getattr(doc_creation_info, "spdx_version", None)
+                doc_creators = getattr(doc_creation_info, "creators", [])
+                if doc_creators:
+                    return True
+            return False
 
         # SPDX 3
         if self.sbom_spec == "spdx3" and self.__spdx3_doc:
             doc_creation_info = getattr(self.__spdx3_doc, "creationInfo", None)
             if doc_creation_info:
-                doc_spec_version = getattr(doc_creation_info, "specVersion", None)
+                doc_creators = getattr(doc_creation_info, "createdBy", [])
+                if doc_creators:
+                    return True
 
-        return doc_spec_version
-
-    def check_doc_version(self) -> bool:
-        """Check if the document's specification version exists."""
-        if self.get_doc_spec_version():
-            return True
         return False
 
     def check_dependency_relationships(self) -> bool:
@@ -270,28 +288,73 @@ class BaseChecker(ABC):
 
         # SPDX 3
         if self.sbom_spec == "spdx3":
-            self.doc = cast(spdx3.SHACLObjectSet, self.doc)
-
             # If a BOM/an SBOM's rootElement is a /Software/Package (or its subclass),
-            # it is considered to have a relationship implicitly.
-
-            # If there is no BOM(s), no DESCRIBES relationship is needed.
-            boms = get_spdx3_boms(self.__spdx3_doc)
-            if not boms:
-                return True
-
-            # If there is no /Software/Package(s), no DESCRIBES relationship is needed.
-            if not set(self.doc.foreach_type(spdx3.software_Package)):
-                return True
+            # it is considered to have a relationship.
+            #
+            # Note that if there is neither /Software/Package(s) nor /Core/Bom,
+            # a DESCRIBES relationship is not needed; however, this method may still
+            # return False, since it is factually considered as "no relationship".
 
             # There is a BOM and an /Software/Package,
             # check if there is at least one package listed in any BOM/SBOM
-            for bom in boms:
-                packages = get_spdx3_packages(bom)
-                if packages:
+            boms = get_spdx3_boms_from_spdx_document(self.__spdx3_doc)
+            if boms:
+                for bom in boms:
+                    packages = get_spdx3_packages_from_spdx_bom(bom)
+                    if packages:
+                        return True
+
+        return False
+
+    def check_timestamp(self) -> bool:
+        """Check if the SBOM creation timestamp exists."""
+        if not self.doc:
+            return False
+
+        # SPDX 2
+        # Note that the spdx-tools's parser will raise an SPDXParsingError
+        # anyway, if the document does not contain a timestamp.
+        # So in practice, this section should always return True
+        if self.sbom_spec == "spdx2":
+            self.doc = cast(Document, self.doc)
+            doc_creation_info = getattr(self.doc, "creation_info", None)
+            if doc_creation_info:
+                doc_created = getattr(doc_creation_info, "created", None)
+                if doc_created:
+                    return True
+            return False
+
+        # SPDX 3
+        if self.sbom_spec == "spdx3" and self.__spdx3_doc:
+            doc_creation_info = getattr(self.__spdx3_doc, "creationInfo", None)
+            if doc_creation_info:
+                doc_created = getattr(doc_creation_info, "created", None)
+                if doc_created:
                     return True
 
         return False
+
+    def get_doc_spec_version(self) -> Optional[str]:
+        """Retrieve the document's specification version."""
+        if not self.doc:
+            return None
+
+        doc_spec_version: Optional[str] = None
+
+        # SPDX 2
+        if self.sbom_spec == "spdx2":
+            self.doc = cast(Document, self.doc)
+            doc_creation_info = getattr(self.doc, "creation_info", None)
+            if doc_creation_info:
+                doc_spec_version = getattr(doc_creation_info, "spdx_version", None)
+
+        # SPDX 3
+        if self.sbom_spec == "spdx3" and self.__spdx3_doc:
+            doc_creation_info = getattr(self.__spdx3_doc, "creationInfo", None)
+            if doc_creation_info:
+                doc_spec_version = getattr(doc_creation_info, "specVersion", None)
+
+        return doc_spec_version
 
     def get_sbom_name(self) -> str:
         """Retrieve the name of the SBOM."""
@@ -313,6 +376,7 @@ class BaseChecker(ABC):
 
         return name
 
+    # pylint: disable=too-many-return-statements
     def get_components_without_concluded_licenses(
         self, return_tuples: bool = False
     ) -> Union[List[str], List[Tuple[str, str]]]:
@@ -368,7 +432,37 @@ class BaseChecker(ABC):
             return components_name
 
         # SPDX 3
-        # Add code to retrieve components without concluded licenses for SPDX 3 here
+        if self.sbom_spec == "spdx3":
+            self.doc = cast(spdx3.SHACLObjectSet, self.doc)
+
+            has_concluded_license_ids: Set[str] = {
+                to_id
+                for _, to_id in iter_relationship_by_type(
+                    self.doc, "hasConcludedLicense"
+                )
+            }
+
+            if return_tuples:
+                return [
+                    (name, spdx_id)
+                    for name, spdx_id, _ in iter_property_by_obj_type(
+                        self.doc,
+                        spdx3.software_Package,
+                        "spdxId",
+                    )
+                    if spdx_id not in has_concluded_license_ids
+                ]
+
+            return [
+                name
+                for name, spdx_id, _ in iter_property_by_obj_type(
+                    self.doc,
+                    spdx3.software_Package,
+                    "spdxId",
+                )
+                if spdx_id not in has_concluded_license_ids
+            ]
+
         return []
 
     # pylint: disable=too-many-return-statements
@@ -432,7 +526,7 @@ class BaseChecker(ABC):
             if return_tuples:
                 return [
                     (name, spdx_id)
-                    for name, spdx_id, copyright_text in _iter_property_foreach_type(
+                    for name, spdx_id, copyright_text in iter_property_by_obj_type(
                         self.doc,
                         spdx3.software_Package,
                         "software_copyrightText",
@@ -445,7 +539,7 @@ class BaseChecker(ABC):
 
             return [
                 name
-                for name, _, copyright_text in _iter_property_foreach_type(
+                for name, _, copyright_text in iter_property_by_obj_type(
                     self.doc, spdx3.software_Package, "software_copyrightText"
                 )
                 if not copyright_text
@@ -485,7 +579,7 @@ class BaseChecker(ABC):
 
             return [
                 name
-                for name, _, spdx_id in _iter_property_foreach_type(
+                for name, _, spdx_id in iter_property_by_obj_type(
                     self.doc, spdx3.Element, "spdxId"
                 )
                 if not spdx_id or spdx_id.strip() == ""
@@ -520,7 +614,7 @@ class BaseChecker(ABC):
 
             return [
                 spdx_id
-                for _, spdx_id, name in _iter_property_foreach_type(
+                for _, spdx_id, name in iter_property_by_obj_type(
                     self.doc, spdx3.software_Package, "name"
                 )
                 if not name or name.strip() == ""
@@ -580,7 +674,7 @@ class BaseChecker(ABC):
             if return_tuples:
                 return [
                     (name, spdx_id)
-                    for name, spdx_id, supplier in _iter_property_foreach_type(
+                    for name, spdx_id, supplier in iter_property_by_obj_type(
                         self.doc, spdx3.software_Package, "suppliedBy"
                     )
                     if not supplier or not supplier.name or supplier.name.strip() == ""
@@ -588,7 +682,7 @@ class BaseChecker(ABC):
 
             return [
                 name
-                for name, _, supplier in _iter_property_foreach_type(
+                for name, _, supplier in iter_property_by_obj_type(
                     self.doc, spdx3.software_Package, "suppliedBy"
                 )
                 if not supplier or not supplier.name or supplier.name.strip() == ""
@@ -640,7 +734,7 @@ class BaseChecker(ABC):
             if return_tuples:
                 return [
                     (name, spdx_id)
-                    for name, spdx_id, package_version in _iter_property_foreach_type(
+                    for name, spdx_id, package_version in iter_property_by_obj_type(
                         self.doc, spdx3.software_Package, "software_packageVersion"
                     )
                     if not package_version or package_version.strip() == ""
@@ -648,7 +742,7 @@ class BaseChecker(ABC):
 
             return [
                 name
-                for name, _, package_version in _iter_property_foreach_type(
+                for name, _, package_version in iter_property_by_obj_type(
                     self.doc, spdx3.software_Package, "software_packageVersion"
                 )
                 if not package_version or package_version.strip() == ""
@@ -731,174 +825,3 @@ class BaseChecker(ABC):
             return None
 
         return object_set
-
-
-# Static functions outside the class
-
-
-def validate_spdx3_document(
-    object_set: spdx3.SHACLObjectSet,
-) -> Tuple[Optional[spdx3.SpdxDocument], List[ValidationMessage]]:
-    """
-    Validate an SHACLObjectSet if it contains a valid SpdxDocument.
-
-    The SPDX 3.0 specification states that "Any instance of serialization of
-    SPDX data MUST NOT contain more than one SpdxDocument element definition."
-
-    See: https://spdx.github.io/spdx-spec/v3.0/model/Core/Classes/SpdxDocument/
-
-    For the purpose of BOM/SBOM application, it also requires that the
-    SpdxDocument should have a Bom or Software/Sbom as its rootElement.
-
-    See: https://github.com/spdx/ntia-conformance-checker/issues/268
-
-    Args:
-        object_set (spdx3.SHACLObjectSet): The SHACLObjectSet containing
-                                            the SPDX 3 document.
-    Returns:
-        Optional[spdx3.SpdxDocument]: An SpdxDocument if found, otherwise None.
-        List[ValidationMessage]: A list of validation messages. Empty if no errors.
-
-    """
-    # Note that we use spdx_tools.spdx.validation.validation_message,
-    # which is originally meant for SPDX 2, to report validation errors for
-    # SPDX 3 as well, so the print/HTML/JSON output functions can be reused.
-
-    doc: Optional[spdx3.SpdxDocument] = None
-    validation_messages: List[ValidationMessage] = []
-
-    spdx_documents: List[spdx3.SpdxDocument] = list(
-        object_set.foreach_type(spdx3.SpdxDocument)
-    )
-
-    if not spdx_documents:
-        error_msg = (
-            "No SpdxDocument object found in the SPDX 3 JSON file. "
-            "Expected exactly one."
-        )
-        validation_messages.append(ValidationMessage(error_msg, ValidationContext()))
-        return (doc, validation_messages)
-
-    if len(spdx_documents) != 1:
-        error_msg = "Multiple SpdxDocument objects found. Allows exactly one."
-        validation_messages.append(ValidationMessage(error_msg, ValidationContext()))
-        return (doc, validation_messages)
-
-    doc = spdx_documents[0]
-    doc_id = getattr(doc, "spdxId", None)
-    root_element = getattr(doc, "rootElement", None)
-
-    if not root_element:
-        error_msg = "No rootElement found in the SpdxDocument. Expected exactly one."
-        context = ValidationContext(parent_id=doc_id)
-        validation_messages.append(ValidationMessage(error_msg, context))
-    elif len(root_element) != 1:
-        error_msg = "Multiple root elements found in SpdxDocument. Allows exactly one."
-        context = ValidationContext(parent_id=doc_id)
-        validation_messages.append(ValidationMessage(error_msg, context))
-    else:
-        root_element = root_element[0]
-        if not isinstance(root_element, (spdx3.Bom, spdx3.software_Sbom)):
-            error_msg = (
-                "The root element must be of type Bom or software_Sbom. "
-                f"Found: {type(root_element)}"
-            )
-            root_element_id = getattr(root_element, "spdxId", None)
-            context = ValidationContext(parent_id=doc_id, spdx_id=root_element_id)
-            validation_messages.append(ValidationMessage(error_msg, context))
-
-    return (doc, validation_messages)
-
-
-def get_spdx3_spdx_document(
-    object_set: Optional[spdx3.SHACLObjectSet],
-) -> Optional[spdx3.SpdxDocument]:
-    """
-    Retrieve the SpdxDocument from an SPDX 3 SHACLObjectSet.
-
-    Args:
-        object_set (spdx3.SHACLObjectSet): The SHACLObjectSet containing
-                                            the SPDX 3 document.
-
-    Returns:
-        Optional[spdx3.SpdxDocument]: The SpdxDocument if found, otherwise None.
-    """
-    if not object_set:
-        return None
-
-    spdx_documents: List[spdx3.SpdxDocument] = list(
-        object_set.foreach_type(spdx3.SpdxDocument)
-    )
-
-    if not spdx_documents or len(spdx_documents) != 1:
-        return None
-
-    return spdx_documents[0]
-
-
-def get_spdx3_boms(spdx_doc: Optional[spdx3.SpdxDocument]) -> Optional[List[spdx3.Bom]]:
-    """
-    Retrieve the BOM(s) from an SPDX 3 document.
-
-    Args:
-        spdx_doc (spdx3.SpdxDocument): The SPDX 3 SpdxDocument.
-
-    Returns:
-        Optional[List[spdx3.Bom]]: The Boms if found, otherwise None.
-    """
-    if not spdx_doc:
-        return None
-
-    root_elements: List[spdx3.Bom] = getattr(spdx_doc, "rootElement", [])
-    if not root_elements:
-        return None
-
-    return root_elements
-
-
-def get_spdx3_packages(
-    bom: Optional[spdx3.Bom],
-) -> Optional[List[spdx3.software_Package]]:
-    """
-    Retrieve the package(s) from an SPDX 3 BOM.
-
-    Args:
-        spdx_doc (spdx3.Bom): The SPDX 3 Bom.
-
-    Returns:
-        Optional[List[spdx3.software_Package]]: The packages if found, otherwise None.
-    """
-    if not bom:
-        return None
-
-    root_elements: List[spdx3.software_Package] = getattr(bom, "rootElement", [])
-    if not root_elements or len(root_elements) != 1:
-        return None
-
-    return root_elements
-
-
-def _iter_property_foreach_type(
-    object_set: spdx3.SHACLObjectSet,
-    typ: Type[spdx3.SHACLObject] = spdx3.Artifact,
-    property_name: str = "spdxId",
-) -> Iterator[Tuple[str, str, Any]]:
-    """
-    Yield (name, spdxId, property) for each SPDX3 object.
-
-    Args:
-        object_set (spdx3.SHACLObjectSet): The SHACLObjectSet to iterate over.
-        typ (Type[spdx3.SHACLObject]): The type of SPDX3 object
-        property_name (str): The property name to retrieve.
-
-    Yields:
-        Iterator[Tuple[str, str, Any]]: A tuple containing the name,
-        SPDX ID, and the specified property of the object.
-    """
-
-    for obj in object_set.foreach_type(typ):
-        obj = cast(spdx3.SHACLObject, obj)
-        name = (getattr(obj, "name", "") or "").strip()
-        spdx_id = (getattr(obj, "spdxId", "") or "").strip()
-        property_ = getattr(obj, property_name, None)
-        yield name, spdx_id, property_
