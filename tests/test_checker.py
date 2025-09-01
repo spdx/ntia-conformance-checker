@@ -324,9 +324,10 @@ def test_sbomchecker_spdx3_general():
     )
 
 
-def test_sbomchecker_spdx3_missing_version():
+def test_sbomchecker_spdx3_no_software_package():
     # This file contains no /Software/Package/,
     # but it does contain its subclass /Dataset/DatasetPackage/.
+    # It should be treated as a regular software BOM.
     test_file = (
         Path(__file__).parent / "data" / "spdx3" / "has_no_software_package.json"
     )
@@ -334,7 +335,36 @@ def test_sbomchecker_spdx3_missing_version():
     assert sbom is not None
     assert sbom.doc is not None
     assert isinstance(sbom.doc, spdx3.SHACLObjectSet)
+    assert len(sbom.components_without_names) == 0
     assert len(sbom.components_without_versions) == 0
+    assert len(sbom.components_without_identifiers) == 0
+    assert len(sbom.components_without_suppliers) == 0
+
+
+def test_sbomchecker_spdx3_missing_supplier_name():
+    test_file = Path(__file__).parent / "data" / "spdx3" / "missing_supplier_name.json"
+    sbom = sbom_checker.SbomChecker(str(test_file), sbom_spec="spdx3")
+    assert sbom is not None
+    assert sbom.doc is not None
+    assert isinstance(sbom.doc, spdx3.SHACLObjectSet)
+    assert len(sbom.components_without_suppliers) == 1
+
+
+def test_sbomchecker_spdx3_missing_version():
+    test_file = Path(__file__).parent / "data" / "spdx3" / "missing_version.json"
+    sbom = sbom_checker.SbomChecker(str(test_file), sbom_spec="spdx3")
+    assert sbom is not None
+    assert sbom.doc is not None
+    assert isinstance(sbom.doc, spdx3.SHACLObjectSet)
+    assert len(sbom.components_without_versions) == 1
+
+
+def test_sbomchecker_spdx3_missing_identifier():
+    test_file = Path(__file__).parent / "data" / "spdx3" / "missing_identifier.json"
+    # SPDX 3 does not allow any element without an identifier,
+    # so we expect a ValueError to be raised.
+    with pytest.raises(ValueError):
+        sbom_checker.SbomChecker(str(test_file), sbom_spec="spdx3")
 
 
 ### Other tests
