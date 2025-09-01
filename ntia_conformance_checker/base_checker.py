@@ -437,6 +437,12 @@ class BaseChecker(ABC):
         """
         Retrieve name of components without identifiers.
 
+        Note that SPDX 3 requires identifiers for all elements,
+        so this should not happen in a valid SPDX 3 document.
+
+        spdx-python-model JSON deserializer will raise a ValueError
+        if any element is missing an identifier.
+
         Returns:
             List[str]: A list of component names.
         """
