@@ -269,7 +269,28 @@ class BaseChecker(ABC):
             return describes_package
 
         # SPDX 3
-        # Add code to check DESCRIBES relationship for SPDX 3 here
+        if self.sbom_spec == "spdx3":
+            self.doc = cast(spdx3.SHACLObjectSet, self.doc)
+
+            # If a BOM/an SBOM's rootElement is a /Software/Package (or its subclass),
+            # it is considered to have a relationship implicitly.
+
+            # If there is no BOM(s), no DESCRIBES relationship is needed.
+            boms = get_spdx3_boms(self.__spdx3_doc)
+            if not boms:
+                return True
+
+            # If there is no /Software/Package(s), no DESCRIBES relationship is needed.
+            if not set(self.doc.foreach_type(spdx3.software_Package)):
+                return True
+
+            # There is a BOM and an /Software/Package,
+            # check if there is at least one package listed in any BOM/SBOM
+            for bom in boms:
+                packages = get_spdx3_packages(bom)
+                if packages:
+                    return True
+
         return False
 
     def get_sbom_name(self) -> str:
@@ -787,6 +808,74 @@ def validate_spdx3_document(
             validation_messages.append(ValidationMessage(error_msg, context))
 
     return (doc, validation_messages)
+
+
+def get_spdx3_spdx_document(
+    object_set: Optional[spdx3.SHACLObjectSet],
+) -> Optional[spdx3.SpdxDocument]:
+    """
+    Retrieve the SpdxDocument from an SPDX 3 SHACLObjectSet.
+
+    Args:
+        object_set (spdx3.SHACLObjectSet): The SHACLObjectSet containing
+                                            the SPDX 3 document.
+
+    Returns:
+        Optional[spdx3.SpdxDocument]: The SpdxDocument if found, otherwise None.
+    """
+    if not object_set:
+        return None
+
+    spdx_documents: List[spdx3.SpdxDocument] = list(
+        object_set.foreach_type(spdx3.SpdxDocument)
+    )
+
+    if not spdx_documents or len(spdx_documents) != 1:
+        return None
+
+    return spdx_documents[0]
+
+
+def get_spdx3_boms(spdx_doc: Optional[spdx3.SpdxDocument]) -> Optional[List[spdx3.Bom]]:
+    """
+    Retrieve the BOM(s) from an SPDX 3 document.
+
+    Args:
+        spdx_doc (spdx3.SpdxDocument): The SPDX 3 SpdxDocument.
+
+    Returns:
+        Optional[List[spdx3.Bom]]: The Boms if found, otherwise None.
+    """
+    if not spdx_doc:
+        return None
+
+    root_elements: List[spdx3.Bom] = getattr(spdx_doc, "rootElement", [])
+    if not root_elements:
+        return None
+
+    return root_elements
+
+
+def get_spdx3_packages(
+    bom: Optional[spdx3.Bom],
+) -> Optional[List[spdx3.software_Package]]:
+    """
+    Retrieve the package(s) from an SPDX 3 BOM.
+
+    Args:
+        spdx_doc (spdx3.Bom): The SPDX 3 Bom.
+
+    Returns:
+        Optional[List[spdx3.software_Package]]: The packages if found, otherwise None.
+    """
+    if not bom:
+        return None
+
+    root_elements: List[spdx3.software_Package] = getattr(bom, "rootElement", [])
+    if not root_elements or len(root_elements) != 1:
+        return None
+
+    return root_elements
 
 
 def _iter_property_foreach_type(

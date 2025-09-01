@@ -315,11 +315,14 @@ def test_sbomchecker_spdx3_general():
     assert sbom.doc is not None
     assert isinstance(sbom.doc, spdx3.SHACLObjectSet)
     assert sbom.sbom_name == "hello"
-    spdx3_document, _ = validate_spdx3_document(sbom.doc)
-    assert isinstance(spdx3_document, spdx3.SpdxDocument)
-    assert getattr(spdx3_document, "name") == sbom.sbom_name
+    spdx3_spdx_document, validation_messages = validate_spdx3_document(sbom.doc)
     assert (
-        getattr(spdx3_document, "spdxId")
+        len(validation_messages) >= 1
+    )  # There should be a message about missing /Core/Bom.
+    assert isinstance(spdx3_spdx_document, spdx3.SpdxDocument)
+    assert getattr(spdx3_spdx_document, "name") == sbom.sbom_name
+    assert (
+        getattr(spdx3_spdx_document, "spdxId")
         == "https://swinslow.net/spdx-examples/example1/hello-v3-specv3/document0"
     )
 
