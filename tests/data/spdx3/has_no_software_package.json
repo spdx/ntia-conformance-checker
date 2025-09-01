@@ -50,7 +50,8 @@
       ],
       "rootElement": [
         "https://spdx.org/spdxdocs/SBOM1-d44af211-2646-43bc-9058-f6aabd30f7ab"
-      ]
+      ],
+      "name": "SBOM for Our World in Data CO2 and Greenhouse Gas Emissions dataset"
     },
     {
       "type": "software_Sbom",

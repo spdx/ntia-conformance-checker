@@ -413,7 +413,7 @@ class BaseChecker(ABC):
                     (name, spdx_id)
                     for name, spdx_id, copyright_text in _iter_property_foreach_type(
                         self.doc,
-                        spdx3.software_SoftwareArtifact,
+                        spdx3.software_Package,
                         "software_copyrightText",
                     )
                     if not copyright_text
@@ -425,7 +425,7 @@ class BaseChecker(ABC):
             return [
                 name
                 for name, _, copyright_text in _iter_property_foreach_type(
-                    self.doc, spdx3.software_SoftwareArtifact, "software_copyrightText"
+                    self.doc, spdx3.software_Package, "software_copyrightText"
                 )
                 if not copyright_text
                 or (isinstance(copyright_text, str) and copyright_text.strip() == "")
@@ -494,7 +494,7 @@ class BaseChecker(ABC):
             return [
                 spdx_id
                 for _, spdx_id, name in _iter_property_foreach_type(
-                    self.doc, spdx3.Element, "name"
+                    self.doc, spdx3.software_Package, "name"
                 )
                 if not name or name.strip() == ""
             ]
@@ -554,7 +554,7 @@ class BaseChecker(ABC):
                 return [
                     (name, spdx_id)
                     for name, spdx_id, supplier in _iter_property_foreach_type(
-                        self.doc, spdx3.Artifact, "suppliedBy"
+                        self.doc, spdx3.software_Package, "suppliedBy"
                     )
                     if not supplier or not supplier.name or supplier.name.strip() == ""
                 ]
@@ -562,7 +562,7 @@ class BaseChecker(ABC):
             return [
                 name
                 for name, _, supplier in _iter_property_foreach_type(
-                    self.doc, spdx3.Artifact, "suppliedBy"
+                    self.doc, spdx3.software_Package, "suppliedBy"
                 )
                 if not supplier or not supplier.name or supplier.name.strip() == ""
             ]
