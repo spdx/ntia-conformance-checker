@@ -193,6 +193,8 @@ class BaseChecker(ABC):
                 else:
                     pass
 
+            self.sbom_name = self.get_sbom_name()
+            self.doc_version = self.check_doc_version()
             self.components_without_names = self.get_components_without_names()
             self.components_without_versions = cast(
                 List[str], self.get_components_without_versions()
@@ -267,9 +269,7 @@ class BaseChecker(ABC):
             return describes_package
 
         # SPDX 3
-        if self.sbom_spec == "spdx3" and self.__spdx3_doc:
-            return False
-
+        # Add code to check DESCRIBES relationship for SPDX 3 here
         return False
 
     def get_sbom_name(self) -> str:

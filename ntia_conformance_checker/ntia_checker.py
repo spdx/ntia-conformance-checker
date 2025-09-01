@@ -39,8 +39,6 @@ class NTIAChecker(BaseChecker):
             raise ValueError("Only NTIA Minimum Element compliance is supported.")
 
         if self.doc:
-            self.sbom_name = self.get_sbom_name()
-            self.doc_version = self.check_doc_version()
             self.doc_author = True  # Assume author is present?
             self.doc_timestamp = True  # Assume timestamp is present?
             self.dependency_relationships = self.check_dependency_relationships()

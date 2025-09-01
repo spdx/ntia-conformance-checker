@@ -324,6 +324,19 @@ def test_sbomchecker_spdx3_general():
     )
 
 
+def test_sbomchecker_spdx3_missing_version():
+    # This file contains no /Software/Package/,
+    # but it does contain its subclass /Dataset/DatasetPackage/.
+    test_file = (
+        Path(__file__).parent / "data" / "spdx3" / "has_no_software_package.json"
+    )
+    sbom = sbom_checker.SbomChecker(str(test_file), sbom_spec="spdx3")
+    assert sbom is not None
+    assert sbom.doc is not None
+    assert isinstance(sbom.doc, spdx3.SHACLObjectSet)
+    assert len(sbom.components_without_versions) == 0
+
+
 ### Other tests
 
 
