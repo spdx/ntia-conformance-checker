@@ -162,6 +162,8 @@
                     <span class="ow">not</span> <span class="bp">self</span><span class="o">.</span><span class="n">components_without_versions</span><span class="p">,</span>
                     <span class="ow">not</span> <span class="bp">self</span><span class="o">.</span><span class="n">components_without_identifiers</span><span class="p">,</span>
                     <span class="ow">not</span> <span class="bp">self</span><span class="o">.</span><span class="n">components_without_suppliers</span><span class="p">,</span>
+                    <span class="ow">not</span> <span class="bp">self</span><span class="o">.</span><span class="n">components_without_concluded_licenses</span><span class="p">,</span>
+                    <span class="ow">not</span> <span class="bp">self</span><span class="o">.</span><span class="n">components_without_copyright_texts</span><span class="p">,</span>
                 <span class="p">]</span>
             <span class="p">):</span>
                 <span class="nb">print</span><span class="p">(</span><span class="s2">&quot;No components with missing information.&quot;</span><span class="p">)</span>
@@ -238,6 +240,12 @@
             <span class="nb">print</span><span class="p">(</span>
                 <span class="sa">f</span><span class="s2">&quot;All component suppliers provided?              | </span><span class="si">{</span><span class="ow">not</span><span class="w"> </span><span class="bp">self</span><span class="o">.</span><span class="n">components_without_suppliers</span><span class="si">}</span><span class="s2">&quot;</span>
             <span class="p">)</span>
+            <span class="nb">print</span><span class="p">(</span>
+                <span class="sa">f</span><span class="s2">&quot;All component concluded license provided?      | </span><span class="si">{</span><span class="ow">not</span><span class="w"> </span><span class="bp">self</span><span class="o">.</span><span class="n">components_without_concluded_licenses</span><span class="si">}</span><span class="s2">&quot;</span>
+            <span class="p">)</span>
+            <span class="nb">print</span><span class="p">(</span>
+                <span class="sa">f</span><span class="s2">&quot;All component copyright notice provided?       | </span><span class="si">{</span><span class="ow">not</span><span class="w"> </span><span class="bp">self</span><span class="o">.</span><span class="n">components_without_copyright_texts</span><span class="si">}</span><span class="s2">&quot;</span>
+            <span class="p">)</span>
             <span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;SBOM author name provided?                     | </span><span class="si">{</span><span class="bp">self</span><span class="o">.</span><span class="n">doc_author</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
             <span class="nb">print</span><span class="p">(</span>
                 <span class="sa">f</span><span class="s2">&quot;SBOM creation timestamp provided?              | </span><span class="si">{</span><span class="bp">self</span><span class="o">.</span><span class="n">doc_timestamp</span><span class="si">}</span><span class="s2">&quot;</span>
@@ -245,6 +253,7 @@
             <span class="nb">print</span><span class="p">(</span>
                 <span class="sa">f</span><span class="s2">&quot;Dependency relationships provided?             | </span><span class="si">{</span><span class="bp">self</span><span class="o">.</span><span class="n">dependency_relationships</span><span class="si">}</span><span class="se">\n</span><span class="s2">&quot;</span>
             <span class="p">)</span>
+
             <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">validation_messages</span><span class="p">:</span>
                 <span class="nb">print</span><span class="p">(</span>
                     <span class="s2">&quot;The provided document is not valid according to the SPDX specification. &quot;</span>
@@ -284,7 +293,10 @@
         <span class="n">result</span><span class="p">[</span><span class="s2">&quot;componentVersions&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="p">{}</span>
         <span class="n">result</span><span class="p">[</span><span class="s2">&quot;componentIdentifiers&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="p">{}</span>
         <span class="n">result</span><span class="p">[</span><span class="s2">&quot;componentSuppliers&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="p">{}</span>
+        <span class="n">result</span><span class="p">[</span><span class="s2">&quot;componentConcludedLicenses&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="p">{}</span>
+        <span class="n">result</span><span class="p">[</span><span class="s2">&quot;componentCopyrightTexts&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="p">{}</span>
 
+        <span class="n">result</span><span class="p">[</span><span class="s2">&quot;specVersionProvided&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">doc_version</span>
         <span class="n">result</span><span class="p">[</span><span class="s2">&quot;authorNameProvided&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">doc_author</span>
         <span class="n">result</span><span class="p">[</span><span class="s2">&quot;timestampProvided&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">doc_timestamp</span>
         <span class="n">result</span><span class="p">[</span><span class="s2">&quot;dependencyRelationshipsProvided&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">dependency_relationships</span>
@@ -322,10 +334,10 @@
             <span class="s2">&quot;allProvided&quot;</span>
         <span class="p">]</span> <span class="o">=</span> <span class="ow">not</span> <span class="bp">self</span><span class="o">.</span><span class="n">components_without_concluded_licenses</span>
 
-        <span class="n">result</span><span class="p">[</span><span class="s2">&quot;componentCopyrightText&quot;</span><span class="p">][</span>
+        <span class="n">result</span><span class="p">[</span><span class="s2">&quot;componentCopyrightTexts&quot;</span><span class="p">][</span>
             <span class="s2">&quot;nonconformantComponents&quot;</span>
         <span class="p">]</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">components_without_copyright_texts</span>
-        <span class="n">result</span><span class="p">[</span><span class="s2">&quot;componentCopyrightText&quot;</span><span class="p">][</span>
+        <span class="n">result</span><span class="p">[</span><span class="s2">&quot;componentCopyrightTexts&quot;</span><span class="p">][</span>
             <span class="s2">&quot;allProvided&quot;</span>
         <span class="p">]</span> <span class="o">=</span> <span class="ow">not</span> <span class="bp">self</span><span class="o">.</span><span class="n">components_without_copyright_texts</span>
 
@@ -352,6 +364,10 @@
                 <span class="sa">f</span><span class="s2">&quot;&lt;td&gt;</span><span class="si">{</span><span class="ow">not</span><span class="w"> </span><span class="bp">self</span><span class="o">.</span><span class="n">components_without_identifiers</span><span class="si">}</span><span class="s2">&lt;/td&gt; &lt;/tr&gt; &quot;</span>
                 <span class="sa">f</span><span class="s2">&quot;&lt;tr&gt; &lt;td&gt;All component suppliers provided&lt;/td&gt; &quot;</span>
                 <span class="sa">f</span><span class="s2">&quot;&lt;td&gt;</span><span class="si">{</span><span class="ow">not</span><span class="w"> </span><span class="bp">self</span><span class="o">.</span><span class="n">components_without_suppliers</span><span class="si">}</span><span class="s2">&lt;/td&gt; &quot;</span>
+                <span class="sa">f</span><span class="s2">&quot;&lt;tr&gt; &lt;td&gt;All component concluded license provided&lt;/td&gt; &quot;</span>
+                <span class="sa">f</span><span class="s2">&quot;&lt;td&gt;</span><span class="si">{</span><span class="ow">not</span><span class="w"> </span><span class="bp">self</span><span class="o">.</span><span class="n">components_without_concluded_licenses</span><span class="si">}</span><span class="s2">&lt;/td&gt; &quot;</span>
+                <span class="sa">f</span><span class="s2">&quot;&lt;tr&gt; &lt;td&gt;All component copyright notice provided&lt;/td&gt; &quot;</span>
+                <span class="sa">f</span><span class="s2">&quot;&lt;td&gt;</span><span class="si">{</span><span class="ow">not</span><span class="w"> </span><span class="bp">self</span><span class="o">.</span><span class="n">components_without_copyright_texts</span><span class="si">}</span><span class="s2">&lt;/td&gt; &quot;</span>
                 <span class="sa">f</span><span class="s2">&quot;&lt;/tr&gt; &lt;tr&gt; &lt;td&gt;SBOM author name provided&lt;/td&gt; &quot;</span>
                 <span class="sa">f</span><span class="s2">&quot;&lt;td&gt;</span><span class="si">{</span><span class="bp">self</span><span class="o">.</span><span class="n">doc_author</span><span class="si">}</span><span class="s2">&lt;/td&gt; &lt;/tr&gt; &quot;</span>
                 <span class="sa">f</span><span class="s2">&quot;&lt;tr&gt; &lt;td&gt;SBOM creation timestamp provided&lt;/td&gt; &quot;</span>

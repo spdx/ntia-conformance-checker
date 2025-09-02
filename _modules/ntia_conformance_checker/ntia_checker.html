@@ -269,7 +269,10 @@
         <span class="n">result</span><span class="p">[</span><span class="s2">&quot;componentVersions&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="p">{}</span>
         <span class="n">result</span><span class="p">[</span><span class="s2">&quot;componentIdentifiers&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="p">{}</span>
         <span class="n">result</span><span class="p">[</span><span class="s2">&quot;componentSuppliers&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="p">{}</span>
+        <span class="n">result</span><span class="p">[</span><span class="s2">&quot;componentConcludedLicenses&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="p">{}</span>
+        <span class="n">result</span><span class="p">[</span><span class="s2">&quot;componentCopyrightTexts&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="p">{}</span>
 
+        <span class="n">result</span><span class="p">[</span><span class="s2">&quot;specVersionProvided&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">doc_version</span>
         <span class="n">result</span><span class="p">[</span><span class="s2">&quot;authorNameProvided&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">doc_author</span>
         <span class="n">result</span><span class="p">[</span><span class="s2">&quot;timestampProvided&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">doc_timestamp</span>
         <span class="n">result</span><span class="p">[</span><span class="s2">&quot;dependencyRelationshipsProvided&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">dependency_relationships</span>
@@ -299,6 +302,20 @@
         <span class="n">result</span><span class="p">[</span><span class="s2">&quot;componentSuppliers&quot;</span><span class="p">][</span>
             <span class="s2">&quot;allProvided&quot;</span>
         <span class="p">]</span> <span class="o">=</span> <span class="ow">not</span> <span class="bp">self</span><span class="o">.</span><span class="n">components_without_suppliers</span>
+
+        <span class="n">result</span><span class="p">[</span><span class="s2">&quot;componentConcludedLicenses&quot;</span><span class="p">][</span>
+            <span class="s2">&quot;nonconformantComponents&quot;</span>
+        <span class="p">]</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">components_without_concluded_licenses</span>
+        <span class="n">result</span><span class="p">[</span><span class="s2">&quot;componentConcludedLicenses&quot;</span><span class="p">][</span>
+            <span class="s2">&quot;allProvided&quot;</span>
+        <span class="p">]</span> <span class="o">=</span> <span class="ow">not</span> <span class="bp">self</span><span class="o">.</span><span class="n">components_without_concluded_licenses</span>
+
+        <span class="n">result</span><span class="p">[</span><span class="s2">&quot;componentCopyrightTexts&quot;</span><span class="p">][</span>
+            <span class="s2">&quot;nonconformantComponents&quot;</span>
+        <span class="p">]</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">components_without_copyright_texts</span>
+        <span class="n">result</span><span class="p">[</span><span class="s2">&quot;componentCopyrightTexts&quot;</span><span class="p">][</span>
+            <span class="s2">&quot;allProvided&quot;</span>
+        <span class="p">]</span> <span class="o">=</span> <span class="ow">not</span> <span class="bp">self</span><span class="o">.</span><span class="n">components_without_copyright_texts</span>
 
         <span class="n">result</span><span class="p">[</span><span class="s2">&quot;totalNumberComponents&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">get_total_number_components</span><span class="p">()</span>
 
