@@ -338,10 +338,33 @@ def test_sbomchecker_spdx3_no_software_package():
     assert sbom is not None
     assert sbom.doc is not None
     assert isinstance(sbom.doc, spdx3.SHACLObjectSet)
+    print(sbom.sbom_name)
+    assert len(sbom.parsing_error) == 0
+    assert len(sbom.validation_messages) == 0
+    assert sbom.sbom_name is not None
     assert len(sbom.components_without_names) == 0
     assert len(sbom.components_without_versions) == 0
     assert len(sbom.components_without_identifiers) == 0
     assert len(sbom.components_without_suppliers) == 0
+    assert len(sbom.components_without_concluded_licenses) == 0
+    assert len(sbom.components_without_copyright_texts) == 0
+    assert sbom.doc_version
+    assert sbom.doc_author
+    assert sbom.doc_timestamp
+    assert sbom.compliant
+
+
+def test_sbomchecker_fsct3_spdx3_no_software_package():
+    test_file = (
+        Path(__file__).parent / "data" / "spdx3" / "has_no_software_package.json"
+    )
+    sbom = sbom_checker.SbomChecker(
+        str(test_file), sbom_spec="spdx3", compliance="fsct3-min"
+    )
+    assert sbom is not None
+    assert sbom.doc is not None
+    assert isinstance(sbom.doc, spdx3.SHACLObjectSet)
+    assert sbom.compliant
 
 
 def test_sbomchecker_spdx3_missing_supplier_name():

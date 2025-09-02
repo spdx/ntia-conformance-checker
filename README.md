@@ -12,11 +12,12 @@ certain specification.
 
 ## Conformance
 
-Currently, the only supported specification is the
-2021 National Telecommunications and Information Administration (NTIA)
-["minimum elements."][ntia]
-The mapping of the NTIA elements required data fields to the SPDX 2.3
-specification can be found [here][ntia-spdx23].
+Currently, the supported specifications are:
+
+- 2021 National Telecommunications and Information Administration (NTIA)
+  ["minimum elements."][ntia]
+- 2024 CISA Framing Software Component Transparency (FSCT3)
+  ["minimum expected."][fsct3]
 
 The minimum elements include:
 
@@ -32,22 +33,21 @@ As defined by the NTIA, the minimum elements are
 "the essential pieces that support basic SBOM functionality and will serve as
 the foundation for an evolving approach to software transparency."
 
-Checking the conformance with 2024 Framing Software Component Transparency
-(FSCT3) ["Baseline Attributes"][fsct3] is *experimental and under development*.
-The mapping of FSCT3 Baseline Attributes to ISO/IEC 5962:2021 (SPDX 2.2.1) and
-SPDX 3.0 can be found at Section 2.5 of the FSCT3 document.
-
 In addition to information similar to NTIA minimum elements,
-FSCT3 also requires these Baseline Attributes:
+FSCT3 requires these Baseline Attributes as part of its "minimum expected":
 
 - License
-- Copyright Holder
+- Copyright Holder (inside Copyright Notice)
 
-More comparison of SBOM requirements and their mapping to SPDX can be found in
-[this slide][sbom-reqs] from Takashi Ninjouji of OpenChain Japan SBOM Sub-WG,
-presented at SPDX General Meeting 2024-12-05.
+Mappings:
 
-[sbom-reqs]: https://drive.google.com/file/d/14HZGYD7pSSWEmtaHZzWrzPhxCXaCnloJ/view
+- The mapping of the NTIA elements required data fields to the SPDX 2.3
+  specification can be found [here][ntia-spdx23].
+- The mapping of FSCT3 Baseline Attributes to ISO/IEC 5962:2021 (SPDX 2.2.1)
+  and SPDX 3.0 can be found at Section 2.5 of the FSCT3 document.
+- More comparison of SBOM requirements and their mapping to SPDX can be found
+  in [this slide][sbom-reqs] from Takashi Ninjouji of OpenChain Japan SBOM
+  Sub-WG, presented at SPDX General Meeting 2024-12-05.
 
 ## Installation
 
@@ -90,7 +90,7 @@ Options:
   -c, --comply {fsct3-min,ntia}
                         Compliance standards to check against; see below for details [default: ntia]
   --skip-validation     Skip validation
-  --output {html,json,print,quiet}
+  -r, --output {html,json,print,quiet}
                         Type of compliance report output; see below for details [default: print]
   -o, --output-file PATH
                         Filepath for compliance report output; if omitted, prints to console
@@ -106,16 +106,16 @@ choices:
     fsct3-min   2024 CISA Framing Software Component Transparency (minimum expectation)
     ntia        2021 NTIA SBOM Minimum Elements
 
-  Output types (for --output):
+  Report output types (for --output):
+    html        Report in HTML format
+    json        Report in JSON format
     print       Print report to console
-    json        Output report in JSON format
-    html        Output report in HTML format
     quiet       No output unless there are errors
 
 Examples:
   sbomcheck sbom.spdx
-  sbomcheck --output json --output-file report.json sbom.yaml
-  sbomcheck --sbom-spec spdx3 --skip-validation sbom.json
+  sbomcheck -s spdx3 -c fsct3-min -v sbom.json
+  sbomcheck sbom.yaml --output json --output-file report.json
 ```
 
 The user can then analyze a particular file:
@@ -128,6 +128,18 @@ To generate the output in machine-readable JSON, run:
 
 ```bash
 sbomcheck sbom.spdx --output json
+```
+
+To analyze an SPDX 3 JSON file, run:
+
+```bash
+sbomcheck sbom.spdx --sbom-spec spdx3
+```
+
+Use `-h` for help:
+
+```bash
+sbomcheck -h
 ```
 
 ## Usage as a Library
@@ -160,11 +172,15 @@ Go to this page: <https://tools.spdx.org/app/ntia_checker/>.
 
 ## History
 
-This is the result of an initial
-[Google Summer of Code (GSoC)](https://summerofcode.withgoogle.com/)
-contribution in 2022 by
-[@linynjosh](https://github.com/linynjosh) and is maintained
-by a community of SPDX adopters and enthusiasts.
+- The project is the result of an initial [Google Summer of Code (GSoC)][gsoc]
+  contribution in 2022 by [@linynjosh](https://github.com/linynjosh).
+- SPDX 3 support and improved FSCT3 checker are GSoC 2025 contribution by
+  [@bact](https://github.com/bact).
+- The project is maintained by a community of SPDX adopters and enthusiasts.
+
+<!-- Add Linux Foundation/SPDX GSoC links here -->
+
+[gsoc]: https://summerofcode.withgoogle.com/
 
 ## License
 
@@ -172,8 +188,10 @@ by a community of SPDX adopters and enthusiasts.
 
 ## Dependencies
 
-- [spdx-tools](https://pypi.org/project/spdx-tools/) used for parsing the
-  SPDX SBOM.
+- [spdx-tools](https://pypi.org/project/spdx-tools/)
+  used for parsing the SPDX 2 SBOM.
+- [spdx-python-model](https://pypi.org/project/spdx-python-model/)
+  used for parsing the SPDX 3 SBOM.
 
 ## Support
 
@@ -194,4 +212,5 @@ Check out the [frequently asked questions](./FAQ.md) document.
 [ntia]: https://www.ntia.gov/report/2021/minimum-elements-software-bill-materials-sbom
 [ntia-spdx23]: https://spdx.github.io/spdx-spec/v2.3/how-to-use/#k22-mapping-ntia-minimum-elements-to-spdx-fields
 [fsct3]: https://www.cisa.gov/resources-tools/resources/framing-software-component-transparency-2024
+[sbom-reqs]: https://drive.google.com/file/d/14HZGYD7pSSWEmtaHZzWrzPhxCXaCnloJ/view
 [pypi]: https://pypi.org/project/ntia-conformance-checker/

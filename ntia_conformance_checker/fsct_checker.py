@@ -79,6 +79,8 @@ class FSCT3Checker(BaseChecker):
                     not self.components_without_versions,
                     not self.components_without_identifiers,
                     not self.components_without_suppliers,
+                    not self.components_without_concluded_licenses,
+                    not self.components_without_copyright_texts,
                 ]
             ):
                 print("No components with missing information.")
@@ -152,6 +154,12 @@ class FSCT3Checker(BaseChecker):
             print(
                 f"All component suppliers provided?              | {not self.components_without_suppliers}"
             )
+            print(
+                f"All component concluded license provided?      | {not self.components_without_concluded_licenses}"
+            )
+            print(
+                f"All component copyright notice provided?       | {not self.components_without_copyright_texts}"
+            )
             print(f"SBOM author name provided?                     | {self.doc_author}")
             print(
                 f"SBOM creation timestamp provided?              | {self.doc_timestamp}"
@@ -159,6 +167,7 @@ class FSCT3Checker(BaseChecker):
             print(
                 f"Dependency relationships provided?             | {self.dependency_relationships}\n"
             )
+
             if self.validation_messages:
                 print(
                     "The provided document is not valid according to the SPDX specification. "
@@ -195,7 +204,10 @@ class FSCT3Checker(BaseChecker):
         result["componentVersions"] = {}
         result["componentIdentifiers"] = {}
         result["componentSuppliers"] = {}
+        result["componentConcludedLicenses"] = {}
+        result["componentCopyrightTexts"] = {}
 
+        result["specVersionProvided"] = self.doc_version
         result["authorNameProvided"] = self.doc_author
         result["timestampProvided"] = self.doc_timestamp
         result["dependencyRelationshipsProvided"] = self.dependency_relationships
@@ -233,10 +245,10 @@ class FSCT3Checker(BaseChecker):
             "allProvided"
         ] = not self.components_without_concluded_licenses
 
-        result["componentCopyrightText"][
+        result["componentCopyrightTexts"][
             "nonconformantComponents"
         ] = self.components_without_copyright_texts
-        result["componentCopyrightText"][
+        result["componentCopyrightTexts"][
             "allProvided"
         ] = not self.components_without_copyright_texts
 
@@ -260,6 +272,10 @@ class FSCT3Checker(BaseChecker):
                 f"<td>{not self.components_without_identifiers}</td> </tr> "
                 f"<tr> <td>All component suppliers provided</td> "
                 f"<td>{not self.components_without_suppliers}</td> "
+                f"<tr> <td>All component concluded license provided</td> "
+                f"<td>{not self.components_without_concluded_licenses}</td> "
+                f"<tr> <td>All component copyright notice provided</td> "
+                f"<td>{not self.components_without_copyright_texts}</td> "
                 f"</tr> <tr> <td>SBOM author name provided</td> "
                 f"<td>{self.doc_author}</td> </tr> "
                 f"<tr> <td>SBOM creation timestamp provided</td> "

@@ -51,7 +51,7 @@
       "rootElement": [
         "https://spdx.org/spdxdocs/SBOM1-d44af211-2646-43bc-9058-f6aabd30f7ab"
       ],
-      "name": "SBOM for Our World in Data CO2 and Greenhouse Gas Emissions dataset"
+      "name": "SBOM for Greenhouse Gas Emissions dataset"
     },
     {
       "type": "software_Sbom",
@@ -72,7 +72,7 @@
       "type": "dataset_DatasetPackage",
       "spdxId": "https://spdx.org/spdxdocs/DatasetPackage1-035470d9-3ede-4952-91c8-c2abb943c90b",
       "creationInfo": "_:creationinfo",
-      "name": "Our World in Data CO2 and Greenhouse Gas Emissions dataset",
+      "name": "Greenhouse Gas Emissions dataset",
       "originatedBy": [
         "https://spdx.org/spdxdocs/Organization1-cb617656-1023-45e7-84c7-a9311644337b"
       ],
@@ -191,7 +191,7 @@
       "creationInfo": "_:creationinfo",
       "simplelicensing_licenseExpression": "CC-BY-4.0",
       "simplelicensing_licenseListVersion": "3.25.0",
-      "comment": "Added as a workaround for the lack of https://spdx.org/licenses/CC-BY-4.0 as a valid ListedLicense in SPDX 3.0.1 RDF. This will be removed once https://github.com/spdx/LicenseListPublisher/issues/183 is implemented."
+      "comment": "Added as a workaround for the lack of https://spdx.org/licenses/CC-BY-4.0 as a valid ListedLicense in SPDX 3.0 RDF. This will be removed once https://github.com/spdx/LicenseListPublisher/issues/183 is implemented."
     }
   ]
 }

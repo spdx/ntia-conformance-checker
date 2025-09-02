@@ -26,8 +26,8 @@ from spdx_tools.spdx.validation.validation_message import (
 from .spdx3_utils import (
     get_spdx3_boms_from_spdx_document,
     get_spdx3_packages_from_spdx_bom,
-    iter_property_by_obj_type,
-    iter_relationship_by_type,
+    iter_objects_with_property,
+    iter_relationships_by_type,
     validate_spdx3_document,
 )
 
@@ -57,13 +57,16 @@ SUPPORTED_SPDX3_VERSIONS = {
     f"{maj}.{min}" for (maj, min) in SUPPORTED_SPDX_VERSIONS if maj == 3
 }
 
+# We need a way to dynamically assigned this value according to the SPDX spec version
+SPDX3_NO_ASSERTION_LICENSE = "https://spdx.org/rdf/3.0.1/terms/Licensing/NoAssertion"
+
 
 # pylint: disable=too-many-instance-attributes
 class BaseChecker(ABC):
     """Base class for all compliance/conformance checkers.
 
-    This base class contains methods for common tasks like file loading
-    and parsing.
+    This base class contains methods for common tasks like file parsing
+    and information extractions from the SBOM.
 
     Any class inheriting from BaseChecker must implement its abstract methods,
     such as `check_compliance` and `output_json`.
@@ -78,7 +81,7 @@ class BaseChecker(ABC):
     file: str = ""
     # For SPDX 3, we have to use SHACLObjectSet instead of SpdxDocument,
     # because we need access to relationships and other elements that are not
-    # part of SpdxDocument.
+    # accessible from SpdxDocument.
     doc: Union[Document, spdx3.SHACLObjectSet, None] = None
     __spdx3_doc: Optional[spdx3.SpdxDocument] = None  # cached SPDX 3 document
 
@@ -166,6 +169,10 @@ class BaseChecker(ABC):
         # self.file_format = ""
 
         self.file = file
+
+        # Make sure the logs are instance variables
+        self.parsing_error = []
+        self.validation_messages = []
 
         # SPDX 2
         if sbom_spec == "spdx2":
@@ -349,7 +356,7 @@ class BaseChecker(ABC):
                 doc_spec_version = getattr(doc_creation_info, "spdx_version", None)
 
         # SPDX 3
-        if self.sbom_spec == "spdx3" and self.__spdx3_doc:
+        elif self.sbom_spec == "spdx3" and self.__spdx3_doc:
             doc_creation_info = getattr(self.__spdx3_doc, "creationInfo", None)
             if doc_creation_info:
                 doc_spec_version = getattr(doc_creation_info, "specVersion", None)
@@ -371,7 +378,7 @@ class BaseChecker(ABC):
                 name = getattr(doc_creation_info, "name", "")
 
         # SPDX 3
-        if self.sbom_spec == "spdx3" and self.__spdx3_doc:
+        elif self.sbom_spec == "spdx3" and self.__spdx3_doc:
             name = getattr(self.__spdx3_doc, "name", "")
 
         return name
@@ -435,17 +442,19 @@ class BaseChecker(ABC):
         if self.sbom_spec == "spdx3":
             self.doc = cast(spdx3.SHACLObjectSet, self.doc)
 
+            # We need a better way
             has_concluded_license_ids: Set[str] = {
-                to_id
-                for _, to_id in iter_relationship_by_type(
+                from_id
+                for from_id, to_id in iter_relationships_by_type(
                     self.doc, "hasConcludedLicense"
                 )
+                if to_id.strip() != SPDX3_NO_ASSERTION_LICENSE
             }
 
             if return_tuples:
                 return [
                     (name, spdx_id)
-                    for name, spdx_id, _ in iter_property_by_obj_type(
+                    for name, spdx_id, _ in iter_objects_with_property(
                         self.doc,
                         spdx3.software_Package,
                         "spdxId",
@@ -455,7 +464,7 @@ class BaseChecker(ABC):
 
             return [
                 name
-                for name, spdx_id, _ in iter_property_by_obj_type(
+                for name, spdx_id, _ in iter_objects_with_property(
                     self.doc,
                     spdx3.software_Package,
                     "spdxId",
@@ -526,7 +535,7 @@ class BaseChecker(ABC):
             if return_tuples:
                 return [
                     (name, spdx_id)
-                    for name, spdx_id, copyright_text in iter_property_by_obj_type(
+                    for name, spdx_id, copyright_text in iter_objects_with_property(
                         self.doc,
                         spdx3.software_Package,
                         "software_copyrightText",
@@ -539,7 +548,7 @@ class BaseChecker(ABC):
 
             return [
                 name
-                for name, _, copyright_text in iter_property_by_obj_type(
+                for name, _, copyright_text in iter_objects_with_property(
                     self.doc, spdx3.software_Package, "software_copyrightText"
                 )
                 if not copyright_text
@@ -579,7 +588,7 @@ class BaseChecker(ABC):
 
             return [
                 name
-                for name, _, spdx_id in iter_property_by_obj_type(
+                for name, _, spdx_id in iter_objects_with_property(
                     self.doc, spdx3.Element, "spdxId"
                 )
                 if not spdx_id or spdx_id.strip() == ""
@@ -614,7 +623,7 @@ class BaseChecker(ABC):
 
             return [
                 spdx_id
-                for _, spdx_id, name in iter_property_by_obj_type(
+                for _, spdx_id, name in iter_objects_with_property(
                     self.doc, spdx3.software_Package, "name"
                 )
                 if not name or name.strip() == ""
@@ -674,7 +683,7 @@ class BaseChecker(ABC):
             if return_tuples:
                 return [
                     (name, spdx_id)
-                    for name, spdx_id, supplier in iter_property_by_obj_type(
+                    for name, spdx_id, supplier in iter_objects_with_property(
                         self.doc, spdx3.software_Package, "suppliedBy"
                     )
                     if not supplier or not supplier.name or supplier.name.strip() == ""
@@ -682,7 +691,7 @@ class BaseChecker(ABC):
 
             return [
                 name
-                for name, _, supplier in iter_property_by_obj_type(
+                for name, _, supplier in iter_objects_with_property(
                     self.doc, spdx3.software_Package, "suppliedBy"
                 )
                 if not supplier or not supplier.name or supplier.name.strip() == ""
@@ -734,7 +743,7 @@ class BaseChecker(ABC):
             if return_tuples:
                 return [
                     (name, spdx_id)
-                    for name, spdx_id, package_version in iter_property_by_obj_type(
+                    for name, spdx_id, package_version in iter_objects_with_property(
                         self.doc, spdx3.software_Package, "software_packageVersion"
                     )
                     if not package_version or package_version.strip() == ""
@@ -742,7 +751,7 @@ class BaseChecker(ABC):
 
             return [
                 name
-                for name, _, package_version in iter_property_by_obj_type(
+                for name, _, package_version in iter_objects_with_property(
                     self.doc, spdx3.software_Package, "software_packageVersion"
                 )
                 if not package_version or package_version.strip() == ""

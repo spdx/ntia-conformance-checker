@@ -159,7 +159,7 @@ def get_spdx3_packages_from_spdx_bom(
     return root_elements
 
 
-def iter_property_by_obj_type(
+def iter_objects_with_property(
     object_set: spdx3.SHACLObjectSet,
     typ: Type[spdx3.SHACLObject] = spdx3.Artifact,
     property_name: str = "spdxId",
@@ -185,7 +185,7 @@ def iter_property_by_obj_type(
         yield name, spdx_id, property_
 
 
-def iter_relationship_by_type(
+def iter_relationships_by_type(
     object_set: spdx3.SHACLObjectSet,
     rel_type: str,
 ) -> Iterator[Tuple[str, str]]:
@@ -195,8 +195,9 @@ def iter_relationship_by_type(
 
     for obj in object_set.foreach_type(spdx3.Relationship):
         obj = cast(spdx3.Relationship, obj)
-        _rel_type = getattr(obj, "type", "")
-        if not _rel_type or _rel_type != rel_type:
+        _rel_type = getattr(obj, "relationshipType", "")
+        # Remove the IRI prefix of entry name before compare
+        if not _rel_type or _rel_type.split("/")[-1] != rel_type:
             continue
         from_: Optional[spdx3.Element] = getattr(obj, "from_", None)
         to: Optional[spdx3.Element] = getattr(obj, "to", None)
