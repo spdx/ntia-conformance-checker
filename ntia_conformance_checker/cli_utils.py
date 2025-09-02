@@ -27,8 +27,8 @@ from .base_checker import (
 
 _OUTPUT_CHOICES = {
     "print": "Print report to console",
-    "json": "Output report in JSON format",
-    "html": "Output report in HTML format",
+    "json": "Report in JSON format",
+    "html": "Report in HTML format",
     "quiet": "No output unless there are errors",
 }
 
@@ -49,13 +49,13 @@ def get_parsed_args() -> argparse.Namespace:
             for k, v in sorted(SUPPORTED_COMPLIANCE_STANDARDS_DESC.items())
         )
         + "\n\n"
-        "  Output types (for --output):\n"
+        "  Report output types (for --output):\n"
         + "\n".join(f"    {k:<11} {v}" for k, v in sorted(_OUTPUT_CHOICES.items()))
         + "\n\n"
         "Examples:\n"
         "  sbomcheck sbom.spdx\n"
+        "  sbomcheck --sbom-spec spdx3 --comply fsct3-min -v sbom.json\n"
         "  sbomcheck --output json --output-file report.json sbom.yaml\n"
-        "  sbomcheck --sbom-spec spdx3 --skip-validation sbom.json\n"
     )
 
     parser = argparse.ArgumentParser(
@@ -103,16 +103,17 @@ def get_parsed_args() -> argparse.Namespace:
         help="Skip validation",
     )
     parser.add_argument(
+        "-r",
         "--output",
         choices=sorted(_OUTPUT_CHOICES),
         default="print",
-        help="Type of compliance report output; see below for details [default: print]",
+        help="Report output type; see below for details [default: print]",
     )
     parser.add_argument(
         "-o",
         "--output-file",
         metavar="PATH",
-        help="Filepath for compliance report output; if omitted, prints to console",
+        help="Filepath for report output; if omitted, prints to console",
     )
     parser.add_argument(
         "--output_path",  # for backward compatibility
