@@ -3,16 +3,22 @@ name: pylint
 on:
   push:
     branches:
-    - main
+      - main
+    paths:
+      - '**/*.py'
+      - 'pyproject.toml'
   pull_request:
     branches:
-    - main
+      - main
+    paths:
+      - '**/*.py'
+      - 'pyproject.toml'
 
 permissions:
   contents: read
 
 jobs:
-  build:
+  lint:
     runs-on: ubuntu-latest
 
     strategy:
