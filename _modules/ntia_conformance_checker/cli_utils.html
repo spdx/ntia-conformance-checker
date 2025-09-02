@@ -98,8 +98,8 @@
 
 <span class="n">_OUTPUT_CHOICES</span> <span class="o">=</span> <span class="p">{</span>
     <span class="s2">&quot;print&quot;</span><span class="p">:</span> <span class="s2">&quot;Print report to console&quot;</span><span class="p">,</span>
-    <span class="s2">&quot;json&quot;</span><span class="p">:</span> <span class="s2">&quot;Output report in JSON format&quot;</span><span class="p">,</span>
-    <span class="s2">&quot;html&quot;</span><span class="p">:</span> <span class="s2">&quot;Output report in HTML format&quot;</span><span class="p">,</span>
+    <span class="s2">&quot;json&quot;</span><span class="p">:</span> <span class="s2">&quot;Report in JSON format&quot;</span><span class="p">,</span>
+    <span class="s2">&quot;html&quot;</span><span class="p">:</span> <span class="s2">&quot;Report in HTML format&quot;</span><span class="p">,</span>
     <span class="s2">&quot;quiet&quot;</span><span class="p">:</span> <span class="s2">&quot;No output unless there are errors&quot;</span><span class="p">,</span>
 <span class="p">}</span>
 
@@ -122,13 +122,13 @@
             <span class="k">for</span> <span class="n">k</span><span class="p">,</span> <span class="n">v</span> <span class="ow">in</span> <span class="nb">sorted</span><span class="p">(</span><span class="n">SUPPORTED_COMPLIANCE_STANDARDS_DESC</span><span class="o">.</span><span class="n">items</span><span class="p">())</span>
         <span class="p">)</span>
         <span class="o">+</span> <span class="s2">&quot;</span><span class="se">\n\n</span><span class="s2">&quot;</span>
-        <span class="s2">&quot;  Output types (for --output):</span><span class="se">\n</span><span class="s2">&quot;</span>
+        <span class="s2">&quot;  Report output types (for --output):</span><span class="se">\n</span><span class="s2">&quot;</span>
         <span class="o">+</span> <span class="s2">&quot;</span><span class="se">\n</span><span class="s2">&quot;</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;    </span><span class="si">{</span><span class="n">k</span><span class="si">:</span><span class="s2">&lt;11</span><span class="si">}</span><span class="s2"> </span><span class="si">{</span><span class="n">v</span><span class="si">}</span><span class="s2">&quot;</span> <span class="k">for</span> <span class="n">k</span><span class="p">,</span> <span class="n">v</span> <span class="ow">in</span> <span class="nb">sorted</span><span class="p">(</span><span class="n">_OUTPUT_CHOICES</span><span class="o">.</span><span class="n">items</span><span class="p">()))</span>
         <span class="o">+</span> <span class="s2">&quot;</span><span class="se">\n\n</span><span class="s2">&quot;</span>
         <span class="s2">&quot;Examples:</span><span class="se">\n</span><span class="s2">&quot;</span>
         <span class="s2">&quot;  sbomcheck sbom.spdx</span><span class="se">\n</span><span class="s2">&quot;</span>
+        <span class="s2">&quot;  sbomcheck --sbom-spec spdx3 --comply fsct3-min -v sbom.json</span><span class="se">\n</span><span class="s2">&quot;</span>
         <span class="s2">&quot;  sbomcheck --output json --output-file report.json sbom.yaml</span><span class="se">\n</span><span class="s2">&quot;</span>
-        <span class="s2">&quot;  sbomcheck --sbom-spec spdx3 --skip-validation sbom.json</span><span class="se">\n</span><span class="s2">&quot;</span>
     <span class="p">)</span>
 
     <span class="n">parser</span> <span class="o">=</span> <span class="n">argparse</span><span class="o">.</span><span class="n">ArgumentParser</span><span class="p">(</span>
@@ -176,16 +176,17 @@
         <span class="n">help</span><span class="o">=</span><span class="s2">&quot;Skip validation&quot;</span><span class="p">,</span>
     <span class="p">)</span>
     <span class="n">parser</span><span class="o">.</span><span class="n">add_argument</span><span class="p">(</span>
+        <span class="s2">&quot;-r&quot;</span><span class="p">,</span>
         <span class="s2">&quot;--output&quot;</span><span class="p">,</span>
         <span class="n">choices</span><span class="o">=</span><span class="nb">sorted</span><span class="p">(</span><span class="n">_OUTPUT_CHOICES</span><span class="p">),</span>
         <span class="n">default</span><span class="o">=</span><span class="s2">&quot;print&quot;</span><span class="p">,</span>
-        <span class="n">help</span><span class="o">=</span><span class="s2">&quot;Type of compliance report output; see below for details [default: print]&quot;</span><span class="p">,</span>
+        <span class="n">help</span><span class="o">=</span><span class="s2">&quot;Report output type; see below for details [default: print]&quot;</span><span class="p">,</span>
     <span class="p">)</span>
     <span class="n">parser</span><span class="o">.</span><span class="n">add_argument</span><span class="p">(</span>
         <span class="s2">&quot;-o&quot;</span><span class="p">,</span>
         <span class="s2">&quot;--output-file&quot;</span><span class="p">,</span>
         <span class="n">metavar</span><span class="o">=</span><span class="s2">&quot;PATH&quot;</span><span class="p">,</span>
-        <span class="n">help</span><span class="o">=</span><span class="s2">&quot;Filepath for compliance report output; if omitted, prints to console&quot;</span><span class="p">,</span>
+        <span class="n">help</span><span class="o">=</span><span class="s2">&quot;Filepath for report output; if omitted, prints to console&quot;</span><span class="p">,</span>
     <span class="p">)</span>
     <span class="n">parser</span><span class="o">.</span><span class="n">add_argument</span><span class="p">(</span>
         <span class="s2">&quot;--output_path&quot;</span><span class="p">,</span>  <span class="c1"># for backward compatibility</span>
