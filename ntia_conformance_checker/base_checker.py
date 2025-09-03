@@ -10,7 +10,7 @@ import json
 import logging
 import os
 from abc import ABC, abstractmethod
-from typing import Any, Dict, Iterator, List, Optional, Tuple, Union, cast
+from typing import Any, Dict, List, Optional, Tuple, Union, cast
 
 from spdx_python_model import v3_0_1 as spdx3  # type: ignore # import-untyped
 from spdx_tools.spdx.model.document import Document
@@ -19,10 +19,9 @@ from spdx_tools.spdx.model.spdx_no_assertion import SpdxNoAssertion
 from spdx_tools.spdx.parser import parse_anything
 from spdx_tools.spdx.parser.error import SPDXParsingError
 from spdx_tools.spdx.validation.document_validator import validate_full_spdx_document
-from spdx_tools.spdx.validation.validation_message import (
-    ValidationContext,
-    ValidationMessage,
-)
+from spdx_tools.spdx.validation.validation_message import ValidationMessage
+
+from .spdx3_utils import iter_objects_with_property, validate_spdx3_document
 
 SUPPORTED_SBOM_SPECS_DESC = {
     "spdx2": "Software Package Data Exchange (SPDX) 2.x",
@@ -225,7 +224,7 @@ class BaseChecker(ABC):
                 doc_spec_version = getattr(doc_creation_info, "spdx_version", None)
 
         # SPDX 3
-        if self.sbom_spec == "spdx3" and self.__spdx3_doc:
+        if self.sbom_spec == "spdx3" and isinstance(self.__spdx3_doc, spdx3.SpdxDocument):
             doc_creation_info = getattr(self.__spdx3_doc, "creationInfo", None)
             if doc_creation_info:
                 doc_spec_version = getattr(doc_creation_info, "specVersion", None)
@@ -267,7 +266,7 @@ class BaseChecker(ABC):
             return describes_package
 
         # SPDX 3
-        if self.sbom_spec == "spdx3" and self.__spdx3_doc:
+        if self.sbom_spec == "spdx3":
             return False
 
         return False
@@ -287,7 +286,7 @@ class BaseChecker(ABC):
                 name = getattr(doc_creation_info, "name", "")
 
         # SPDX 3
-        if self.sbom_spec == "spdx3" and self.__spdx3_doc:
+        if self.sbom_spec == "spdx3" and isinstance(self.__spdx3_doc, spdx3.SpdxDocument):
             name = getattr(self.__spdx3_doc, "name", "")
 
         return name
@@ -507,22 +506,22 @@ class BaseChecker(ABC):
             return components_name
 
         # SPDX 3
-        if self.sbom_spec == "spdx3" and self.__spdx3_doc:
+        if self.sbom_spec == "spdx3":
             self.doc = cast(spdx3.SHACLObjectSet, self.doc)
 
             if return_tuples:
                 return [
                     (name, spdx_id)
-                    for name, spdx_id, supplier_name in _iter_spdx3_artifacts(
-                        self.doc, "suppliedBy"
+                    for name, spdx_id, supplier_name in iter_objects_with_property(
+                        self.doc, spdx3.Artifact, "suppliedBy"
                     )
                     if not supplier_name
                 ]
 
             return [
                 name
-                for name, _, supplier_name in _iter_spdx3_artifacts(
-                    self.doc, "suppliedBy"
+                for name, _, supplier_name in iter_objects_with_property(
+                    self.doc, spdx3.Artifact, "suppliedBy"
                 )
                 if not supplier_name
             ]
@@ -641,96 +640,3 @@ class BaseChecker(ABC):
             return None
 
         return object_set
-
-
-# Static functions outside the class
-
-
-def validate_spdx3_document(
-    object_set: spdx3.SHACLObjectSet,
-) -> Tuple[Optional[spdx3.SpdxDocument], List[ValidationMessage]]:
-    """
-    Validate an SHACLObjectSet if it contains a valid SpdxDocument.
-
-    The SPDX 3.0 specification states that "Any instance of serialization of
-    SPDX data MUST NOT contain more than one SpdxDocument element definition."
-
-    See: https://spdx.github.io/spdx-spec/v3.0/model/Core/Classes/SpdxDocument/
-
-    For the purpose of BOM/SBOM application, it also requires that the
-    SpdxDocument should have a Bom or Software/Sbom as its rootElement.
-
-    See: https://github.com/spdx/ntia-conformance-checker/issues/268
-
-    Args:
-        object_set (spdx3.SHACLObjectSet): The SHACLObjectSet containing
-                                            the SPDX 3 document.
-    Returns:
-        Optional[spdx3.SpdxDocument]: An SpdxDocument if found, otherwise None.
-        List[ValidationMessage]: A list of validation messages. Empty if no errors.
-
-    """
-    # Note that we use spdx_tools.spdx.validation.validation_message,
-    # which is originally meant for SPDX 2, to report validation errors for
-    # SPDX 3 as well, so the print/HTML/JSON output functions can be reused.
-
-    doc: Optional[spdx3.SpdxDocument] = None
-    validation_messages: List[ValidationMessage] = []
-
-    spdx_documents: List[spdx3.SpdxDocument] = list(
-        object_set.foreach_type(spdx3.SpdxDocument)
-    )
-
-    if not spdx_documents:
-        error_msg = (
-            "No SpdxDocument object found in the SPDX 3 JSON file. "
-            "Expected exactly one."
-        )
-        validation_messages.append(ValidationMessage(error_msg, ValidationContext()))
-        return (doc, validation_messages)
-
-    if len(spdx_documents) != 1:
-        error_msg = "Multiple SpdxDocument objects found. Allows exactly one."
-        validation_messages.append(ValidationMessage(error_msg, ValidationContext()))
-        return (doc, validation_messages)
-
-    doc = spdx_documents[0]
-    doc_id = getattr(doc, "spdxId", None)
-    root_element = getattr(doc, "rootElement", None)
-
-    if not root_element:
-        error_msg = "No rootElement found in the SpdxDocument. Expected exactly one."
-        context = ValidationContext(parent_id=doc_id)
-        validation_messages.append(ValidationMessage(error_msg, context))
-    elif len(root_element) != 1:
-        error_msg = "Multiple root elements found in SpdxDocument. Allows exactly one."
-        context = ValidationContext(parent_id=doc_id)
-        validation_messages.append(ValidationMessage(error_msg, context))
-    else:
-        root_element = root_element[0]
-        if not isinstance(root_element, (spdx3.Bom, spdx3.software_Sbom)):
-            error_msg = (
-                "The root element must be of type Bom or software_Sbom. "
-                f"Found: {type(root_element)}"
-            )
-            root_element_id = getattr(root_element, "spdxId", None)
-            context = ValidationContext(parent_id=doc_id, spdx_id=root_element_id)
-            validation_messages.append(ValidationMessage(error_msg, context))
-
-    return (doc, validation_messages)
-
-
-def _iter_spdx3_artifacts(
-    object_set: spdx3.SHACLObjectSet, property_name: str
-) -> Iterator[Tuple[str, str, str]]:
-    """Yield (name, spdxId, supplier_name) for each SPDX3 Artifact."""
-
-    for obj in object_set.foreach_type(spdx3.Artifact):
-        obj = cast(spdx3.Artifact, obj)
-        name = (getattr(obj, "name", "") or "").strip()
-        spdx_id = (getattr(obj, "spdxId", "") or "").strip()
-        supplier = getattr(obj, property_name, None)
-        supplier_name = (
-            (getattr(supplier, "name", "") or "").strip() if supplier else ""
-        )
-        yield name, spdx_id, supplier_name
