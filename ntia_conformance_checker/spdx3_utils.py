@@ -93,7 +93,7 @@ def get_spdx3_boms_from_spdx_document(
     spdx_doc: Optional[spdx3.SpdxDocument],
 ) -> Optional[List[spdx3.Bom]]:
     """
-    Retrieve the BOMs that are rootElements of an SPDX 3 document.
+    Retrieve the BOMs that are rootElements of an SPDX 3 SpdxDocument.
 
     Args:
         spdx_doc (spdx3.SpdxDocument): The SPDX 3 SpdxDocument.
@@ -111,7 +111,7 @@ def get_spdx3_boms_from_spdx_document(
     return root_elements
 
 
-def get_spdx3_packages_from_spdx_bom(
+def get_spdx3_packages_from_bom(
     bom: Optional[spdx3.Bom],
 ) -> Optional[List[spdx3.software_Package]]:
     """

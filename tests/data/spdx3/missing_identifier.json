@@ -50,7 +50,8 @@
       ],
       "rootElement": [
         "https://spdx.org/spdxdocs/SBOM1-d44af211-2646-43bc-9058-f6aabd30f7ab"
-      ]
+      ],
+      "name": "SBOM for CO2 Emissions dataset"
     },
     {
       "type": "software_Sbom",
@@ -71,7 +72,7 @@
       "type": "dataset_DatasetPackage",
       "spdxId": "https://spdx.org/spdxdocs/DatasetPackage1-035470d9-3ede-4952-91c8-c2abb943c90b",
       "creationInfo": "_:creationinfo",
-      "name": "Our World in Data CO2 and Greenhouse Gas Emissions dataset",
+      "name": "CO2 Emissions dataset",
       "originatedBy": [
         "https://spdx.org/spdxdocs/Organization1-cb617656-1023-45e7-84c7-a9311644337b"
       ],
@@ -116,7 +117,6 @@
     },
     {
       "type": "software_File",
-      "spdxId": "https://spdx.org/spdxdocs/File1-d029fccb-7ee9-42be-a445-5e2066db0de8",
       "creationInfo": "_:creationinfo",
       "name": "data.csv",
       "contentType": "text/csv;charset=UTF-8",
@@ -146,21 +146,9 @@
       "relationshipType": "contains",
       "from": "https://spdx.org/spdxdocs/DatasetPackage1-035470d9-3ede-4952-91c8-c2abb943c90b",
       "to": [
-        "https://spdx.org/spdxdocs/File1-d029fccb-7ee9-42be-a445-5e2066db0de8",
         "https://spdx.org/spdxdocs/File2-caf55baf-cd02-406a-b7ec-838842ca869f"
       ],
       "description": "DatasetPackage1 contains data.csv and codebook.csv."
-    },
-    {
-      "type": "Relationship",
-      "spdxId": "https://spdx.org/spdxdocs/Relationship/describes-de3f5855-bd5a-403f-9aa6-95dd97599c32",
-      "creationInfo": "_:creationinfo",
-      "relationshipType": "describes",
-      "from": "https://spdx.org/spdxdocs/File2-caf55baf-cd02-406a-b7ec-838842ca869f",
-      "to": [
-        "https://spdx.org/spdxdocs/File1-d029fccb-7ee9-42be-a445-5e2066db0de8"
-      ],
-      "description": "codebook.csv describes data.csv."
     },
     {
       "type": "Relationship",
