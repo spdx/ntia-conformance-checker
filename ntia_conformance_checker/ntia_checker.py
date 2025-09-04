@@ -15,7 +15,7 @@ from .base_checker import BaseChecker
 class NTIAChecker(BaseChecker):
     """
     NTIA Minimum Elements check.
-    
+
     See:
         https://www.ntia.gov/report/2021/minimum-elements-software-bill-materials-sbom
     """
