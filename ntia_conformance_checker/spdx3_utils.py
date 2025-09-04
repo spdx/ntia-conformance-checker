@@ -15,7 +15,7 @@ from spdx_tools.spdx.validation.validation_message import (
 )
 
 
-def validate_spdx3_document(
+def validate_spdx3_data(
     object_set: spdx3.SHACLObjectSet,
 ) -> Tuple[Optional[spdx3.SpdxDocument], List[ValidationMessage]]:
     """
@@ -89,7 +89,7 @@ def validate_spdx3_document(
     return (doc, validation_messages)
 
 
-def get_spdx3_boms_from_spdx_document(
+def get_boms_from_spdx_document(
     spdx_doc: Optional[spdx3.SpdxDocument],
 ) -> Optional[List[spdx3.Bom]]:
     """
@@ -111,7 +111,7 @@ def get_spdx3_boms_from_spdx_document(
     return root_elements
 
 
-def get_spdx3_packages_from_bom(
+def get_packages_from_bom(
     bom: Optional[spdx3.Bom],
 ) -> Optional[List[spdx3.software_Package]]:
     """
@@ -185,6 +185,7 @@ def iter_relationships_by_type(
 def get_all_packages(object_set: spdx3.SHACLObjectSet) -> Set[spdx3.software_Package]:
     """Retrieve all /Software/Package objects from an SHACLObjectSet."""
     packages: Set[spdx3.software_Package] = {
-        cast(spdx3.software_Package, obj) for obj in object_set.foreach_type("software_Package")
+        cast(spdx3.software_Package, obj)
+        for obj in object_set.foreach_type("software_Package")
     }
     return packages

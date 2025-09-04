@@ -22,11 +22,11 @@ from spdx_tools.spdx.validation.document_validator import validate_full_spdx_doc
 from spdx_tools.spdx.validation.validation_message import ValidationMessage
 
 from .spdx3_utils import (
-    get_spdx3_boms_from_spdx_document,
-    get_spdx3_packages_from_bom,
+    get_boms_from_spdx_document,
+    get_packages_from_bom,
     iter_objects_with_property,
     iter_relationships_by_type,
-    validate_spdx3_document,
+    validate_spdx3_data,
 )
 
 SUPPORTED_SBOM_SPECS_DESC = {
@@ -183,10 +183,9 @@ class BaseChecker(ABC):
                 logging.error("Failed to parse the SPDX 3 file.")
             else:
                 self.doc = object_set
-                _doc, _validation_messages = validate_spdx3_document(object_set)
+                _doc, _validation_messages = validate_spdx3_data(object_set)
                 if not _doc or _validation_messages:
                     logging.error("SpdxDocument not found or invalid.")
-                    raise ValueError("SpdxDocument not found or invalid.")
                 self.__spdx3_doc = _doc  # cache the extracted SpdxDocument
                 self.validation_messages.extend(_validation_messages)
         else:
@@ -300,10 +299,10 @@ class BaseChecker(ABC):
 
             # There is a BOM and an /Software/Package,
             # check if there is at least one package listed in any BOM/SBOM
-            boms = get_spdx3_boms_from_spdx_document(self.__spdx3_doc)
+            boms = get_boms_from_spdx_document(self.__spdx3_doc)
             if boms:
                 for bom in boms:
-                    packages = get_spdx3_packages_from_bom(bom)
+                    packages = get_packages_from_bom(bom)
                     if packages:
                         return True
 

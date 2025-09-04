@@ -16,7 +16,7 @@ from spdx_python_model import v3_0_1 as spdx3  # type: ignore # import-untyped
 
 import ntia_conformance_checker.sbom_checker as sbom_checker
 from ntia_conformance_checker import FSCT3Checker, NTIAChecker
-from ntia_conformance_checker.base_checker import validate_spdx3_document
+from ntia_conformance_checker.base_checker import validate_spdx3_data
 
 ### Test no element missing
 
@@ -315,7 +315,7 @@ def test_sbomchecker_spdx3_general():
     assert sbom.doc is not None
     assert isinstance(sbom.doc, spdx3.SHACLObjectSet)
     assert sbom.sbom_name == "hello"
-    spdx3_spdx_document, validation_messages = validate_spdx3_document(sbom.doc)
+    spdx3_spdx_document, validation_messages = validate_spdx3_data(sbom.doc)
     assert (
         len(validation_messages) >= 1
     )  # There should be a message about missing /Core/Bom.
