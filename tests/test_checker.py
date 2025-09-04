@@ -331,9 +331,7 @@ def test_sbomchecker_spdx3_no_elements_missing():
     # This file contains no /Software/Package/,
     # but it does contain its subclass /Dataset/DatasetPackage/.
     # It should be treated as a regular software BOM.
-    test_file = (
-        Path(__file__).parent / "data" / "spdx3" / "no_elements_missing.json"
-    )
+    test_file = Path(__file__).parent / "data" / "spdx3" / "no_elements_missing.json"
     sbom = sbom_checker.SbomChecker(str(test_file), sbom_spec="spdx3")
     assert sbom is not None
     assert sbom.doc is not None
@@ -355,9 +353,7 @@ def test_sbomchecker_spdx3_no_elements_missing():
 
 
 def test_sbomchecker_fsct3_spdx3_no_elements_missing():
-    test_file = (
-        Path(__file__).parent / "data" / "spdx3" / "no_elements_missing.json"
-    )
+    test_file = Path(__file__).parent / "data" / "spdx3" / "no_elements_missing.json"
     sbom = sbom_checker.SbomChecker(
         str(test_file), sbom_spec="spdx3", compliance="fsct3-min"
     )
