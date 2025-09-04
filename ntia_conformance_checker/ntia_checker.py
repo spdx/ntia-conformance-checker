@@ -182,7 +182,10 @@ class NTIAChecker(BaseChecker):
         result["componentVersions"] = {}
         result["componentIdentifiers"] = {}
         result["componentSuppliers"] = {}
+        result["componentConcludedLicenses"] = {}
+        result["componentCopyrightTexts"] = {}
 
+        result["specVersionProvided"] = self.doc_version
         result["authorNameProvided"] = self.doc_author
         result["timestampProvided"] = self.doc_timestamp
         result["dependencyRelationshipsProvided"] = self.dependency_relationships
@@ -212,6 +215,20 @@ class NTIAChecker(BaseChecker):
         result["componentSuppliers"][
             "allProvided"
         ] = not self.components_without_suppliers
+
+        result["componentConcludedLicenses"][
+            "nonconformantComponents"
+        ] = self.components_without_concluded_licenses
+        result["componentConcludedLicenses"][
+            "allProvided"
+        ] = not self.components_without_concluded_licenses
+
+        result["componentCopyrightTexts"][
+            "nonconformantComponents"
+        ] = self.components_without_copyright_texts
+        result["componentCopyrightTexts"][
+            "allProvided"
+        ] = not self.components_without_copyright_texts
 
         result["totalNumberComponents"] = self.get_total_number_components()
 
