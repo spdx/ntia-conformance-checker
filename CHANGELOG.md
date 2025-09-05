@@ -30,13 +30,6 @@ and this project adheres to [Semantic Versioning][semver].
 - Drop support for Python 3.8.
   - spdx-python-model requires Python 3.9+.
 
-### Deprecated
-
-- The next major version may adopt
-  [PEP 585](https://peps.python.org/pep-0585/) and
-  [PEP 604](https://peps.python.org/pep-0604/) for type hinting,
-  which will require Python 3.10.
-
 ### Fixed
 
 - Add components without copyright texts and without concluded licenses in the
@@ -47,6 +40,10 @@ and this project adheres to [Semantic Versioning][semver].
     `get_components_without_copyright_texts`, `get_components_without_suppliers`,
     and `get_components_without_versions`
     to honour the `return_tuples` parameter.
+  - Note that the next major version may adopt
+    [PEP 585](https://peps.python.org/pep-0585/) and
+    [PEP 604](https://peps.python.org/pep-0604/) for type hinting,
+    which will require Python 3.10.
 
 ## [3.2.0] - 2025-03-12
 
