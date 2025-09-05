@@ -133,7 +133,7 @@ sbomcheck sbom.spdx --output json
 To analyze an SPDX 3 JSON file, run:
 
 ```bash
-sbomcheck sbom.spdx --sbom-spec spdx3
+sbomcheck sbom.json --sbom-spec spdx3
 ```
 
 Use `-h` for help:
