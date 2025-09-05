@@ -24,7 +24,7 @@ class FSCT3Checker(BaseChecker):
     This checker currently only checks for Minimum Expected maturity level.
 
     See:
-    https://www.cisa.gov/resources-tools/resources/framing-software-component-transparency-2024
+        https://www.cisa.gov/resources-tools/resources/framing-software-component-transparency-2024
     """
 
     def __init__(
@@ -51,12 +51,10 @@ class FSCT3Checker(BaseChecker):
             raise ValueError("Only FSCTv3 Minimum Expected compliance is supported.")
 
         if self.doc:
-            self.sbom_name = self.get_sbom_name()
-            self.doc_version = self.check_doc_version()
-            self.doc_author = True  # Assume author is present?
-            self.doc_timestamp = True  # Assume timestamp is present?
-            self.dependency_relationships = self.check_dependency_relationships()
             self.compliant = self.check_compliance()
+
+            # for backward compatibility
+            self.ntia_minimum_elements_compliant = self.compliant
 
     def check_compliance(self) -> bool:
         """Check overall compliance with FSCTv3 Minimum Expected"""

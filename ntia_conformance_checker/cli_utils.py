@@ -54,8 +54,8 @@ def get_parsed_args() -> argparse.Namespace:
         + "\n\n"
         "Examples:\n"
         "  sbomcheck sbom.spdx\n"
-        "  sbomcheck --sbom-spec spdx3 --comply fsct3-min -v sbom.json\n"
-        "  sbomcheck --output json --output-file report.json sbom.yaml\n"
+        "  sbomcheck -s spdx3 -c fsct3-min -v sbom.json\n"
+        "  sbomcheck sbom.yaml --output json --output-file report.json\n"
     )
 
     parser = argparse.ArgumentParser(
@@ -157,7 +157,7 @@ def get_parsed_args() -> argparse.Namespace:
     return args
 
 
-def get_spdx_version(file: str, sbom_spec="spdx2") -> Optional[Tuple[int, int]]:
+def get_spdx_version(file: str, sbom_spec: str = "spdx2") -> Optional[Tuple[int, int]]:
     """
     Detect the SPDX version of the SBOM file.
 
