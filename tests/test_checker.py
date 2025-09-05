@@ -381,9 +381,11 @@ def test_sbomchecker_spdx3_missing_version():
     assert len(sbom.components_without_versions) == 1
 
 
-def test_sbomchecker_spdx3_missing_identifier():
-    test_file = Path(__file__).parent / "data" / "spdx3" / "missing_identifier.json"
-    # SPDX 3 does not allow any element without an identifier,
+def test_sbomchecker_spdx3_missing_unique_identifiers():
+    test_file = (
+        Path(__file__).parent / "data" / "spdx3" / "missing_unique_identifiers.json"
+    )
+    # SPDX 3 does not allow any element without a unique identifier,
     # so we expect a ValueError to be raised.
     with pytest.raises(ValueError):
         sbom_checker.SbomChecker(str(test_file), sbom_spec="spdx3")
