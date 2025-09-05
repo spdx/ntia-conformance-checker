@@ -120,7 +120,8 @@
     <span class="n">validation_messages</span><span class="p">:</span> <span class="n">List</span><span class="p">[</span><span class="n">ValidationMessage</span><span class="p">]</span> <span class="o">=</span> <span class="p">[]</span>
 
     <span class="n">spdx_documents</span><span class="p">:</span> <span class="n">List</span><span class="p">[</span><span class="n">spdx3</span><span class="o">.</span><span class="n">SpdxDocument</span><span class="p">]</span> <span class="o">=</span> <span class="p">[</span>
-        <span class="n">cast</span><span class="p">(</span><span class="n">spdx3</span><span class="o">.</span><span class="n">SpdxDocument</span><span class="p">,</span> <span class="n">obj</span><span class="p">)</span> <span class="k">for</span> <span class="n">obj</span> <span class="ow">in</span> <span class="n">object_set</span><span class="o">.</span><span class="n">foreach_type</span><span class="p">(</span><span class="s2">&quot;SpdxDocument&quot;</span><span class="p">)</span>
+        <span class="n">cast</span><span class="p">(</span><span class="s2">&quot;spdx3.SpdxDocument&quot;</span><span class="p">,</span> <span class="n">obj</span><span class="p">)</span>
+        <span class="k">for</span> <span class="n">obj</span> <span class="ow">in</span> <span class="n">object_set</span><span class="o">.</span><span class="n">foreach_type</span><span class="p">(</span><span class="s2">&quot;SpdxDocument&quot;</span><span class="p">)</span>
     <span class="p">]</span>
 
     <span class="k">if</span> <span class="ow">not</span> <span class="n">spdx_documents</span><span class="p">:</span>
@@ -273,7 +274,7 @@
 <span class="k">def</span><span class="w"> </span><span class="nf">get_all_packages</span><span class="p">(</span><span class="n">object_set</span><span class="p">:</span> <span class="n">spdx3</span><span class="o">.</span><span class="n">SHACLObjectSet</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Set</span><span class="p">[</span><span class="n">spdx3</span><span class="o">.</span><span class="n">software_Package</span><span class="p">]:</span>
 <span class="w">    </span><span class="sd">&quot;&quot;&quot;Retrieve all /Software/Package objects from an SHACLObjectSet.&quot;&quot;&quot;</span>
     <span class="n">packages</span><span class="p">:</span> <span class="n">Set</span><span class="p">[</span><span class="n">spdx3</span><span class="o">.</span><span class="n">software_Package</span><span class="p">]</span> <span class="o">=</span> <span class="p">{</span>
-        <span class="n">cast</span><span class="p">(</span><span class="n">spdx3</span><span class="o">.</span><span class="n">software_Package</span><span class="p">,</span> <span class="n">obj</span><span class="p">)</span>
+        <span class="n">cast</span><span class="p">(</span><span class="s2">&quot;spdx3.software_Package&quot;</span><span class="p">,</span> <span class="n">obj</span><span class="p">)</span>
         <span class="k">for</span> <span class="n">obj</span> <span class="ow">in</span> <span class="n">object_set</span><span class="o">.</span><span class="n">foreach_type</span><span class="p">(</span><span class="s2">&quot;software_Package&quot;</span><span class="p">)</span>
     <span class="p">}</span>
     <span class="k">return</span> <span class="n">packages</span></div>
