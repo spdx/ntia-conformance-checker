@@ -94,20 +94,10 @@ Here's the process to make changes to the codebase:
    [`pyright`][pyright], and [`pytype`][pytype]) to get different perspectives
    on the code.
 
-   ```sh
-   mypy ntia_conformance_checker
-   ```
+   Run all type checkers:
 
    ```sh
-   pyrefly check ntia_conformance_checker
-   ```
-
-   ```sh
-   pyright ntia_conformance_checker
-   ```
-
-   ```sh
-   pytype ntia_conformance_checker
+   make type
    ```
 
    If you are certain that a line is correct but the type checker is not able

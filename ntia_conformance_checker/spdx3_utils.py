@@ -47,7 +47,8 @@ def validate_spdx3_data(
     validation_messages: List[ValidationMessage] = []
 
     spdx_documents: List[spdx3.SpdxDocument] = [
-        cast(spdx3.SpdxDocument, obj) for obj in object_set.foreach_type("SpdxDocument")
+        cast("spdx3.SpdxDocument", obj)
+        for obj in object_set.foreach_type("SpdxDocument")
     ]
 
     if not spdx_documents:
@@ -185,7 +186,7 @@ def iter_relationships_by_type(
 def get_all_packages(object_set: spdx3.SHACLObjectSet) -> Set[spdx3.software_Package]:
     """Retrieve all /Software/Package objects from an SHACLObjectSet."""
     packages: Set[spdx3.software_Package] = {
-        cast(spdx3.software_Package, obj)
+        cast("spdx3.software_Package", obj)
         for obj in object_set.foreach_type("software_Package")
     }
     return packages

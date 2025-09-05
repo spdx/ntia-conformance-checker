@@ -196,7 +196,7 @@ class BaseChecker(ABC):
         if self.doc:
             if validate:
                 if sbom_spec == "spdx2":
-                    self.doc = cast(Document, self.doc)
+                    self.doc = cast("Document", self.doc)
                     self.validation_messages = validate_full_spdx_document(self.doc)
                 else:
                     pass
@@ -210,19 +210,19 @@ class BaseChecker(ABC):
 
             self.components_without_names = self.get_components_without_names()
             self.components_without_versions = cast(
-                List[str], self.get_components_without_versions()
+                "List[str]", self.get_components_without_versions()
             )  # with return_tuples=False, always get List[str]
             self.components_without_suppliers = cast(
-                List[str], self.get_components_without_suppliers()
+                "List[str]", self.get_components_without_suppliers()
             )
             self.components_without_identifiers = (
                 self.get_components_without_identifiers()
             )
             self.components_without_concluded_licenses = cast(
-                List[str], self.get_components_without_concluded_licenses()
+                "List[str]", self.get_components_without_concluded_licenses()
             )
             self.components_without_copyright_texts = cast(
-                List[str], self.get_components_without_copyright_texts()
+                "List[str]", self.get_components_without_copyright_texts()
             )
 
     def check_doc_version(self) -> bool:
@@ -241,7 +241,7 @@ class BaseChecker(ABC):
             # Note that the spdx-tools's parser will raise an SPDXParsingError
             # anyway, if the document does not contain a creator.
             # So in practice, this section should always return True
-            self.doc = cast(Document, self.doc)
+            self.doc = cast("Document", self.doc)
             doc_creation_info = getattr(self.doc, "creation_info", None)
             if doc_creation_info:
                 doc_creators = getattr(doc_creation_info, "creators", [])
@@ -267,7 +267,7 @@ class BaseChecker(ABC):
 
         # SPDX 2
         if self.sbom_spec == "spdx2":
-            self.doc = cast(Document, self.doc)
+            self.doc = cast("Document", self.doc)
             if not self.doc.relationships:
                 return False
 
@@ -318,7 +318,7 @@ class BaseChecker(ABC):
             # Note that the spdx-tools's parser will raise an SPDXParsingError,
             # if the document does not contain a timestamp.
             # So in practice, this section should always return True.
-            self.doc = cast(Document, self.doc)
+            self.doc = cast("Document", self.doc)
             doc_creation_info = getattr(self.doc, "creation_info", None)
             if doc_creation_info:
                 doc_created = getattr(doc_creation_info, "created", None)
@@ -345,7 +345,7 @@ class BaseChecker(ABC):
 
         # SPDX 2
         if self.sbom_spec == "spdx2":
-            self.doc = cast(Document, self.doc)
+            self.doc = cast("Document", self.doc)
             doc_creation_info = getattr(self.doc, "creation_info", None)
             if doc_creation_info:
                 doc_spec_version = getattr(doc_creation_info, "spdx_version", None)
@@ -369,7 +369,7 @@ class BaseChecker(ABC):
 
         # SPDX 2
         if self.sbom_spec == "spdx2":
-            self.doc = cast(Document, self.doc)
+            self.doc = cast("Document", self.doc)
             doc_creation_info = getattr(self.doc, "creation_info", None)
             if doc_creation_info:
                 name = getattr(doc_creation_info, "name", "")
@@ -405,7 +405,7 @@ class BaseChecker(ABC):
 
         # SPDX 2
         if self.sbom_spec == "spdx2":
-            self.doc = cast(Document, self.doc)
+            self.doc = cast("Document", self.doc)
             if not self.doc.packages:
                 return []
 
@@ -440,7 +440,7 @@ class BaseChecker(ABC):
 
         # SPDX 3
         if self.sbom_spec == "spdx3":
-            self.doc = cast(spdx3.SHACLObjectSet, self.doc)
+            self.doc = cast("spdx3.SHACLObjectSet", self.doc)
 
             has_concluded_license_ids: Set[str] = {
                 from_id
@@ -498,7 +498,7 @@ class BaseChecker(ABC):
 
         # SPDX 2
         if self.sbom_spec == "spdx2":
-            self.doc = cast(Document, self.doc)
+            self.doc = cast("Document", self.doc)
             if not self.doc.packages:
                 return []
 
@@ -533,7 +533,7 @@ class BaseChecker(ABC):
 
         # SPDX 3
         if self.sbom_spec == "spdx3":
-            self.doc = cast(spdx3.SHACLObjectSet, self.doc)
+            self.doc = cast("spdx3.SHACLObjectSet", self.doc)
 
             if return_tuples:
                 return [
@@ -577,7 +577,7 @@ class BaseChecker(ABC):
 
         # SPDX 2
         if self.sbom_spec == "spdx2":
-            self.doc = cast(Document, self.doc)
+            self.doc = cast("Document", self.doc)
             if not self.doc.packages:
                 return []
             return [
@@ -586,7 +586,7 @@ class BaseChecker(ABC):
 
         # SPDX 3
         if self.sbom_spec == "spdx3":
-            self.doc = cast(spdx3.SHACLObjectSet, self.doc)
+            self.doc = cast("spdx3.SHACLObjectSet", self.doc)
 
             return [
                 name
@@ -610,7 +610,7 @@ class BaseChecker(ABC):
 
         # SPDX 2
         if self.sbom_spec == "spdx2":
-            self.doc = cast(Document, self.doc)
+            self.doc = cast("Document", self.doc)
             if not self.doc.packages:
                 return []
             components_without_names: List[str] = []
@@ -621,7 +621,7 @@ class BaseChecker(ABC):
 
         # SPDX 3
         if self.sbom_spec == "spdx3":
-            self.doc = cast(spdx3.SHACLObjectSet, self.doc)
+            self.doc = cast("spdx3.SHACLObjectSet", self.doc)
 
             return [
                 spdx_id
@@ -655,7 +655,7 @@ class BaseChecker(ABC):
 
         # SPDX 2
         if self.sbom_spec == "spdx2":
-            self.doc = cast(Document, self.doc)
+            self.doc = cast("Document", self.doc)
             if not self.doc.packages:
                 return []
 
@@ -680,7 +680,7 @@ class BaseChecker(ABC):
 
         # SPDX 3
         if self.sbom_spec == "spdx3":
-            self.doc = cast(spdx3.SHACLObjectSet, self.doc)
+            self.doc = cast("spdx3.SHACLObjectSet", self.doc)
 
             if return_tuples:
                 return [
@@ -721,7 +721,7 @@ class BaseChecker(ABC):
 
         # SPDX 2
         if self.sbom_spec == "spdx2":
-            self.doc = cast(Document, self.doc)
+            self.doc = cast("Document", self.doc)
             if not self.doc.packages:
                 return []
 
@@ -740,7 +740,7 @@ class BaseChecker(ABC):
 
         # SPDX 3
         if self.sbom_spec == "spdx3":
-            self.doc = cast(spdx3.SHACLObjectSet, self.doc)
+            self.doc = cast("spdx3.SHACLObjectSet", self.doc)
 
             if return_tuples:
                 return [
@@ -773,14 +773,14 @@ class BaseChecker(ABC):
 
         # SPDX 2
         if self.sbom_spec == "spdx2":
-            self.doc = cast(Document, self.doc)
+            self.doc = cast("Document", self.doc)
             if not self.doc.packages:
                 return 0
             return len(self.doc.packages)
 
         # SPDX 3
         if self.sbom_spec == "spdx3":
-            self.doc = cast(spdx3.SHACLObjectSet, self.doc)
+            self.doc = cast("spdx3.SHACLObjectSet", self.doc)
             objects: Set[spdx3.SHACLObject] = getattr(self.doc, "objects", set())
             return len(objects)
 
@@ -808,7 +808,7 @@ class BaseChecker(ABC):
             self.parsing_error.extend(err.get_messages())
             return None
 
-        return cast(Document, doc)
+        return cast("Document", doc)
 
     def parse_spdx3_file(self) -> Optional[spdx3.SHACLObjectSet]:
         """
