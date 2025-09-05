@@ -52,6 +52,14 @@ ntia\_conformance\_checker.sbom\_checker module
    :undoc-members:
    :show-inheritance:
 
+ntia\_conformance\_checker.spdx3\_utils module
+----------------------------------------------
+
+.. automodule:: ntia_conformance_checker.spdx3_utils
+   :members:
+   :undoc-members:
+   :show-inheritance:
+
 Module contents
 ---------------
 

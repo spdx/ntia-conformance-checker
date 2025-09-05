@@ -82,9 +82,11 @@
 <li class="toctree-l2"><a class="reference internal" href="ntia_conformance_checker.html#submodules">Submodules</a></li>
 <li class="toctree-l2"><a class="reference internal" href="ntia_conformance_checker.html#module-ntia_conformance_checker.base_checker">ntia_conformance_checker.base_checker module</a><ul>
 <li class="toctree-l3"><a class="reference internal" href="ntia_conformance_checker.html#ntia_conformance_checker.base_checker.BaseChecker"><code class="docutils literal notranslate"><span class="pre">BaseChecker</span></code></a><ul>
+<li class="toctree-l4"><a class="reference internal" href="ntia_conformance_checker.html#ntia_conformance_checker.base_checker.BaseChecker.check_author"><code class="docutils literal notranslate"><span class="pre">BaseChecker.check_author()</span></code></a></li>
 <li class="toctree-l4"><a class="reference internal" href="ntia_conformance_checker.html#ntia_conformance_checker.base_checker.BaseChecker.check_compliance"><code class="docutils literal notranslate"><span class="pre">BaseChecker.check_compliance()</span></code></a></li>
 <li class="toctree-l4"><a class="reference internal" href="ntia_conformance_checker.html#ntia_conformance_checker.base_checker.BaseChecker.check_dependency_relationships"><code class="docutils literal notranslate"><span class="pre">BaseChecker.check_dependency_relationships()</span></code></a></li>
 <li class="toctree-l4"><a class="reference internal" href="ntia_conformance_checker.html#ntia_conformance_checker.base_checker.BaseChecker.check_doc_version"><code class="docutils literal notranslate"><span class="pre">BaseChecker.check_doc_version()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="ntia_conformance_checker.html#ntia_conformance_checker.base_checker.BaseChecker.check_timestamp"><code class="docutils literal notranslate"><span class="pre">BaseChecker.check_timestamp()</span></code></a></li>
 <li class="toctree-l4"><a class="reference internal" href="ntia_conformance_checker.html#ntia_conformance_checker.base_checker.BaseChecker.compliance_standard"><code class="docutils literal notranslate"><span class="pre">BaseChecker.compliance_standard</span></code></a></li>
 <li class="toctree-l4"><a class="reference internal" href="ntia_conformance_checker.html#ntia_conformance_checker.base_checker.BaseChecker.compliant"><code class="docutils literal notranslate"><span class="pre">BaseChecker.compliant</span></code></a></li>
 <li class="toctree-l4"><a class="reference internal" href="ntia_conformance_checker.html#ntia_conformance_checker.base_checker.BaseChecker.components_without_concluded_licenses"><code class="docutils literal notranslate"><span class="pre">BaseChecker.components_without_concluded_licenses</span></code></a></li>
@@ -121,7 +123,6 @@
 <li class="toctree-l4"><a class="reference internal" href="ntia_conformance_checker.html#ntia_conformance_checker.base_checker.BaseChecker.validation_messages"><code class="docutils literal notranslate"><span class="pre">BaseChecker.validation_messages</span></code></a></li>
 </ul>
 </li>
-<li class="toctree-l3"><a class="reference internal" href="ntia_conformance_checker.html#ntia_conformance_checker.base_checker.validate_spdx3_document"><code class="docutils literal notranslate"><span class="pre">validate_spdx3_document()</span></code></a></li>
 </ul>
 </li>
 <li class="toctree-l2"><a class="reference internal" href="ntia_conformance_checker.html#module-ntia_conformance_checker.cli_utils">ntia_conformance_checker.cli_utils module</a><ul>
@@ -167,11 +168,22 @@
 </li>
 </ul>
 </li>
+<li class="toctree-l2"><a class="reference internal" href="ntia_conformance_checker.html#module-ntia_conformance_checker.spdx3_utils">ntia_conformance_checker.spdx3_utils module</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="ntia_conformance_checker.html#ntia_conformance_checker.spdx3_utils.get_all_packages"><code class="docutils literal notranslate"><span class="pre">get_all_packages()</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="ntia_conformance_checker.html#ntia_conformance_checker.spdx3_utils.get_boms_from_spdx_document"><code class="docutils literal notranslate"><span class="pre">get_boms_from_spdx_document()</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="ntia_conformance_checker.html#ntia_conformance_checker.spdx3_utils.get_packages_from_bom"><code class="docutils literal notranslate"><span class="pre">get_packages_from_bom()</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="ntia_conformance_checker.html#ntia_conformance_checker.spdx3_utils.iter_objects_with_property"><code class="docutils literal notranslate"><span class="pre">iter_objects_with_property()</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="ntia_conformance_checker.html#ntia_conformance_checker.spdx3_utils.iter_relationships_by_type"><code class="docutils literal notranslate"><span class="pre">iter_relationships_by_type()</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="ntia_conformance_checker.html#ntia_conformance_checker.spdx3_utils.validate_spdx3_data"><code class="docutils literal notranslate"><span class="pre">validate_spdx3_data()</span></code></a></li>
+</ul>
+</li>
 <li class="toctree-l2"><a class="reference internal" href="ntia_conformance_checker.html#module-ntia_conformance_checker">Module contents</a><ul>
 <li class="toctree-l3"><a class="reference internal" href="ntia_conformance_checker.html#ntia_conformance_checker.BaseChecker"><code class="docutils literal notranslate"><span class="pre">BaseChecker</span></code></a><ul>
+<li class="toctree-l4"><a class="reference internal" href="ntia_conformance_checker.html#ntia_conformance_checker.BaseChecker.check_author"><code class="docutils literal notranslate"><span class="pre">BaseChecker.check_author()</span></code></a></li>
 <li class="toctree-l4"><a class="reference internal" href="ntia_conformance_checker.html#ntia_conformance_checker.BaseChecker.check_compliance"><code class="docutils literal notranslate"><span class="pre">BaseChecker.check_compliance()</span></code></a></li>
 <li class="toctree-l4"><a class="reference internal" href="ntia_conformance_checker.html#ntia_conformance_checker.BaseChecker.check_dependency_relationships"><code class="docutils literal notranslate"><span class="pre">BaseChecker.check_dependency_relationships()</span></code></a></li>
 <li class="toctree-l4"><a class="reference internal" href="ntia_conformance_checker.html#ntia_conformance_checker.BaseChecker.check_doc_version"><code class="docutils literal notranslate"><span class="pre">BaseChecker.check_doc_version()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="ntia_conformance_checker.html#ntia_conformance_checker.BaseChecker.check_timestamp"><code class="docutils literal notranslate"><span class="pre">BaseChecker.check_timestamp()</span></code></a></li>
 <li class="toctree-l4"><a class="reference internal" href="ntia_conformance_checker.html#ntia_conformance_checker.BaseChecker.compliance_standard"><code class="docutils literal notranslate"><span class="pre">BaseChecker.compliance_standard</span></code></a></li>
 <li class="toctree-l4"><a class="reference internal" href="ntia_conformance_checker.html#ntia_conformance_checker.BaseChecker.compliant"><code class="docutils literal notranslate"><span class="pre">BaseChecker.compliant</span></code></a></li>
 <li class="toctree-l4"><a class="reference internal" href="ntia_conformance_checker.html#ntia_conformance_checker.BaseChecker.components_without_concluded_licenses"><code class="docutils literal notranslate"><span class="pre">BaseChecker.components_without_concluded_licenses</span></code></a></li>

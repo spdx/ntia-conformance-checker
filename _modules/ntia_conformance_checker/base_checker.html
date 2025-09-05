@@ -81,7 +81,7 @@
 <span class="kn">import</span><span class="w"> </span><span class="nn">logging</span>
 <span class="kn">import</span><span class="w"> </span><span class="nn">os</span>
 <span class="kn">from</span><span class="w"> </span><span class="nn">abc</span><span class="w"> </span><span class="kn">import</span> <span class="n">ABC</span><span class="p">,</span> <span class="n">abstractmethod</span>
-<span class="kn">from</span><span class="w"> </span><span class="nn">typing</span><span class="w"> </span><span class="kn">import</span> <span class="n">Any</span><span class="p">,</span> <span class="n">Dict</span><span class="p">,</span> <span class="n">Iterator</span><span class="p">,</span> <span class="n">List</span><span class="p">,</span> <span class="n">Optional</span><span class="p">,</span> <span class="n">Tuple</span><span class="p">,</span> <span class="n">Union</span><span class="p">,</span> <span class="n">cast</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">typing</span><span class="w"> </span><span class="kn">import</span> <span class="n">Any</span><span class="p">,</span> <span class="n">Dict</span><span class="p">,</span> <span class="n">List</span><span class="p">,</span> <span class="n">Optional</span><span class="p">,</span> <span class="n">Set</span><span class="p">,</span> <span class="n">Tuple</span><span class="p">,</span> <span class="n">Union</span><span class="p">,</span> <span class="n">cast</span>
 
 <span class="kn">from</span><span class="w"> </span><span class="nn">spdx_python_model</span><span class="w"> </span><span class="kn">import</span> <span class="n">v3_0_1</span> <span class="k">as</span> <span class="n">spdx3</span>  <span class="c1"># type: ignore # import-untyped</span>
 <span class="kn">from</span><span class="w"> </span><span class="nn">spdx_tools.spdx.model.document</span><span class="w"> </span><span class="kn">import</span> <span class="n">Document</span>
@@ -90,9 +90,14 @@
 <span class="kn">from</span><span class="w"> </span><span class="nn">spdx_tools.spdx.parser</span><span class="w"> </span><span class="kn">import</span> <span class="n">parse_anything</span>
 <span class="kn">from</span><span class="w"> </span><span class="nn">spdx_tools.spdx.parser.error</span><span class="w"> </span><span class="kn">import</span> <span class="n">SPDXParsingError</span>
 <span class="kn">from</span><span class="w"> </span><span class="nn">spdx_tools.spdx.validation.document_validator</span><span class="w"> </span><span class="kn">import</span> <span class="n">validate_full_spdx_document</span>
-<span class="kn">from</span><span class="w"> </span><span class="nn">spdx_tools.spdx.validation.validation_message</span><span class="w"> </span><span class="kn">import</span> <span class="p">(</span>
-    <span class="n">ValidationContext</span><span class="p">,</span>
-    <span class="n">ValidationMessage</span><span class="p">,</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">spdx_tools.spdx.validation.validation_message</span><span class="w"> </span><span class="kn">import</span> <span class="n">ValidationMessage</span>
+
+<span class="kn">from</span><span class="w"> </span><span class="nn">.spdx3_utils</span><span class="w"> </span><span class="kn">import</span> <span class="p">(</span>
+    <span class="n">get_boms_from_spdx_document</span><span class="p">,</span>
+    <span class="n">get_packages_from_bom</span><span class="p">,</span>
+    <span class="n">iter_objects_with_property</span><span class="p">,</span>
+    <span class="n">iter_relationships_by_type</span><span class="p">,</span>
+    <span class="n">validate_spdx3_data</span><span class="p">,</span>
 <span class="p">)</span>
 
 <span class="n">SUPPORTED_SBOM_SPECS_DESC</span> <span class="o">=</span> <span class="p">{</span>
@@ -106,20 +111,18 @@
     <span class="c1"># &quot;cisasbom2025&quot;: &quot;2025 CISA SBOM Minimum Elements&quot;,</span>
     <span class="c1"># https://www.cisa.gov/resources-tools/resources/2025-minimum-elements-software-bill-materials-sbom</span>
     <span class="s2">&quot;fsct3-min&quot;</span><span class="p">:</span> <span class="s2">&quot;2024 CISA Framing Software Component Transparency (minimum expectation)&quot;</span><span class="p">,</span>
-    <span class="c1"># https://www.cisa.gov/resources-tools/resources/framing-software-component-transparency-2024</span>
     <span class="s2">&quot;ntia&quot;</span><span class="p">:</span> <span class="s2">&quot;2021 NTIA SBOM Minimum Elements&quot;</span><span class="p">,</span>
-    <span class="c1"># https://www.ntia.gov/report/2021/minimum-elements-software-bill-materials-sbom</span>
 <span class="p">}</span>
 <span class="n">DEFAULT_COMPLIANCE_STANDARD</span> <span class="o">=</span> <span class="s2">&quot;ntia&quot;</span>
 <span class="n">SUPPORTED_COMPLIANCE_STANDARDS</span> <span class="o">=</span> <span class="nb">set</span><span class="p">(</span><span class="n">SUPPORTED_COMPLIANCE_STANDARDS_DESC</span><span class="o">.</span><span class="n">keys</span><span class="p">())</span>
 
 <span class="n">SUPPORTED_SPDX_VERSIONS</span> <span class="o">=</span> <span class="p">{(</span><span class="mi">2</span><span class="p">,</span> <span class="mi">2</span><span class="p">),</span> <span class="p">(</span><span class="mi">2</span><span class="p">,</span> <span class="mi">3</span><span class="p">),</span> <span class="p">(</span><span class="mi">3</span><span class="p">,</span> <span class="mi">0</span><span class="p">)}</span>  <span class="c1"># (Major, Minor)</span>
-<span class="n">SUPPORTED_SPDX2_VERSIONS</span> <span class="o">=</span> <span class="p">{</span>
+<span class="n">SUPPORTED_SPDX2_VERSION_STRINGS</span> <span class="o">=</span> <span class="p">{</span>
     <span class="sa">f</span><span class="s2">&quot;SPDX-</span><span class="si">{</span><span class="n">maj</span><span class="si">}</span><span class="s2">.</span><span class="si">{</span><span class="nb">min</span><span class="si">}</span><span class="s2">&quot;</span> <span class="k">for</span> <span class="p">(</span><span class="n">maj</span><span class="p">,</span> <span class="nb">min</span><span class="p">)</span> <span class="ow">in</span> <span class="n">SUPPORTED_SPDX_VERSIONS</span> <span class="k">if</span> <span class="n">maj</span> <span class="o">==</span> <span class="mi">2</span>
-<span class="p">}</span>
-<span class="n">SUPPORTED_SPDX3_VERSIONS</span> <span class="o">=</span> <span class="p">{</span>
+<span class="p">}</span>  <span class="c1"># e.g. &quot;SPDX-2.2&quot;, &quot;SPDX-2.3&quot;</span>
+<span class="n">SUPPORTED_SPDX3_VERSION_STRINGS</span> <span class="o">=</span> <span class="p">{</span>
     <span class="sa">f</span><span class="s2">&quot;</span><span class="si">{</span><span class="n">maj</span><span class="si">}</span><span class="s2">.</span><span class="si">{</span><span class="nb">min</span><span class="si">}</span><span class="s2">&quot;</span> <span class="k">for</span> <span class="p">(</span><span class="n">maj</span><span class="p">,</span> <span class="nb">min</span><span class="p">)</span> <span class="ow">in</span> <span class="n">SUPPORTED_SPDX_VERSIONS</span> <span class="k">if</span> <span class="n">maj</span> <span class="o">==</span> <span class="mi">3</span>
-<span class="p">}</span>
+<span class="p">}</span>  <span class="c1"># e.g. &quot;3.0&quot;</span>
 
 
 <span class="c1"># pylint: disable=too-many-instance-attributes</span>
@@ -128,8 +131,8 @@
 <span class="k">class</span><span class="w"> </span><span class="nc">BaseChecker</span><span class="p">(</span><span class="n">ABC</span><span class="p">):</span>
 <span class="w">    </span><span class="sd">&quot;&quot;&quot;Base class for all compliance/conformance checkers.</span>
 
-<span class="sd">    This base class contains methods for common tasks like file loading</span>
-<span class="sd">    and parsing.</span>
+<span class="sd">    This base class contains methods for common tasks like file parsing</span>
+<span class="sd">    and information extractions from the SBOM.</span>
 
 <span class="sd">    Any class inheriting from BaseChecker must implement its abstract methods,</span>
 <span class="sd">    such as `check_compliance` and `output_json`.</span>
@@ -144,7 +147,7 @@
     <span class="n">file</span><span class="p">:</span> <span class="nb">str</span> <span class="o">=</span> <span class="s2">&quot;&quot;</span>
     <span class="c1"># For SPDX 3, we have to use SHACLObjectSet instead of SpdxDocument,</span>
     <span class="c1"># because we need access to relationships and other elements that are not</span>
-    <span class="c1"># part of SpdxDocument.</span>
+    <span class="c1"># accesible from SpdxDocument.</span>
     <span class="n">doc</span><span class="p">:</span> <span class="n">Union</span><span class="p">[</span><span class="n">Document</span><span class="p">,</span> <span class="n">spdx3</span><span class="o">.</span><span class="n">SHACLObjectSet</span><span class="p">,</span> <span class="kc">None</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span>
     <span class="n">__spdx3_doc</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="n">spdx3</span><span class="o">.</span><span class="n">SpdxDocument</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span>  <span class="c1"># cached SPDX 3 document</span>
 
@@ -248,6 +251,11 @@
 
         <span class="bp">self</span><span class="o">.</span><span class="n">file</span> <span class="o">=</span> <span class="n">file</span>
 
+        <span class="c1"># Make sure the logs are instance variables and not class variables</span>
+        <span class="c1"># to avoid shared state between instances.</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">parsing_error</span> <span class="o">=</span> <span class="p">[]</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">validation_messages</span> <span class="o">=</span> <span class="p">[]</span>
+
         <span class="c1"># SPDX 2</span>
         <span class="k">if</span> <span class="n">sbom_spec</span> <span class="o">==</span> <span class="s2">&quot;spdx2&quot;</span><span class="p">:</span>
             <span class="bp">self</span><span class="o">.</span><span class="n">doc</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">parse_file</span><span class="p">()</span>
@@ -263,7 +271,7 @@
                 <span class="n">logging</span><span class="o">.</span><span class="n">error</span><span class="p">(</span><span class="s2">&quot;Failed to parse the SPDX 3 file.&quot;</span><span class="p">)</span>
             <span class="k">else</span><span class="p">:</span>
                 <span class="bp">self</span><span class="o">.</span><span class="n">doc</span> <span class="o">=</span> <span class="n">object_set</span>
-                <span class="n">_doc</span><span class="p">,</span> <span class="n">_validation_messages</span> <span class="o">=</span> <span class="n">validate_spdx3_document</span><span class="p">(</span><span class="n">object_set</span><span class="p">)</span>
+                <span class="n">_doc</span><span class="p">,</span> <span class="n">_validation_messages</span> <span class="o">=</span> <span class="n">validate_spdx3_data</span><span class="p">(</span><span class="n">object_set</span><span class="p">)</span>
                 <span class="k">if</span> <span class="ow">not</span> <span class="n">_doc</span> <span class="ow">or</span> <span class="n">_validation_messages</span><span class="p">:</span>
                     <span class="n">logging</span><span class="o">.</span><span class="n">error</span><span class="p">(</span><span class="s2">&quot;SpdxDocument not found or invalid.&quot;</span><span class="p">)</span>
                 <span class="bp">self</span><span class="o">.</span><span class="n">__spdx3_doc</span> <span class="o">=</span> <span class="n">_doc</span>  <span class="c1"># cache the extracted SpdxDocument</span>
@@ -280,6 +288,13 @@
                     <span class="bp">self</span><span class="o">.</span><span class="n">validation_messages</span> <span class="o">=</span> <span class="n">validate_full_spdx_document</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">doc</span><span class="p">)</span>
                 <span class="k">else</span><span class="p">:</span>
                     <span class="k">pass</span>
+
+            <span class="bp">self</span><span class="o">.</span><span class="n">sbom_name</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">get_sbom_name</span><span class="p">()</span>
+
+            <span class="bp">self</span><span class="o">.</span><span class="n">doc_version</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">check_doc_version</span><span class="p">()</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">doc_author</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">check_author</span><span class="p">()</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">doc_timestamp</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">check_timestamp</span><span class="p">()</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">dependency_relationships</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">check_dependency_relationships</span><span class="p">()</span>
 
             <span class="bp">self</span><span class="o">.</span><span class="n">components_without_names</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">get_components_without_names</span><span class="p">()</span>
             <span class="bp">self</span><span class="o">.</span><span class="n">components_without_versions</span> <span class="o">=</span> <span class="n">cast</span><span class="p">(</span>
@@ -298,37 +313,44 @@
                 <span class="n">List</span><span class="p">[</span><span class="nb">str</span><span class="p">],</span> <span class="bp">self</span><span class="o">.</span><span class="n">get_components_without_copyright_texts</span><span class="p">()</span>
             <span class="p">)</span>
 
-<div class="viewcode-block" id="BaseChecker.get_doc_spec_version">
-<a class="viewcode-back" href="../../ntia_conformance_checker.html#ntia_conformance_checker.base_checker.BaseChecker.get_doc_spec_version">[docs]</a>
-    <span class="k">def</span><span class="w"> </span><span class="nf">get_doc_spec_version</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Optional</span><span class="p">[</span><span class="nb">str</span><span class="p">]:</span>
-<span class="w">        </span><span class="sd">&quot;&quot;&quot;Retrieve the document&#39;s specification version.&quot;&quot;&quot;</span>
-        <span class="k">if</span> <span class="ow">not</span> <span class="bp">self</span><span class="o">.</span><span class="n">doc</span><span class="p">:</span>
-            <span class="k">return</span> <span class="kc">None</span>
-
-        <span class="n">doc_spec_version</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="nb">str</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span>
-
-        <span class="c1"># SPDX 2</span>
-        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">sbom_spec</span> <span class="o">==</span> <span class="s2">&quot;spdx2&quot;</span><span class="p">:</span>
-            <span class="bp">self</span><span class="o">.</span><span class="n">doc</span> <span class="o">=</span> <span class="n">cast</span><span class="p">(</span><span class="n">Document</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">doc</span><span class="p">)</span>
-            <span class="n">doc_creation_info</span> <span class="o">=</span> <span class="nb">getattr</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">doc</span><span class="p">,</span> <span class="s2">&quot;creation_info&quot;</span><span class="p">,</span> <span class="kc">None</span><span class="p">)</span>
-            <span class="k">if</span> <span class="n">doc_creation_info</span><span class="p">:</span>
-                <span class="n">doc_spec_version</span> <span class="o">=</span> <span class="nb">getattr</span><span class="p">(</span><span class="n">doc_creation_info</span><span class="p">,</span> <span class="s2">&quot;spdx_version&quot;</span><span class="p">,</span> <span class="kc">None</span><span class="p">)</span>
-
-        <span class="c1"># SPDX 3</span>
-        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">sbom_spec</span> <span class="o">==</span> <span class="s2">&quot;spdx3&quot;</span> <span class="ow">and</span> <span class="bp">self</span><span class="o">.</span><span class="n">__spdx3_doc</span><span class="p">:</span>
-            <span class="n">doc_creation_info</span> <span class="o">=</span> <span class="nb">getattr</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">__spdx3_doc</span><span class="p">,</span> <span class="s2">&quot;creationInfo&quot;</span><span class="p">,</span> <span class="kc">None</span><span class="p">)</span>
-            <span class="k">if</span> <span class="n">doc_creation_info</span><span class="p">:</span>
-                <span class="n">doc_spec_version</span> <span class="o">=</span> <span class="nb">getattr</span><span class="p">(</span><span class="n">doc_creation_info</span><span class="p">,</span> <span class="s2">&quot;specVersion&quot;</span><span class="p">,</span> <span class="kc">None</span><span class="p">)</span>
-
-        <span class="k">return</span> <span class="n">doc_spec_version</span></div>
-
-
 <div class="viewcode-block" id="BaseChecker.check_doc_version">
 <a class="viewcode-back" href="../../ntia_conformance_checker.html#ntia_conformance_checker.base_checker.BaseChecker.check_doc_version">[docs]</a>
     <span class="k">def</span><span class="w"> </span><span class="nf">check_doc_version</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">bool</span><span class="p">:</span>
 <span class="w">        </span><span class="sd">&quot;&quot;&quot;Check if the document&#39;s specification version exists.&quot;&quot;&quot;</span>
         <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">get_doc_spec_version</span><span class="p">():</span>
             <span class="k">return</span> <span class="kc">True</span>
+        <span class="k">return</span> <span class="kc">False</span></div>
+
+
+<div class="viewcode-block" id="BaseChecker.check_author">
+<a class="viewcode-back" href="../../ntia_conformance_checker.html#ntia_conformance_checker.base_checker.BaseChecker.check_author">[docs]</a>
+    <span class="k">def</span><span class="w"> </span><span class="nf">check_author</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">bool</span><span class="p">:</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;Check if the author of SBOM data exists.&quot;&quot;&quot;</span>
+        <span class="k">if</span> <span class="ow">not</span> <span class="bp">self</span><span class="o">.</span><span class="n">doc</span><span class="p">:</span>
+            <span class="k">return</span> <span class="kc">False</span>
+
+        <span class="c1"># SPDX 2</span>
+        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">sbom_spec</span> <span class="o">==</span> <span class="s2">&quot;spdx2&quot;</span><span class="p">:</span>
+            <span class="c1"># Note that the spdx-tools&#39;s parser will raise an SPDXParsingError</span>
+            <span class="c1"># anyway, if the document does not contain a creator.</span>
+            <span class="c1"># So in practice, this section should always return True</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">doc</span> <span class="o">=</span> <span class="n">cast</span><span class="p">(</span><span class="n">Document</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">doc</span><span class="p">)</span>
+            <span class="n">doc_creation_info</span> <span class="o">=</span> <span class="nb">getattr</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">doc</span><span class="p">,</span> <span class="s2">&quot;creation_info&quot;</span><span class="p">,</span> <span class="kc">None</span><span class="p">)</span>
+            <span class="k">if</span> <span class="n">doc_creation_info</span><span class="p">:</span>
+                <span class="n">doc_creators</span> <span class="o">=</span> <span class="nb">getattr</span><span class="p">(</span><span class="n">doc_creation_info</span><span class="p">,</span> <span class="s2">&quot;creators&quot;</span><span class="p">,</span> <span class="p">[])</span>
+                <span class="k">if</span> <span class="n">doc_creators</span><span class="p">:</span>
+                    <span class="k">return</span> <span class="kc">True</span>
+            <span class="k">return</span> <span class="kc">False</span>
+
+        <span class="c1"># SPDX 3</span>
+        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">sbom_spec</span> <span class="o">==</span> <span class="s2">&quot;spdx3&quot;</span> <span class="ow">and</span> <span class="bp">self</span><span class="o">.</span><span class="n">__spdx3_doc</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
+            <span class="n">doc_creation_info</span> <span class="o">=</span> <span class="nb">getattr</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">__spdx3_doc</span><span class="p">,</span> <span class="s2">&quot;creationInfo&quot;</span><span class="p">,</span> <span class="kc">None</span><span class="p">)</span>
+            <span class="k">if</span> <span class="n">doc_creation_info</span><span class="p">:</span>
+                <span class="n">doc_creators</span> <span class="o">=</span> <span class="nb">getattr</span><span class="p">(</span><span class="n">doc_creation_info</span><span class="p">,</span> <span class="s2">&quot;createdBy&quot;</span><span class="p">,</span> <span class="p">[])</span>
+                <span class="k">if</span> <span class="n">doc_creators</span><span class="p">:</span>
+                    <span class="k">return</span> <span class="kc">True</span>
+            <span class="k">return</span> <span class="kc">False</span>
+
         <span class="k">return</span> <span class="kc">False</span></div>
 
 
@@ -363,10 +385,82 @@
             <span class="k">return</span> <span class="n">describes_package</span>
 
         <span class="c1"># SPDX 3</span>
-        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">sbom_spec</span> <span class="o">==</span> <span class="s2">&quot;spdx3&quot;</span> <span class="ow">and</span> <span class="bp">self</span><span class="o">.</span><span class="n">__spdx3_doc</span><span class="p">:</span>
-            <span class="k">return</span> <span class="kc">False</span>
+        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">sbom_spec</span> <span class="o">==</span> <span class="s2">&quot;spdx3&quot;</span><span class="p">:</span>
+            <span class="c1"># If a BOM/an SBOM&#39;s rootElement is a /Software/Package (or its subclass),</span>
+            <span class="c1"># it is considered to have a relationship.</span>
+            <span class="c1">#</span>
+            <span class="c1"># Note that if there is neither /Software/Package(s) nor /Core/Bom,</span>
+            <span class="c1"># a DESCRIBES relationship is not needed; however, this method may still</span>
+            <span class="c1"># return False, since it is factually considered as &quot;no relationship&quot;.</span>
+
+            <span class="c1"># There is a BOM and an /Software/Package,</span>
+            <span class="c1"># check if there is at least one package listed in any BOM/SBOM</span>
+            <span class="n">boms</span> <span class="o">=</span> <span class="n">get_boms_from_spdx_document</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">__spdx3_doc</span><span class="p">)</span>
+            <span class="k">if</span> <span class="n">boms</span><span class="p">:</span>
+                <span class="k">for</span> <span class="n">bom</span> <span class="ow">in</span> <span class="n">boms</span><span class="p">:</span>
+                    <span class="n">packages</span> <span class="o">=</span> <span class="n">get_packages_from_bom</span><span class="p">(</span><span class="n">bom</span><span class="p">)</span>
+                    <span class="k">if</span> <span class="n">packages</span><span class="p">:</span>
+                        <span class="k">return</span> <span class="kc">True</span>
 
         <span class="k">return</span> <span class="kc">False</span></div>
+
+
+<div class="viewcode-block" id="BaseChecker.check_timestamp">
+<a class="viewcode-back" href="../../ntia_conformance_checker.html#ntia_conformance_checker.base_checker.BaseChecker.check_timestamp">[docs]</a>
+    <span class="k">def</span><span class="w"> </span><span class="nf">check_timestamp</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">bool</span><span class="p">:</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;Check if the SBOM creation timestamp exists.&quot;&quot;&quot;</span>
+        <span class="k">if</span> <span class="ow">not</span> <span class="bp">self</span><span class="o">.</span><span class="n">doc</span><span class="p">:</span>
+            <span class="k">return</span> <span class="kc">False</span>
+
+        <span class="c1"># SPDX 2</span>
+        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">sbom_spec</span> <span class="o">==</span> <span class="s2">&quot;spdx2&quot;</span><span class="p">:</span>
+            <span class="c1"># Note that the spdx-tools&#39;s parser will raise an SPDXParsingError,</span>
+            <span class="c1"># if the document does not contain a timestamp.</span>
+            <span class="c1"># So in practice, this section should always return True.</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">doc</span> <span class="o">=</span> <span class="n">cast</span><span class="p">(</span><span class="n">Document</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">doc</span><span class="p">)</span>
+            <span class="n">doc_creation_info</span> <span class="o">=</span> <span class="nb">getattr</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">doc</span><span class="p">,</span> <span class="s2">&quot;creation_info&quot;</span><span class="p">,</span> <span class="kc">None</span><span class="p">)</span>
+            <span class="k">if</span> <span class="n">doc_creation_info</span><span class="p">:</span>
+                <span class="n">doc_created</span> <span class="o">=</span> <span class="nb">getattr</span><span class="p">(</span><span class="n">doc_creation_info</span><span class="p">,</span> <span class="s2">&quot;created&quot;</span><span class="p">,</span> <span class="kc">None</span><span class="p">)</span>
+                <span class="k">if</span> <span class="n">doc_created</span><span class="p">:</span>
+                    <span class="k">return</span> <span class="kc">True</span>
+            <span class="k">return</span> <span class="kc">False</span>
+
+        <span class="c1"># SPDX 3</span>
+        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">sbom_spec</span> <span class="o">==</span> <span class="s2">&quot;spdx3&quot;</span> <span class="ow">and</span> <span class="bp">self</span><span class="o">.</span><span class="n">__spdx3_doc</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
+            <span class="n">doc_creation_info</span> <span class="o">=</span> <span class="nb">getattr</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">__spdx3_doc</span><span class="p">,</span> <span class="s2">&quot;creationInfo&quot;</span><span class="p">,</span> <span class="kc">None</span><span class="p">)</span>
+            <span class="k">if</span> <span class="n">doc_creation_info</span><span class="p">:</span>
+                <span class="n">doc_created</span> <span class="o">=</span> <span class="nb">getattr</span><span class="p">(</span><span class="n">doc_creation_info</span><span class="p">,</span> <span class="s2">&quot;created&quot;</span><span class="p">,</span> <span class="kc">None</span><span class="p">)</span>
+                <span class="k">if</span> <span class="n">doc_created</span><span class="p">:</span>
+                    <span class="k">return</span> <span class="kc">True</span>
+
+        <span class="k">return</span> <span class="kc">False</span></div>
+
+
+<div class="viewcode-block" id="BaseChecker.get_doc_spec_version">
+<a class="viewcode-back" href="../../ntia_conformance_checker.html#ntia_conformance_checker.base_checker.BaseChecker.get_doc_spec_version">[docs]</a>
+    <span class="k">def</span><span class="w"> </span><span class="nf">get_doc_spec_version</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Optional</span><span class="p">[</span><span class="nb">str</span><span class="p">]:</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;Retrieve the document&#39;s specification version.&quot;&quot;&quot;</span>
+        <span class="k">if</span> <span class="ow">not</span> <span class="bp">self</span><span class="o">.</span><span class="n">doc</span><span class="p">:</span>
+            <span class="k">return</span> <span class="kc">None</span>
+
+        <span class="n">doc_spec_version</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="nb">str</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span>
+
+        <span class="c1"># SPDX 2</span>
+        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">sbom_spec</span> <span class="o">==</span> <span class="s2">&quot;spdx2&quot;</span><span class="p">:</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">doc</span> <span class="o">=</span> <span class="n">cast</span><span class="p">(</span><span class="n">Document</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">doc</span><span class="p">)</span>
+            <span class="n">doc_creation_info</span> <span class="o">=</span> <span class="nb">getattr</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">doc</span><span class="p">,</span> <span class="s2">&quot;creation_info&quot;</span><span class="p">,</span> <span class="kc">None</span><span class="p">)</span>
+            <span class="k">if</span> <span class="n">doc_creation_info</span><span class="p">:</span>
+                <span class="n">doc_spec_version</span> <span class="o">=</span> <span class="nb">getattr</span><span class="p">(</span><span class="n">doc_creation_info</span><span class="p">,</span> <span class="s2">&quot;spdx_version&quot;</span><span class="p">,</span> <span class="kc">None</span><span class="p">)</span>
+
+        <span class="c1"># SPDX 3</span>
+        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">sbom_spec</span> <span class="o">==</span> <span class="s2">&quot;spdx3&quot;</span> <span class="ow">and</span> <span class="nb">isinstance</span><span class="p">(</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">__spdx3_doc</span><span class="p">,</span> <span class="n">spdx3</span><span class="o">.</span><span class="n">SpdxDocument</span>
+        <span class="p">):</span>
+            <span class="n">doc_creation_info</span> <span class="o">=</span> <span class="nb">getattr</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">__spdx3_doc</span><span class="p">,</span> <span class="s2">&quot;creationInfo&quot;</span><span class="p">,</span> <span class="kc">None</span><span class="p">)</span>
+            <span class="k">if</span> <span class="n">doc_creation_info</span><span class="p">:</span>
+                <span class="n">doc_spec_version</span> <span class="o">=</span> <span class="nb">getattr</span><span class="p">(</span><span class="n">doc_creation_info</span><span class="p">,</span> <span class="s2">&quot;specVersion&quot;</span><span class="p">,</span> <span class="kc">None</span><span class="p">)</span>
+
+        <span class="k">return</span> <span class="n">doc_spec_version</span></div>
 
 
 <div class="viewcode-block" id="BaseChecker.get_sbom_name">
@@ -386,12 +480,16 @@
                 <span class="n">name</span> <span class="o">=</span> <span class="nb">getattr</span><span class="p">(</span><span class="n">doc_creation_info</span><span class="p">,</span> <span class="s2">&quot;name&quot;</span><span class="p">,</span> <span class="s2">&quot;&quot;</span><span class="p">)</span>
 
         <span class="c1"># SPDX 3</span>
-        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">sbom_spec</span> <span class="o">==</span> <span class="s2">&quot;spdx3&quot;</span> <span class="ow">and</span> <span class="bp">self</span><span class="o">.</span><span class="n">__spdx3_doc</span><span class="p">:</span>
+        <span class="k">elif</span> <span class="bp">self</span><span class="o">.</span><span class="n">sbom_spec</span> <span class="o">==</span> <span class="s2">&quot;spdx3&quot;</span> <span class="ow">and</span> <span class="nb">isinstance</span><span class="p">(</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">__spdx3_doc</span><span class="p">,</span> <span class="n">spdx3</span><span class="o">.</span><span class="n">SpdxDocument</span>
+        <span class="p">):</span>
             <span class="n">name</span> <span class="o">=</span> <span class="nb">getattr</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">__spdx3_doc</span><span class="p">,</span> <span class="s2">&quot;name&quot;</span><span class="p">,</span> <span class="s2">&quot;&quot;</span><span class="p">)</span>
 
         <span class="k">return</span> <span class="n">name</span></div>
 
 
+    <span class="c1"># pylint: disable=too-many-branches</span>
+    <span class="c1"># pylint: disable=too-many-return-statements</span>
 <div class="viewcode-block" id="BaseChecker.get_components_without_concluded_licenses">
 <a class="viewcode-back" href="../../ntia_conformance_checker.html#ntia_conformance_checker.base_checker.BaseChecker.get_components_without_concluded_licenses">[docs]</a>
     <span class="k">def</span><span class="w"> </span><span class="nf">get_components_without_concluded_licenses</span><span class="p">(</span>
@@ -449,10 +547,46 @@
             <span class="k">return</span> <span class="n">components_name</span>
 
         <span class="c1"># SPDX 3</span>
-        <span class="c1"># Add code to retrieve components without concluded licenses for SPDX 3 here</span>
+        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">sbom_spec</span> <span class="o">==</span> <span class="s2">&quot;spdx3&quot;</span><span class="p">:</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">doc</span> <span class="o">=</span> <span class="n">cast</span><span class="p">(</span><span class="n">spdx3</span><span class="o">.</span><span class="n">SHACLObjectSet</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">doc</span><span class="p">)</span>
+
+            <span class="n">has_concluded_license_ids</span><span class="p">:</span> <span class="n">Set</span><span class="p">[</span><span class="nb">str</span><span class="p">]</span> <span class="o">=</span> <span class="p">{</span>
+                <span class="n">from_id</span>
+                <span class="k">for</span> <span class="n">from_id</span><span class="p">,</span> <span class="n">to_id</span> <span class="ow">in</span> <span class="n">iter_relationships_by_type</span><span class="p">(</span>
+                    <span class="bp">self</span><span class="o">.</span><span class="n">doc</span><span class="p">,</span> <span class="s2">&quot;hasConcludedLicense&quot;</span>
+                <span class="p">)</span>
+                <span class="k">if</span> <span class="n">to_id</span><span class="o">.</span><span class="n">strip</span><span class="p">()</span>
+                <span class="o">!=</span> <span class="n">spdx3</span><span class="o">.</span><span class="n">expandedlicensing_IndividualLicensingInfo</span><span class="o">.</span><span class="n">NAMED_INDIVIDUALS</span><span class="p">[</span>
+                    <span class="s2">&quot;NoAssertionLicense&quot;</span>
+                <span class="p">]</span>
+            <span class="p">}</span>
+
+            <span class="k">if</span> <span class="n">return_tuples</span><span class="p">:</span>
+                <span class="k">return</span> <span class="p">[</span>
+                    <span class="p">(</span><span class="n">name</span><span class="p">,</span> <span class="n">spdx_id</span><span class="p">)</span>
+                    <span class="k">for</span> <span class="n">name</span><span class="p">,</span> <span class="n">spdx_id</span><span class="p">,</span> <span class="n">_</span> <span class="ow">in</span> <span class="n">iter_objects_with_property</span><span class="p">(</span>
+                        <span class="bp">self</span><span class="o">.</span><span class="n">doc</span><span class="p">,</span>
+                        <span class="n">spdx3</span><span class="o">.</span><span class="n">software_Package</span><span class="p">,</span>
+                        <span class="s2">&quot;spdxId&quot;</span><span class="p">,</span>
+                    <span class="p">)</span>
+                    <span class="k">if</span> <span class="n">spdx_id</span> <span class="ow">not</span> <span class="ow">in</span> <span class="n">has_concluded_license_ids</span>
+                <span class="p">]</span>
+
+            <span class="k">return</span> <span class="p">[</span>
+                <span class="n">name</span>
+                <span class="k">for</span> <span class="n">name</span><span class="p">,</span> <span class="n">spdx_id</span><span class="p">,</span> <span class="n">_</span> <span class="ow">in</span> <span class="n">iter_objects_with_property</span><span class="p">(</span>
+                    <span class="bp">self</span><span class="o">.</span><span class="n">doc</span><span class="p">,</span>
+                    <span class="n">spdx3</span><span class="o">.</span><span class="n">software_Package</span><span class="p">,</span>
+                    <span class="s2">&quot;spdxId&quot;</span><span class="p">,</span>
+                <span class="p">)</span>
+                <span class="k">if</span> <span class="n">spdx_id</span> <span class="ow">not</span> <span class="ow">in</span> <span class="n">has_concluded_license_ids</span>
+            <span class="p">]</span>
+
         <span class="k">return</span> <span class="p">[]</span></div>
 
 
+    <span class="c1"># pylint: disable=too-many-branches</span>
+    <span class="c1"># pylint: disable=too-many-return-statements</span>
 <div class="viewcode-block" id="BaseChecker.get_components_without_copyright_texts">
 <a class="viewcode-back" href="../../ntia_conformance_checker.html#ntia_conformance_checker.base_checker.BaseChecker.get_components_without_copyright_texts">[docs]</a>
     <span class="k">def</span><span class="w"> </span><span class="nf">get_components_without_copyright_texts</span><span class="p">(</span>
@@ -509,7 +643,32 @@
             <span class="k">return</span> <span class="n">components_name</span>
 
         <span class="c1"># SPDX 3</span>
-        <span class="c1"># Add code to retrieve components without copyright texts for SPDX 3 here</span>
+        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">sbom_spec</span> <span class="o">==</span> <span class="s2">&quot;spdx3&quot;</span><span class="p">:</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">doc</span> <span class="o">=</span> <span class="n">cast</span><span class="p">(</span><span class="n">spdx3</span><span class="o">.</span><span class="n">SHACLObjectSet</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">doc</span><span class="p">)</span>
+
+            <span class="k">if</span> <span class="n">return_tuples</span><span class="p">:</span>
+                <span class="k">return</span> <span class="p">[</span>
+                    <span class="p">(</span><span class="n">name</span><span class="p">,</span> <span class="n">spdx_id</span><span class="p">)</span>
+                    <span class="k">for</span> <span class="n">name</span><span class="p">,</span> <span class="n">spdx_id</span><span class="p">,</span> <span class="n">copyright_text</span> <span class="ow">in</span> <span class="n">iter_objects_with_property</span><span class="p">(</span>
+                        <span class="bp">self</span><span class="o">.</span><span class="n">doc</span><span class="p">,</span>
+                        <span class="n">spdx3</span><span class="o">.</span><span class="n">software_Package</span><span class="p">,</span>
+                        <span class="s2">&quot;software_copyrightText&quot;</span><span class="p">,</span>
+                    <span class="p">)</span>
+                    <span class="k">if</span> <span class="ow">not</span> <span class="n">copyright_text</span>
+                    <span class="ow">or</span> <span class="p">(</span>
+                        <span class="nb">isinstance</span><span class="p">(</span><span class="n">copyright_text</span><span class="p">,</span> <span class="nb">str</span><span class="p">)</span> <span class="ow">and</span> <span class="n">copyright_text</span><span class="o">.</span><span class="n">strip</span><span class="p">()</span> <span class="o">==</span> <span class="s2">&quot;&quot;</span>
+                    <span class="p">)</span>
+                <span class="p">]</span>
+
+            <span class="k">return</span> <span class="p">[</span>
+                <span class="n">name</span>
+                <span class="k">for</span> <span class="n">name</span><span class="p">,</span> <span class="n">_</span><span class="p">,</span> <span class="n">copyright_text</span> <span class="ow">in</span> <span class="n">iter_objects_with_property</span><span class="p">(</span>
+                    <span class="bp">self</span><span class="o">.</span><span class="n">doc</span><span class="p">,</span> <span class="n">spdx3</span><span class="o">.</span><span class="n">software_Package</span><span class="p">,</span> <span class="s2">&quot;software_copyrightText&quot;</span>
+                <span class="p">)</span>
+                <span class="k">if</span> <span class="ow">not</span> <span class="n">copyright_text</span>
+                <span class="ow">or</span> <span class="p">(</span><span class="nb">isinstance</span><span class="p">(</span><span class="n">copyright_text</span><span class="p">,</span> <span class="nb">str</span><span class="p">)</span> <span class="ow">and</span> <span class="n">copyright_text</span><span class="o">.</span><span class="n">strip</span><span class="p">()</span> <span class="o">==</span> <span class="s2">&quot;&quot;</span><span class="p">)</span>
+            <span class="p">]</span>
+
         <span class="k">return</span> <span class="p">[]</span></div>
 
 
@@ -519,8 +678,13 @@
 <span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">        Retrieve name of components without identifiers.</span>
 
+<span class="sd">        Note that SPDX 3 requires identifiers for all elements,</span>
+<span class="sd">        so this should not happen in a valid SPDX 3 document.</span>
+<span class="sd">        spdx-python-model JSON deserializer will raise a ValueError</span>
+<span class="sd">        if any element is missing an identifier.</span>
+
 <span class="sd">        Returns:</span>
-<span class="sd">            List[str]: A list of component names that do not have identifiers.</span>
+<span class="sd">            List[str]: A list of component names.</span>
 <span class="sd">        &quot;&quot;&quot;</span>
         <span class="k">if</span> <span class="ow">not</span> <span class="bp">self</span><span class="o">.</span><span class="n">doc</span><span class="p">:</span>
             <span class="k">return</span> <span class="p">[]</span>
@@ -535,7 +699,17 @@
             <span class="p">]</span>
 
         <span class="c1"># SPDX 3</span>
-        <span class="c1"># Add code to retrieve components without identifiers for SPDX 3 here</span>
+        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">sbom_spec</span> <span class="o">==</span> <span class="s2">&quot;spdx3&quot;</span><span class="p">:</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">doc</span> <span class="o">=</span> <span class="n">cast</span><span class="p">(</span><span class="n">spdx3</span><span class="o">.</span><span class="n">SHACLObjectSet</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">doc</span><span class="p">)</span>
+
+            <span class="k">return</span> <span class="p">[</span>
+                <span class="n">name</span>
+                <span class="k">for</span> <span class="n">name</span><span class="p">,</span> <span class="n">_</span><span class="p">,</span> <span class="n">spdx_id</span> <span class="ow">in</span> <span class="n">iter_objects_with_property</span><span class="p">(</span>
+                    <span class="bp">self</span><span class="o">.</span><span class="n">doc</span><span class="p">,</span> <span class="n">spdx3</span><span class="o">.</span><span class="n">Element</span><span class="p">,</span> <span class="s2">&quot;spdxId&quot;</span>
+                <span class="p">)</span>
+                <span class="k">if</span> <span class="ow">not</span> <span class="n">spdx_id</span> <span class="ow">or</span> <span class="n">spdx_id</span><span class="o">.</span><span class="n">strip</span><span class="p">()</span> <span class="o">==</span> <span class="s2">&quot;&quot;</span>
+            <span class="p">]</span>
+
         <span class="k">return</span> <span class="p">[]</span></div>
 
 
@@ -545,14 +719,8 @@
 <span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">        Retrieve SPDX ID of components without names.</span>
 
-<span class="sd">        Args:</span>
-<span class="sd">            return_tuples (bool): If True, return a list of tuples with</span>
-<span class="sd">                                  component names and SPDX IDs.</span>
-<span class="sd">                                  If False, return a list of component names.</span>
-
 <span class="sd">        Returns:</span>
-<span class="sd">            Union[List[str], List[Tuple[str, str]]]: A list of component names</span>
-<span class="sd">            or a list of tuples with component names and SPDX IDs.</span>
+<span class="sd">            List[str]: A list of component SPDX IDs.</span>
 <span class="sd">        &quot;&quot;&quot;</span>
         <span class="k">if</span> <span class="ow">not</span> <span class="bp">self</span><span class="o">.</span><span class="n">doc</span><span class="p">:</span>
             <span class="k">return</span> <span class="p">[]</span>
@@ -569,7 +737,17 @@
             <span class="k">return</span> <span class="n">components_without_names</span>
 
         <span class="c1"># SPDX 3</span>
-        <span class="c1"># Add code to retrieve components without names for SPDX 3 here</span>
+        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">sbom_spec</span> <span class="o">==</span> <span class="s2">&quot;spdx3&quot;</span><span class="p">:</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">doc</span> <span class="o">=</span> <span class="n">cast</span><span class="p">(</span><span class="n">spdx3</span><span class="o">.</span><span class="n">SHACLObjectSet</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">doc</span><span class="p">)</span>
+
+            <span class="k">return</span> <span class="p">[</span>
+                <span class="n">spdx_id</span>
+                <span class="k">for</span> <span class="n">_</span><span class="p">,</span> <span class="n">spdx_id</span><span class="p">,</span> <span class="n">name</span> <span class="ow">in</span> <span class="n">iter_objects_with_property</span><span class="p">(</span>
+                    <span class="bp">self</span><span class="o">.</span><span class="n">doc</span><span class="p">,</span> <span class="n">spdx3</span><span class="o">.</span><span class="n">software_Package</span><span class="p">,</span> <span class="s2">&quot;name&quot;</span>
+                <span class="p">)</span>
+                <span class="k">if</span> <span class="ow">not</span> <span class="n">name</span> <span class="ow">or</span> <span class="n">name</span><span class="o">.</span><span class="n">strip</span><span class="p">()</span> <span class="o">==</span> <span class="s2">&quot;&quot;</span>
+            <span class="p">]</span>
+
         <span class="k">return</span> <span class="p">[]</span></div>
 
 
@@ -621,24 +799,24 @@
             <span class="k">return</span> <span class="n">components_name</span>
 
         <span class="c1"># SPDX 3</span>
-        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">sbom_spec</span> <span class="o">==</span> <span class="s2">&quot;spdx3&quot;</span> <span class="ow">and</span> <span class="bp">self</span><span class="o">.</span><span class="n">__spdx3_doc</span><span class="p">:</span>
+        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">sbom_spec</span> <span class="o">==</span> <span class="s2">&quot;spdx3&quot;</span><span class="p">:</span>
             <span class="bp">self</span><span class="o">.</span><span class="n">doc</span> <span class="o">=</span> <span class="n">cast</span><span class="p">(</span><span class="n">spdx3</span><span class="o">.</span><span class="n">SHACLObjectSet</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">doc</span><span class="p">)</span>
 
             <span class="k">if</span> <span class="n">return_tuples</span><span class="p">:</span>
                 <span class="k">return</span> <span class="p">[</span>
                     <span class="p">(</span><span class="n">name</span><span class="p">,</span> <span class="n">spdx_id</span><span class="p">)</span>
-                    <span class="k">for</span> <span class="n">name</span><span class="p">,</span> <span class="n">spdx_id</span><span class="p">,</span> <span class="n">supplier_name</span> <span class="ow">in</span> <span class="n">_iter_spdx3_artifacts</span><span class="p">(</span>
-                        <span class="bp">self</span><span class="o">.</span><span class="n">doc</span><span class="p">,</span> <span class="s2">&quot;suppliedBy&quot;</span>
+                    <span class="k">for</span> <span class="n">name</span><span class="p">,</span> <span class="n">spdx_id</span><span class="p">,</span> <span class="n">supplier</span> <span class="ow">in</span> <span class="n">iter_objects_with_property</span><span class="p">(</span>
+                        <span class="bp">self</span><span class="o">.</span><span class="n">doc</span><span class="p">,</span> <span class="n">spdx3</span><span class="o">.</span><span class="n">software_Package</span><span class="p">,</span> <span class="s2">&quot;suppliedBy&quot;</span>
                     <span class="p">)</span>
-                    <span class="k">if</span> <span class="ow">not</span> <span class="n">supplier_name</span>
+                    <span class="k">if</span> <span class="ow">not</span> <span class="n">supplier</span> <span class="ow">or</span> <span class="ow">not</span> <span class="n">supplier</span><span class="o">.</span><span class="n">name</span> <span class="ow">or</span> <span class="n">supplier</span><span class="o">.</span><span class="n">name</span><span class="o">.</span><span class="n">strip</span><span class="p">()</span> <span class="o">==</span> <span class="s2">&quot;&quot;</span>
                 <span class="p">]</span>
 
             <span class="k">return</span> <span class="p">[</span>
                 <span class="n">name</span>
-                <span class="k">for</span> <span class="n">name</span><span class="p">,</span> <span class="n">_</span><span class="p">,</span> <span class="n">supplier_name</span> <span class="ow">in</span> <span class="n">_iter_spdx3_artifacts</span><span class="p">(</span>
-                    <span class="bp">self</span><span class="o">.</span><span class="n">doc</span><span class="p">,</span> <span class="s2">&quot;suppliedBy&quot;</span>
+                <span class="k">for</span> <span class="n">name</span><span class="p">,</span> <span class="n">_</span><span class="p">,</span> <span class="n">supplier</span> <span class="ow">in</span> <span class="n">iter_objects_with_property</span><span class="p">(</span>
+                    <span class="bp">self</span><span class="o">.</span><span class="n">doc</span><span class="p">,</span> <span class="n">spdx3</span><span class="o">.</span><span class="n">software_Package</span><span class="p">,</span> <span class="s2">&quot;suppliedBy&quot;</span>
                 <span class="p">)</span>
-                <span class="k">if</span> <span class="ow">not</span> <span class="n">supplier_name</span>
+                <span class="k">if</span> <span class="ow">not</span> <span class="n">supplier</span> <span class="ow">or</span> <span class="ow">not</span> <span class="n">supplier</span><span class="o">.</span><span class="n">name</span> <span class="ow">or</span> <span class="n">supplier</span><span class="o">.</span><span class="n">name</span><span class="o">.</span><span class="n">strip</span><span class="p">()</span> <span class="o">==</span> <span class="s2">&quot;&quot;</span>
             <span class="p">]</span>
 
         <span class="k">return</span> <span class="p">[]</span></div>
@@ -684,7 +862,26 @@
             <span class="k">return</span> <span class="n">components_name</span>
 
         <span class="c1"># SPDX 3</span>
-        <span class="c1"># Add code to retrieve components without versions for SPDX 3 here</span>
+        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">sbom_spec</span> <span class="o">==</span> <span class="s2">&quot;spdx3&quot;</span><span class="p">:</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">doc</span> <span class="o">=</span> <span class="n">cast</span><span class="p">(</span><span class="n">spdx3</span><span class="o">.</span><span class="n">SHACLObjectSet</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">doc</span><span class="p">)</span>
+
+            <span class="k">if</span> <span class="n">return_tuples</span><span class="p">:</span>
+                <span class="k">return</span> <span class="p">[</span>
+                    <span class="p">(</span><span class="n">name</span><span class="p">,</span> <span class="n">spdx_id</span><span class="p">)</span>
+                    <span class="k">for</span> <span class="n">name</span><span class="p">,</span> <span class="n">spdx_id</span><span class="p">,</span> <span class="n">package_version</span> <span class="ow">in</span> <span class="n">iter_objects_with_property</span><span class="p">(</span>
+                        <span class="bp">self</span><span class="o">.</span><span class="n">doc</span><span class="p">,</span> <span class="n">spdx3</span><span class="o">.</span><span class="n">software_Package</span><span class="p">,</span> <span class="s2">&quot;software_packageVersion&quot;</span>
+                    <span class="p">)</span>
+                    <span class="k">if</span> <span class="ow">not</span> <span class="n">package_version</span> <span class="ow">or</span> <span class="n">package_version</span><span class="o">.</span><span class="n">strip</span><span class="p">()</span> <span class="o">==</span> <span class="s2">&quot;&quot;</span>
+                <span class="p">]</span>
+
+            <span class="k">return</span> <span class="p">[</span>
+                <span class="n">name</span>
+                <span class="k">for</span> <span class="n">name</span><span class="p">,</span> <span class="n">_</span><span class="p">,</span> <span class="n">package_version</span> <span class="ow">in</span> <span class="n">iter_objects_with_property</span><span class="p">(</span>
+                    <span class="bp">self</span><span class="o">.</span><span class="n">doc</span><span class="p">,</span> <span class="n">spdx3</span><span class="o">.</span><span class="n">software_Package</span><span class="p">,</span> <span class="s2">&quot;software_packageVersion&quot;</span>
+                <span class="p">)</span>
+                <span class="k">if</span> <span class="ow">not</span> <span class="n">package_version</span> <span class="ow">or</span> <span class="n">package_version</span><span class="o">.</span><span class="n">strip</span><span class="p">()</span> <span class="o">==</span> <span class="s2">&quot;&quot;</span>
+            <span class="p">]</span>
+
         <span class="k">return</span> <span class="p">[]</span></div>
 
 
@@ -708,7 +905,11 @@
             <span class="k">return</span> <span class="nb">len</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">doc</span><span class="o">.</span><span class="n">packages</span><span class="p">)</span>
 
         <span class="c1"># SPDX 3</span>
-        <span class="c1"># Add code to retrieve total number of components for SPDX 3 here</span>
+        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">sbom_spec</span> <span class="o">==</span> <span class="s2">&quot;spdx3&quot;</span><span class="p">:</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">doc</span> <span class="o">=</span> <span class="n">cast</span><span class="p">(</span><span class="n">spdx3</span><span class="o">.</span><span class="n">SHACLObjectSet</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">doc</span><span class="p">)</span>
+            <span class="n">objects</span><span class="p">:</span> <span class="n">Set</span><span class="p">[</span><span class="n">spdx3</span><span class="o">.</span><span class="n">SHACLObject</span><span class="p">]</span> <span class="o">=</span> <span class="nb">getattr</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">doc</span><span class="p">,</span> <span class="s2">&quot;objects&quot;</span><span class="p">,</span> <span class="nb">set</span><span class="p">())</span>
+            <span class="k">return</span> <span class="nb">len</span><span class="p">(</span><span class="n">objects</span><span class="p">)</span>
+
         <span class="k">return</span> <span class="mi">0</span></div>
 
 
@@ -769,102 +970,6 @@
         <span class="k">return</span> <span class="n">object_set</span></div>
 </div>
 
-
-
-<span class="c1"># Static functions outside the class</span>
-
-
-<div class="viewcode-block" id="validate_spdx3_document">
-<a class="viewcode-back" href="../../ntia_conformance_checker.html#ntia_conformance_checker.base_checker.validate_spdx3_document">[docs]</a>
-<span class="k">def</span><span class="w"> </span><span class="nf">validate_spdx3_document</span><span class="p">(</span>
-    <span class="n">object_set</span><span class="p">:</span> <span class="n">spdx3</span><span class="o">.</span><span class="n">SHACLObjectSet</span><span class="p">,</span>
-<span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Tuple</span><span class="p">[</span><span class="n">Optional</span><span class="p">[</span><span class="n">spdx3</span><span class="o">.</span><span class="n">SpdxDocument</span><span class="p">],</span> <span class="n">List</span><span class="p">[</span><span class="n">ValidationMessage</span><span class="p">]]:</span>
-<span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
-<span class="sd">    Validate an SHACLObjectSet if it contains a valid SpdxDocument.</span>
-
-<span class="sd">    The SPDX 3.0 specification states that &quot;Any instance of serialization of</span>
-<span class="sd">    SPDX data MUST NOT contain more than one SpdxDocument element definition.&quot;</span>
-
-<span class="sd">    See: https://spdx.github.io/spdx-spec/v3.0/model/Core/Classes/SpdxDocument/</span>
-
-<span class="sd">    For the purpose of BOM/SBOM application, it also requires that the</span>
-<span class="sd">    SpdxDocument should have a Bom or Software/Sbom as its rootElement.</span>
-
-<span class="sd">    See: https://github.com/spdx/ntia-conformance-checker/issues/268</span>
-
-<span class="sd">    Args:</span>
-<span class="sd">        object_set (spdx3.SHACLObjectSet): The SHACLObjectSet containing</span>
-<span class="sd">                                            the SPDX 3 document.</span>
-<span class="sd">    Returns:</span>
-<span class="sd">        Optional[spdx3.SpdxDocument]: An SpdxDocument if found, otherwise None.</span>
-<span class="sd">        List[ValidationMessage]: A list of validation messages. Empty if no errors.</span>
-
-<span class="sd">    &quot;&quot;&quot;</span>
-    <span class="c1"># Note that we use spdx_tools.spdx.validation.validation_message,</span>
-    <span class="c1"># which is originally meant for SPDX 2, to report validation errors for</span>
-    <span class="c1"># SPDX 3 as well, so the print/HTML/JSON output functions can be reused.</span>
-
-    <span class="n">doc</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="n">spdx3</span><span class="o">.</span><span class="n">SpdxDocument</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span>
-    <span class="n">validation_messages</span><span class="p">:</span> <span class="n">List</span><span class="p">[</span><span class="n">ValidationMessage</span><span class="p">]</span> <span class="o">=</span> <span class="p">[]</span>
-
-    <span class="n">spdx_documents</span><span class="p">:</span> <span class="n">List</span><span class="p">[</span><span class="n">spdx3</span><span class="o">.</span><span class="n">SpdxDocument</span><span class="p">]</span> <span class="o">=</span> <span class="nb">list</span><span class="p">(</span>
-        <span class="n">object_set</span><span class="o">.</span><span class="n">foreach_type</span><span class="p">(</span><span class="n">spdx3</span><span class="o">.</span><span class="n">SpdxDocument</span><span class="p">)</span>
-    <span class="p">)</span>
-
-    <span class="k">if</span> <span class="ow">not</span> <span class="n">spdx_documents</span><span class="p">:</span>
-        <span class="n">error_msg</span> <span class="o">=</span> <span class="p">(</span>
-            <span class="s2">&quot;No SpdxDocument object found in the SPDX 3 JSON file. &quot;</span>
-            <span class="s2">&quot;Expected exactly one.&quot;</span>
-        <span class="p">)</span>
-        <span class="n">validation_messages</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">ValidationMessage</span><span class="p">(</span><span class="n">error_msg</span><span class="p">,</span> <span class="n">ValidationContext</span><span class="p">()))</span>
-        <span class="k">return</span> <span class="p">(</span><span class="n">doc</span><span class="p">,</span> <span class="n">validation_messages</span><span class="p">)</span>
-
-    <span class="k">if</span> <span class="nb">len</span><span class="p">(</span><span class="n">spdx_documents</span><span class="p">)</span> <span class="o">!=</span> <span class="mi">1</span><span class="p">:</span>
-        <span class="n">error_msg</span> <span class="o">=</span> <span class="s2">&quot;Multiple SpdxDocument objects found. Allows exactly one.&quot;</span>
-        <span class="n">validation_messages</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">ValidationMessage</span><span class="p">(</span><span class="n">error_msg</span><span class="p">,</span> <span class="n">ValidationContext</span><span class="p">()))</span>
-        <span class="k">return</span> <span class="p">(</span><span class="n">doc</span><span class="p">,</span> <span class="n">validation_messages</span><span class="p">)</span>
-
-    <span class="n">doc</span> <span class="o">=</span> <span class="n">spdx_documents</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span>
-    <span class="n">doc_id</span> <span class="o">=</span> <span class="nb">getattr</span><span class="p">(</span><span class="n">doc</span><span class="p">,</span> <span class="s2">&quot;spdxId&quot;</span><span class="p">,</span> <span class="kc">None</span><span class="p">)</span>
-    <span class="n">root_element</span> <span class="o">=</span> <span class="nb">getattr</span><span class="p">(</span><span class="n">doc</span><span class="p">,</span> <span class="s2">&quot;rootElement&quot;</span><span class="p">,</span> <span class="kc">None</span><span class="p">)</span>
-
-    <span class="k">if</span> <span class="ow">not</span> <span class="n">root_element</span><span class="p">:</span>
-        <span class="n">error_msg</span> <span class="o">=</span> <span class="s2">&quot;No rootElement found in the SpdxDocument. Expected exactly one.&quot;</span>
-        <span class="n">context</span> <span class="o">=</span> <span class="n">ValidationContext</span><span class="p">(</span><span class="n">parent_id</span><span class="o">=</span><span class="n">doc_id</span><span class="p">)</span>
-        <span class="n">validation_messages</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">ValidationMessage</span><span class="p">(</span><span class="n">error_msg</span><span class="p">,</span> <span class="n">context</span><span class="p">))</span>
-    <span class="k">elif</span> <span class="nb">len</span><span class="p">(</span><span class="n">root_element</span><span class="p">)</span> <span class="o">!=</span> <span class="mi">1</span><span class="p">:</span>
-        <span class="n">error_msg</span> <span class="o">=</span> <span class="s2">&quot;Multiple root elements found in SpdxDocument. Allows exactly one.&quot;</span>
-        <span class="n">context</span> <span class="o">=</span> <span class="n">ValidationContext</span><span class="p">(</span><span class="n">parent_id</span><span class="o">=</span><span class="n">doc_id</span><span class="p">)</span>
-        <span class="n">validation_messages</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">ValidationMessage</span><span class="p">(</span><span class="n">error_msg</span><span class="p">,</span> <span class="n">context</span><span class="p">))</span>
-    <span class="k">else</span><span class="p">:</span>
-        <span class="n">root_element</span> <span class="o">=</span> <span class="n">root_element</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span>
-        <span class="k">if</span> <span class="ow">not</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">root_element</span><span class="p">,</span> <span class="p">(</span><span class="n">spdx3</span><span class="o">.</span><span class="n">Bom</span><span class="p">,</span> <span class="n">spdx3</span><span class="o">.</span><span class="n">software_Sbom</span><span class="p">)):</span>
-            <span class="n">error_msg</span> <span class="o">=</span> <span class="p">(</span>
-                <span class="s2">&quot;The root element must be of type Bom or software_Sbom. &quot;</span>
-                <span class="sa">f</span><span class="s2">&quot;Found: </span><span class="si">{</span><span class="nb">type</span><span class="p">(</span><span class="n">root_element</span><span class="p">)</span><span class="si">}</span><span class="s2">&quot;</span>
-            <span class="p">)</span>
-            <span class="n">root_element_id</span> <span class="o">=</span> <span class="nb">getattr</span><span class="p">(</span><span class="n">root_element</span><span class="p">,</span> <span class="s2">&quot;spdxId&quot;</span><span class="p">,</span> <span class="kc">None</span><span class="p">)</span>
-            <span class="n">context</span> <span class="o">=</span> <span class="n">ValidationContext</span><span class="p">(</span><span class="n">parent_id</span><span class="o">=</span><span class="n">doc_id</span><span class="p">,</span> <span class="n">spdx_id</span><span class="o">=</span><span class="n">root_element_id</span><span class="p">)</span>
-            <span class="n">validation_messages</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">ValidationMessage</span><span class="p">(</span><span class="n">error_msg</span><span class="p">,</span> <span class="n">context</span><span class="p">))</span>
-
-    <span class="k">return</span> <span class="p">(</span><span class="n">doc</span><span class="p">,</span> <span class="n">validation_messages</span><span class="p">)</span></div>
-
-
-
-<span class="k">def</span><span class="w"> </span><span class="nf">_iter_spdx3_artifacts</span><span class="p">(</span>
-    <span class="n">object_set</span><span class="p">:</span> <span class="n">spdx3</span><span class="o">.</span><span class="n">SHACLObjectSet</span><span class="p">,</span> <span class="n">property_name</span><span class="p">:</span> <span class="nb">str</span>
-<span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Iterator</span><span class="p">[</span><span class="n">Tuple</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="nb">str</span><span class="p">,</span> <span class="nb">str</span><span class="p">]]:</span>
-<span class="w">    </span><span class="sd">&quot;&quot;&quot;Yield (name, spdxId, supplier_name) for each SPDX3 Artifact.&quot;&quot;&quot;</span>
-
-    <span class="k">for</span> <span class="n">obj</span> <span class="ow">in</span> <span class="n">object_set</span><span class="o">.</span><span class="n">foreach_type</span><span class="p">(</span><span class="n">spdx3</span><span class="o">.</span><span class="n">Artifact</span><span class="p">):</span>
-        <span class="n">obj</span> <span class="o">=</span> <span class="n">cast</span><span class="p">(</span><span class="n">spdx3</span><span class="o">.</span><span class="n">Artifact</span><span class="p">,</span> <span class="n">obj</span><span class="p">)</span>
-        <span class="n">name</span> <span class="o">=</span> <span class="p">(</span><span class="nb">getattr</span><span class="p">(</span><span class="n">obj</span><span class="p">,</span> <span class="s2">&quot;name&quot;</span><span class="p">,</span> <span class="s2">&quot;&quot;</span><span class="p">)</span> <span class="ow">or</span> <span class="s2">&quot;&quot;</span><span class="p">)</span><span class="o">.</span><span class="n">strip</span><span class="p">()</span>
-        <span class="n">spdx_id</span> <span class="o">=</span> <span class="p">(</span><span class="nb">getattr</span><span class="p">(</span><span class="n">obj</span><span class="p">,</span> <span class="s2">&quot;spdxId&quot;</span><span class="p">,</span> <span class="s2">&quot;&quot;</span><span class="p">)</span> <span class="ow">or</span> <span class="s2">&quot;&quot;</span><span class="p">)</span><span class="o">.</span><span class="n">strip</span><span class="p">()</span>
-        <span class="n">supplier</span> <span class="o">=</span> <span class="nb">getattr</span><span class="p">(</span><span class="n">obj</span><span class="p">,</span> <span class="n">property_name</span><span class="p">,</span> <span class="kc">None</span><span class="p">)</span>
-        <span class="n">supplier_name</span> <span class="o">=</span> <span class="p">(</span>
-            <span class="p">(</span><span class="nb">getattr</span><span class="p">(</span><span class="n">supplier</span><span class="p">,</span> <span class="s2">&quot;name&quot;</span><span class="p">,</span> <span class="s2">&quot;&quot;</span><span class="p">)</span> <span class="ow">or</span> <span class="s2">&quot;&quot;</span><span class="p">)</span><span class="o">.</span><span class="n">strip</span><span class="p">()</span> <span class="k">if</span> <span class="n">supplier</span> <span class="k">else</span> <span class="s2">&quot;&quot;</span>
-        <span class="p">)</span>
-        <span class="k">yield</span> <span class="n">name</span><span class="p">,</span> <span class="n">spdx_id</span><span class="p">,</span> <span class="n">supplier_name</span>
 </pre></div>
 
            </div>

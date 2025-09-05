@@ -48,7 +48,6 @@
 <li class="toctree-l3"><a class="reference internal" href="#submodules">Submodules</a></li>
 <li class="toctree-l3"><a class="reference internal" href="#module-ntia_conformance_checker.base_checker">ntia_conformance_checker.base_checker module</a><ul>
 <li class="toctree-l4"><a class="reference internal" href="#ntia_conformance_checker.base_checker.BaseChecker"><code class="docutils literal notranslate"><span class="pre">BaseChecker</span></code></a></li>
-<li class="toctree-l4"><a class="reference internal" href="#ntia_conformance_checker.base_checker.validate_spdx3_document"><code class="docutils literal notranslate"><span class="pre">validate_spdx3_document()</span></code></a></li>
 </ul>
 </li>
 <li class="toctree-l3"><a class="reference internal" href="#module-ntia_conformance_checker.cli_utils">ntia_conformance_checker.cli_utils module</a><ul>
@@ -70,6 +69,15 @@
 </li>
 <li class="toctree-l3"><a class="reference internal" href="#module-ntia_conformance_checker.sbom_checker">ntia_conformance_checker.sbom_checker module</a><ul>
 <li class="toctree-l4"><a class="reference internal" href="#ntia_conformance_checker.sbom_checker.SbomChecker"><code class="docutils literal notranslate"><span class="pre">SbomChecker</span></code></a></li>
+</ul>
+</li>
+<li class="toctree-l3"><a class="reference internal" href="#module-ntia_conformance_checker.spdx3_utils">ntia_conformance_checker.spdx3_utils module</a><ul>
+<li class="toctree-l4"><a class="reference internal" href="#ntia_conformance_checker.spdx3_utils.get_all_packages"><code class="docutils literal notranslate"><span class="pre">get_all_packages()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="#ntia_conformance_checker.spdx3_utils.get_boms_from_spdx_document"><code class="docutils literal notranslate"><span class="pre">get_boms_from_spdx_document()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="#ntia_conformance_checker.spdx3_utils.get_packages_from_bom"><code class="docutils literal notranslate"><span class="pre">get_packages_from_bom()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="#ntia_conformance_checker.spdx3_utils.iter_objects_with_property"><code class="docutils literal notranslate"><span class="pre">iter_objects_with_property()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="#ntia_conformance_checker.spdx3_utils.iter_relationships_by_type"><code class="docutils literal notranslate"><span class="pre">iter_relationships_by_type()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="#ntia_conformance_checker.spdx3_utils.validate_spdx3_data"><code class="docutils literal notranslate"><span class="pre">validate_spdx3_data()</span></code></a></li>
 </ul>
 </li>
 <li class="toctree-l3"><a class="reference internal" href="#module-ntia_conformance_checker">Module contents</a><ul>
@@ -123,10 +131,16 @@
 <em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">ntia_conformance_checker.base_checker.</span></span><span class="sig-name descname"><span class="pre">BaseChecker</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">file</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">validate</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">bool</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">True</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">compliance</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">''</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">sbom_spec</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">'spdx2'</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/ntia_conformance_checker/base_checker.html#BaseChecker"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#ntia_conformance_checker.base_checker.BaseChecker" title="Link to this definition"></a></dt>
 <dd><p>Bases: <code class="xref py py-class docutils literal notranslate"><span class="pre">ABC</span></code></p>
 <p>Base class for all compliance/conformance checkers.</p>
-<p>This base class contains methods for common tasks like file loading
-and parsing.</p>
+<p>This base class contains methods for common tasks like file parsing
+and information extractions from the SBOM.</p>
 <p>Any class inheriting from BaseChecker must implement its abstract methods,
 such as <cite>check_compliance</cite> and <cite>output_json</cite>.</p>
+<dl class="py method">
+<dt class="sig sig-object py" id="ntia_conformance_checker.base_checker.BaseChecker.check_author">
+<span class="sig-name descname"><span class="pre">check_author</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">bool</span></span></span><a class="reference internal" href="_modules/ntia_conformance_checker/base_checker.html#BaseChecker.check_author"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#ntia_conformance_checker.base_checker.BaseChecker.check_author" title="Link to this definition"></a></dt>
+<dd><p>Check if the author of SBOM data exists.</p>
+</dd></dl>
+
 <dl class="py method">
 <dt class="sig sig-object py" id="ntia_conformance_checker.base_checker.BaseChecker.check_compliance">
 <em class="property"><span class="pre">abstract</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">check_compliance</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">bool</span></span></span><a class="reference internal" href="_modules/ntia_conformance_checker/base_checker.html#BaseChecker.check_compliance"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#ntia_conformance_checker.base_checker.BaseChecker.check_compliance" title="Link to this definition"></a></dt>
@@ -143,6 +157,12 @@ such as <cite>check_compliance</cite> and <cite>output_json</cite>.</p>
 <dt class="sig sig-object py" id="ntia_conformance_checker.base_checker.BaseChecker.check_doc_version">
 <span class="sig-name descname"><span class="pre">check_doc_version</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">bool</span></span></span><a class="reference internal" href="_modules/ntia_conformance_checker/base_checker.html#BaseChecker.check_doc_version"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#ntia_conformance_checker.base_checker.BaseChecker.check_doc_version" title="Link to this definition"></a></dt>
 <dd><p>Check if the document’s specification version exists.</p>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="ntia_conformance_checker.base_checker.BaseChecker.check_timestamp">
+<span class="sig-name descname"><span class="pre">check_timestamp</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">bool</span></span></span><a class="reference internal" href="_modules/ntia_conformance_checker/base_checker.html#BaseChecker.check_timestamp"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#ntia_conformance_checker.base_checker.BaseChecker.check_timestamp" title="Link to this definition"></a></dt>
+<dd><p>Check if the SBOM creation timestamp exists.</p>
 </dd></dl>
 
 <dl class="py attribute">
@@ -259,9 +279,13 @@ or a list of tuples with component names and SPDX IDs.</p>
 <dt class="sig sig-object py" id="ntia_conformance_checker.base_checker.BaseChecker.get_components_without_identifiers">
 <span class="sig-name descname"><span class="pre">get_components_without_identifiers</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">List</span><span class="p"><span class="pre">[</span></span><span class="pre">str</span><span class="p"><span class="pre">]</span></span></span></span><a class="reference internal" href="_modules/ntia_conformance_checker/base_checker.html#BaseChecker.get_components_without_identifiers"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#ntia_conformance_checker.base_checker.BaseChecker.get_components_without_identifiers" title="Link to this definition"></a></dt>
 <dd><p>Retrieve name of components without identifiers.</p>
+<p>Note that SPDX 3 requires identifiers for all elements,
+so this should not happen in a valid SPDX 3 document.
+spdx-python-model JSON deserializer will raise a ValueError
+if any element is missing an identifier.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Returns<span class="colon">:</span></dt>
-<dd class="field-odd"><p>A list of component names that do not have identifiers.</p>
+<dd class="field-odd"><p>A list of component names.</p>
 </dd>
 <dt class="field-even">Return type<span class="colon">:</span></dt>
 <dd class="field-even"><p>List[str]</p>
@@ -274,17 +298,11 @@ or a list of tuples with component names and SPDX IDs.</p>
 <span class="sig-name descname"><span class="pre">get_components_without_names</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">List</span><span class="p"><span class="pre">[</span></span><span class="pre">str</span><span class="p"><span class="pre">]</span></span></span></span><a class="reference internal" href="_modules/ntia_conformance_checker/base_checker.html#BaseChecker.get_components_without_names"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#ntia_conformance_checker.base_checker.BaseChecker.get_components_without_names" title="Link to this definition"></a></dt>
 <dd><p>Retrieve SPDX ID of components without names.</p>
 <dl class="field-list simple">
-<dt class="field-odd">Parameters<span class="colon">:</span></dt>
-<dd class="field-odd"><p><strong>return_tuples</strong> (<em>bool</em>) – If True, return a list of tuples with
-component names and SPDX IDs.
-If False, return a list of component names.</p>
+<dt class="field-odd">Returns<span class="colon">:</span></dt>
+<dd class="field-odd"><p>A list of component SPDX IDs.</p>
 </dd>
-<dt class="field-even">Returns<span class="colon">:</span></dt>
-<dd class="field-even"><p>A list of component names
-or a list of tuples with component names and SPDX IDs.</p>
-</dd>
-<dt class="field-odd">Return type<span class="colon">:</span></dt>
-<dd class="field-odd"><p>Union[List[str], List[Tuple[str, str]]]</p>
+<dt class="field-even">Return type<span class="colon">:</span></dt>
+<dd class="field-even"><p>List[str]</p>
 </dd>
 </dl>
 </dd></dl>
@@ -450,31 +468,6 @@ and the method that implements this abstract method.</p>
 
 </dd></dl>
 
-<dl class="py function">
-<dt class="sig sig-object py" id="ntia_conformance_checker.base_checker.validate_spdx3_document">
-<span class="sig-prename descclassname"><span class="pre">ntia_conformance_checker.base_checker.</span></span><span class="sig-name descname"><span class="pre">validate_spdx3_document</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">object_set</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">SHACLObjectSet</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">Tuple</span><span class="p"><span class="pre">[</span></span><span class="pre">SpdxDocument</span><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><span class="pre">None</span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="pre">List</span><span class="p"><span class="pre">[</span></span><span class="pre">ValidationMessage</span><span class="p"><span class="pre">]</span></span><span class="p"><span class="pre">]</span></span></span></span><a class="reference internal" href="_modules/ntia_conformance_checker/base_checker.html#validate_spdx3_document"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#ntia_conformance_checker.base_checker.validate_spdx3_document" title="Link to this definition"></a></dt>
-<dd><p>Validate an SHACLObjectSet if it contains a valid SpdxDocument.</p>
-<p>The SPDX 3.0 specification states that “Any instance of serialization of
-SPDX data MUST NOT contain more than one SpdxDocument element definition.”</p>
-<p>See: <a class="reference external" href="https://spdx.github.io/spdx-spec/v3.0/model/Core/Classes/SpdxDocument/">https://spdx.github.io/spdx-spec/v3.0/model/Core/Classes/SpdxDocument/</a></p>
-<p>For the purpose of BOM/SBOM application, it also requires that the
-SpdxDocument should have a Bom or Software/Sbom as its rootElement.</p>
-<p>See: <a class="reference external" href="https://github.com/spdx/ntia-conformance-checker/issues/268">https://github.com/spdx/ntia-conformance-checker/issues/268</a></p>
-<dl class="field-list simple">
-<dt class="field-odd">Parameters<span class="colon">:</span></dt>
-<dd class="field-odd"><p><strong>object_set</strong> (<em>spdx3.SHACLObjectSet</em>) – The SHACLObjectSet containing
-the SPDX 3 document.</p>
-</dd>
-<dt class="field-even">Returns<span class="colon">:</span></dt>
-<dd class="field-even"><p>An SpdxDocument if found, otherwise None.
-List[ValidationMessage]: A list of validation messages. Empty if no errors.</p>
-</dd>
-<dt class="field-odd">Return type<span class="colon">:</span></dt>
-<dd class="field-odd"><p>Optional[spdx3.SpdxDocument]</p>
-</dd>
-</dl>
-</dd></dl>
-
 </section>
 <section id="module-ntia_conformance_checker.cli_utils">
 <span id="ntia-conformance-checker-cli-utils-module"></span><h2>ntia_conformance_checker.cli_utils module<a class="headerlink" href="#module-ntia_conformance_checker.cli_utils" title="Link to this heading"></a></h2>
@@ -487,7 +480,7 @@ List[ValidationMessage]: A list of validation messages. Empty if no errors.</p>
 
 <dl class="py function">
 <dt class="sig sig-object py" id="ntia_conformance_checker.cli_utils.get_spdx_version">
-<span class="sig-prename descclassname"><span class="pre">ntia_conformance_checker.cli_utils.</span></span><span class="sig-name descname"><span class="pre">get_spdx_version</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">file</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">sbom_spec</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">'spdx2'</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">Tuple</span><span class="p"><span class="pre">[</span></span><span class="pre">int</span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="pre">int</span><span class="p"><span class="pre">]</span></span><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><span class="pre">None</span></span></span><a class="reference internal" href="_modules/ntia_conformance_checker/cli_utils.html#get_spdx_version"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#ntia_conformance_checker.cli_utils.get_spdx_version" title="Link to this definition"></a></dt>
+<span class="sig-prename descclassname"><span class="pre">ntia_conformance_checker.cli_utils.</span></span><span class="sig-name descname"><span class="pre">get_spdx_version</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">file</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">sbom_spec</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">'spdx2'</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">Tuple</span><span class="p"><span class="pre">[</span></span><span class="pre">int</span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="pre">int</span><span class="p"><span class="pre">]</span></span><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><span class="pre">None</span></span></span><a class="reference internal" href="_modules/ntia_conformance_checker/cli_utils.html#get_spdx_version"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#ntia_conformance_checker.cli_utils.get_spdx_version" title="Link to this definition"></a></dt>
 <dd><p>Detect the SPDX version of the SBOM file.</p>
 <p>XLS file format is not supported.</p>
 <dl class="field-list simple">
@@ -518,8 +511,10 @@ Establishing a Common Software Bill of Materials (SBOM) Third Edition.</p>
 <p>There are three maturity levels (Minimum Expected, Recommended Practice,
 and Aspirational Goal) for content provided in Attribute entries.</p>
 <p>This checker currently only checks for Minimum Expected maturity level.</p>
-<p>See:
-<a class="reference external" href="https://www.cisa.gov/resources-tools/resources/framing-software-component-transparency-2024">https://www.cisa.gov/resources-tools/resources/framing-software-component-transparency-2024</a></p>
+<dl class="simple">
+<dt>See:</dt><dd><p><a class="reference external" href="https://www.cisa.gov/resources-tools/resources/framing-software-component-transparency-2024">https://www.cisa.gov/resources-tools/resources/framing-software-component-transparency-2024</a></p>
+</dd>
+</dl>
 <dl class="py method">
 <dt class="sig sig-object py" id="ntia_conformance_checker.fsct_checker.FSCT3Checker.check_compliance">
 <span class="sig-name descname"><span class="pre">check_compliance</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">bool</span></span></span><a class="reference internal" href="_modules/ntia_conformance_checker/fsct_checker.html#FSCT3Checker.check_compliance"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#ntia_conformance_checker.fsct_checker.FSCT3Checker.check_compliance" title="Link to this definition"></a></dt>
@@ -571,6 +566,10 @@ and Aspirational Goal) for content provided in Attribute entries.</p>
 <em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">ntia_conformance_checker.ntia_checker.</span></span><span class="sig-name descname"><span class="pre">NTIAChecker</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">file</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">validate</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">bool</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">True</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">compliance</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">'ntia'</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">sbom_spec</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">'spdx2'</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/ntia_conformance_checker/ntia_checker.html#NTIAChecker"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#ntia_conformance_checker.ntia_checker.NTIAChecker" title="Link to this definition"></a></dt>
 <dd><p>Bases: <a class="reference internal" href="#ntia_conformance_checker.base_checker.BaseChecker" title="ntia_conformance_checker.base_checker.BaseChecker"><code class="xref py py-class docutils literal notranslate"><span class="pre">BaseChecker</span></code></a></p>
 <p>NTIA Minimum Elements check.</p>
+<dl class="simple">
+<dt>See:</dt><dd><p><a class="reference external" href="https://www.ntia.gov/report/2021/minimum-elements-software-bill-materials-sbom">https://www.ntia.gov/report/2021/minimum-elements-software-bill-materials-sbom</a></p>
+</dd>
+</dl>
 <dl class="py method">
 <dt class="sig sig-object py" id="ntia_conformance_checker.ntia_checker.NTIAChecker.check_compliance">
 <span class="sig-name descname"><span class="pre">check_compliance</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">bool</span></span></span><a class="reference internal" href="_modules/ntia_conformance_checker/ntia_checker.html#NTIAChecker.check_compliance"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#ntia_conformance_checker.ntia_checker.NTIAChecker.check_compliance" title="Link to this definition"></a></dt>
@@ -679,6 +678,100 @@ and the method that implements this abstract method.</p>
 </dd></dl>
 
 </section>
+<section id="module-ntia_conformance_checker.spdx3_utils">
+<span id="ntia-conformance-checker-spdx3-utils-module"></span><h2>ntia_conformance_checker.spdx3_utils module<a class="headerlink" href="#module-ntia_conformance_checker.spdx3_utils" title="Link to this heading"></a></h2>
+<p>Helpers for SPDX 3.</p>
+<dl class="py function">
+<dt class="sig sig-object py" id="ntia_conformance_checker.spdx3_utils.get_all_packages">
+<span class="sig-prename descclassname"><span class="pre">ntia_conformance_checker.spdx3_utils.</span></span><span class="sig-name descname"><span class="pre">get_all_packages</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">object_set</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">SHACLObjectSet</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">Set</span><span class="p"><span class="pre">[</span></span><span class="pre">software_Package</span><span class="p"><span class="pre">]</span></span></span></span><a class="reference internal" href="_modules/ntia_conformance_checker/spdx3_utils.html#get_all_packages"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#ntia_conformance_checker.spdx3_utils.get_all_packages" title="Link to this definition"></a></dt>
+<dd><p>Retrieve all /Software/Package objects from an SHACLObjectSet.</p>
+</dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="ntia_conformance_checker.spdx3_utils.get_boms_from_spdx_document">
+<span class="sig-prename descclassname"><span class="pre">ntia_conformance_checker.spdx3_utils.</span></span><span class="sig-name descname"><span class="pre">get_boms_from_spdx_document</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">spdx_doc</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">SpdxDocument</span><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><span class="pre">None</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">List</span><span class="p"><span class="pre">[</span></span><span class="pre">Bom</span><span class="p"><span class="pre">]</span></span><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><span class="pre">None</span></span></span><a class="reference internal" href="_modules/ntia_conformance_checker/spdx3_utils.html#get_boms_from_spdx_document"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#ntia_conformance_checker.spdx3_utils.get_boms_from_spdx_document" title="Link to this definition"></a></dt>
+<dd><p>Retrieve the BOMs that are rootElements of an SPDX 3 SpdxDocument.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><p><strong>spdx_doc</strong> (<em>spdx3.SpdxDocument</em>) – The SPDX 3 SpdxDocument.</p>
+</dd>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
+<dd class="field-even"><p>The Boms if found, otherwise None.</p>
+</dd>
+<dt class="field-odd">Return type<span class="colon">:</span></dt>
+<dd class="field-odd"><p>Optional[List[spdx3.Bom]]</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="ntia_conformance_checker.spdx3_utils.get_packages_from_bom">
+<span class="sig-prename descclassname"><span class="pre">ntia_conformance_checker.spdx3_utils.</span></span><span class="sig-name descname"><span class="pre">get_packages_from_bom</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">bom</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Bom</span><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><span class="pre">None</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">List</span><span class="p"><span class="pre">[</span></span><span class="pre">software_Package</span><span class="p"><span class="pre">]</span></span><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><span class="pre">None</span></span></span><a class="reference internal" href="_modules/ntia_conformance_checker/spdx3_utils.html#get_packages_from_bom"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#ntia_conformance_checker.spdx3_utils.get_packages_from_bom" title="Link to this definition"></a></dt>
+<dd><p>Retrieve the /Software/Packages that are rootElements of an SPDX 3 BOM.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><p><strong>spdx_doc</strong> (<em>spdx3.Bom</em>) – The SPDX 3 Bom.</p>
+</dd>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
+<dd class="field-even"><p>The packages if found, otherwise None.</p>
+</dd>
+<dt class="field-odd">Return type<span class="colon">:</span></dt>
+<dd class="field-odd"><p>Optional[List[spdx3.software_Package]]</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="ntia_conformance_checker.spdx3_utils.iter_objects_with_property">
+<span class="sig-prename descclassname"><span class="pre">ntia_conformance_checker.spdx3_utils.</span></span><span class="sig-name descname"><span class="pre">iter_objects_with_property</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">object_set:</span> <span class="pre">~spdx_python_model.bindings.v3_0_1.SHACLObjectSet</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">typ:</span> <span class="pre">~typing.Type[~spdx_python_model.bindings.v3_0_1.SHACLObject]</span> <span class="pre">=</span> <span class="pre">&lt;class</span> <span class="pre">'spdx_python_model.bindings.v3_0_1.Artifact'&gt;</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">property_name:</span> <span class="pre">str</span> <span class="pre">=</span> <span class="pre">'spdxId'</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">Iterator</span><span class="p"><span class="pre">[</span></span><span class="pre">Tuple</span><span class="p"><span class="pre">[</span></span><span class="pre">str</span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="pre">str</span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="pre">Any</span><span class="p"><span class="pre">]</span></span><span class="p"><span class="pre">]</span></span></span></span><a class="reference internal" href="_modules/ntia_conformance_checker/spdx3_utils.html#iter_objects_with_property"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#ntia_conformance_checker.spdx3_utils.iter_objects_with_property" title="Link to this definition"></a></dt>
+<dd><p>Yield (name, spdxId, property) for each SPDX 3 object.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>object_set</strong> (<em>spdx3.SHACLObjectSet</em>) – The SHACLObjectSet to iterate over.</p></li>
+<li><p><strong>typ</strong> (<em>Type</em><em>[</em><em>spdx3.SHACLObject</em><em>]</em>) – The type of SPDX3 object</p></li>
+<li><p><strong>property_name</strong> (<em>str</em>) – The property name to retrieve.</p></li>
+</ul>
+</dd>
+<dt class="field-even">Yields<span class="colon">:</span></dt>
+<dd class="field-even"><p><em>Iterator[Tuple[str, str, Any]]</em> – A tuple containing the name,
+SPDX ID, and the specified property of the object.</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="ntia_conformance_checker.spdx3_utils.iter_relationships_by_type">
+<span class="sig-prename descclassname"><span class="pre">ntia_conformance_checker.spdx3_utils.</span></span><span class="sig-name descname"><span class="pre">iter_relationships_by_type</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">object_set</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">SHACLObjectSet</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">rel_type</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">Iterator</span><span class="p"><span class="pre">[</span></span><span class="pre">Tuple</span><span class="p"><span class="pre">[</span></span><span class="pre">str</span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="pre">str</span><span class="p"><span class="pre">]</span></span><span class="p"><span class="pre">]</span></span></span></span><a class="reference internal" href="_modules/ntia_conformance_checker/spdx3_utils.html#iter_relationships_by_type"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#ntia_conformance_checker.spdx3_utils.iter_relationships_by_type" title="Link to this definition"></a></dt>
+<dd><p>Yield (from_id, to_id) for each relationship of the specified relationship type.</p>
+</dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="ntia_conformance_checker.spdx3_utils.validate_spdx3_data">
+<span class="sig-prename descclassname"><span class="pre">ntia_conformance_checker.spdx3_utils.</span></span><span class="sig-name descname"><span class="pre">validate_spdx3_data</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">object_set</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">SHACLObjectSet</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">Tuple</span><span class="p"><span class="pre">[</span></span><span class="pre">SpdxDocument</span><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><span class="pre">None</span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="pre">List</span><span class="p"><span class="pre">[</span></span><span class="pre">ValidationMessage</span><span class="p"><span class="pre">]</span></span><span class="p"><span class="pre">]</span></span></span></span><a class="reference internal" href="_modules/ntia_conformance_checker/spdx3_utils.html#validate_spdx3_data"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#ntia_conformance_checker.spdx3_utils.validate_spdx3_data" title="Link to this definition"></a></dt>
+<dd><p>Validate an SHACLObjectSet if it contains a valid SpdxDocument.</p>
+<p>The SPDX 3.0 specification states that “Any instance of serialization of
+SPDX data MUST NOT contain more than one SpdxDocument element definition.”</p>
+<p>See: <a class="reference external" href="https://spdx.github.io/spdx-spec/v3.0/model/Core/Classes/SpdxDocument/">https://spdx.github.io/spdx-spec/v3.0/model/Core/Classes/SpdxDocument/</a></p>
+<p>For the purpose of BOM/SBOM application, it also requires that the
+SpdxDocument should have a Bom or Software/Sbom as its rootElement.</p>
+<p>See: <a class="reference external" href="https://github.com/spdx/ntia-conformance-checker/issues/268">https://github.com/spdx/ntia-conformance-checker/issues/268</a></p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><p><strong>object_set</strong> (<em>spdx3.SHACLObjectSet</em>) – The SHACLObjectSet containing
+the SPDX 3 document.</p>
+</dd>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
+<dd class="field-even"><p>An SpdxDocument if found, otherwise None.
+List[ValidationMessage]: A list of validation messages. Empty if no errors.</p>
+</dd>
+<dt class="field-odd">Return type<span class="colon">:</span></dt>
+<dd class="field-odd"><p>Optional[spdx3.SpdxDocument]</p>
+</dd>
+</dl>
+</dd></dl>
+
+</section>
 <section id="module-ntia_conformance_checker">
 <span id="module-contents"></span><h2>Module contents<a class="headerlink" href="#module-ntia_conformance_checker" title="Link to this heading"></a></h2>
 <p>Export functions for usage as library.</p>
@@ -687,10 +780,16 @@ and the method that implements this abstract method.</p>
 <em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">ntia_conformance_checker.</span></span><span class="sig-name descname"><span class="pre">BaseChecker</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">file</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">validate</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">bool</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">True</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">compliance</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">''</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">sbom_spec</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">'spdx2'</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/ntia_conformance_checker/base_checker.html#BaseChecker"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#ntia_conformance_checker.BaseChecker" title="Link to this definition"></a></dt>
 <dd><p>Bases: <code class="xref py py-class docutils literal notranslate"><span class="pre">ABC</span></code></p>
 <p>Base class for all compliance/conformance checkers.</p>
-<p>This base class contains methods for common tasks like file loading
-and parsing.</p>
+<p>This base class contains methods for common tasks like file parsing
+and information extractions from the SBOM.</p>
 <p>Any class inheriting from BaseChecker must implement its abstract methods,
 such as <cite>check_compliance</cite> and <cite>output_json</cite>.</p>
+<dl class="py method">
+<dt class="sig sig-object py" id="ntia_conformance_checker.BaseChecker.check_author">
+<span class="sig-name descname"><span class="pre">check_author</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">bool</span></span></span><a class="reference internal" href="_modules/ntia_conformance_checker/base_checker.html#BaseChecker.check_author"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#ntia_conformance_checker.BaseChecker.check_author" title="Link to this definition"></a></dt>
+<dd><p>Check if the author of SBOM data exists.</p>
+</dd></dl>
+
 <dl class="py method">
 <dt class="sig sig-object py" id="ntia_conformance_checker.BaseChecker.check_compliance">
 <em class="property"><span class="pre">abstract</span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">check_compliance</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">bool</span></span></span><a class="reference internal" href="_modules/ntia_conformance_checker/base_checker.html#BaseChecker.check_compliance"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#ntia_conformance_checker.BaseChecker.check_compliance" title="Link to this definition"></a></dt>
@@ -707,6 +806,12 @@ such as <cite>check_compliance</cite> and <cite>output_json</cite>.</p>
 <dt class="sig sig-object py" id="ntia_conformance_checker.BaseChecker.check_doc_version">
 <span class="sig-name descname"><span class="pre">check_doc_version</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">bool</span></span></span><a class="reference internal" href="_modules/ntia_conformance_checker/base_checker.html#BaseChecker.check_doc_version"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#ntia_conformance_checker.BaseChecker.check_doc_version" title="Link to this definition"></a></dt>
 <dd><p>Check if the document’s specification version exists.</p>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="ntia_conformance_checker.BaseChecker.check_timestamp">
+<span class="sig-name descname"><span class="pre">check_timestamp</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">bool</span></span></span><a class="reference internal" href="_modules/ntia_conformance_checker/base_checker.html#BaseChecker.check_timestamp"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#ntia_conformance_checker.BaseChecker.check_timestamp" title="Link to this definition"></a></dt>
+<dd><p>Check if the SBOM creation timestamp exists.</p>
 </dd></dl>
 
 <dl class="py attribute">
@@ -823,9 +928,13 @@ or a list of tuples with component names and SPDX IDs.</p>
 <dt class="sig sig-object py" id="ntia_conformance_checker.BaseChecker.get_components_without_identifiers">
 <span class="sig-name descname"><span class="pre">get_components_without_identifiers</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">List</span><span class="p"><span class="pre">[</span></span><span class="pre">str</span><span class="p"><span class="pre">]</span></span></span></span><a class="reference internal" href="_modules/ntia_conformance_checker/base_checker.html#BaseChecker.get_components_without_identifiers"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#ntia_conformance_checker.BaseChecker.get_components_without_identifiers" title="Link to this definition"></a></dt>
 <dd><p>Retrieve name of components without identifiers.</p>
+<p>Note that SPDX 3 requires identifiers for all elements,
+so this should not happen in a valid SPDX 3 document.
+spdx-python-model JSON deserializer will raise a ValueError
+if any element is missing an identifier.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Returns<span class="colon">:</span></dt>
-<dd class="field-odd"><p>A list of component names that do not have identifiers.</p>
+<dd class="field-odd"><p>A list of component names.</p>
 </dd>
 <dt class="field-even">Return type<span class="colon">:</span></dt>
 <dd class="field-even"><p>List[str]</p>
@@ -838,17 +947,11 @@ or a list of tuples with component names and SPDX IDs.</p>
 <span class="sig-name descname"><span class="pre">get_components_without_names</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">List</span><span class="p"><span class="pre">[</span></span><span class="pre">str</span><span class="p"><span class="pre">]</span></span></span></span><a class="reference internal" href="_modules/ntia_conformance_checker/base_checker.html#BaseChecker.get_components_without_names"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#ntia_conformance_checker.BaseChecker.get_components_without_names" title="Link to this definition"></a></dt>
 <dd><p>Retrieve SPDX ID of components without names.</p>
 <dl class="field-list simple">
-<dt class="field-odd">Parameters<span class="colon">:</span></dt>
-<dd class="field-odd"><p><strong>return_tuples</strong> (<em>bool</em>) – If True, return a list of tuples with
-component names and SPDX IDs.
-If False, return a list of component names.</p>
+<dt class="field-odd">Returns<span class="colon">:</span></dt>
+<dd class="field-odd"><p>A list of component SPDX IDs.</p>
 </dd>
-<dt class="field-even">Returns<span class="colon">:</span></dt>
-<dd class="field-even"><p>A list of component names
-or a list of tuples with component names and SPDX IDs.</p>
-</dd>
-<dt class="field-odd">Return type<span class="colon">:</span></dt>
-<dd class="field-odd"><p>Union[List[str], List[Tuple[str, str]]]</p>
+<dt class="field-even">Return type<span class="colon">:</span></dt>
+<dd class="field-even"><p>List[str]</p>
 </dd>
 </dl>
 </dd></dl>
@@ -1025,8 +1128,10 @@ Establishing a Common Software Bill of Materials (SBOM) Third Edition.</p>
 <p>There are three maturity levels (Minimum Expected, Recommended Practice,
 and Aspirational Goal) for content provided in Attribute entries.</p>
 <p>This checker currently only checks for Minimum Expected maturity level.</p>
-<p>See:
-<a class="reference external" href="https://www.cisa.gov/resources-tools/resources/framing-software-component-transparency-2024">https://www.cisa.gov/resources-tools/resources/framing-software-component-transparency-2024</a></p>
+<dl class="simple">
+<dt>See:</dt><dd><p><a class="reference external" href="https://www.cisa.gov/resources-tools/resources/framing-software-component-transparency-2024">https://www.cisa.gov/resources-tools/resources/framing-software-component-transparency-2024</a></p>
+</dd>
+</dl>
 <dl class="py method">
 <dt class="sig sig-object py" id="ntia_conformance_checker.FSCT3Checker.check_compliance">
 <span class="sig-name descname"><span class="pre">check_compliance</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">bool</span></span></span><a class="reference internal" href="_modules/ntia_conformance_checker/fsct_checker.html#FSCT3Checker.check_compliance"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#ntia_conformance_checker.FSCT3Checker.check_compliance" title="Link to this definition"></a></dt>
@@ -1064,6 +1169,10 @@ and Aspirational Goal) for content provided in Attribute entries.</p>
 <em class="property"><span class="pre">class</span><span class="w"> </span></em><span class="sig-prename descclassname"><span class="pre">ntia_conformance_checker.</span></span><span class="sig-name descname"><span class="pre">NTIAChecker</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">file</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">validate</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">bool</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">True</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">compliance</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">'ntia'</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">sbom_spec</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">'spdx2'</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/ntia_conformance_checker/ntia_checker.html#NTIAChecker"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#ntia_conformance_checker.NTIAChecker" title="Link to this definition"></a></dt>
 <dd><p>Bases: <a class="reference internal" href="#ntia_conformance_checker.base_checker.BaseChecker" title="ntia_conformance_checker.base_checker.BaseChecker"><code class="xref py py-class docutils literal notranslate"><span class="pre">BaseChecker</span></code></a></p>
 <p>NTIA Minimum Elements check.</p>
+<dl class="simple">
+<dt>See:</dt><dd><p><a class="reference external" href="https://www.ntia.gov/report/2021/minimum-elements-software-bill-materials-sbom">https://www.ntia.gov/report/2021/minimum-elements-software-bill-materials-sbom</a></p>
+</dd>
+</dl>
 <dl class="py method">
 <dt class="sig sig-object py" id="ntia_conformance_checker.NTIAChecker.check_compliance">
 <span class="sig-name descname"><span class="pre">check_compliance</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">bool</span></span></span><a class="reference internal" href="_modules/ntia_conformance_checker/ntia_checker.html#NTIAChecker.check_compliance"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#ntia_conformance_checker.NTIAChecker.check_compliance" title="Link to this definition"></a></dt>

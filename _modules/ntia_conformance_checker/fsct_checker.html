@@ -97,7 +97,7 @@
 <span class="sd">    This checker currently only checks for Minimum Expected maturity level.</span>
 
 <span class="sd">    See:</span>
-<span class="sd">    https://www.cisa.gov/resources-tools/resources/framing-software-component-transparency-2024</span>
+<span class="sd">        https://www.cisa.gov/resources-tools/resources/framing-software-component-transparency-2024</span>
 <span class="sd">    &quot;&quot;&quot;</span>
 
     <span class="k">def</span><span class="w"> </span><span class="fm">__init__</span><span class="p">(</span>
@@ -124,12 +124,10 @@
             <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="s2">&quot;Only FSCTv3 Minimum Expected compliance is supported.&quot;</span><span class="p">)</span>
 
         <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">doc</span><span class="p">:</span>
-            <span class="bp">self</span><span class="o">.</span><span class="n">sbom_name</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">get_sbom_name</span><span class="p">()</span>
-            <span class="bp">self</span><span class="o">.</span><span class="n">doc_version</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">check_doc_version</span><span class="p">()</span>
-            <span class="bp">self</span><span class="o">.</span><span class="n">doc_author</span> <span class="o">=</span> <span class="kc">True</span>  <span class="c1"># Assume author is present?</span>
-            <span class="bp">self</span><span class="o">.</span><span class="n">doc_timestamp</span> <span class="o">=</span> <span class="kc">True</span>  <span class="c1"># Assume timestamp is present?</span>
-            <span class="bp">self</span><span class="o">.</span><span class="n">dependency_relationships</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">check_dependency_relationships</span><span class="p">()</span>
             <span class="bp">self</span><span class="o">.</span><span class="n">compliant</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">check_compliance</span><span class="p">()</span>
+
+            <span class="c1"># for backward compatibility</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">ntia_minimum_elements_compliant</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">compliant</span>
 
 <div class="viewcode-block" id="FSCT3Checker.check_compliance">
 <a class="viewcode-back" href="../../ntia_conformance_checker.html#ntia_conformance_checker.fsct_checker.FSCT3Checker.check_compliance">[docs]</a>
