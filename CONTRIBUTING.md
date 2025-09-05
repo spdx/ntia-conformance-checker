@@ -122,11 +122,11 @@ Here's the process to make changes to the codebase:
 7. Format your changes with [`black`][black] and [`pylint`][pylint]:
 
    ```sh
-   black .
+   black pylint ntia_conformance_checker/ tests/
    ```
 
    ```sh
-   pylint .
+   pylint ntia_conformance_checker/ tests/
    ```
 
    [black]: https://github.com/psf/black
