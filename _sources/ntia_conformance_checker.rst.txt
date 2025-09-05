@@ -9,61 +9,61 @@ ntia\_conformance\_checker.base\_checker module
 
 .. automodule:: ntia_conformance_checker.base_checker
    :members:
-   :undoc-members:
    :show-inheritance:
+   :undoc-members:
 
 ntia\_conformance\_checker.cli\_utils module
 --------------------------------------------
 
 .. automodule:: ntia_conformance_checker.cli_utils
    :members:
-   :undoc-members:
    :show-inheritance:
+   :undoc-members:
 
 ntia\_conformance\_checker.fsct\_checker module
 -----------------------------------------------
 
 .. automodule:: ntia_conformance_checker.fsct_checker
    :members:
-   :undoc-members:
    :show-inheritance:
+   :undoc-members:
 
 ntia\_conformance\_checker.main module
 --------------------------------------
 
 .. automodule:: ntia_conformance_checker.main
    :members:
-   :undoc-members:
    :show-inheritance:
+   :undoc-members:
 
 ntia\_conformance\_checker.ntia\_checker module
 -----------------------------------------------
 
 .. automodule:: ntia_conformance_checker.ntia_checker
    :members:
-   :undoc-members:
    :show-inheritance:
+   :undoc-members:
 
 ntia\_conformance\_checker.sbom\_checker module
 -----------------------------------------------
 
 .. automodule:: ntia_conformance_checker.sbom_checker
    :members:
-   :undoc-members:
    :show-inheritance:
+   :undoc-members:
 
 ntia\_conformance\_checker.spdx3\_utils module
 ----------------------------------------------
 
 .. automodule:: ntia_conformance_checker.spdx3_utils
    :members:
-   :undoc-members:
    :show-inheritance:
+   :undoc-members:
 
 Module contents
 ---------------
 
 .. automodule:: ntia_conformance_checker
    :members:
-   :undoc-members:
    :show-inheritance:
+   :undoc-members:
