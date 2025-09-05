@@ -27,7 +27,13 @@ It is recommended to use a Python virtual environment for development.
 To install development dependencies, run:
 
 ```sh
-pip install -e ".[dev]"
+pip install -e ".[dev,docs,test]"
+```
+
+Or, if you're on a Unix-like system, you can use `make`:
+
+```sh
+make install-dev
 ```
 
 ## Development process
@@ -87,7 +93,15 @@ Here's the process to make changes to the codebase:
    [pytest]: https://docs.pytest.org/
    [nose]: https://nose.readthedocs.io/
 
-6. Type check your changes:
+6. Lint / static analyse your changes, using [`pylint`][pylint]:
+
+   ```sh
+   pylint ntia_conformance_checker/ tests/
+   ```
+
+   [pylint]: https://github.com/pylint-dev/pylint
+
+7. Type check your changes:
 
    Static type analysis is recommended to catch potential bugs and improve code
    quality. We use several type checkers ([`mypy`][mypy], [`pyrefly`][pyrefly],
@@ -100,6 +114,8 @@ Here's the process to make changes to the codebase:
    make type
    ```
 
+   Or you can run each type checker individually.
+
    If you are certain that a line is correct but the type checker is not able
    to verify it, you may choose to add a `# type: ignore` comment with
    additional explanation at the end of the line to suppress the error.
@@ -109,35 +125,31 @@ Here's the process to make changes to the codebase:
    [pyright]: https://github.com/microsoft/pyright
    [pytype]: https://github.com/google/pytype
 
-7. Format your changes with [`black`][black] and [`pylint`][pylint]:
+8. Format your changes with [`black`][black] and sort import with
+    [`isort`][isort]:
 
    ```sh
-   black pylint ntia_conformance_checker/ tests/
-   ```
-
-   ```sh
-   pylint ntia_conformance_checker/ tests/
+   make format
    ```
 
    [black]: https://github.com/psf/black
-   [pylint]: https://github.com/pylint-dev/pylint
+   [isort]: https://pycqa.github.io/isort/
 
-8. Push the branch to your fork on GitHub:
+9. Push the branch to your fork on GitHub:
 
    ```sh
    git push origin fix-or-improve-something
    ```
 
-9. Make a pull request on GitHub.
-
-10. Continue making more changes and commits on the branch,
+10. Make a pull request on GitHub.
+11. Continue making more changes and commits on the branch,
     with `git commit --signoff` and `git push`.
-11. When done, write a comment on the PR asking for a code review.
-12. Some other developer will review your changes and accept your PR.
+12. When done, write a comment on the PR asking for a code review.
+13. Some other developer will review your changes and accept your PR.
     The merge should be done with `rebase`, if possible, or with `squash`.
-13. The temporary branch on GitHub should be deleted (there is a button for
+14. The temporary branch on GitHub should be deleted (there is a button for
     deleting it).
-14. Delete the local branch as well:
+15. Delete the local branch as well:
 
     ```sh
     git checkout master
@@ -148,8 +160,8 @@ Here's the process to make changes to the codebase:
 
 ## How to run tests
 
-The tests framework is using [pytest][] as the test runner
-and [coverage][] to measure code coverage.
+The tests framework is using [`pytest`][pytest] as the test runner
+and [`Coverage.py`][coverage] to measure code coverage.
 
 Install test dependencies:
 
@@ -169,6 +181,8 @@ Run tests with coverage report and show line numbers of missed lines:
 coverage run -m pytest
 coverage report -m
 ```
+
+[coverage]: https://coverage.readthedocs.io/
 
 ## How to generate API documentation
 
