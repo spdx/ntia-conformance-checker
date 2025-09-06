@@ -22,6 +22,12 @@ authors:
     email: suriyawa@tcd.ie
     affiliation: 'ADAPT Centre, Trinity College Dublin'
     orcid: 'https://orcid.org/0000-0002-9698-1899'
+identifiers:
+  - type: doi
+    value: 10.5281/zenodo.17068670
+    description: >-
+      This is the collection of archived snapshots of all
+      versions of NTIA Conformance Checker.
 repository-code: 'https://github.com/spdx/ntia-conformance-checker'
 url: 'https://pypi.org/project/ntia-conformance-checker/'
 abstract: >-
