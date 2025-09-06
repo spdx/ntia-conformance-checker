@@ -31,11 +31,12 @@ identifiers:
 repository-code: 'https://github.com/spdx/ntia-conformance-checker'
 url: 'https://pypi.org/project/ntia-conformance-checker/'
 abstract: >-
-  This software is a SPDX Software Bill of Materials (SBOM)
+  This software is an SPDX Software Bill of Materials (SBOM)
   validator that checks for NTIA minimum elements and CISA
   baseline attributes. It reports missing elements and can
   be used as both a command-line tool and a library. Output
   formats include plain text, JSON, and HTML.
+  Supports SPDX specification versions 2.2, 2.3, and 3.0.
 keywords:
   - software supply chain security
   - SBOM
