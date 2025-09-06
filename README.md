@@ -173,16 +173,19 @@ Go to this page: <https://tools.spdx.org/app/ntia_checker/>.
 ## History
 
 - The project is the result of an initial [Google Summer of Code (GSoC)][gsoc]
-  contribution in 2022 by [@linynjosh](https://github.com/linynjosh).
+  [contribution in 2022][gsoc2022] by [@linynjosh][].
 - SPDX 3 support and improved FSCT3 checker, available in [v4.0.0][],
-  are [GSoC 2025 contribution][gsoc2025] by [@bact](https://github.com/bact).
+  are [GSoC 2025 contribution][gsoc2025] by [@bact][].
 - The project is maintained by a community of SPDX adopters and enthusiasts.
 - See SPDX's participation in Google Summer of Code (GSoC):
   <https://github.com/spdx/GSoC>.
 
-[v4.0.0]: https://github.com/spdx/ntia-conformance-checker/blob/main/CHANGELOG.md#400---2025-09-05
 [gsoc]: https://summerofcode.withgoogle.com/
-[gsoc2025]: https://docs.google.com/document/d/1emyt1AXJUPDoHIoFdWAwdpV6nRpnmeJiCVCAzFG3T-8/edit?usp=sharing
+[gsoc2022]: https://github.com/spdx/ntia-conformance-checker/wiki/Project-Origin
+[@linynjosh]: https://github.com/linynjosh
+[v4.0.0]: https://github.com/spdx/ntia-conformance-checker/blob/main/CHANGELOG.md#400---2025-09-05
+[gsoc2025]: https://github.com/spdx/ntia-conformance-checker/wiki/Adding-SPDX-3.0-Support
+[@bact]: https://github.com/bact
 
 ## License
 
