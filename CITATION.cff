@@ -1,0 +1,54 @@
+# This CITATION.cff file was generated with cffinit.
+# Visit https://bit.ly/cffinit to generate yours today!
+
+cff-version: 1.2.0
+title: NTIA Conformance Checker
+message: >-
+  If you use this software, please cite it using the
+  metadata from this file.
+type: software
+authors:
+  - given-names: Josh
+    family-names: Lin
+    email: linynjosh@gmail.com
+  - given-names: John
+    family-names: Meyers
+    name-particle: Speed
+    email: johnmeyersster@gmail.com
+    affiliation: Chainguard
+    orcid: 'https://orcid.org/0000-0003-2016-7695'
+  - given-names: Arthit
+    family-names: Suriyawongkul
+    email: suriyawa@tcd.ie
+    affiliation: 'ADAPT Centre, Trinity College Dublin'
+    orcid: 'https://orcid.org/0000-0002-9698-1899'
+identifiers:
+  - type: doi
+    value: 10.5281/zenodo.17068670
+    description: >-
+      This is the collection of archived snapshots of all
+      versions of NTIA Conformance Checker.
+repository-code: 'https://github.com/spdx/ntia-conformance-checker'
+url: 'https://pypi.org/project/ntia-conformance-checker/'
+abstract: >-
+  This software is an SPDX Software Bill of Materials (SBOM)
+  validator that checks for NTIA minimum elements and CISA
+  baseline attributes. It reports missing elements and can
+  be used as both a command-line tool and a library. Output
+  formats include plain text, JSON, and HTML.
+  Supports SPDX specification versions 2.2, 2.3, and 3.0.
+keywords:
+  - software supply chain security
+  - SBOM
+  - software bill of materials
+  - conformance
+  - SPDX
+  - minimum elements
+  - software package data exchange
+  - software component transparency
+  - NTIA
+  - CISA
+license: Apache-2.0
+commit: 0ea788768fc39f0eacf9c9300c75a328799fbbd3
+version: 4.0.0
+date-released: '2025-09-05'
