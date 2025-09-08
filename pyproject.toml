@@ -65,7 +65,7 @@ dev = [
     "ruff>=0.12.12",
 ]
 docs = ["sphinx>=8.1.3", "sphinx-rtd-theme>=3.0.2"]
-test = ["beartype==0.21.0", "coverage==7.6.10", "pytest==8.4.1"]
+test = ["beartype==0.21.0", "coverage==7.10.6", "pytest==8.4.1"]
 
 [project.scripts]
 # Both "ntia-checker" and "sbomcheck" are identical.
