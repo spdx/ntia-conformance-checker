@@ -11,8 +11,8 @@ import logging
 import sys
 from typing import Any, Dict, Optional, Tuple
 
-from .base_checker import SUPPORTED_SBOM_SPECS, SUPPORTED_SPDX_VERSIONS
 from .cli_utils import get_parsed_args, get_spdx_version
+from .constants import SUPPORTED_SBOM_SPECS, SUPPORTED_SPDX_VERSIONS
 from .sbom_checker import SbomChecker
 
 

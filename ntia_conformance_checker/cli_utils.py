@@ -16,7 +16,7 @@ from typing import Optional, Tuple
 from spdx_tools.spdx.parser.error import SPDXParsingError
 from spdx_tools.spdx.parser.parse_anything import parse_file as parse_spdx2_file
 
-from .base_checker import (
+from .constants import (
     DEFAULT_COMPLIANCE_STANDARD,
     DEFAULT_SBOM_SPEC,
     SUPPORTED_COMPLIANCE_STANDARDS,
