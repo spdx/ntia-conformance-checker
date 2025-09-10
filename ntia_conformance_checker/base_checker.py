@@ -895,7 +895,17 @@ class BaseChecker(ABC):
         self,
         table_elements: Optional[List[Tuple[str, bool]]] = None,
     ) -> str:
-        """Create a HTML of results."""
+        """
+        Create element-by-element result table in HTML.
+
+        Args:
+            table_elements (Optional[List[Tuple[str, bool]]]): A list of tuples
+                            where each tuple contains a label and a boolean
+                            value indicating the status of that element.
+
+        Returns:
+            str: The HTML representation of the results.
+        """
         html_parts: List[str] = []
 
         if not self.doc:
@@ -930,7 +940,8 @@ class BaseChecker(ABC):
 
         if self.validation_messages:
             html_parts.append(
-                "<p>The provided document is not valid according to the SBOM specification.</p>"
+                "<p>The document is not valid according to the SBOM "
+                f'specification ("{self.sbom_spec}").</p>'
             )
             html_parts.append("<p>The following errors were found:</p>")
             html_parts.append(get_validation_messages_html(self.validation_messages))
