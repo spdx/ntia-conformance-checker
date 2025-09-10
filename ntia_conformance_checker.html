@@ -55,6 +55,7 @@
 <li class="toctree-l4"><a class="reference internal" href="#ntia_conformance_checker.cli_utils.get_spdx_version"><code class="docutils literal notranslate"><span class="pre">get_spdx_version()</span></code></a></li>
 </ul>
 </li>
+<li class="toctree-l3"><a class="reference internal" href="#module-ntia_conformance_checker.constants">ntia_conformance_checker.constants module</a></li>
 <li class="toctree-l3"><a class="reference internal" href="#module-ntia_conformance_checker.fsct_checker">ntia_conformance_checker.fsct_checker module</a><ul>
 <li class="toctree-l4"><a class="reference internal" href="#ntia_conformance_checker.fsct_checker.FSCT3Checker"><code class="docutils literal notranslate"><span class="pre">FSCT3Checker</span></code></a></li>
 </ul>
@@ -65,6 +66,11 @@
 </li>
 <li class="toctree-l3"><a class="reference internal" href="#module-ntia_conformance_checker.ntia_checker">ntia_conformance_checker.ntia_checker module</a><ul>
 <li class="toctree-l4"><a class="reference internal" href="#ntia_conformance_checker.ntia_checker.NTIAChecker"><code class="docutils literal notranslate"><span class="pre">NTIAChecker</span></code></a></li>
+</ul>
+</li>
+<li class="toctree-l3"><a class="reference internal" href="#module-ntia_conformance_checker.report">ntia_conformance_checker.report module</a><ul>
+<li class="toctree-l4"><a class="reference internal" href="#ntia_conformance_checker.report.get_validation_messages_html"><code class="docutils literal notranslate"><span class="pre">get_validation_messages_html()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="#ntia_conformance_checker.report.print_validation_messages"><code class="docutils literal notranslate"><span class="pre">print_validation_messages()</span></code></a></li>
 </ul>
 </li>
 <li class="toctree-l3"><a class="reference internal" href="#module-ntia_conformance_checker.sbom_checker">ntia_conformance_checker.sbom_checker module</a><ul>
@@ -380,15 +386,28 @@ or a list of tuples with component names and SPDX IDs.</p>
 
 <dl class="py method">
 <dt class="sig sig-object py" id="ntia_conformance_checker.base_checker.BaseChecker.output_html">
-<em class="property"><span class="k"><span class="pre">abstractmethod</span></span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">output_html</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">str</span></span></span><a class="reference internal" href="_modules/ntia_conformance_checker/base_checker.html#BaseChecker.output_html"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#ntia_conformance_checker.base_checker.BaseChecker.output_html" title="Link to this definition"></a></dt>
-<dd><p>Abstract method to create a result in HTML format.</p>
+<span class="sig-name descname"><span class="pre">output_html</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">table_elements</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">List</span><span class="p"><span class="pre">[</span></span><span class="pre">Tuple</span><span class="p"><span class="pre">[</span></span><span class="pre">str</span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="pre">bool</span><span class="p"><span class="pre">]</span></span><span class="p"><span class="pre">]</span></span><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><span class="pre">None</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">str</span></span></span><a class="reference internal" href="_modules/ntia_conformance_checker/base_checker.html#BaseChecker.output_html"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#ntia_conformance_checker.base_checker.BaseChecker.output_html" title="Link to this definition"></a></dt>
+<dd><p>Create element-by-element result table in HTML.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><p><strong>table_elements</strong> (<em>Optional</em><em>[</em><em>List</em><em>[</em><em>Tuple</em><em>[</em><em>str</em><em>, </em><em>bool</em><em>]</em><em>]</em><em>]</em>) – A list of tuples
+where each tuple contains a label and a boolean
+value indicating the status of that element.</p>
+</dd>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
+<dd class="field-even"><p>The HTML representation of the results.</p>
+</dd>
+<dt class="field-odd">Return type<span class="colon">:</span></dt>
+<dd class="field-odd"><p>str</p>
+</dd>
+</dl>
 </dd></dl>
 
 <dl class="py method">
 <dt class="sig sig-object py" id="ntia_conformance_checker.base_checker.BaseChecker.output_json">
-<em class="property"><span class="k"><span class="pre">abstractmethod</span></span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">output_json</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">Dict</span><span class="p"><span class="pre">[</span></span><span class="pre">str</span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="pre">Any</span><span class="p"><span class="pre">]</span></span></span></span><a class="reference internal" href="_modules/ntia_conformance_checker/base_checker.html#BaseChecker.output_json"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#ntia_conformance_checker.base_checker.BaseChecker.output_json" title="Link to this definition"></a></dt>
-<dd><p>Abstract method to create a dict of results for outputting
-to JSON.</p>
+<span class="sig-name descname"><span class="pre">output_json</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">Dict</span><span class="p"><span class="pre">[</span></span><span class="pre">str</span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="pre">Any</span><span class="p"><span class="pre">]</span></span></span></span><a class="reference internal" href="_modules/ntia_conformance_checker/base_checker.html#BaseChecker.output_json"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#ntia_conformance_checker.base_checker.BaseChecker.output_json" title="Link to this definition"></a></dt>
+<dd><p>Create a JSON-serializable result dict.</p>
+<p>Subclasses may override to provide custom fields.</p>
 </dd></dl>
 
 <dl class="py method">
@@ -428,25 +447,37 @@ otherwise None.</p>
 
 <dl class="py method">
 <dt class="sig sig-object py" id="ntia_conformance_checker.base_checker.BaseChecker.print_components_missing_info">
-<em class="property"><span class="k"><span class="pre">abstractmethod</span></span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">print_components_missing_info</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">None</span></span></span><a class="reference internal" href="_modules/ntia_conformance_checker/base_checker.html#BaseChecker.print_components_missing_info"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#ntia_conformance_checker.base_checker.BaseChecker.print_components_missing_info" title="Link to this definition"></a></dt>
-<dd><p>Abstract method to print information about components that
-are missing required details.</p>
-<p>What is considered “missing” is determined by a compliance standard
-and the method that implements this abstract method.</p>
+<span class="sig-name descname"><span class="pre">print_components_missing_info</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">attributes</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">List</span><span class="p"><span class="pre">[</span></span><span class="pre">str</span><span class="p"><span class="pre">]</span></span><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><span class="pre">None</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">None</span></span></span><a class="reference internal" href="_modules/ntia_conformance_checker/base_checker.html#BaseChecker.print_components_missing_info"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#ntia_conformance_checker.base_checker.BaseChecker.print_components_missing_info" title="Link to this definition"></a></dt>
+<dd><p>Print information about components that are missing required details.</p>
+<p>What is considered “missing” is determined by a compliance standard.
+Subclasses may override this method to provide custom behavior.</p>
 <dl class="field-list simple">
-<dt class="field-odd">Returns<span class="colon">:</span></dt>
-<dd class="field-odd"><p>None</p>
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><p><strong>attributes</strong> (<em>Optional</em><em>[</em><em>List</em><em>[</em><em>str</em><em>]</em><em>]</em>) – A list of attributes to check for missing
+information. If not specified, all
+available attributes will be checked.</p>
+</dd>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
+<dd class="field-even"><p>None</p>
 </dd>
 </dl>
 </dd></dl>
 
 <dl class="py method">
 <dt class="sig sig-object py" id="ntia_conformance_checker.base_checker.BaseChecker.print_table_output">
-<em class="property"><span class="k"><span class="pre">abstractmethod</span></span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">print_table_output</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">verbose</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">bool</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">False</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">None</span></span></span><a class="reference internal" href="_modules/ntia_conformance_checker/base_checker.html#BaseChecker.print_table_output"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#ntia_conformance_checker.base_checker.BaseChecker.print_table_output" title="Link to this definition"></a></dt>
-<dd><p>Abstract method to print element-by-element result table.</p>
+<span class="sig-name descname"><span class="pre">print_table_output</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">verbose</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">bool</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">False</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">table_elements</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">List</span><span class="p"><span class="pre">[</span></span><span class="pre">Tuple</span><span class="p"><span class="pre">[</span></span><span class="pre">str</span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="pre">bool</span><span class="p"><span class="pre">]</span></span><span class="p"><span class="pre">]</span></span><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><span class="pre">None</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">None</span></span></span><a class="reference internal" href="_modules/ntia_conformance_checker/base_checker.html#BaseChecker.print_table_output"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#ntia_conformance_checker.base_checker.BaseChecker.print_table_output" title="Link to this definition"></a></dt>
+<dd><p>Print element-by-element result table.</p>
 <dl class="field-list simple">
-<dt class="field-odd">Returns<span class="colon">:</span></dt>
-<dd class="field-odd"><p>None</p>
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>verbose</strong> (<em>bool</em>) – If True, print detailed information.</p></li>
+<li><p><strong>table_elements</strong> (<em>Optional</em><em>[</em><em>List</em><em>[</em><em>Tuple</em><em>[</em><em>str</em><em>, </em><em>bool</em><em>]</em><em>]</em><em>]</em>) – A list of tuples
+where each tuple contains a label and a boolean
+value indicating the status of that element.</p></li>
+</ul>
+</dd>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
+<dd class="field-even"><p>None</p>
 </dd>
 </dl>
 </dd></dl>
@@ -497,6 +528,10 @@ and the method that implements this abstract method.</p>
 </dd></dl>
 
 </section>
+<section id="module-ntia_conformance_checker.constants">
+<span id="ntia-conformance-checker-constants-module"></span><h2>ntia_conformance_checker.constants module<a class="headerlink" href="#module-ntia_conformance_checker.constants" title="Link to this heading"></a></h2>
+<p>Constants.</p>
+</section>
 <section id="module-ntia_conformance_checker.fsct_checker">
 <span id="ntia-conformance-checker-fsct-checker-module"></span><h2>ntia_conformance_checker.fsct_checker module<a class="headerlink" href="#module-ntia_conformance_checker.fsct_checker" title="Link to this heading"></a></h2>
 <p>FSCT Common BOM checking functionality.</p>
@@ -523,25 +558,19 @@ and Aspirational Goal) for content provided in Attribute entries.</p>
 
 <dl class="py method">
 <dt class="sig sig-object py" id="ntia_conformance_checker.fsct_checker.FSCT3Checker.output_html">
-<span class="sig-name descname"><span class="pre">output_html</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">str</span></span></span><a class="reference internal" href="_modules/ntia_conformance_checker/fsct_checker.html#FSCT3Checker.output_html"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#ntia_conformance_checker.fsct_checker.FSCT3Checker.output_html" title="Link to this definition"></a></dt>
+<span class="sig-name descname"><span class="pre">output_html</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">table_elements</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">str</span></span></span><a class="reference internal" href="_modules/ntia_conformance_checker/fsct_checker.html#FSCT3Checker.output_html"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#ntia_conformance_checker.fsct_checker.FSCT3Checker.output_html" title="Link to this definition"></a></dt>
 <dd><p>Create a HTML of results.</p>
 </dd></dl>
 
 <dl class="py method">
-<dt class="sig sig-object py" id="ntia_conformance_checker.fsct_checker.FSCT3Checker.output_json">
-<span class="sig-name descname"><span class="pre">output_json</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">Dict</span><span class="p"><span class="pre">[</span></span><span class="pre">str</span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="pre">Any</span><span class="p"><span class="pre">]</span></span></span></span><a class="reference internal" href="_modules/ntia_conformance_checker/fsct_checker.html#FSCT3Checker.output_json"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#ntia_conformance_checker.fsct_checker.FSCT3Checker.output_json" title="Link to this definition"></a></dt>
-<dd><p>Create a dict of results for outputting to JSON.</p>
-</dd></dl>
-
-<dl class="py method">
 <dt class="sig sig-object py" id="ntia_conformance_checker.fsct_checker.FSCT3Checker.print_components_missing_info">
-<span class="sig-name descname"><span class="pre">print_components_missing_info</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">None</span></span></span><a class="reference internal" href="_modules/ntia_conformance_checker/fsct_checker.html#FSCT3Checker.print_components_missing_info"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#ntia_conformance_checker.fsct_checker.FSCT3Checker.print_components_missing_info" title="Link to this definition"></a></dt>
-<dd><p>Print detailed info about which components are missing info.</p>
+<span class="sig-name descname"><span class="pre">print_components_missing_info</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">attributes</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">None</span></span></span><a class="reference internal" href="_modules/ntia_conformance_checker/fsct_checker.html#FSCT3Checker.print_components_missing_info"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#ntia_conformance_checker.fsct_checker.FSCT3Checker.print_components_missing_info" title="Link to this definition"></a></dt>
+<dd><p>Print detailed info about which components have missing info.</p>
 </dd></dl>
 
 <dl class="py method">
 <dt class="sig sig-object py" id="ntia_conformance_checker.fsct_checker.FSCT3Checker.print_table_output">
-<span class="sig-name descname"><span class="pre">print_table_output</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">verbose</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">bool</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">False</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">None</span></span></span><a class="reference internal" href="_modules/ntia_conformance_checker/fsct_checker.html#FSCT3Checker.print_table_output"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#ntia_conformance_checker.fsct_checker.FSCT3Checker.print_table_output" title="Link to this definition"></a></dt>
+<span class="sig-name descname"><span class="pre">print_table_output</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">verbose</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">bool</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">False</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">table_elements</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">None</span></span></span><a class="reference internal" href="_modules/ntia_conformance_checker/fsct_checker.html#FSCT3Checker.print_table_output"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#ntia_conformance_checker.fsct_checker.FSCT3Checker.print_table_output" title="Link to this definition"></a></dt>
 <dd><p>Print element-by-element result table.</p>
 </dd></dl>
 
@@ -586,28 +615,38 @@ Please consider using check_compliance() instead.</p>
 
 <dl class="py method">
 <dt class="sig sig-object py" id="ntia_conformance_checker.ntia_checker.NTIAChecker.output_html">
-<span class="sig-name descname"><span class="pre">output_html</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">str</span></span></span><a class="reference internal" href="_modules/ntia_conformance_checker/ntia_checker.html#NTIAChecker.output_html"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#ntia_conformance_checker.ntia_checker.NTIAChecker.output_html" title="Link to this definition"></a></dt>
+<span class="sig-name descname"><span class="pre">output_html</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">table_elements</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">str</span></span></span><a class="reference internal" href="_modules/ntia_conformance_checker/ntia_checker.html#NTIAChecker.output_html"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#ntia_conformance_checker.ntia_checker.NTIAChecker.output_html" title="Link to this definition"></a></dt>
 <dd><p>Create a HTML of results.</p>
 </dd></dl>
 
 <dl class="py method">
-<dt class="sig sig-object py" id="ntia_conformance_checker.ntia_checker.NTIAChecker.output_json">
-<span class="sig-name descname"><span class="pre">output_json</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">Dict</span><span class="p"><span class="pre">[</span></span><span class="pre">str</span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="pre">Any</span><span class="p"><span class="pre">]</span></span></span></span><a class="reference internal" href="_modules/ntia_conformance_checker/ntia_checker.html#NTIAChecker.output_json"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#ntia_conformance_checker.ntia_checker.NTIAChecker.output_json" title="Link to this definition"></a></dt>
-<dd><p>Create a dict of results for outputting to JSON.</p>
-</dd></dl>
-
-<dl class="py method">
 <dt class="sig sig-object py" id="ntia_conformance_checker.ntia_checker.NTIAChecker.print_components_missing_info">
-<span class="sig-name descname"><span class="pre">print_components_missing_info</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">None</span></span></span><a class="reference internal" href="_modules/ntia_conformance_checker/ntia_checker.html#NTIAChecker.print_components_missing_info"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#ntia_conformance_checker.ntia_checker.NTIAChecker.print_components_missing_info" title="Link to this definition"></a></dt>
-<dd><p>Print detailed info about which components are missing info.</p>
+<span class="sig-name descname"><span class="pre">print_components_missing_info</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">attributes</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">None</span></span></span><a class="reference internal" href="_modules/ntia_conformance_checker/ntia_checker.html#NTIAChecker.print_components_missing_info"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#ntia_conformance_checker.ntia_checker.NTIAChecker.print_components_missing_info" title="Link to this definition"></a></dt>
+<dd><p>Print detailed info about which components have missing info.</p>
 </dd></dl>
 
 <dl class="py method">
 <dt class="sig sig-object py" id="ntia_conformance_checker.ntia_checker.NTIAChecker.print_table_output">
-<span class="sig-name descname"><span class="pre">print_table_output</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">verbose</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">bool</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">False</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">None</span></span></span><a class="reference internal" href="_modules/ntia_conformance_checker/ntia_checker.html#NTIAChecker.print_table_output"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#ntia_conformance_checker.ntia_checker.NTIAChecker.print_table_output" title="Link to this definition"></a></dt>
+<span class="sig-name descname"><span class="pre">print_table_output</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">verbose</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">bool</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">False</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">table_elements</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">None</span></span></span><a class="reference internal" href="_modules/ntia_conformance_checker/ntia_checker.html#NTIAChecker.print_table_output"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#ntia_conformance_checker.ntia_checker.NTIAChecker.print_table_output" title="Link to this definition"></a></dt>
 <dd><p>Print element-by-element result table.</p>
 </dd></dl>
 
+</dd></dl>
+
+</section>
+<section id="module-ntia_conformance_checker.report">
+<span id="ntia-conformance-checker-report-module"></span><h2>ntia_conformance_checker.report module<a class="headerlink" href="#module-ntia_conformance_checker.report" title="Link to this heading"></a></h2>
+<p>Report generation functionality.</p>
+<dl class="py function">
+<dt class="sig sig-object py" id="ntia_conformance_checker.report.get_validation_messages_html">
+<span class="sig-prename descclassname"><span class="pre">ntia_conformance_checker.report.</span></span><span class="sig-name descname"><span class="pre">get_validation_messages_html</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">validation_messages</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">List</span><span class="p"><span class="pre">[</span></span><span class="pre">ValidationMessage</span><span class="p"><span class="pre">]</span></span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">str</span></span></span><a class="reference internal" href="_modules/ntia_conformance_checker/report.html#get_validation_messages_html"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#ntia_conformance_checker.report.get_validation_messages_html" title="Link to this definition"></a></dt>
+<dd><p>Helper to generate HTML for validation messages and context details.</p>
+</dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="ntia_conformance_checker.report.print_validation_messages">
+<span class="sig-prename descclassname"><span class="pre">ntia_conformance_checker.report.</span></span><span class="sig-name descname"><span class="pre">print_validation_messages</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">validation_messages</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">List</span><span class="p"><span class="pre">[</span></span><span class="pre">ValidationMessage</span><span class="p"><span class="pre">]</span></span></span></em>, <em class="sig-param"><span class="n"><span class="pre">verbose</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">bool</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">False</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">None</span></span></span><a class="reference internal" href="_modules/ntia_conformance_checker/report.html#print_validation_messages"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#ntia_conformance_checker.report.print_validation_messages" title="Link to this definition"></a></dt>
+<dd><p>Helper to print validation messages and optional context details.</p>
 </dd></dl>
 
 </section>
@@ -635,44 +674,6 @@ during instantiation.</p>
 <dt class="sig sig-object py" id="ntia_conformance_checker.sbom_checker.SbomChecker.check_compliance">
 <span class="sig-name descname"><span class="pre">check_compliance</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">bool</span></span></span><a class="reference internal" href="_modules/ntia_conformance_checker/sbom_checker.html#SbomChecker.check_compliance"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#ntia_conformance_checker.sbom_checker.SbomChecker.check_compliance" title="Link to this definition"></a></dt>
 <dd><p>Abstract method to check compliance/conformance.</p>
-</dd></dl>
-
-<dl class="py method">
-<dt class="sig sig-object py" id="ntia_conformance_checker.sbom_checker.SbomChecker.output_html">
-<span class="sig-name descname"><span class="pre">output_html</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">str</span></span></span><a class="reference internal" href="_modules/ntia_conformance_checker/sbom_checker.html#SbomChecker.output_html"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#ntia_conformance_checker.sbom_checker.SbomChecker.output_html" title="Link to this definition"></a></dt>
-<dd><p>Abstract method to create a result in HTML format.</p>
-</dd></dl>
-
-<dl class="py method">
-<dt class="sig sig-object py" id="ntia_conformance_checker.sbom_checker.SbomChecker.output_json">
-<span class="sig-name descname"><span class="pre">output_json</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">Dict</span><span class="p"><span class="pre">[</span></span><span class="pre">str</span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="pre">Any</span><span class="p"><span class="pre">]</span></span></span></span><a class="reference internal" href="_modules/ntia_conformance_checker/sbom_checker.html#SbomChecker.output_json"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#ntia_conformance_checker.sbom_checker.SbomChecker.output_json" title="Link to this definition"></a></dt>
-<dd><p>Abstract method to create a dict of results for outputting
-to JSON.</p>
-</dd></dl>
-
-<dl class="py method">
-<dt class="sig sig-object py" id="ntia_conformance_checker.sbom_checker.SbomChecker.print_components_missing_info">
-<span class="sig-name descname"><span class="pre">print_components_missing_info</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">None</span></span></span><a class="reference internal" href="_modules/ntia_conformance_checker/sbom_checker.html#SbomChecker.print_components_missing_info"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#ntia_conformance_checker.sbom_checker.SbomChecker.print_components_missing_info" title="Link to this definition"></a></dt>
-<dd><p>Abstract method to print information about components that
-are missing required details.</p>
-<p>What is considered “missing” is determined by a compliance standard
-and the method that implements this abstract method.</p>
-<dl class="field-list simple">
-<dt class="field-odd">Returns<span class="colon">:</span></dt>
-<dd class="field-odd"><p>None</p>
-</dd>
-</dl>
-</dd></dl>
-
-<dl class="py method">
-<dt class="sig sig-object py" id="ntia_conformance_checker.sbom_checker.SbomChecker.print_table_output">
-<span class="sig-name descname"><span class="pre">print_table_output</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">verbose</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">bool</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">False</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">None</span></span></span><a class="reference internal" href="_modules/ntia_conformance_checker/sbom_checker.html#SbomChecker.print_table_output"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#ntia_conformance_checker.sbom_checker.SbomChecker.print_table_output" title="Link to this definition"></a></dt>
-<dd><p>Abstract method to print element-by-element result table.</p>
-<dl class="field-list simple">
-<dt class="field-odd">Returns<span class="colon">:</span></dt>
-<dd class="field-odd"><p>None</p>
-</dd>
-</dl>
 </dd></dl>
 
 </dd></dl>
@@ -1029,15 +1030,28 @@ or a list of tuples with component names and SPDX IDs.</p>
 
 <dl class="py method">
 <dt class="sig sig-object py" id="ntia_conformance_checker.BaseChecker.output_html">
-<em class="property"><span class="k"><span class="pre">abstractmethod</span></span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">output_html</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">str</span></span></span><a class="reference internal" href="_modules/ntia_conformance_checker/base_checker.html#BaseChecker.output_html"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#ntia_conformance_checker.BaseChecker.output_html" title="Link to this definition"></a></dt>
-<dd><p>Abstract method to create a result in HTML format.</p>
+<span class="sig-name descname"><span class="pre">output_html</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">table_elements</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">List</span><span class="p"><span class="pre">[</span></span><span class="pre">Tuple</span><span class="p"><span class="pre">[</span></span><span class="pre">str</span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="pre">bool</span><span class="p"><span class="pre">]</span></span><span class="p"><span class="pre">]</span></span><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><span class="pre">None</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">str</span></span></span><a class="reference internal" href="_modules/ntia_conformance_checker/base_checker.html#BaseChecker.output_html"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#ntia_conformance_checker.BaseChecker.output_html" title="Link to this definition"></a></dt>
+<dd><p>Create element-by-element result table in HTML.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><p><strong>table_elements</strong> (<em>Optional</em><em>[</em><em>List</em><em>[</em><em>Tuple</em><em>[</em><em>str</em><em>, </em><em>bool</em><em>]</em><em>]</em><em>]</em>) – A list of tuples
+where each tuple contains a label and a boolean
+value indicating the status of that element.</p>
+</dd>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
+<dd class="field-even"><p>The HTML representation of the results.</p>
+</dd>
+<dt class="field-odd">Return type<span class="colon">:</span></dt>
+<dd class="field-odd"><p>str</p>
+</dd>
+</dl>
 </dd></dl>
 
 <dl class="py method">
 <dt class="sig sig-object py" id="ntia_conformance_checker.BaseChecker.output_json">
-<em class="property"><span class="k"><span class="pre">abstractmethod</span></span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">output_json</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">Dict</span><span class="p"><span class="pre">[</span></span><span class="pre">str</span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="pre">Any</span><span class="p"><span class="pre">]</span></span></span></span><a class="reference internal" href="_modules/ntia_conformance_checker/base_checker.html#BaseChecker.output_json"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#ntia_conformance_checker.BaseChecker.output_json" title="Link to this definition"></a></dt>
-<dd><p>Abstract method to create a dict of results for outputting
-to JSON.</p>
+<span class="sig-name descname"><span class="pre">output_json</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">Dict</span><span class="p"><span class="pre">[</span></span><span class="pre">str</span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="pre">Any</span><span class="p"><span class="pre">]</span></span></span></span><a class="reference internal" href="_modules/ntia_conformance_checker/base_checker.html#BaseChecker.output_json"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#ntia_conformance_checker.BaseChecker.output_json" title="Link to this definition"></a></dt>
+<dd><p>Create a JSON-serializable result dict.</p>
+<p>Subclasses may override to provide custom fields.</p>
 </dd></dl>
 
 <dl class="py method">
@@ -1077,25 +1091,37 @@ otherwise None.</p>
 
 <dl class="py method">
 <dt class="sig sig-object py" id="ntia_conformance_checker.BaseChecker.print_components_missing_info">
-<em class="property"><span class="k"><span class="pre">abstractmethod</span></span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">print_components_missing_info</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">None</span></span></span><a class="reference internal" href="_modules/ntia_conformance_checker/base_checker.html#BaseChecker.print_components_missing_info"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#ntia_conformance_checker.BaseChecker.print_components_missing_info" title="Link to this definition"></a></dt>
-<dd><p>Abstract method to print information about components that
-are missing required details.</p>
-<p>What is considered “missing” is determined by a compliance standard
-and the method that implements this abstract method.</p>
+<span class="sig-name descname"><span class="pre">print_components_missing_info</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">attributes</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">List</span><span class="p"><span class="pre">[</span></span><span class="pre">str</span><span class="p"><span class="pre">]</span></span><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><span class="pre">None</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">None</span></span></span><a class="reference internal" href="_modules/ntia_conformance_checker/base_checker.html#BaseChecker.print_components_missing_info"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#ntia_conformance_checker.BaseChecker.print_components_missing_info" title="Link to this definition"></a></dt>
+<dd><p>Print information about components that are missing required details.</p>
+<p>What is considered “missing” is determined by a compliance standard.
+Subclasses may override this method to provide custom behavior.</p>
 <dl class="field-list simple">
-<dt class="field-odd">Returns<span class="colon">:</span></dt>
-<dd class="field-odd"><p>None</p>
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><p><strong>attributes</strong> (<em>Optional</em><em>[</em><em>List</em><em>[</em><em>str</em><em>]</em><em>]</em>) – A list of attributes to check for missing
+information. If not specified, all
+available attributes will be checked.</p>
+</dd>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
+<dd class="field-even"><p>None</p>
 </dd>
 </dl>
 </dd></dl>
 
 <dl class="py method">
 <dt class="sig sig-object py" id="ntia_conformance_checker.BaseChecker.print_table_output">
-<em class="property"><span class="k"><span class="pre">abstractmethod</span></span><span class="w"> </span></em><span class="sig-name descname"><span class="pre">print_table_output</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">verbose</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">bool</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">False</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">None</span></span></span><a class="reference internal" href="_modules/ntia_conformance_checker/base_checker.html#BaseChecker.print_table_output"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#ntia_conformance_checker.BaseChecker.print_table_output" title="Link to this definition"></a></dt>
-<dd><p>Abstract method to print element-by-element result table.</p>
+<span class="sig-name descname"><span class="pre">print_table_output</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">verbose</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">bool</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">False</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">table_elements</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">List</span><span class="p"><span class="pre">[</span></span><span class="pre">Tuple</span><span class="p"><span class="pre">[</span></span><span class="pre">str</span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="pre">bool</span><span class="p"><span class="pre">]</span></span><span class="p"><span class="pre">]</span></span><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><span class="pre">None</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">None</span></span></span><a class="reference internal" href="_modules/ntia_conformance_checker/base_checker.html#BaseChecker.print_table_output"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#ntia_conformance_checker.BaseChecker.print_table_output" title="Link to this definition"></a></dt>
+<dd><p>Print element-by-element result table.</p>
 <dl class="field-list simple">
-<dt class="field-odd">Returns<span class="colon">:</span></dt>
-<dd class="field-odd"><p>None</p>
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>verbose</strong> (<em>bool</em>) – If True, print detailed information.</p></li>
+<li><p><strong>table_elements</strong> (<em>Optional</em><em>[</em><em>List</em><em>[</em><em>Tuple</em><em>[</em><em>str</em><em>, </em><em>bool</em><em>]</em><em>]</em><em>]</em>) – A list of tuples
+where each tuple contains a label and a boolean
+value indicating the status of that element.</p></li>
+</ul>
+</dd>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
+<dd class="field-even"><p>None</p>
 </dd>
 </dl>
 </dd></dl>
@@ -1140,25 +1166,19 @@ and Aspirational Goal) for content provided in Attribute entries.</p>
 
 <dl class="py method">
 <dt class="sig sig-object py" id="ntia_conformance_checker.FSCT3Checker.output_html">
-<span class="sig-name descname"><span class="pre">output_html</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">str</span></span></span><a class="reference internal" href="_modules/ntia_conformance_checker/fsct_checker.html#FSCT3Checker.output_html"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#ntia_conformance_checker.FSCT3Checker.output_html" title="Link to this definition"></a></dt>
+<span class="sig-name descname"><span class="pre">output_html</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">table_elements</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">str</span></span></span><a class="reference internal" href="_modules/ntia_conformance_checker/fsct_checker.html#FSCT3Checker.output_html"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#ntia_conformance_checker.FSCT3Checker.output_html" title="Link to this definition"></a></dt>
 <dd><p>Create a HTML of results.</p>
 </dd></dl>
 
 <dl class="py method">
-<dt class="sig sig-object py" id="ntia_conformance_checker.FSCT3Checker.output_json">
-<span class="sig-name descname"><span class="pre">output_json</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">Dict</span><span class="p"><span class="pre">[</span></span><span class="pre">str</span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="pre">Any</span><span class="p"><span class="pre">]</span></span></span></span><a class="reference internal" href="_modules/ntia_conformance_checker/fsct_checker.html#FSCT3Checker.output_json"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#ntia_conformance_checker.FSCT3Checker.output_json" title="Link to this definition"></a></dt>
-<dd><p>Create a dict of results for outputting to JSON.</p>
-</dd></dl>
-
-<dl class="py method">
 <dt class="sig sig-object py" id="ntia_conformance_checker.FSCT3Checker.print_components_missing_info">
-<span class="sig-name descname"><span class="pre">print_components_missing_info</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">None</span></span></span><a class="reference internal" href="_modules/ntia_conformance_checker/fsct_checker.html#FSCT3Checker.print_components_missing_info"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#ntia_conformance_checker.FSCT3Checker.print_components_missing_info" title="Link to this definition"></a></dt>
-<dd><p>Print detailed info about which components are missing info.</p>
+<span class="sig-name descname"><span class="pre">print_components_missing_info</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">attributes</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">None</span></span></span><a class="reference internal" href="_modules/ntia_conformance_checker/fsct_checker.html#FSCT3Checker.print_components_missing_info"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#ntia_conformance_checker.FSCT3Checker.print_components_missing_info" title="Link to this definition"></a></dt>
+<dd><p>Print detailed info about which components have missing info.</p>
 </dd></dl>
 
 <dl class="py method">
 <dt class="sig sig-object py" id="ntia_conformance_checker.FSCT3Checker.print_table_output">
-<span class="sig-name descname"><span class="pre">print_table_output</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">verbose</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">bool</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">False</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">None</span></span></span><a class="reference internal" href="_modules/ntia_conformance_checker/fsct_checker.html#FSCT3Checker.print_table_output"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#ntia_conformance_checker.FSCT3Checker.print_table_output" title="Link to this definition"></a></dt>
+<span class="sig-name descname"><span class="pre">print_table_output</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">verbose</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">bool</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">False</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">table_elements</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">None</span></span></span><a class="reference internal" href="_modules/ntia_conformance_checker/fsct_checker.html#FSCT3Checker.print_table_output"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#ntia_conformance_checker.FSCT3Checker.print_table_output" title="Link to this definition"></a></dt>
 <dd><p>Print element-by-element result table.</p>
 </dd></dl>
 
@@ -1189,25 +1209,19 @@ Please consider using check_compliance() instead.</p>
 
 <dl class="py method">
 <dt class="sig sig-object py" id="ntia_conformance_checker.NTIAChecker.output_html">
-<span class="sig-name descname"><span class="pre">output_html</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">str</span></span></span><a class="reference internal" href="_modules/ntia_conformance_checker/ntia_checker.html#NTIAChecker.output_html"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#ntia_conformance_checker.NTIAChecker.output_html" title="Link to this definition"></a></dt>
+<span class="sig-name descname"><span class="pre">output_html</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">table_elements</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">str</span></span></span><a class="reference internal" href="_modules/ntia_conformance_checker/ntia_checker.html#NTIAChecker.output_html"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#ntia_conformance_checker.NTIAChecker.output_html" title="Link to this definition"></a></dt>
 <dd><p>Create a HTML of results.</p>
 </dd></dl>
 
 <dl class="py method">
-<dt class="sig sig-object py" id="ntia_conformance_checker.NTIAChecker.output_json">
-<span class="sig-name descname"><span class="pre">output_json</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">Dict</span><span class="p"><span class="pre">[</span></span><span class="pre">str</span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="pre">Any</span><span class="p"><span class="pre">]</span></span></span></span><a class="reference internal" href="_modules/ntia_conformance_checker/ntia_checker.html#NTIAChecker.output_json"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#ntia_conformance_checker.NTIAChecker.output_json" title="Link to this definition"></a></dt>
-<dd><p>Create a dict of results for outputting to JSON.</p>
-</dd></dl>
-
-<dl class="py method">
 <dt class="sig sig-object py" id="ntia_conformance_checker.NTIAChecker.print_components_missing_info">
-<span class="sig-name descname"><span class="pre">print_components_missing_info</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">None</span></span></span><a class="reference internal" href="_modules/ntia_conformance_checker/ntia_checker.html#NTIAChecker.print_components_missing_info"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#ntia_conformance_checker.NTIAChecker.print_components_missing_info" title="Link to this definition"></a></dt>
-<dd><p>Print detailed info about which components are missing info.</p>
+<span class="sig-name descname"><span class="pre">print_components_missing_info</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">attributes</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">None</span></span></span><a class="reference internal" href="_modules/ntia_conformance_checker/ntia_checker.html#NTIAChecker.print_components_missing_info"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#ntia_conformance_checker.NTIAChecker.print_components_missing_info" title="Link to this definition"></a></dt>
+<dd><p>Print detailed info about which components have missing info.</p>
 </dd></dl>
 
 <dl class="py method">
 <dt class="sig sig-object py" id="ntia_conformance_checker.NTIAChecker.print_table_output">
-<span class="sig-name descname"><span class="pre">print_table_output</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">verbose</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">bool</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">False</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">None</span></span></span><a class="reference internal" href="_modules/ntia_conformance_checker/ntia_checker.html#NTIAChecker.print_table_output"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#ntia_conformance_checker.NTIAChecker.print_table_output" title="Link to this definition"></a></dt>
+<span class="sig-name descname"><span class="pre">print_table_output</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">verbose</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">bool</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">False</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">table_elements</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">None</span></span></span><a class="reference internal" href="_modules/ntia_conformance_checker/ntia_checker.html#NTIAChecker.print_table_output"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#ntia_conformance_checker.NTIAChecker.print_table_output" title="Link to this definition"></a></dt>
 <dd><p>Print element-by-element result table.</p>
 </dd></dl>
 
@@ -1234,44 +1248,6 @@ during instantiation.</p>
 <dt class="sig sig-object py" id="ntia_conformance_checker.SbomChecker.check_compliance">
 <span class="sig-name descname"><span class="pre">check_compliance</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">bool</span></span></span><a class="reference internal" href="_modules/ntia_conformance_checker/sbom_checker.html#SbomChecker.check_compliance"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#ntia_conformance_checker.SbomChecker.check_compliance" title="Link to this definition"></a></dt>
 <dd><p>Abstract method to check compliance/conformance.</p>
-</dd></dl>
-
-<dl class="py method">
-<dt class="sig sig-object py" id="ntia_conformance_checker.SbomChecker.output_html">
-<span class="sig-name descname"><span class="pre">output_html</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">str</span></span></span><a class="reference internal" href="_modules/ntia_conformance_checker/sbom_checker.html#SbomChecker.output_html"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#ntia_conformance_checker.SbomChecker.output_html" title="Link to this definition"></a></dt>
-<dd><p>Abstract method to create a result in HTML format.</p>
-</dd></dl>
-
-<dl class="py method">
-<dt class="sig sig-object py" id="ntia_conformance_checker.SbomChecker.output_json">
-<span class="sig-name descname"><span class="pre">output_json</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">Dict</span><span class="p"><span class="pre">[</span></span><span class="pre">str</span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="pre">Any</span><span class="p"><span class="pre">]</span></span></span></span><a class="reference internal" href="_modules/ntia_conformance_checker/sbom_checker.html#SbomChecker.output_json"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#ntia_conformance_checker.SbomChecker.output_json" title="Link to this definition"></a></dt>
-<dd><p>Abstract method to create a dict of results for outputting
-to JSON.</p>
-</dd></dl>
-
-<dl class="py method">
-<dt class="sig sig-object py" id="ntia_conformance_checker.SbomChecker.print_components_missing_info">
-<span class="sig-name descname"><span class="pre">print_components_missing_info</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">None</span></span></span><a class="reference internal" href="_modules/ntia_conformance_checker/sbom_checker.html#SbomChecker.print_components_missing_info"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#ntia_conformance_checker.SbomChecker.print_components_missing_info" title="Link to this definition"></a></dt>
-<dd><p>Abstract method to print information about components that
-are missing required details.</p>
-<p>What is considered “missing” is determined by a compliance standard
-and the method that implements this abstract method.</p>
-<dl class="field-list simple">
-<dt class="field-odd">Returns<span class="colon">:</span></dt>
-<dd class="field-odd"><p>None</p>
-</dd>
-</dl>
-</dd></dl>
-
-<dl class="py method">
-<dt class="sig sig-object py" id="ntia_conformance_checker.SbomChecker.print_table_output">
-<span class="sig-name descname"><span class="pre">print_table_output</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">verbose</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">bool</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">False</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">None</span></span></span><a class="reference internal" href="_modules/ntia_conformance_checker/sbom_checker.html#SbomChecker.print_table_output"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#ntia_conformance_checker.SbomChecker.print_table_output" title="Link to this definition"></a></dt>
-<dd><p>Abstract method to print element-by-element result table.</p>
-<dl class="field-list simple">
-<dt class="field-odd">Returns<span class="colon">:</span></dt>
-<dd class="field-odd"><p>None</p>
-</dd>
-</dl>
 </dd></dl>
 
 </dd></dl>

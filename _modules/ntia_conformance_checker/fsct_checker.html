@@ -77,8 +77,6 @@
 
 <span class="kn">from</span><span class="w"> </span><span class="nn">__future__</span><span class="w"> </span><span class="kn">import</span> <span class="n">annotations</span>
 
-<span class="kn">from</span><span class="w"> </span><span class="nn">typing</span><span class="w"> </span><span class="kn">import</span> <span class="n">Any</span><span class="p">,</span> <span class="n">Dict</span>
-
 <span class="kn">from</span><span class="w"> </span><span class="nn">.base_checker</span><span class="w"> </span><span class="kn">import</span> <span class="n">BaseChecker</span>
 
 
@@ -151,263 +149,87 @@
 
 <div class="viewcode-block" id="FSCT3Checker.print_components_missing_info">
 <a class="viewcode-back" href="../../ntia_conformance_checker.html#ntia_conformance_checker.fsct_checker.FSCT3Checker.print_components_missing_info">[docs]</a>
-    <span class="k">def</span><span class="w"> </span><span class="nf">print_components_missing_info</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
-<span class="w">        </span><span class="sd">&quot;&quot;&quot;Print detailed info about which components are missing info.&quot;&quot;&quot;</span>
-        <span class="k">if</span> <span class="ow">not</span> <span class="bp">self</span><span class="o">.</span><span class="n">parsing_error</span><span class="p">:</span>
-            <span class="k">if</span> <span class="nb">all</span><span class="p">(</span>
-                <span class="p">[</span>
-                    <span class="ow">not</span> <span class="bp">self</span><span class="o">.</span><span class="n">components_without_names</span><span class="p">,</span>
-                    <span class="ow">not</span> <span class="bp">self</span><span class="o">.</span><span class="n">components_without_versions</span><span class="p">,</span>
-                    <span class="ow">not</span> <span class="bp">self</span><span class="o">.</span><span class="n">components_without_identifiers</span><span class="p">,</span>
-                    <span class="ow">not</span> <span class="bp">self</span><span class="o">.</span><span class="n">components_without_suppliers</span><span class="p">,</span>
-                    <span class="ow">not</span> <span class="bp">self</span><span class="o">.</span><span class="n">components_without_concluded_licenses</span><span class="p">,</span>
-                    <span class="ow">not</span> <span class="bp">self</span><span class="o">.</span><span class="n">components_without_copyright_texts</span><span class="p">,</span>
-                <span class="p">]</span>
-            <span class="p">):</span>
-                <span class="nb">print</span><span class="p">(</span><span class="s2">&quot;No components with missing information.&quot;</span><span class="p">)</span>
-            <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">components_without_names</span><span class="p">:</span>
-                <span class="nb">print</span><span class="p">(</span>
-                    <span class="s2">&quot;Components missing a name: &quot;</span>
-                    <span class="sa">f</span><span class="s2">&quot;</span><span class="si">{</span><span class="s1">&#39;, &#39;</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">components_without_names</span><span class="p">)</span><span class="si">}</span><span class="s2">&quot;</span>
-                <span class="p">)</span>
-                <span class="nb">print</span><span class="p">()</span>
-            <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">components_without_versions</span><span class="p">:</span>
-                <span class="nb">print</span><span class="p">(</span>
-                    <span class="s2">&quot;Components missing a version: &quot;</span>
-                    <span class="sa">f</span><span class="s2">&quot;</span><span class="si">{</span><span class="s1">&#39;, &#39;</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">components_without_versions</span><span class="p">)</span><span class="si">}</span><span class="s2">&quot;</span>
-                <span class="p">)</span>
-                <span class="nb">print</span><span class="p">()</span>
-            <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">components_without_identifiers</span><span class="p">:</span>
-                <span class="nb">print</span><span class="p">(</span>
-                    <span class="s2">&quot;Components missing an identifier: &quot;</span>
-                    <span class="sa">f</span><span class="s2">&quot;</span><span class="si">{</span><span class="s1">&#39;, &#39;</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">components_without_identifiers</span><span class="p">)</span><span class="si">}</span><span class="s2">&quot;</span>
-                <span class="p">)</span>
-                <span class="nb">print</span><span class="p">()</span>
-            <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">components_without_suppliers</span><span class="p">:</span>
-                <span class="nb">print</span><span class="p">(</span>
-                    <span class="s2">&quot;Components missing a supplier: &quot;</span>
-                    <span class="sa">f</span><span class="s2">&quot;</span><span class="si">{</span><span class="s1">&#39;, &#39;</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">components_without_suppliers</span><span class="p">)</span><span class="si">}</span><span class="s2">&quot;</span>
-                <span class="p">)</span>
-                <span class="nb">print</span><span class="p">()</span>
-            <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">components_without_concluded_licenses</span><span class="p">:</span>
-                <span class="nb">print</span><span class="p">(</span>
-                    <span class="s2">&quot;Components missing a license: &quot;</span>
-                    <span class="sa">f</span><span class="s2">&quot;</span><span class="si">{</span><span class="s1">&#39;, &#39;</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">components_without_concluded_licenses</span><span class="p">)</span><span class="si">}</span><span class="s2">&quot;</span>
-                <span class="p">)</span>
-                <span class="nb">print</span><span class="p">()</span>
-            <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">components_without_copyright_texts</span><span class="p">:</span>
-                <span class="nb">print</span><span class="p">(</span>
-                    <span class="s2">&quot;Components missing a copyright notice: &quot;</span>
-                    <span class="sa">f</span><span class="s2">&quot;</span><span class="si">{</span><span class="s1">&#39;, &#39;</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">components_without_copyright_texts</span><span class="p">)</span><span class="si">}</span><span class="s2">&quot;</span>
-                <span class="p">)</span>
-                <span class="nb">print</span><span class="p">()</span></div>
+    <span class="k">def</span><span class="w"> </span><span class="nf">print_components_missing_info</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">attributes</span><span class="o">=</span><span class="kc">None</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;Print detailed info about which components have missing info.&quot;&quot;&quot;</span>
+        <span class="nb">super</span><span class="p">()</span><span class="o">.</span><span class="n">print_components_missing_info</span><span class="p">(</span>
+            <span class="n">attributes</span><span class="o">=</span><span class="p">[</span>
+                <span class="s2">&quot;name&quot;</span><span class="p">,</span>
+                <span class="s2">&quot;version&quot;</span><span class="p">,</span>
+                <span class="s2">&quot;identifier&quot;</span><span class="p">,</span>
+                <span class="s2">&quot;supplier&quot;</span><span class="p">,</span>
+                <span class="s2">&quot;concluded_license&quot;</span><span class="p">,</span>
+                <span class="s2">&quot;copyright_text&quot;</span><span class="p">,</span>
+            <span class="p">]</span>
+        <span class="p">)</span></div>
 
 
 <div class="viewcode-block" id="FSCT3Checker.print_table_output">
 <a class="viewcode-back" href="../../ntia_conformance_checker.html#ntia_conformance_checker.fsct_checker.FSCT3Checker.print_table_output">[docs]</a>
-    <span class="k">def</span><span class="w"> </span><span class="nf">print_table_output</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">verbose</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">False</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">print_table_output</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">verbose</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">False</span><span class="p">,</span> <span class="n">table_elements</span><span class="o">=</span><span class="kc">None</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
 <span class="w">        </span><span class="sd">&quot;&quot;&quot;Print element-by-element result table.&quot;&quot;&quot;</span>
-        <span class="c1"># pylint: disable=line-too-long</span>
-        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">parsing_error</span><span class="p">:</span>
-            <span class="nb">print</span><span class="p">(</span>
-                <span class="sa">f</span><span class="s2">&quot;</span><span class="se">\n</span><span class="s2">Is this SBOM FSCTv3 Minimum Expected conformant? </span><span class="si">{</span><span class="bp">self</span><span class="o">.</span><span class="n">compliant</span><span class="si">}</span><span class="se">\n</span><span class="s2">&quot;</span>
-            <span class="p">)</span>
-            <span class="nb">print</span><span class="p">(</span>
-                <span class="s2">&quot;The provided document couldn&#39;t be parsed, &quot;</span>
-                <span class="s2">&quot;check for FSCTv3 Minimum Expected couldn&#39;t be performed.</span><span class="se">\n</span><span class="s2">&quot;</span>
-            <span class="p">)</span>
-            <span class="nb">print</span><span class="p">(</span><span class="s2">&quot;The following SPDXParsingError was raised:</span><span class="se">\n</span><span class="s2">&quot;</span><span class="p">)</span>
-            <span class="k">for</span> <span class="n">error</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">parsing_error</span><span class="p">:</span>
-                <span class="nb">print</span><span class="p">(</span><span class="n">error</span><span class="p">)</span>
-
-        <span class="k">else</span><span class="p">:</span>
-            <span class="nb">print</span><span class="p">(</span>
-                <span class="sa">f</span><span class="s2">&quot;</span><span class="se">\n</span><span class="s2">Is this SBOM FSCTv3 Minimum Expected conformant? </span><span class="si">{</span><span class="bp">self</span><span class="o">.</span><span class="n">compliant</span><span class="si">}</span><span class="se">\n</span><span class="s2">&quot;</span>
-            <span class="p">)</span>
-            <span class="nb">print</span><span class="p">(</span><span class="s2">&quot;Individual elements                            | Status&quot;</span><span class="p">)</span>
-            <span class="nb">print</span><span class="p">(</span><span class="s2">&quot;-------------------------------------------------------&quot;</span><span class="p">)</span>
-            <span class="nb">print</span><span class="p">(</span>
-                <span class="sa">f</span><span class="s2">&quot;All component names provided?                  | </span><span class="si">{</span><span class="ow">not</span><span class="w"> </span><span class="bp">self</span><span class="o">.</span><span class="n">components_without_names</span><span class="si">}</span><span class="s2">&quot;</span>
-            <span class="p">)</span>
-            <span class="nb">print</span><span class="p">(</span>
-                <span class="sa">f</span><span class="s2">&quot;All component versions provided?               | </span><span class="si">{</span><span class="ow">not</span><span class="w"> </span><span class="bp">self</span><span class="o">.</span><span class="n">components_without_versions</span><span class="si">}</span><span class="s2">&quot;</span>
-            <span class="p">)</span>
-            <span class="nb">print</span><span class="p">(</span>
-                <span class="sa">f</span><span class="s2">&quot;All component identifiers provided?            | </span><span class="si">{</span><span class="ow">not</span><span class="w"> </span><span class="bp">self</span><span class="o">.</span><span class="n">components_without_identifiers</span><span class="si">}</span><span class="s2">&quot;</span>
-            <span class="p">)</span>
-            <span class="nb">print</span><span class="p">(</span>
-                <span class="sa">f</span><span class="s2">&quot;All component suppliers provided?              | </span><span class="si">{</span><span class="ow">not</span><span class="w"> </span><span class="bp">self</span><span class="o">.</span><span class="n">components_without_suppliers</span><span class="si">}</span><span class="s2">&quot;</span>
-            <span class="p">)</span>
-            <span class="nb">print</span><span class="p">(</span>
-                <span class="sa">f</span><span class="s2">&quot;All component concluded license provided?      | </span><span class="si">{</span><span class="ow">not</span><span class="w"> </span><span class="bp">self</span><span class="o">.</span><span class="n">components_without_concluded_licenses</span><span class="si">}</span><span class="s2">&quot;</span>
-            <span class="p">)</span>
-            <span class="nb">print</span><span class="p">(</span>
-                <span class="sa">f</span><span class="s2">&quot;All component copyright notice provided?       | </span><span class="si">{</span><span class="ow">not</span><span class="w"> </span><span class="bp">self</span><span class="o">.</span><span class="n">components_without_copyright_texts</span><span class="si">}</span><span class="s2">&quot;</span>
-            <span class="p">)</span>
-            <span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;SBOM author name provided?                     | </span><span class="si">{</span><span class="bp">self</span><span class="o">.</span><span class="n">doc_author</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
-            <span class="nb">print</span><span class="p">(</span>
-                <span class="sa">f</span><span class="s2">&quot;SBOM creation timestamp provided?              | </span><span class="si">{</span><span class="bp">self</span><span class="o">.</span><span class="n">doc_timestamp</span><span class="si">}</span><span class="s2">&quot;</span>
-            <span class="p">)</span>
-            <span class="nb">print</span><span class="p">(</span>
-                <span class="sa">f</span><span class="s2">&quot;Dependency relationships provided?             | </span><span class="si">{</span><span class="bp">self</span><span class="o">.</span><span class="n">dependency_relationships</span><span class="si">}</span><span class="se">\n</span><span class="s2">&quot;</span>
-            <span class="p">)</span>
-
-            <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">validation_messages</span><span class="p">:</span>
-                <span class="nb">print</span><span class="p">(</span>
-                    <span class="s2">&quot;The provided document is not valid according to the SPDX specification. &quot;</span>
-                    <span class="s2">&quot;The following errors were found:</span><span class="se">\n</span><span class="s2">&quot;</span>
-                <span class="p">)</span>
-                <span class="k">for</span> <span class="n">msg</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">validation_messages</span><span class="p">:</span>
-                    <span class="k">if</span> <span class="n">msg</span><span class="o">.</span><span class="n">validation_message</span><span class="p">:</span>
-                        <span class="nb">print</span><span class="p">(</span><span class="n">msg</span><span class="o">.</span><span class="n">validation_message</span><span class="p">)</span>
-                        <span class="k">if</span> <span class="n">verbose</span> <span class="ow">and</span> <span class="n">msg</span><span class="o">.</span><span class="n">context</span><span class="p">:</span>
-                            <span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;- SPDX ID: </span><span class="si">{</span><span class="n">msg</span><span class="o">.</span><span class="n">context</span><span class="o">.</span><span class="n">spdx_id</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
-                            <span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;- Parent ID: </span><span class="si">{</span><span class="n">msg</span><span class="o">.</span><span class="n">context</span><span class="o">.</span><span class="n">parent_id</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
-                            <span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;- Element type: </span><span class="si">{</span><span class="n">msg</span><span class="o">.</span><span class="n">context</span><span class="o">.</span><span class="n">element_type</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
-                        <span class="nb">print</span><span class="p">()</span></div>
-
-
-<div class="viewcode-block" id="FSCT3Checker.output_json">
-<a class="viewcode-back" href="../../ntia_conformance_checker.html#ntia_conformance_checker.fsct_checker.FSCT3Checker.output_json">[docs]</a>
-    <span class="k">def</span><span class="w"> </span><span class="nf">output_json</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Dict</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="n">Any</span><span class="p">]:</span>
-<span class="w">        </span><span class="sd">&quot;&quot;&quot;Create a dict of results for outputting to JSON.&quot;&quot;&quot;</span>
-        <span class="c1"># instantiate dict and fields that have &gt; 1 level</span>
-        <span class="n">result</span><span class="p">:</span> <span class="n">Dict</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="n">Any</span><span class="p">]</span> <span class="o">=</span> <span class="p">{}</span>
-
-        <span class="n">result</span><span class="p">[</span><span class="s2">&quot;isConformant&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">compliant</span>
-        <span class="n">result</span><span class="p">[</span><span class="s2">&quot;isNtiaConformant&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">compliant</span>  <span class="c1"># for backward compatibility</span>
-
-        <span class="n">result</span><span class="p">[</span><span class="s2">&quot;complianceStandard&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">compliance_standard</span>
-        <span class="n">result</span><span class="p">[</span><span class="s2">&quot;sbomSpec&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">sbom_spec</span>
-
-        <span class="n">result</span><span class="p">[</span><span class="s2">&quot;validationMessages&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="p">[]</span>
-        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">validation_messages</span><span class="p">:</span>
-            <span class="n">result</span><span class="p">[</span><span class="s2">&quot;validationMessages&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="nb">list</span><span class="p">(</span><span class="nb">map</span><span class="p">(</span><span class="nb">str</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">validation_messages</span><span class="p">))</span>
-
-        <span class="n">result</span><span class="p">[</span><span class="s2">&quot;parsingError&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">parsing_error</span>
-
-        <span class="n">result</span><span class="p">[</span><span class="s2">&quot;sbomName&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">sbom_name</span>
-        <span class="n">result</span><span class="p">[</span><span class="s2">&quot;componentNames&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="p">{}</span>
-        <span class="n">result</span><span class="p">[</span><span class="s2">&quot;componentVersions&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="p">{}</span>
-        <span class="n">result</span><span class="p">[</span><span class="s2">&quot;componentIdentifiers&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="p">{}</span>
-        <span class="n">result</span><span class="p">[</span><span class="s2">&quot;componentSuppliers&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="p">{}</span>
-        <span class="n">result</span><span class="p">[</span><span class="s2">&quot;componentConcludedLicenses&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="p">{}</span>
-        <span class="n">result</span><span class="p">[</span><span class="s2">&quot;componentCopyrightTexts&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="p">{}</span>
-
-        <span class="n">result</span><span class="p">[</span><span class="s2">&quot;specVersionProvided&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">doc_version</span>
-        <span class="n">result</span><span class="p">[</span><span class="s2">&quot;authorNameProvided&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">doc_author</span>
-        <span class="n">result</span><span class="p">[</span><span class="s2">&quot;timestampProvided&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">doc_timestamp</span>
-        <span class="n">result</span><span class="p">[</span><span class="s2">&quot;dependencyRelationshipsProvided&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">dependency_relationships</span>
-
-        <span class="n">result</span><span class="p">[</span><span class="s2">&quot;componentNames&quot;</span><span class="p">][</span>
-            <span class="s2">&quot;nonconformantComponents&quot;</span>
-        <span class="p">]</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">components_without_names</span>
-        <span class="n">result</span><span class="p">[</span><span class="s2">&quot;componentNames&quot;</span><span class="p">][</span><span class="s2">&quot;allProvided&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="ow">not</span> <span class="bp">self</span><span class="o">.</span><span class="n">components_without_names</span>
-
-        <span class="n">result</span><span class="p">[</span><span class="s2">&quot;componentVersions&quot;</span><span class="p">][</span>
-            <span class="s2">&quot;nonconformantComponents&quot;</span>
-        <span class="p">]</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">components_without_versions</span>
-        <span class="n">result</span><span class="p">[</span><span class="s2">&quot;componentVersions&quot;</span><span class="p">][</span>
-            <span class="s2">&quot;allProvided&quot;</span>
-        <span class="p">]</span> <span class="o">=</span> <span class="ow">not</span> <span class="bp">self</span><span class="o">.</span><span class="n">components_without_versions</span>
-
-        <span class="n">result</span><span class="p">[</span><span class="s2">&quot;componentIdentifiers&quot;</span><span class="p">][</span>
-            <span class="s2">&quot;nonconformantComponents&quot;</span>
-        <span class="p">]</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">components_without_identifiers</span>
-        <span class="n">result</span><span class="p">[</span><span class="s2">&quot;componentIdentifiers&quot;</span><span class="p">][</span>
-            <span class="s2">&quot;allProvided&quot;</span>
-        <span class="p">]</span> <span class="o">=</span> <span class="ow">not</span> <span class="bp">self</span><span class="o">.</span><span class="n">components_without_identifiers</span>
-
-        <span class="n">result</span><span class="p">[</span><span class="s2">&quot;componentSuppliers&quot;</span><span class="p">][</span>
-            <span class="s2">&quot;nonconformantComponents&quot;</span>
-        <span class="p">]</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">components_without_suppliers</span>
-        <span class="n">result</span><span class="p">[</span><span class="s2">&quot;componentSuppliers&quot;</span><span class="p">][</span>
-            <span class="s2">&quot;allProvided&quot;</span>
-        <span class="p">]</span> <span class="o">=</span> <span class="ow">not</span> <span class="bp">self</span><span class="o">.</span><span class="n">components_without_suppliers</span>
-
-        <span class="n">result</span><span class="p">[</span><span class="s2">&quot;componentConcludedLicenses&quot;</span><span class="p">][</span>
-            <span class="s2">&quot;nonconformantComponents&quot;</span>
-        <span class="p">]</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">components_without_concluded_licenses</span>
-        <span class="n">result</span><span class="p">[</span><span class="s2">&quot;componentConcludedLicenses&quot;</span><span class="p">][</span>
-            <span class="s2">&quot;allProvided&quot;</span>
-        <span class="p">]</span> <span class="o">=</span> <span class="ow">not</span> <span class="bp">self</span><span class="o">.</span><span class="n">components_without_concluded_licenses</span>
-
-        <span class="n">result</span><span class="p">[</span><span class="s2">&quot;componentCopyrightTexts&quot;</span><span class="p">][</span>
-            <span class="s2">&quot;nonconformantComponents&quot;</span>
-        <span class="p">]</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">components_without_copyright_texts</span>
-        <span class="n">result</span><span class="p">[</span><span class="s2">&quot;componentCopyrightTexts&quot;</span><span class="p">][</span>
-            <span class="s2">&quot;allProvided&quot;</span>
-        <span class="p">]</span> <span class="o">=</span> <span class="ow">not</span> <span class="bp">self</span><span class="o">.</span><span class="n">components_without_copyright_texts</span>
-
-        <span class="n">result</span><span class="p">[</span><span class="s2">&quot;totalNumberComponents&quot;</span><span class="p">]</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">get_total_number_components</span><span class="p">()</span>
-
-        <span class="k">return</span> <span class="n">result</span></div>
+        <span class="nb">super</span><span class="p">()</span><span class="o">.</span><span class="n">print_table_output</span><span class="p">(</span>
+            <span class="n">verbose</span><span class="o">=</span><span class="n">verbose</span><span class="p">,</span>
+            <span class="n">table_elements</span><span class="o">=</span><span class="p">[</span>
+                <span class="p">(</span><span class="s2">&quot;All component names provided?&quot;</span><span class="p">,</span> <span class="ow">not</span> <span class="bp">self</span><span class="o">.</span><span class="n">components_without_names</span><span class="p">),</span>
+                <span class="p">(</span>
+                    <span class="s2">&quot;All component versions provided?&quot;</span><span class="p">,</span>
+                    <span class="ow">not</span> <span class="bp">self</span><span class="o">.</span><span class="n">components_without_versions</span><span class="p">,</span>
+                <span class="p">),</span>
+                <span class="p">(</span>
+                    <span class="s2">&quot;All component identifiers provided?&quot;</span><span class="p">,</span>
+                    <span class="ow">not</span> <span class="bp">self</span><span class="o">.</span><span class="n">components_without_identifiers</span><span class="p">,</span>
+                <span class="p">),</span>
+                <span class="p">(</span>
+                    <span class="s2">&quot;All component suppliers provided?&quot;</span><span class="p">,</span>
+                    <span class="ow">not</span> <span class="bp">self</span><span class="o">.</span><span class="n">components_without_suppliers</span><span class="p">,</span>
+                <span class="p">),</span>
+                <span class="p">(</span>
+                    <span class="s2">&quot;All component concluded license provided?&quot;</span><span class="p">,</span>
+                    <span class="ow">not</span> <span class="bp">self</span><span class="o">.</span><span class="n">components_without_concluded_licenses</span><span class="p">,</span>
+                <span class="p">),</span>
+                <span class="p">(</span>
+                    <span class="s2">&quot;All component copyright notice provided?&quot;</span><span class="p">,</span>
+                    <span class="ow">not</span> <span class="bp">self</span><span class="o">.</span><span class="n">components_without_copyright_texts</span><span class="p">,</span>
+                <span class="p">),</span>
+                <span class="p">(</span><span class="s2">&quot;SBOM author name provided?&quot;</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">doc_author</span><span class="p">),</span>
+                <span class="p">(</span><span class="s2">&quot;SBOM creation timestamp provided?&quot;</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">doc_timestamp</span><span class="p">),</span>
+                <span class="p">(</span><span class="s2">&quot;Dependency relationships provided?&quot;</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">dependency_relationships</span><span class="p">),</span>
+            <span class="p">],</span>
+        <span class="p">)</span></div>
 
 
 <div class="viewcode-block" id="FSCT3Checker.output_html">
 <a class="viewcode-back" href="../../ntia_conformance_checker.html#ntia_conformance_checker.fsct_checker.FSCT3Checker.output_html">[docs]</a>
-    <span class="k">def</span><span class="w"> </span><span class="nf">output_html</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">str</span><span class="p">:</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">output_html</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">table_elements</span><span class="o">=</span><span class="kc">None</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">str</span><span class="p">:</span>
 <span class="w">        </span><span class="sd">&quot;&quot;&quot;Create a HTML of results.&quot;&quot;&quot;</span>
-        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">doc</span><span class="p">:</span>
-            <span class="n">result</span> <span class="o">=</span> <span class="p">(</span>
-                <span class="sa">f</span><span class="s2">&quot;&lt;h2&gt;FSCTv3 Minimum Expected Conformance Results&lt;/h2&gt;&quot;</span>
-                <span class="sa">f</span><span class="s2">&quot;&lt;h3&gt;Conformant: </span><span class="si">{</span><span class="bp">self</span><span class="o">.</span><span class="n">compliant</span><span class="si">}</span><span class="s2">&lt;/h3&gt;&quot;</span>
-                <span class="sa">f</span><span class="s2">&quot;&lt;table&gt; &lt;tr&gt; &quot;</span>
-                <span class="sa">f</span><span class="s2">&quot;&lt;th&gt;Individual Elements&lt;/th&gt; &lt;th&gt;Conformant&lt;/th&gt; &lt;/tr&gt; &quot;</span>
-                <span class="sa">f</span><span class="s2">&quot;&lt;tr&gt; &lt;td&gt;All component names provided&lt;/td&gt;&quot;</span>
-                <span class="sa">f</span><span class="s2">&quot; &lt;td&gt;</span><span class="si">{</span><span class="ow">not</span><span class="w"> </span><span class="bp">self</span><span class="o">.</span><span class="n">components_without_names</span><span class="si">}</span><span class="s2">&lt;/td&gt; &lt;/tr&gt; &quot;</span>
-                <span class="sa">f</span><span class="s2">&quot;&lt;tr&gt; &lt;td&gt;All component versions provided&lt;/td&gt;&quot;</span>
-                <span class="sa">f</span><span class="s2">&quot; &lt;td&gt;</span><span class="si">{</span><span class="ow">not</span><span class="w"> </span><span class="bp">self</span><span class="o">.</span><span class="n">components_without_versions</span><span class="si">}</span><span class="s2">&lt;/td&gt; &lt;/tr&gt; &quot;</span>
-                <span class="sa">f</span><span class="s2">&quot;&lt;tr&gt; &lt;td&gt;All component identifiers provided&lt;/td&gt; &quot;</span>
-                <span class="sa">f</span><span class="s2">&quot;&lt;td&gt;</span><span class="si">{</span><span class="ow">not</span><span class="w"> </span><span class="bp">self</span><span class="o">.</span><span class="n">components_without_identifiers</span><span class="si">}</span><span class="s2">&lt;/td&gt; &lt;/tr&gt; &quot;</span>
-                <span class="sa">f</span><span class="s2">&quot;&lt;tr&gt; &lt;td&gt;All component suppliers provided&lt;/td&gt; &quot;</span>
-                <span class="sa">f</span><span class="s2">&quot;&lt;td&gt;</span><span class="si">{</span><span class="ow">not</span><span class="w"> </span><span class="bp">self</span><span class="o">.</span><span class="n">components_without_suppliers</span><span class="si">}</span><span class="s2">&lt;/td&gt; &quot;</span>
-                <span class="sa">f</span><span class="s2">&quot;&lt;tr&gt; &lt;td&gt;All component concluded license provided&lt;/td&gt; &quot;</span>
-                <span class="sa">f</span><span class="s2">&quot;&lt;td&gt;</span><span class="si">{</span><span class="ow">not</span><span class="w"> </span><span class="bp">self</span><span class="o">.</span><span class="n">components_without_concluded_licenses</span><span class="si">}</span><span class="s2">&lt;/td&gt; &quot;</span>
-                <span class="sa">f</span><span class="s2">&quot;&lt;tr&gt; &lt;td&gt;All component copyright notice provided&lt;/td&gt; &quot;</span>
-                <span class="sa">f</span><span class="s2">&quot;&lt;td&gt;</span><span class="si">{</span><span class="ow">not</span><span class="w"> </span><span class="bp">self</span><span class="o">.</span><span class="n">components_without_copyright_texts</span><span class="si">}</span><span class="s2">&lt;/td&gt; &quot;</span>
-                <span class="sa">f</span><span class="s2">&quot;&lt;/tr&gt; &lt;tr&gt; &lt;td&gt;SBOM author name provided&lt;/td&gt; &quot;</span>
-                <span class="sa">f</span><span class="s2">&quot;&lt;td&gt;</span><span class="si">{</span><span class="bp">self</span><span class="o">.</span><span class="n">doc_author</span><span class="si">}</span><span class="s2">&lt;/td&gt; &lt;/tr&gt; &quot;</span>
-                <span class="sa">f</span><span class="s2">&quot;&lt;tr&gt; &lt;td&gt;SBOM creation timestamp provided&lt;/td&gt; &quot;</span>
-                <span class="sa">f</span><span class="s2">&quot;&lt;td&gt;</span><span class="si">{</span><span class="bp">self</span><span class="o">.</span><span class="n">doc_timestamp</span><span class="si">}</span><span class="s2">&lt;/td&gt; &lt;/tr&gt; &quot;</span>
-                <span class="sa">f</span><span class="s2">&quot;&lt;tr&gt; &lt;td&gt;Dependency relationships provided?&lt;/td&gt; &quot;</span>
-                <span class="sa">f</span><span class="s2">&quot;&lt;td&gt;</span><span class="si">{</span><span class="bp">self</span><span class="o">.</span><span class="n">dependency_relationships</span><span class="si">}</span><span class="s2">&lt;/td&gt; &lt;/tr&gt; &quot;</span>
-                <span class="sa">f</span><span class="s2">&quot;&lt;/table&gt;&quot;</span>
-            <span class="p">)</span>
-            <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">validation_messages</span><span class="p">:</span>
-                <span class="n">result</span> <span class="o">+=</span> <span class="p">(</span>
-                    <span class="s2">&quot;&lt;p&gt;The provided document is not valid according to the SPDX specification. &quot;</span>
-                    <span class="s2">&quot;The following errors were found:&lt;/p&gt;</span><span class="se">\n</span><span class="s2">&quot;</span>
-                <span class="p">)</span>
-                <span class="n">result</span> <span class="o">+=</span> <span class="s2">&quot;&lt;ul&gt;</span><span class="se">\n</span><span class="s2">&quot;</span>
-                <span class="k">for</span> <span class="n">msg</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">validation_messages</span><span class="p">:</span>
-                    <span class="k">if</span> <span class="n">msg</span><span class="o">.</span><span class="n">validation_message</span><span class="p">:</span>
-                        <span class="n">result</span> <span class="o">+=</span> <span class="s2">&quot;&lt;li&gt;</span><span class="se">\n</span><span class="s2">&quot;</span>
-                        <span class="n">result</span> <span class="o">+=</span> <span class="s2">&quot;&lt;p&gt;&lt;strong&gt;Validation message:&lt;/strong&gt;&lt;/p&gt;</span><span class="se">\n</span><span class="s2">&quot;</span>
-                        <span class="n">result</span> <span class="o">+=</span> <span class="sa">f</span><span class="s2">&quot;&lt;p&gt;</span><span class="si">{</span><span class="n">msg</span><span class="o">.</span><span class="n">validation_message</span><span class="si">}</span><span class="s2">&lt;/p&gt;</span><span class="se">\n</span><span class="s2">&quot;</span>
-                        <span class="k">if</span> <span class="n">msg</span><span class="o">.</span><span class="n">context</span><span class="p">:</span>
-                            <span class="n">result</span> <span class="o">+=</span> <span class="s2">&quot;&lt;p&gt;&lt;strong&gt;Validation context:&lt;/strong&gt;&lt;/p&gt;</span><span class="se">\n</span><span class="s2">&quot;</span>
-                            <span class="n">result</span> <span class="o">+=</span> <span class="s2">&quot;&lt;ul&gt;</span><span class="se">\n</span><span class="s2">&quot;</span>
-                            <span class="n">result</span> <span class="o">+=</span> <span class="sa">f</span><span class="s2">&quot;&lt;li&gt;SPDX ID: </span><span class="si">{</span><span class="n">msg</span><span class="o">.</span><span class="n">context</span><span class="o">.</span><span class="n">spdx_id</span><span class="si">}</span><span class="s2">&lt;/li&gt;</span><span class="se">\n</span><span class="s2">&quot;</span>
-                            <span class="n">result</span> <span class="o">+=</span> <span class="sa">f</span><span class="s2">&quot;&lt;li&gt;Parent ID: </span><span class="si">{</span><span class="n">msg</span><span class="o">.</span><span class="n">context</span><span class="o">.</span><span class="n">parent_id</span><span class="si">}</span><span class="s2">&lt;/li&gt;</span><span class="se">\n</span><span class="s2">&quot;</span>
-                            <span class="n">result</span> <span class="o">+=</span> <span class="p">(</span>
-                                <span class="sa">f</span><span class="s2">&quot;&lt;li&gt;Element type: </span><span class="si">{</span><span class="n">msg</span><span class="o">.</span><span class="n">context</span><span class="o">.</span><span class="n">element_type</span><span class="si">}</span><span class="s2">&lt;/li&gt;</span><span class="se">\n</span><span class="s2">&quot;</span>
-                            <span class="p">)</span>
-                            <span class="n">result</span> <span class="o">+=</span> <span class="s2">&quot;&lt;/ul&gt;</span><span class="se">\n</span><span class="s2">&quot;</span>
-                        <span class="n">result</span> <span class="o">+=</span> <span class="s2">&quot;&lt;/li&gt;</span><span class="se">\n</span><span class="s2">&quot;</span>
-                <span class="n">result</span> <span class="o">+=</span> <span class="s2">&quot;&lt;/ul&gt;</span><span class="se">\n</span><span class="s2">&quot;</span>
-        <span class="k">else</span><span class="p">:</span>
-            <span class="n">result</span> <span class="o">=</span> <span class="sa">f</span><span class="s2">&quot;&quot;&quot;</span>
-<span class="s2">            &lt;h2&gt;FSCTv3 Minimum Expected Conformance Results&lt;/h2&gt;</span>
-<span class="s2">            &lt;h3&gt;Conformant: </span><span class="si">{</span><span class="bp">self</span><span class="o">.</span><span class="n">compliant</span><span class="si">}</span><span class="s2">&lt;/h3&gt;</span>
-<span class="s2">            &lt;p&gt;The provided document couldn&#39;t be parsed, check for baseline attributes couldn&#39;t be performed.&lt;/p&gt;</span>
-<span class="s2">            &lt;p&gt;The following SPDXParsingError was raised:&lt;p&gt;&lt;ul&gt;&quot;&quot;&quot;</span>
-            <span class="k">for</span> <span class="n">error</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">parsing_error</span><span class="p">:</span>
-                <span class="n">result</span> <span class="o">+=</span> <span class="sa">f</span><span class="s2">&quot;&quot;&quot;&lt;li&gt;</span><span class="si">{</span><span class="n">error</span><span class="si">}</span><span class="s2">&lt;/li&gt;&quot;&quot;&quot;</span>
-
-            <span class="n">result</span> <span class="o">+=</span> <span class="s2">&quot;&quot;&quot;&lt;/ul&gt;&quot;&quot;&quot;</span>
-
-        <span class="k">return</span> <span class="n">result</span></div>
+        <span class="k">return</span> <span class="nb">super</span><span class="p">()</span><span class="o">.</span><span class="n">output_html</span><span class="p">(</span>
+            <span class="n">table_elements</span><span class="o">=</span><span class="p">[</span>
+                <span class="p">(</span><span class="s2">&quot;All component names provided&quot;</span><span class="p">,</span> <span class="ow">not</span> <span class="bp">self</span><span class="o">.</span><span class="n">components_without_names</span><span class="p">),</span>
+                <span class="p">(</span>
+                    <span class="s2">&quot;All component versions provided&quot;</span><span class="p">,</span>
+                    <span class="ow">not</span> <span class="bp">self</span><span class="o">.</span><span class="n">components_without_versions</span><span class="p">,</span>
+                <span class="p">),</span>
+                <span class="p">(</span>
+                    <span class="s2">&quot;All component identifiers provided&quot;</span><span class="p">,</span>
+                    <span class="ow">not</span> <span class="bp">self</span><span class="o">.</span><span class="n">components_without_identifiers</span><span class="p">,</span>
+                <span class="p">),</span>
+                <span class="p">(</span>
+                    <span class="s2">&quot;All component suppliers provided&quot;</span><span class="p">,</span>
+                    <span class="ow">not</span> <span class="bp">self</span><span class="o">.</span><span class="n">components_without_suppliers</span><span class="p">,</span>
+                <span class="p">),</span>
+                <span class="p">(</span>
+                    <span class="s2">&quot;All component concluded license provided&quot;</span><span class="p">,</span>
+                    <span class="ow">not</span> <span class="bp">self</span><span class="o">.</span><span class="n">components_without_concluded_licenses</span><span class="p">,</span>
+                <span class="p">),</span>
+                <span class="p">(</span>
+                    <span class="s2">&quot;All component copyright notice provided&quot;</span><span class="p">,</span>
+                    <span class="ow">not</span> <span class="bp">self</span><span class="o">.</span><span class="n">components_without_copyright_texts</span><span class="p">,</span>
+                <span class="p">),</span>
+                <span class="p">(</span><span class="s2">&quot;SBOM author name provided&quot;</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">doc_author</span><span class="p">),</span>
+                <span class="p">(</span><span class="s2">&quot;SBOM creation timestamp provided&quot;</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">doc_timestamp</span><span class="p">),</span>
+                <span class="p">(</span><span class="s2">&quot;Dependency relationships provided&quot;</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">dependency_relationships</span><span class="p">),</span>
+            <span class="p">],</span>
+        <span class="p">)</span></div>
 </div>
 
 </pre></div>

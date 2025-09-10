@@ -328,6 +328,8 @@
         <li><a href="ntia_conformance_checker.html#ntia_conformance_checker.BaseChecker.get_total_number_components">(ntia_conformance_checker.BaseChecker method)</a>
 </li>
       </ul></li>
+      <li><a href="ntia_conformance_checker.html#ntia_conformance_checker.report.get_validation_messages_html">get_validation_messages_html() (in module ntia_conformance_checker.report)</a>
+</li>
   </ul></td>
 </tr></table>
 
@@ -358,11 +360,15 @@
 </li>
         <li><a href="ntia_conformance_checker.html#module-ntia_conformance_checker.cli_utils">ntia_conformance_checker.cli_utils</a>
 </li>
+        <li><a href="ntia_conformance_checker.html#module-ntia_conformance_checker.constants">ntia_conformance_checker.constants</a>
+</li>
         <li><a href="ntia_conformance_checker.html#module-ntia_conformance_checker.fsct_checker">ntia_conformance_checker.fsct_checker</a>
 </li>
         <li><a href="ntia_conformance_checker.html#module-ntia_conformance_checker.main">ntia_conformance_checker.main</a>
 </li>
         <li><a href="ntia_conformance_checker.html#module-ntia_conformance_checker.ntia_checker">ntia_conformance_checker.ntia_checker</a>
+</li>
+        <li><a href="ntia_conformance_checker.html#module-ntia_conformance_checker.report">ntia_conformance_checker.report</a>
 </li>
         <li><a href="ntia_conformance_checker.html#module-ntia_conformance_checker.sbom_checker">ntia_conformance_checker.sbom_checker</a>
 </li>
@@ -397,6 +403,13 @@
 </li>
       </ul></li>
       <li>
+    ntia_conformance_checker.constants
+
+      <ul>
+        <li><a href="ntia_conformance_checker.html#module-ntia_conformance_checker.constants">module</a>
+</li>
+      </ul></li>
+      <li>
     ntia_conformance_checker.fsct_checker
 
       <ul>
@@ -417,6 +430,13 @@
 
       <ul>
         <li><a href="ntia_conformance_checker.html#module-ntia_conformance_checker.ntia_checker">module</a>
+</li>
+      </ul></li>
+      <li>
+    ntia_conformance_checker.report
+
+      <ul>
+        <li><a href="ntia_conformance_checker.html#module-ntia_conformance_checker.report">module</a>
 </li>
       </ul></li>
       <li>
@@ -464,10 +484,6 @@
 </li>
         <li><a href="ntia_conformance_checker.html#ntia_conformance_checker.NTIAChecker.output_html">(ntia_conformance_checker.NTIAChecker method)</a>
 </li>
-        <li><a href="ntia_conformance_checker.html#ntia_conformance_checker.sbom_checker.SbomChecker.output_html">(ntia_conformance_checker.sbom_checker.SbomChecker method)</a>
-</li>
-        <li><a href="ntia_conformance_checker.html#ntia_conformance_checker.SbomChecker.output_html">(ntia_conformance_checker.SbomChecker method)</a>
-</li>
       </ul></li>
   </ul></td>
   <td style="width: 33%; vertical-align: top;"><ul>
@@ -475,18 +491,6 @@
 
       <ul>
         <li><a href="ntia_conformance_checker.html#ntia_conformance_checker.BaseChecker.output_json">(ntia_conformance_checker.BaseChecker method)</a>
-</li>
-        <li><a href="ntia_conformance_checker.html#ntia_conformance_checker.FSCT3Checker.output_json">(ntia_conformance_checker.FSCT3Checker method)</a>
-</li>
-        <li><a href="ntia_conformance_checker.html#ntia_conformance_checker.fsct_checker.FSCT3Checker.output_json">(ntia_conformance_checker.fsct_checker.FSCT3Checker method)</a>
-</li>
-        <li><a href="ntia_conformance_checker.html#ntia_conformance_checker.ntia_checker.NTIAChecker.output_json">(ntia_conformance_checker.ntia_checker.NTIAChecker method)</a>
-</li>
-        <li><a href="ntia_conformance_checker.html#ntia_conformance_checker.NTIAChecker.output_json">(ntia_conformance_checker.NTIAChecker method)</a>
-</li>
-        <li><a href="ntia_conformance_checker.html#ntia_conformance_checker.sbom_checker.SbomChecker.output_json">(ntia_conformance_checker.sbom_checker.SbomChecker method)</a>
-</li>
-        <li><a href="ntia_conformance_checker.html#ntia_conformance_checker.SbomChecker.output_json">(ntia_conformance_checker.SbomChecker method)</a>
 </li>
       </ul></li>
   </ul></td>
@@ -526,10 +530,6 @@
 </li>
         <li><a href="ntia_conformance_checker.html#ntia_conformance_checker.NTIAChecker.print_components_missing_info">(ntia_conformance_checker.NTIAChecker method)</a>
 </li>
-        <li><a href="ntia_conformance_checker.html#ntia_conformance_checker.sbom_checker.SbomChecker.print_components_missing_info">(ntia_conformance_checker.sbom_checker.SbomChecker method)</a>
-</li>
-        <li><a href="ntia_conformance_checker.html#ntia_conformance_checker.SbomChecker.print_components_missing_info">(ntia_conformance_checker.SbomChecker method)</a>
-</li>
       </ul></li>
   </ul></td>
   <td style="width: 33%; vertical-align: top;"><ul>
@@ -546,11 +546,9 @@
 </li>
         <li><a href="ntia_conformance_checker.html#ntia_conformance_checker.NTIAChecker.print_table_output">(ntia_conformance_checker.NTIAChecker method)</a>
 </li>
-        <li><a href="ntia_conformance_checker.html#ntia_conformance_checker.sbom_checker.SbomChecker.print_table_output">(ntia_conformance_checker.sbom_checker.SbomChecker method)</a>
-</li>
-        <li><a href="ntia_conformance_checker.html#ntia_conformance_checker.SbomChecker.print_table_output">(ntia_conformance_checker.SbomChecker method)</a>
-</li>
       </ul></li>
+      <li><a href="ntia_conformance_checker.html#ntia_conformance_checker.report.print_validation_messages">print_validation_messages() (in module ntia_conformance_checker.report)</a>
+</li>
   </ul></td>
 </tr></table>
 

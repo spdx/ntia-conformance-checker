@@ -20,6 +20,14 @@ ntia\_conformance\_checker.cli\_utils module
    :show-inheritance:
    :undoc-members:
 
+ntia\_conformance\_checker.constants module
+-------------------------------------------
+
+.. automodule:: ntia_conformance_checker.constants
+   :members:
+   :show-inheritance:
+   :undoc-members:
+
 ntia\_conformance\_checker.fsct\_checker module
 -----------------------------------------------
 
@@ -40,6 +48,14 @@ ntia\_conformance\_checker.ntia\_checker module
 -----------------------------------------------
 
 .. automodule:: ntia_conformance_checker.ntia_checker
+   :members:
+   :show-inheritance:
+   :undoc-members:
+
+ntia\_conformance\_checker.report module
+----------------------------------------
+
+.. automodule:: ntia_conformance_checker.report
    :members:
    :show-inheritance:
    :undoc-members:
