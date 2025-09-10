@@ -8,7 +8,8 @@ from __future__ import annotations
 
 from typing import final
 
-from .base_checker import SUPPORTED_SBOM_SPECS, BaseChecker
+from .base_checker import BaseChecker
+from .constants import SUPPORTED_SBOM_SPECS
 
 
 @final
@@ -80,7 +81,4 @@ class SbomChecker(BaseChecker):
         )
 
     def check_compliance(self) -> bool:
-        raise NotImplementedError("This method is not implemented by SbomChecker.")
-
-    def output_html(self) -> str:
         raise NotImplementedError("This method is not implemented by SbomChecker.")

@@ -21,7 +21,12 @@ from spdx_tools.spdx.parser.error import SPDXParsingError
 from spdx_tools.spdx.validation.document_validator import validate_full_spdx_document
 from spdx_tools.spdx.validation.validation_message import ValidationMessage
 
-from .report import print_validation_messages
+from .constants import (
+    DEFAULT_SBOM_SPEC,
+    SUPPORTED_COMPLIANCE_STANDARDS,
+    SUPPORTED_COMPLIANCE_STANDARDS_DESC,
+)
+from .report import get_validation_messages_html, print_validation_messages
 from .spdx3_utils import (
     get_boms_from_spdx_document,
     get_packages_from_bom,
@@ -29,30 +34,6 @@ from .spdx3_utils import (
     iter_relationships_by_type,
     validate_spdx3_data,
 )
-
-SUPPORTED_SBOM_SPECS_DESC = {
-    "spdx2": "Software Package Data Exchange (SPDX) 2.x",
-    "spdx3": "System Package Data Exchange (SPDX) 3.x",
-}
-DEFAULT_SBOM_SPEC = "spdx2"
-SUPPORTED_SBOM_SPECS = set(SUPPORTED_SBOM_SPECS_DESC.keys())
-
-SUPPORTED_COMPLIANCE_STANDARDS_DESC = {
-    # "cisasbom2025": "2025 CISA SBOM Minimum Elements",
-    # https://www.cisa.gov/resources-tools/resources/2025-minimum-elements-software-bill-materials-sbom
-    "fsct3-min": "2024 CISA Framing Software Component Transparency (minimum expectation)",
-    "ntia": "2021 NTIA SBOM Minimum Elements",
-}
-DEFAULT_COMPLIANCE_STANDARD = "ntia"
-SUPPORTED_COMPLIANCE_STANDARDS = set(SUPPORTED_COMPLIANCE_STANDARDS_DESC.keys())
-
-SUPPORTED_SPDX_VERSIONS = {(2, 2), (2, 3), (3, 0)}  # (Major, Minor)
-SUPPORTED_SPDX2_VERSION_STRINGS = {
-    f"SPDX-{maj}.{min}" for (maj, min) in SUPPORTED_SPDX_VERSIONS if maj == 2
-}  # e.g. "SPDX-2.2", "SPDX-2.3"
-SUPPORTED_SPDX3_VERSION_STRINGS = {
-    f"{maj}.{min}" for (maj, min) in SUPPORTED_SPDX_VERSIONS if maj == 3
-}  # e.g. "3.0"
 
 
 # pylint: disable=too-many-instance-attributes
@@ -65,6 +46,24 @@ class BaseChecker(ABC):
     Any class inheriting from BaseChecker must implement its abstract methods,
     such as `check_compliance` and `output_json`.
     """
+
+    _COMPONENTS_MISSING = {
+        "name": ("components_without_names", "Components missing a name"),
+        "version": ("components_without_versions", "Components missing a version"),
+        "identifier": (
+            "components_without_identifiers",
+            "Components missing an identifier",
+        ),
+        "supplier": ("components_without_suppliers", "Components missing a supplier"),
+        "concluded_license": (
+            "components_without_concluded_licenses",
+            "Components missing a concluded license",
+        ),
+        "copyright_text": (
+            "components_without_copyright_texts",
+            "Components missing a copyright text",
+        ),
+    }
 
     compliance_standard: str = ""  # fsct3-min, ntia
     sbom_spec: str = ""  # spdx2, spdx3
@@ -103,11 +102,6 @@ class BaseChecker(ABC):
     @abstractmethod
     def check_compliance(self) -> bool:
         """Abstract method to check compliance/conformance."""
-        raise NotImplementedError
-
-    @abstractmethod
-    def output_html(self) -> str:
-        """Abstract method to create a result in HTML format."""
         raise NotImplementedError
 
     def __init__(
@@ -806,24 +800,6 @@ class BaseChecker(ABC):
 
         return object_set
 
-    _COMPONENTS_MISSING = {
-        "name": ("components_without_names", "Components missing a name"),
-        "version": ("components_without_versions", "Components missing a version"),
-        "identifier": (
-            "components_without_identifiers",
-            "Components missing an identifier",
-        ),
-        "supplier": ("components_without_suppliers", "Components missing a supplier"),
-        "concluded_license": (
-            "components_without_concluded_licenses",
-            "Components missing a concluded license",
-        ),
-        "copyright_text": (
-            "components_without_copyright_texts",
-            "Components missing a copyright text",
-        ),
-    }
-
     def print_components_missing_info(
         self, attributes: Optional[List[str]] = None
     ) -> None:
@@ -867,6 +843,12 @@ class BaseChecker(ABC):
             else:
                 print(f"Unknown attribute: {info!r}\n")
 
+    def _get_table_title(self) -> str:
+        return (
+            f"{SUPPORTED_COMPLIANCE_STANDARDS_DESC[self.compliance_standard]}"
+            " Conformance Results"
+        )
+
     def print_table_output(
         self,
         verbose: bool = False,
@@ -884,22 +866,20 @@ class BaseChecker(ABC):
         Returns:
             None
         """
-        if self.parsing_error:
+        if not self.doc:
             print("The document couldn't be parsed; check couldn't be performed.\n")
-            print("The following parsing error(s) were raised:\n")
-            for error in self.parsing_error:
-                print(error)
+            if self.parsing_error:
+                print("The following parsing error(s) were raised:\n")
+                for error in self.parsing_error:
+                    print(error)
             return
 
         if self.compliance_standard not in SUPPORTED_COMPLIANCE_STANDARDS:
             print(f"Unsupported compliance standard {self.compliance_standard!r}")
             return
 
-        print(
-            "\nIs this SBOM conformant to "
-            f'"{SUPPORTED_COMPLIANCE_STANDARDS_DESC[self.compliance_standard]}"? '
-            f"{self.compliant}\n"
-        )
+        print(self._get_table_title())
+        print(f"Conformant: {self.compliant}\n")
 
         if table_elements:
             print("Individual elements                            | Status")
@@ -915,6 +895,52 @@ class BaseChecker(ABC):
                 "The following errors were found:\n"
             )
             print_validation_messages(self.validation_messages, verbose)
+
+    def output_html(
+        self,
+        table_elements: Optional[List[Tuple[str, bool]]] = None,
+    ) -> str:
+        """Create a HTML of results."""
+        html_parts: List[str] = []
+
+        if not self.doc:
+            html_parts.append(
+                "<p>The document couldn't be parsed; check couldn't be performed.</p>"
+            )
+            if self.parsing_error:
+                html_parts.append("<p>The following parsing error(s) were raised:</p>")
+                html_parts.append("<ul>")
+                for err in self.parsing_error:
+                    html_parts.append(f"<li>{err}</li>")
+                html_parts.append("</ul>")
+            return "\n".join(html_parts)
+
+        if self.compliance_standard not in SUPPORTED_COMPLIANCE_STANDARDS:
+            html_parts.append(
+                f"<p>Unsupported compliance standard {self.compliance_standard!r}</p>"
+            )
+            return "\n".join(html_parts)
+
+        html_parts.append(f"<h2>{self._get_table_title()}</h2>")
+        html_parts.append(f"<h3>Conformant: {self.compliant}</h3>")
+
+        if table_elements:
+            html_parts.append("<table>")
+            html_parts.append(
+                "<tr><th>Individual Elements</th><th>Conformant</th></tr>"
+            )
+            for label, val in table_elements:
+                html_parts.append(f"<tr><td>{label}</td><td>{val}</td></tr>")
+            html_parts.append("</table>")
+
+        if self.validation_messages:
+            html_parts.append(
+                "<p>The provided document is not valid according to the SBOM specification.</p>"
+            )
+            html_parts.append("<p>The following errors were found:</p>")
+            html_parts.append(get_validation_messages_html(self.validation_messages))
+
+        return "\n".join(html_parts)
 
     def output_json(self) -> Dict[str, Any]:
         """

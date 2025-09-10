@@ -429,16 +429,18 @@ def test_sbomchecker_output_html():
 
     got = sbom.output_html()
     expected = (
-        " <h2>NTIA Conformance Results</h2> <h3>Conformant: False</h3><table> <tr> "
-        "<th>Individual Elements</th> "
-        "<th>Conformant</th> </tr> "
-        "<tr> <td>All component names provided</td> <td>True</td> </tr> "
-        "<tr> <td>All component versions provided</td> <td>True</td> </tr> "
-        "<tr> <td>All component identifiers provided</td> <td>True</td> </tr> "
-        "<tr> <td>All component suppliers provided</td> <td>False</td> </tr> "
-        "<tr> <td>SBOM author name provided</td> <td>True</td> </tr> "
-        "<tr> <td>SBOM creation timestamp provided</td> <td>True</td> </tr> "
-        "<tr> <td>Dependency relationships provided?</td> <td>True</td> </tr> </table>"
+        "<h2>2021 NTIA SBOM Minimum Elements Conformance Results</h2>\n"
+        "<h3>Conformant: False</h3>\n"
+        "<table>\n"
+        "<tr><th>Individual Elements</th><th>Conformant</th></tr>\n"
+        "<tr><td>All component names provided</td><td>True</td></tr>\n"
+        "<tr><td>All component versions provided</td><td>True</td></tr>\n"
+        "<tr><td>All component identifiers provided</td><td>True</td></tr>\n"
+        "<tr><td>All component suppliers provided</td><td>False</td></tr>\n"
+        "<tr><td>SBOM author name provided</td><td>True</td></tr>\n"
+        "<tr><td>SBOM creation timestamp provided</td><td>True</td></tr>\n"
+        "<tr><td>Dependency relationships provided</td><td>True</td></tr>\n"
+        "</table>"
     )
 
     assert got == expected
