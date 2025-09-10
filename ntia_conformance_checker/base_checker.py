@@ -173,11 +173,6 @@ class BaseChecker(ABC):
             self.doc = self.parse_file()
         # SPDX 3
         elif sbom_spec == "spdx3":
-            logging.warning(
-                "SPDX 3 support is under development. "
-                "Some features may not work as expected. "
-                "Do not use in production."
-            )
             object_set = self.parse_spdx3_file()
             if not object_set:
                 logging.error("Failed to parse the SPDX 3 file.")
