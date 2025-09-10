@@ -6,7 +6,7 @@
 
 from __future__ import annotations
 
-from typing import Any, Dict, final
+from typing import final
 
 from .base_checker import SUPPORTED_SBOM_SPECS, BaseChecker
 
@@ -80,15 +80,6 @@ class SbomChecker(BaseChecker):
         )
 
     def check_compliance(self) -> bool:
-        raise NotImplementedError("This method is not implemented by SbomChecker.")
-
-    def print_components_missing_info(self) -> None:
-        raise NotImplementedError("This method is not implemented by SbomChecker.")
-
-    def print_table_output(self, verbose: bool = False) -> None:
-        raise NotImplementedError("This method is not implemented by SbomChecker.")
-
-    def output_json(self) -> Dict[str, Any]:
         raise NotImplementedError("This method is not implemented by SbomChecker.")
 
     def output_html(self) -> str:

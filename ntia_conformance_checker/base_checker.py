@@ -21,6 +21,7 @@ from spdx_tools.spdx.parser.error import SPDXParsingError
 from spdx_tools.spdx.validation.document_validator import validate_full_spdx_document
 from spdx_tools.spdx.validation.validation_message import ValidationMessage
 
+from .report import print_validation_messages
 from .spdx3_utils import (
     get_boms_from_spdx_document,
     get_packages_from_bom,
@@ -102,38 +103,6 @@ class BaseChecker(ABC):
     @abstractmethod
     def check_compliance(self) -> bool:
         """Abstract method to check compliance/conformance."""
-        raise NotImplementedError
-
-    @abstractmethod
-    def print_components_missing_info(self) -> None:
-        """
-        Abstract method to print information about components that
-        are missing required details.
-
-        What is considered "missing" is determined by a compliance standard
-        and the method that implements this abstract method.
-
-        Returns:
-            None
-        """
-        raise NotImplementedError
-
-    @abstractmethod
-    def print_table_output(self, verbose: bool = False) -> None:
-        """
-        Abstract method to print element-by-element result table.
-
-        Returns:
-            None
-        """
-        raise NotImplementedError
-
-    @abstractmethod
-    def output_json(self) -> Dict[str, Any]:
-        """
-        Abstract method to create a dict of results for outputting
-        to JSON.
-        """
         raise NotImplementedError
 
     @abstractmethod
@@ -836,3 +805,156 @@ class BaseChecker(ABC):
             return None
 
         return object_set
+
+    _COMPONENTS_MISSING = {
+        "name": ("components_without_names", "Components missing a name"),
+        "version": ("components_without_versions", "Components missing a version"),
+        "identifier": (
+            "components_without_identifiers",
+            "Components missing an identifier",
+        ),
+        "supplier": ("components_without_suppliers", "Components missing a supplier"),
+        "concluded_license": (
+            "components_without_concluded_licenses",
+            "Components missing a concluded license",
+        ),
+        "copyright_text": (
+            "components_without_copyright_texts",
+            "Components missing a copyright text",
+        ),
+    }
+
+    def print_components_missing_info(
+        self, attributes: Optional[List[str]] = None
+    ) -> None:
+        """
+        Print information about components that are missing required details.
+
+        What is considered "missing" is determined by a compliance standard.
+        Subclasses may override this method to provide custom behavior.
+
+        Args:
+            attributes (Optional[List[str]]): A list of attributes to check for missing
+                                              information. If not specified, all
+                                              available attributes will be checked.
+
+        Returns:
+            None
+        """
+        # If parsing failed, skip
+        if self.parsing_error:
+            return
+
+        # If no specific info types are provided, check all
+        if not attributes:
+            attributes = list(self._COMPONENTS_MISSING.keys())
+
+        if all(
+            not getattr(self, components_without_info, None)
+            for components_without_info, _ in self._COMPONENTS_MISSING.values()
+        ):
+            print("No components with missing information.")
+            return
+
+        for info in attributes:
+            if info in self._COMPONENTS_MISSING:
+                components_without_infos, label = self._COMPONENTS_MISSING[info]
+                if components_without_infos:
+                    print(
+                        f"{label} ({len(components_without_infos)}): "
+                        f"{', '.join(components_without_infos)}"
+                    )
+            else:
+                print(f"Unknown attribute: {info!r}\n")
+
+    def print_table_output(
+        self,
+        verbose: bool = False,
+        table_elements: Optional[List[Tuple[str, bool]]] = None,
+    ) -> None:
+        """
+        Print element-by-element result table.
+
+        Args:
+            verbose (bool): If True, print detailed information.
+            table_elements (Optional[List[Tuple[str, bool]]]): A list of tuples
+                            where each tuple contains a label and a boolean
+                            value indicating the status of that element.
+
+        Returns:
+            None
+        """
+        if self.parsing_error:
+            print("The document couldn't be parsed; check couldn't be performed.\n")
+            print("The following parsing error(s) were raised:\n")
+            for error in self.parsing_error:
+                print(error)
+            return
+
+        if self.compliance_standard not in SUPPORTED_COMPLIANCE_STANDARDS:
+            print(f"Unsupported compliance standard {self.compliance_standard!r}")
+            return
+
+        print(
+            "\nIs this SBOM conformant to "
+            f'"{SUPPORTED_COMPLIANCE_STANDARDS_DESC[self.compliance_standard]}"? '
+            f"{self.compliant}\n"
+        )
+
+        if table_elements:
+            print("Individual elements                            | Status")
+            print("-------------------------------------------------------")
+            for label, value in table_elements:
+                print(f"{label:<46} | {value}")
+            print()
+
+        if self.validation_messages:
+            print(
+                "\nThe document is not valid according to the SBOM "
+                f'specification ("{self.sbom_spec}"). '
+                "The following errors were found:\n"
+            )
+            print_validation_messages(self.validation_messages, verbose)
+
+    def output_json(self) -> Dict[str, Any]:
+        """
+        Create a JSON-serializable result dict.
+
+        Subclasses may override to provide custom fields.
+        """
+        result: Dict[str, Any] = {
+            "isConformant": self.compliant,
+            "isNtiaConformant": self.compliant,  # backward compatibility
+            "complianceStandard": self.compliance_standard,
+            "sbomSpec": self.sbom_spec,
+            "validationMessages": (
+                list(map(str, self.validation_messages))
+                if self.validation_messages
+                else []
+            ),
+            "parsingError": self.parsing_error,
+            "sbomName": self.sbom_name,
+            "specVersionProvided": self.doc_version,
+            "authorNameProvided": self.doc_author,
+            "timestampProvided": self.doc_timestamp,
+            "dependencyRelationshipsProvided": self.dependency_relationships,
+            "totalNumberComponents": self.get_total_number_components(),
+        }
+
+        _groups = {
+            "componentNames": "components_without_names",
+            "componentVersions": "components_without_versions",
+            "componentIdentifiers": "components_without_identifiers",
+            "componentSuppliers": "components_without_suppliers",
+            "componentConcludedLicenses": "components_without_concluded_licenses",
+            "componentCopyrightTexts": "components_without_copyright_texts",
+        }
+
+        for key_, attr in _groups.items():
+            components_without_infos = getattr(self, attr, [])
+            result[key_] = {
+                "nonconformantComponents": components_without_infos,
+                "allProvided": not bool(components_without_infos),
+            }
+
+        return result

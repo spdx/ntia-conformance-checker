@@ -6,8 +6,6 @@
 
 from __future__ import annotations
 
-from typing import Any, Dict
-
 from .base_checker import BaseChecker
 
 
@@ -73,191 +71,50 @@ class FSCT3Checker(BaseChecker):
             ]
         )
 
-    def print_components_missing_info(self) -> None:
-        """Print detailed info about which components are missing info."""
-        if not self.parsing_error:
-            if all(
-                [
-                    not self.components_without_names,
-                    not self.components_without_versions,
-                    not self.components_without_identifiers,
-                    not self.components_without_suppliers,
-                    not self.components_without_concluded_licenses,
-                    not self.components_without_copyright_texts,
-                ]
-            ):
-                print("No components with missing information.")
-            if self.components_without_names:
-                print(
-                    "Components missing a name: "
-                    f"{', '.join(self.components_without_names)}"
-                )
-                print()
-            if self.components_without_versions:
-                print(
-                    "Components missing a version: "
-                    f"{', '.join(self.components_without_versions)}"
-                )
-                print()
-            if self.components_without_identifiers:
-                print(
-                    "Components missing an identifier: "
-                    f"{', '.join(self.components_without_identifiers)}"
-                )
-                print()
-            if self.components_without_suppliers:
-                print(
-                    "Components missing a supplier: "
-                    f"{', '.join(self.components_without_suppliers)}"
-                )
-                print()
-            if self.components_without_concluded_licenses:
-                print(
-                    "Components missing a license: "
-                    f"{', '.join(self.components_without_concluded_licenses)}"
-                )
-                print()
-            if self.components_without_copyright_texts:
-                print(
-                    "Components missing a copyright notice: "
-                    f"{', '.join(self.components_without_copyright_texts)}"
-                )
-                print()
+    def print_components_missing_info(self, attributes=None) -> None:
+        """Print detailed info about which components have missing info."""
+        super().print_components_missing_info(
+            attributes=[
+                "name",
+                "version",
+                "identifier",
+                "supplier",
+                "concluded_license",
+                "copyright_text",
+            ]
+        )
 
-    def print_table_output(self, verbose: bool = False) -> None:
+    def print_table_output(self, verbose: bool = False, table_elements=None) -> None:
         """Print element-by-element result table."""
-        # pylint: disable=line-too-long
-        if self.parsing_error:
-            print(
-                f"\nIs this SBOM FSCTv3 Minimum Expected conformant? {self.compliant}\n"
-            )
-            print(
-                "The provided document couldn't be parsed, "
-                "check for FSCTv3 Minimum Expected couldn't be performed.\n"
-            )
-            print("The following SPDXParsingError was raised:\n")
-            for error in self.parsing_error:
-                print(error)
-
-        else:
-            print(
-                f"\nIs this SBOM FSCTv3 Minimum Expected conformant? {self.compliant}\n"
-            )
-            print("Individual elements                            | Status")
-            print("-------------------------------------------------------")
-            print(
-                f"All component names provided?                  | {not self.components_without_names}"
-            )
-            print(
-                f"All component versions provided?               | {not self.components_without_versions}"
-            )
-            print(
-                f"All component identifiers provided?            | {not self.components_without_identifiers}"
-            )
-            print(
-                f"All component suppliers provided?              | {not self.components_without_suppliers}"
-            )
-            print(
-                f"All component concluded license provided?      | {not self.components_without_concluded_licenses}"
-            )
-            print(
-                f"All component copyright notice provided?       | {not self.components_without_copyright_texts}"
-            )
-            print(f"SBOM author name provided?                     | {self.doc_author}")
-            print(
-                f"SBOM creation timestamp provided?              | {self.doc_timestamp}"
-            )
-            print(
-                f"Dependency relationships provided?             | {self.dependency_relationships}\n"
-            )
-
-            if self.validation_messages:
-                print(
-                    "The provided document is not valid according to the SPDX specification. "
-                    "The following errors were found:\n"
-                )
-                for msg in self.validation_messages:
-                    if msg.validation_message:
-                        print(msg.validation_message)
-                        if verbose and msg.context:
-                            print(f"- SPDX ID: {msg.context.spdx_id}")
-                            print(f"- Parent ID: {msg.context.parent_id}")
-                            print(f"- Element type: {msg.context.element_type}")
-                        print()
-
-    def output_json(self) -> Dict[str, Any]:
-        """Create a dict of results for outputting to JSON."""
-        # instantiate dict and fields that have > 1 level
-        result: Dict[str, Any] = {}
-
-        result["isConformant"] = self.compliant
-        result["isNtiaConformant"] = self.compliant  # for backward compatibility
-
-        result["complianceStandard"] = self.compliance_standard
-        result["sbomSpec"] = self.sbom_spec
-
-        result["validationMessages"] = []
-        if self.validation_messages:
-            result["validationMessages"] = list(map(str, self.validation_messages))
-
-        result["parsingError"] = self.parsing_error
-
-        result["sbomName"] = self.sbom_name
-        result["componentNames"] = {}
-        result["componentVersions"] = {}
-        result["componentIdentifiers"] = {}
-        result["componentSuppliers"] = {}
-        result["componentConcludedLicenses"] = {}
-        result["componentCopyrightTexts"] = {}
-
-        result["specVersionProvided"] = self.doc_version
-        result["authorNameProvided"] = self.doc_author
-        result["timestampProvided"] = self.doc_timestamp
-        result["dependencyRelationshipsProvided"] = self.dependency_relationships
-
-        result["componentNames"][
-            "nonconformantComponents"
-        ] = self.components_without_names
-        result["componentNames"]["allProvided"] = not self.components_without_names
-
-        result["componentVersions"][
-            "nonconformantComponents"
-        ] = self.components_without_versions
-        result["componentVersions"][
-            "allProvided"
-        ] = not self.components_without_versions
-
-        result["componentIdentifiers"][
-            "nonconformantComponents"
-        ] = self.components_without_identifiers
-        result["componentIdentifiers"][
-            "allProvided"
-        ] = not self.components_without_identifiers
-
-        result["componentSuppliers"][
-            "nonconformantComponents"
-        ] = self.components_without_suppliers
-        result["componentSuppliers"][
-            "allProvided"
-        ] = not self.components_without_suppliers
-
-        result["componentConcludedLicenses"][
-            "nonconformantComponents"
-        ] = self.components_without_concluded_licenses
-        result["componentConcludedLicenses"][
-            "allProvided"
-        ] = not self.components_without_concluded_licenses
-
-        result["componentCopyrightTexts"][
-            "nonconformantComponents"
-        ] = self.components_without_copyright_texts
-        result["componentCopyrightTexts"][
-            "allProvided"
-        ] = not self.components_without_copyright_texts
-
-        result["totalNumberComponents"] = self.get_total_number_components()
-
-        return result
+        super().print_table_output(
+            verbose=verbose,
+            table_elements=[
+                ("All component names provided?", not self.components_without_names),
+                (
+                    "All component versions provided?",
+                    not self.components_without_versions,
+                ),
+                (
+                    "All component identifiers provided?",
+                    not self.components_without_identifiers,
+                ),
+                (
+                    "All component suppliers provided?",
+                    not self.components_without_suppliers,
+                ),
+                (
+                    "All component concluded license provided?",
+                    not self.components_without_concluded_licenses,
+                ),
+                (
+                    "All component copyright notice provided?",
+                    not self.components_without_copyright_texts,
+                ),
+                ("SBOM author name provided?", self.doc_author),
+                ("SBOM creation timestamp provided?", self.doc_timestamp),
+                ("Dependency relationships provided?", self.dependency_relationships),
+            ],
+        )
 
     def output_html(self) -> str:
         """Create a HTML of results."""
