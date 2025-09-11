@@ -7,11 +7,12 @@
 from __future__ import annotations
 
 import argparse
+import json
 import logging
 import re
 import sys
 from importlib.metadata import version
-from typing import Optional, Tuple
+from typing import Any, Dict, Optional, Tuple
 
 from spdx_tools.spdx.parser.error import SPDXParsingError
 from spdx_tools.spdx.parser.parse_anything import parse_file as parse_spdx2_file
@@ -23,7 +24,9 @@ from .constants import (
     SUPPORTED_COMPLIANCE_STANDARDS_DESC,
     SUPPORTED_SBOM_SPECS,
     SUPPORTED_SBOM_SPECS_DESC,
+    SUPPORTED_SPDX_VERSIONS,
 )
+from .sbom_checker import BaseChecker
 
 _OUTPUT_CHOICES = {
     "print": "Print report to console",
@@ -229,3 +232,65 @@ def get_spdx_version(file: str, sbom_spec: str = "spdx2") -> Optional[Tuple[int,
             return (int(m.group(1)), int(m.group(2)))  # Returns (MAJOR, MINOR)
 
     return None
+
+
+def get_sbom_spec(file: str, sbom_spec: str) -> str:
+    """Detect SBOM specification from file content."""
+    detected_sbom_spec: str = ""
+
+    if sbom_spec not in SUPPORTED_SBOM_SPECS:
+        logging.error(
+            "Unsupported SBOM specification: %s. Supported: %s",
+            sbom_spec,
+            ", ".join(sorted(SUPPORTED_SBOM_SPECS)),
+        )
+        return ""
+
+    if sbom_spec.startswith("spdx"):
+        spdx_version: Optional[Tuple[int, int]] = get_spdx_version(
+            file, sbom_spec=sbom_spec
+        )
+        if not spdx_version:
+            logging.error("Could not determine SPDX version from SBOM.")
+            return ""
+        logging.debug("Detected SPDX version: %d.%d", spdx_version[0], spdx_version[1])
+
+        if spdx_version not in SUPPORTED_SPDX_VERSIONS:
+            logging.error(
+                "Unsupported SPDX version: %d.%d. Supported: %s",
+                spdx_version[0],
+                spdx_version[1],
+                ", ".join(
+                    f"{maj}.{min}" for maj, min in sorted(SUPPORTED_SPDX_VERSIONS)
+                ),
+            )
+            return ""
+
+        if spdx_version[0] == 3:
+            detected_sbom_spec = "spdx3"
+        elif spdx_version[0] == 2:
+            detected_sbom_spec = "spdx2"
+
+    return detected_sbom_spec
+
+
+def print_output(
+    sbom: BaseChecker, *, output_type: str, output_file: str, verbose: bool
+) -> None:
+    """Print or save the output report."""
+    if output_type == "print":
+        sbom.print_table_output(verbose=verbose)
+        if verbose:
+            sbom.print_components_missing_info()
+    elif output_type == "json":
+        result_dict: Dict[str, Any] = sbom.output_json()
+        if output_file:
+            with open(output_file, "w", encoding="utf-8") as outfile:
+                json.dump(result_dict, outfile)
+        else:
+            print(json.dumps(result_dict, indent=2))
+    elif output_type == "html":
+        html_output = sbom.output_html()
+        print(html_output)
+
+    # do nothing if output_type is "quiet" or unrecognized
