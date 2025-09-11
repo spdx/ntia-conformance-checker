@@ -156,9 +156,12 @@ def get_spdx_version(file: str, sbom_spec: str = "spdx2") -> Optional[Tuple[int,
 
     Args:
         file (str): The name of the file to be checked.
+        sbom_spec (str): The SBOM specification hint, the function will try to
+                         use the appropriate parser first.
 
     Returns:
-        Tuple[int, int]: The SPDX major.minor version of the SBOM. E.g. (2, 3) for version 2.3.
+        Tuple[int, int]: The SPDX major.minor version of the SBOM.
+                         E.g. (2, 3) for version 2.3.
     """
     if file.lower().endswith(".xls") or file.lower().endswith(".xlsx"):
         logging.debug("Detect SPDX version: Excel file format is not supported")

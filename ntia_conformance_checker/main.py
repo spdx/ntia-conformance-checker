@@ -13,7 +13,67 @@ from typing import Any, Dict, Optional, Tuple
 
 from .cli_utils import get_parsed_args, get_spdx_version
 from .constants import SUPPORTED_SBOM_SPECS, SUPPORTED_SPDX_VERSIONS
-from .sbom_checker import SbomChecker
+from .sbom_checker import BaseChecker, SbomChecker
+
+
+def _detect_sbom_spec(file: str, sbom_spec: str) -> str:
+    detected_sbom_spec: str = ""
+
+    if sbom_spec not in SUPPORTED_SBOM_SPECS:
+        logging.error(
+            "Unsupported SBOM specification: %s. Supported: %s",
+            sbom_spec,
+            ", ".join(sorted(SUPPORTED_SBOM_SPECS)),
+        )
+        return ""
+
+    if sbom_spec.startswith("spdx"):
+        spdx_version: Optional[Tuple[int, int]] = get_spdx_version(
+            file, sbom_spec=sbom_spec
+        )
+        if not spdx_version:
+            logging.error("Could not determine SPDX version from SBOM.")
+            return ""
+        logging.debug("Detected SPDX version: %d.%d", spdx_version[0], spdx_version[1])
+
+        if spdx_version not in SUPPORTED_SPDX_VERSIONS:
+            logging.error(
+                "Unsupported SPDX version: %d.%d. Supported: %s",
+                spdx_version[0],
+                spdx_version[1],
+                ", ".join(
+                    f"{maj}.{min}" for maj, min in sorted(SUPPORTED_SPDX_VERSIONS)
+                ),
+            )
+            return ""
+
+        if spdx_version[0] == 3:
+            detected_sbom_spec = "spdx3"
+        elif spdx_version[0] == 2:
+            detected_sbom_spec = "spdx2"
+
+    return detected_sbom_spec
+
+
+def _print_output(
+    sbom: BaseChecker, *, output_type: str, output_file: str, verbose: bool
+) -> None:
+    if output_type == "print":
+        sbom.print_table_output(verbose=verbose)
+        if verbose:
+            sbom.print_components_missing_info()
+    elif output_type == "json":
+        result_dict: Dict[str, Any] = sbom.output_json()
+        if output_file:
+            with open(output_file, "w", encoding="utf-8") as outfile:
+                json.dump(result_dict, outfile)
+        else:
+            print(json.dumps(result_dict, indent=2))
+    elif output_type == "html":
+        html_output = sbom.output_html()
+        print(html_output)
+
+    # do nothing if output_type is "quiet" or unrecognized
 
 
 def main() -> None:
@@ -31,36 +91,9 @@ def main() -> None:
         "SPDX validation: %s", "enabled" if not args.skip_validation else "disabled"
     )
 
-    if args.sbom_spec not in SUPPORTED_SBOM_SPECS:
-        logging.error(
-            "Unsupported SBOM specification: %s. Supported: %s",
-            args.sbom_spec,
-            ", ".join(sorted(SUPPORTED_SBOM_SPECS)),
-        )
+    detected_sbom_spec = _detect_sbom_spec(file=args.file, sbom_spec=args.sbom_spec)
+    if not detected_sbom_spec:
         sys.exit(1)
-
-    spdx_version: Optional[Tuple[int, int]] = get_spdx_version(
-        args.file, sbom_spec=args.sbom_spec
-    )
-    if not spdx_version:
-        logging.error("Could not determine SPDX version from SBOM.")
-        sys.exit(1)
-    logging.debug("Detected SPDX version: %d.%d", spdx_version[0], spdx_version[1])
-
-    if spdx_version not in SUPPORTED_SPDX_VERSIONS:
-        logging.error(
-            "Unsupported SPDX version: %d.%d. Supported: %s",
-            spdx_version[0],
-            spdx_version[1],
-            ", ".join(f"{maj}.{min}" for maj, min in sorted(SUPPORTED_SPDX_VERSIONS)),
-        )
-        sys.exit(1)
-
-    detected_sbom_spec: str
-    if spdx_version[0] == 3:
-        detected_sbom_spec = "spdx3"
-    else:
-        detected_sbom_spec = "spdx2"
 
     sbom = SbomChecker(
         args.file,
@@ -79,20 +112,12 @@ def main() -> None:
             )
         logging.debug("SBOM name: %s", sbom.sbom_name)
 
-    if args.output == "print":
-        sbom.print_table_output(verbose=args.verbose)
-        if args.verbose:
-            sbom.print_components_missing_info()
-    elif args.output == "json":
-        result_dict: Dict[str, Any] = sbom.output_json()
-        if args.output_file:
-            with open(args.output_file, "w", encoding="utf-8") as outfile:
-                json.dump(result_dict, outfile)
-        else:
-            print(json.dumps(result_dict, indent=2))
-    elif args.output == "html":
-        html_output = sbom.output_html()
-        print(html_output)
+    _print_output(
+        sbom,
+        output_type=args.output,
+        output_file=args.output_file,
+        verbose=args.verbose,
+    )
 
     sys.exit(0 if sbom.compliant else 1)  # 0 indicates success
 
