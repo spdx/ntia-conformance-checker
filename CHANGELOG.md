@@ -11,6 +11,14 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog][keepachangelog]
 and this project adheres to [Semantic Versioning][semver].
 
+## [Unreleased]
+
+### Fixed
+
+- Fix verbosity bug ([#308][])
+
+[#308]: https://github.com/spdx/ntia-conformance-checker/pull/308
+
 ## [4.0.0] - 2025-09-05
 
 ### Added
@@ -93,6 +101,7 @@ Thanks to @goneall, @licquia, and @kestewart for mentoring @linynjosh.
 [#1]: https://github.com/spdx/ntia-conformance-checker/pull/1
 [keepachangelog]: https://keepachangelog.com/en/1.1.0/
 [semver]: https://semver.org/spec/v2.0.0.html
+[unreleased]: https://github.com/spdx/ntia-conformance-checker/compare/v4.0.0...main
 [4.0.0]: https://github.com/spdx/ntia-conformance-checker/releases/tag/v4.0.0
 [3.2.0]: https://github.com/spdx/ntia-conformance-checker/releases/tag/v3.2.0
 [3.1.0]: https://github.com/spdx/ntia-conformance-checker/releases/tag/v3.1.0

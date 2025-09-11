@@ -145,15 +145,6 @@ def get_parsed_args() -> argparse.Namespace:
         parser.print_help()
         sys.exit(0)
 
-    logging.basicConfig(
-        level=(
-            logging.CRITICAL
-            if getattr(args, "quiet", "") == "quiet"
-            else (logging.INFO if getattr(args, "verbose", False) else logging.WARNING)
-        ),
-        format="%(levelname)s: %(message)s",
-    )
-
     return args
 
 
@@ -170,7 +161,7 @@ def get_spdx_version(file: str, sbom_spec: str = "spdx2") -> Optional[Tuple[int,
         Tuple[int, int]: The SPDX major.minor version of the SBOM. E.g. (2, 3) for version 2.3.
     """
     if file.lower().endswith(".xls") or file.lower().endswith(".xlsx"):
-        logging.warning("Excel file format is not supported")
+        logging.debug("Detect SPDX version: Excel file format is not supported")
         return None
 
     # Try parsing the file with spdx_tools first
@@ -179,10 +170,13 @@ def get_spdx_version(file: str, sbom_spec: str = "spdx2") -> Optional[Tuple[int,
         try:
             doc = parse_spdx2_file(file)
         except SPDXParsingError as exc:
-            logging.warning("spdx_tools parser failed: %s", exc)
+            logging.debug("Detect SPDX version: spdx_tools parser failed: %s", exc)
             doc = None
         except (ValueError, TypeError, OSError) as exc:
-            logging.warning("Unexpected error while parsing with spdx_tools: %s", exc)
+            logging.debug(
+                "Detect SPDX version: Unexpected error while parsing with spdx_tools: %s",
+                exc,
+            )
             doc = None
 
     # If parsing was successful, return the version tuple. e.g. (2, 3) for 2.3.
@@ -201,7 +195,7 @@ def get_spdx_version(file: str, sbom_spec: str = "spdx2") -> Optional[Tuple[int,
         with open(file, "r", encoding="utf-8") as f:
             content = f.read()
     except (OSError, UnicodeDecodeError) as exc:
-        logging.warning("Could not read file: %s", exc)
+        logging.debug("Detect SPDX version: Could not read file: %s", exc)
         return None
 
     # Match MAJOR.MINOR.PATCH version
