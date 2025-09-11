@@ -63,10 +63,15 @@ def main() -> None:
         sbom_spec=args.sbom_spec,
     )
 
-    logging.info("Parsing: %s", "OK" if not sbom.parsing_error else "Failed")
-    logging.info("Validation: %s", "OK" if not sbom.validation_messages else "Failed")
+    logging.debug("Parsing: %s", "OK" if not sbom.parsing_error else "Failed")
     if not sbom.parsing_error:
-        logging.info("SBOM name: %s", sbom.sbom_name)
+        if args.skip_validation:
+            logging.debug("Validation: skipped")
+        else:
+            logging.debug(
+                "Validation: %s", "OK" if not sbom.validation_messages else "Failed"
+            )
+        logging.debug("SBOM name: %s", sbom.sbom_name)
 
     if args.output == "print":
         sbom.print_table_output(verbose=args.verbose)
