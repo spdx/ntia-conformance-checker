@@ -291,6 +291,26 @@ def print_output(
             print(json.dumps(result_dict, indent=2))
     elif output_type == "html":
         html_output = sbom.output_html()
-        print(html_output)
+        if output_file:
+            try:
+                with open(output_file, "w", encoding="utf-8") as outfile:
+                    # Put a simple HTML wrapper around the HTML report snippet
+                    outfile.write(
+                        "<!DOCTYPE html>\n"
+                        "<html>\n"
+                        "<head>\n"
+                        "  <title>SBOM Conformance Report</title>\n"
+                        '  <meta charset="utf-8" />\n'
+                        "</head>\n"
+                        "<body>\n"
+                        "<h1>SBOM Conformance Report</h1>\n"
+                    )
+                    outfile.write(f"<p>Filename: {sbom.file}</p>\n")
+                    outfile.write(html_output)
+                    outfile.write("\n</body>\n</html>\n")
+            except OSError as exc:
+                logging.error("Could not write HTML output file: %s", exc)
+        else:
+            print(html_output)
 
     # do nothing if output_type is "quiet" or unrecognized
