@@ -821,19 +821,20 @@ class BaseChecker(ABC):
             attributes = list(self._COMPONENTS_MISSING.keys())
 
         if all(
-            not getattr(self, components_without_info, None)
-            for components_without_info, _ in self._COMPONENTS_MISSING.values()
+            not getattr(self, list_name, [])
+            for list_name, _ in self._COMPONENTS_MISSING.values()
         ):
             print("No components with missing information.")
             return
 
         for info in attributes:
             if info in self._COMPONENTS_MISSING:
-                components_without_infos, label = self._COMPONENTS_MISSING[info]
-                if components_without_infos:
+                list_name, label = self._COMPONENTS_MISSING[info]
+                components_without_info = getattr(self, list_name, [])
+                if components_without_info:
                     print(
-                        f"{label} ({len(components_without_infos)}): "
-                        f"{', '.join(components_without_infos)}"
+                        f"{label} ({len(components_without_info)}): "
+                        f"{', '.join(components_without_info)}"
                     )
             else:
                 print(f"Unknown attribute: {info!r}\n")
