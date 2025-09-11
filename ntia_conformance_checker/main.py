@@ -56,11 +56,17 @@ def main() -> None:
         )
         sys.exit(1)
 
+    detected_sbom_spec: str
+    if spdx_version[0] == 3:
+        detected_sbom_spec = "spdx3"
+    else:
+        detected_sbom_spec = "spdx2"
+
     sbom = SbomChecker(
         args.file,
         validate=not args.skip_validation,
         compliance=args.comply,
-        sbom_spec=args.sbom_spec,
+        sbom_spec=detected_sbom_spec,
     )
 
     logging.info("Parsing: %s", "OK" if not sbom.parsing_error else "Failed")
