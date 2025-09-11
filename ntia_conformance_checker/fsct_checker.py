@@ -2,7 +2,7 @@
 # SPDX-FileType: SOURCE
 # SPDX-License-Identifier: Apache-2.0
 
-"""FSCT Common BOM checking functionality."""
+"""CISA Framing Software Component Transparency checking functionality."""
 
 from __future__ import annotations
 
@@ -10,7 +10,8 @@ from .base_checker import BaseChecker
 
 
 class FSCT3Checker(BaseChecker):
-    """FSCTv3 checker.
+    """
+    2024 CISA Framing Software Component Transparency (minimum expectation) checker.
 
     A set of Baseline Attributes is defined in Section 2.2 of
     Framing Software Component Transparency:
@@ -33,7 +34,7 @@ class FSCT3Checker(BaseChecker):
         sbom_spec: str = "spdx2",
     ):
         """
-        Initialize the FSCTv3 checker.
+        Initialize the checker.
 
         Args:
             file (str): The name of the file to be checked.
@@ -55,7 +56,7 @@ class FSCT3Checker(BaseChecker):
             self.ntia_minimum_elements_compliant = self.compliant
 
     def check_compliance(self) -> bool:
-        """Check overall compliance with FSCTv3 Minimum Expected"""
+        """Check overall compliance"""
         return all(
             [
                 self.doc_author,
@@ -117,7 +118,7 @@ class FSCT3Checker(BaseChecker):
         )
 
     def output_html(self, table_elements=None) -> str:
-        """Create a HTML of results."""
+        """Create element-by-element result table in HTML."""
         return super().output_html(
             table_elements=[
                 ("All component names provided", not self.components_without_names),
