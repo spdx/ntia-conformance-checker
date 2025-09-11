@@ -173,7 +173,10 @@ def get_spdx_version(file: str, sbom_spec: str = "spdx2") -> Optional[Tuple[int,
             logging.debug("Detect SPDX version: spdx_tools parser failed: %s", exc)
             doc = None
         except (ValueError, TypeError, OSError) as exc:
-            logging.debug("Detect SPDX version: Unexpected error while parsing with spdx_tools: %s", exc)
+            logging.debug(
+                "Detect SPDX version: Unexpected error while parsing with spdx_tools: %s",
+                exc,
+            )
             doc = None
 
     # If parsing was successful, return the version tuple. e.g. (2, 3) for 2.3.

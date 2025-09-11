@@ -15,7 +15,9 @@ and this project adheres to [Semantic Versioning][semver].
 
 ### Fixed
 
-- Fix verbosity bug
+- Fix verbosity bug ([#308][])
+
+[#308]: https://github.com/spdx/ntia-conformance-checker/pull/308
 
 ## [4.0.0] - 2025-09-05
 
