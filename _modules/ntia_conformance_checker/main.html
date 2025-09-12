@@ -77,13 +77,10 @@
 
 <span class="kn">from</span><span class="w"> </span><span class="nn">__future__</span><span class="w"> </span><span class="kn">import</span> <span class="n">annotations</span>
 
-<span class="kn">import</span><span class="w"> </span><span class="nn">json</span>
 <span class="kn">import</span><span class="w"> </span><span class="nn">logging</span>
 <span class="kn">import</span><span class="w"> </span><span class="nn">sys</span>
-<span class="kn">from</span><span class="w"> </span><span class="nn">typing</span><span class="w"> </span><span class="kn">import</span> <span class="n">Any</span><span class="p">,</span> <span class="n">Dict</span><span class="p">,</span> <span class="n">Optional</span><span class="p">,</span> <span class="n">Tuple</span>
 
-<span class="kn">from</span><span class="w"> </span><span class="nn">.cli_utils</span><span class="w"> </span><span class="kn">import</span> <span class="n">get_parsed_args</span><span class="p">,</span> <span class="n">get_spdx_version</span>
-<span class="kn">from</span><span class="w"> </span><span class="nn">.constants</span><span class="w"> </span><span class="kn">import</span> <span class="n">SUPPORTED_SBOM_SPECS</span><span class="p">,</span> <span class="n">SUPPORTED_SPDX_VERSIONS</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">.cli_utils</span><span class="w"> </span><span class="kn">import</span> <span class="n">get_parsed_args</span><span class="p">,</span> <span class="n">get_sbom_spec</span><span class="p">,</span> <span class="n">print_output</span>
 <span class="kn">from</span><span class="w"> </span><span class="nn">.sbom_checker</span><span class="w"> </span><span class="kn">import</span> <span class="n">SbomChecker</span>
 
 
@@ -104,36 +101,9 @@
         <span class="s2">&quot;SPDX validation: </span><span class="si">%s</span><span class="s2">&quot;</span><span class="p">,</span> <span class="s2">&quot;enabled&quot;</span> <span class="k">if</span> <span class="ow">not</span> <span class="n">args</span><span class="o">.</span><span class="n">skip_validation</span> <span class="k">else</span> <span class="s2">&quot;disabled&quot;</span>
     <span class="p">)</span>
 
-    <span class="k">if</span> <span class="n">args</span><span class="o">.</span><span class="n">sbom_spec</span> <span class="ow">not</span> <span class="ow">in</span> <span class="n">SUPPORTED_SBOM_SPECS</span><span class="p">:</span>
-        <span class="n">logging</span><span class="o">.</span><span class="n">error</span><span class="p">(</span>
-            <span class="s2">&quot;Unsupported SBOM specification: </span><span class="si">%s</span><span class="s2">. Supported: </span><span class="si">%s</span><span class="s2">&quot;</span><span class="p">,</span>
-            <span class="n">args</span><span class="o">.</span><span class="n">sbom_spec</span><span class="p">,</span>
-            <span class="s2">&quot;, &quot;</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="nb">sorted</span><span class="p">(</span><span class="n">SUPPORTED_SBOM_SPECS</span><span class="p">)),</span>
-        <span class="p">)</span>
+    <span class="n">detected_sbom_spec</span> <span class="o">=</span> <span class="n">get_sbom_spec</span><span class="p">(</span><span class="n">file</span><span class="o">=</span><span class="n">args</span><span class="o">.</span><span class="n">file</span><span class="p">,</span> <span class="n">sbom_spec</span><span class="o">=</span><span class="n">args</span><span class="o">.</span><span class="n">sbom_spec</span><span class="p">)</span>
+    <span class="k">if</span> <span class="ow">not</span> <span class="n">detected_sbom_spec</span><span class="p">:</span>
         <span class="n">sys</span><span class="o">.</span><span class="n">exit</span><span class="p">(</span><span class="mi">1</span><span class="p">)</span>
-
-    <span class="n">spdx_version</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="n">Tuple</span><span class="p">[</span><span class="nb">int</span><span class="p">,</span> <span class="nb">int</span><span class="p">]]</span> <span class="o">=</span> <span class="n">get_spdx_version</span><span class="p">(</span>
-        <span class="n">args</span><span class="o">.</span><span class="n">file</span><span class="p">,</span> <span class="n">sbom_spec</span><span class="o">=</span><span class="n">args</span><span class="o">.</span><span class="n">sbom_spec</span>
-    <span class="p">)</span>
-    <span class="k">if</span> <span class="ow">not</span> <span class="n">spdx_version</span><span class="p">:</span>
-        <span class="n">logging</span><span class="o">.</span><span class="n">error</span><span class="p">(</span><span class="s2">&quot;Could not determine SPDX version from SBOM.&quot;</span><span class="p">)</span>
-        <span class="n">sys</span><span class="o">.</span><span class="n">exit</span><span class="p">(</span><span class="mi">1</span><span class="p">)</span>
-    <span class="n">logging</span><span class="o">.</span><span class="n">debug</span><span class="p">(</span><span class="s2">&quot;Detected SPDX version: </span><span class="si">%d</span><span class="s2">.</span><span class="si">%d</span><span class="s2">&quot;</span><span class="p">,</span> <span class="n">spdx_version</span><span class="p">[</span><span class="mi">0</span><span class="p">],</span> <span class="n">spdx_version</span><span class="p">[</span><span class="mi">1</span><span class="p">])</span>
-
-    <span class="k">if</span> <span class="n">spdx_version</span> <span class="ow">not</span> <span class="ow">in</span> <span class="n">SUPPORTED_SPDX_VERSIONS</span><span class="p">:</span>
-        <span class="n">logging</span><span class="o">.</span><span class="n">error</span><span class="p">(</span>
-            <span class="s2">&quot;Unsupported SPDX version: </span><span class="si">%d</span><span class="s2">.</span><span class="si">%d</span><span class="s2">. Supported: </span><span class="si">%s</span><span class="s2">&quot;</span><span class="p">,</span>
-            <span class="n">spdx_version</span><span class="p">[</span><span class="mi">0</span><span class="p">],</span>
-            <span class="n">spdx_version</span><span class="p">[</span><span class="mi">1</span><span class="p">],</span>
-            <span class="s2">&quot;, &quot;</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;</span><span class="si">{</span><span class="n">maj</span><span class="si">}</span><span class="s2">.</span><span class="si">{</span><span class="nb">min</span><span class="si">}</span><span class="s2">&quot;</span> <span class="k">for</span> <span class="n">maj</span><span class="p">,</span> <span class="nb">min</span> <span class="ow">in</span> <span class="nb">sorted</span><span class="p">(</span><span class="n">SUPPORTED_SPDX_VERSIONS</span><span class="p">)),</span>
-        <span class="p">)</span>
-        <span class="n">sys</span><span class="o">.</span><span class="n">exit</span><span class="p">(</span><span class="mi">1</span><span class="p">)</span>
-
-    <span class="n">detected_sbom_spec</span><span class="p">:</span> <span class="nb">str</span>
-    <span class="k">if</span> <span class="n">spdx_version</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span> <span class="o">==</span> <span class="mi">3</span><span class="p">:</span>
-        <span class="n">detected_sbom_spec</span> <span class="o">=</span> <span class="s2">&quot;spdx3&quot;</span>
-    <span class="k">else</span><span class="p">:</span>
-        <span class="n">detected_sbom_spec</span> <span class="o">=</span> <span class="s2">&quot;spdx2&quot;</span>
 
     <span class="n">sbom</span> <span class="o">=</span> <span class="n">SbomChecker</span><span class="p">(</span>
         <span class="n">args</span><span class="o">.</span><span class="n">file</span><span class="p">,</span>
@@ -152,20 +122,12 @@
             <span class="p">)</span>
         <span class="n">logging</span><span class="o">.</span><span class="n">debug</span><span class="p">(</span><span class="s2">&quot;SBOM name: </span><span class="si">%s</span><span class="s2">&quot;</span><span class="p">,</span> <span class="n">sbom</span><span class="o">.</span><span class="n">sbom_name</span><span class="p">)</span>
 
-    <span class="k">if</span> <span class="n">args</span><span class="o">.</span><span class="n">output</span> <span class="o">==</span> <span class="s2">&quot;print&quot;</span><span class="p">:</span>
-        <span class="n">sbom</span><span class="o">.</span><span class="n">print_table_output</span><span class="p">(</span><span class="n">verbose</span><span class="o">=</span><span class="n">args</span><span class="o">.</span><span class="n">verbose</span><span class="p">)</span>
-        <span class="k">if</span> <span class="n">args</span><span class="o">.</span><span class="n">verbose</span><span class="p">:</span>
-            <span class="n">sbom</span><span class="o">.</span><span class="n">print_components_missing_info</span><span class="p">()</span>
-    <span class="k">elif</span> <span class="n">args</span><span class="o">.</span><span class="n">output</span> <span class="o">==</span> <span class="s2">&quot;json&quot;</span><span class="p">:</span>
-        <span class="n">result_dict</span><span class="p">:</span> <span class="n">Dict</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="n">Any</span><span class="p">]</span> <span class="o">=</span> <span class="n">sbom</span><span class="o">.</span><span class="n">output_json</span><span class="p">()</span>
-        <span class="k">if</span> <span class="n">args</span><span class="o">.</span><span class="n">output_file</span><span class="p">:</span>
-            <span class="k">with</span> <span class="nb">open</span><span class="p">(</span><span class="n">args</span><span class="o">.</span><span class="n">output_file</span><span class="p">,</span> <span class="s2">&quot;w&quot;</span><span class="p">,</span> <span class="n">encoding</span><span class="o">=</span><span class="s2">&quot;utf-8&quot;</span><span class="p">)</span> <span class="k">as</span> <span class="n">outfile</span><span class="p">:</span>
-                <span class="n">json</span><span class="o">.</span><span class="n">dump</span><span class="p">(</span><span class="n">result_dict</span><span class="p">,</span> <span class="n">outfile</span><span class="p">)</span>
-        <span class="k">else</span><span class="p">:</span>
-            <span class="nb">print</span><span class="p">(</span><span class="n">json</span><span class="o">.</span><span class="n">dumps</span><span class="p">(</span><span class="n">result_dict</span><span class="p">,</span> <span class="n">indent</span><span class="o">=</span><span class="mi">2</span><span class="p">))</span>
-    <span class="k">elif</span> <span class="n">args</span><span class="o">.</span><span class="n">output</span> <span class="o">==</span> <span class="s2">&quot;html&quot;</span><span class="p">:</span>
-        <span class="n">html_output</span> <span class="o">=</span> <span class="n">sbom</span><span class="o">.</span><span class="n">output_html</span><span class="p">()</span>
-        <span class="nb">print</span><span class="p">(</span><span class="n">html_output</span><span class="p">)</span>
+    <span class="n">print_output</span><span class="p">(</span>
+        <span class="n">sbom</span><span class="p">,</span>
+        <span class="n">output_type</span><span class="o">=</span><span class="n">args</span><span class="o">.</span><span class="n">output</span><span class="p">,</span>
+        <span class="n">output_file</span><span class="o">=</span><span class="n">args</span><span class="o">.</span><span class="n">output_file</span><span class="p">,</span>
+        <span class="n">verbose</span><span class="o">=</span><span class="n">args</span><span class="o">.</span><span class="n">verbose</span><span class="p">,</span>
+    <span class="p">)</span>
 
     <span class="n">sys</span><span class="o">.</span><span class="n">exit</span><span class="p">(</span><span class="mi">0</span> <span class="k">if</span> <span class="n">sbom</span><span class="o">.</span><span class="n">compliant</span> <span class="k">else</span> <span class="mi">1</span><span class="p">)</span>  <span class="c1"># 0 indicates success</span></div>
 
