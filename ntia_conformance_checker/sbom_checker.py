@@ -64,13 +64,19 @@ class SbomChecker(BaseChecker):
             # pylint: disable=import-outside-toplevel
             from .ntia_checker import NTIAChecker
 
-            return NTIAChecker(file, validate, sbom_spec=sbom_spec)
+            return NTIAChecker(file, validate=validate, sbom_spec=sbom_spec)
 
         if compliance.startswith("fsct3"):
             # pylint: disable=import-outside-toplevel
             from .fsct_checker import FSCT3Checker
 
-            return FSCT3Checker(file, validate, sbom_spec=sbom_spec)
+            return FSCT3Checker(file, validate=validate, sbom_spec=sbom_spec)
+
+        if compliance == "cisa2025":
+            # pylint: disable=import-outside-toplevel
+            from .cisa_checker import CISA2025Checker
+
+            return CISA2025Checker(file, validate=validate, sbom_spec=sbom_spec)
 
         raise ValueError(f"Unknown compliance standard: {compliance}")
 
