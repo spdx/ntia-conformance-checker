@@ -68,7 +68,7 @@ docs = [
     "sphinx>=7.4.7", # 7.4.7 is the last version supporting Python 3.9
     "sphinx-rtd-theme>=3.0.2",
 ]
-test = ["beartype==0.21.0", "coverage==7.10.6", "pytest==8.4.2"]
+test = ["beartype==0.21.0", "coverage==7.10.7", "pytest==8.4.2"]
 
 [project.scripts]
 # Both "ntia-checker" and "sbomcheck" are identical.
