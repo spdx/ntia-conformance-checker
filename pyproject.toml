@@ -60,7 +60,7 @@ dev = [
     "mypy>=1.17.1",
     "pylint>=3.3.8",
     "pyrefly>=0.31.0",
-    "pyright>=1.1.405",
+    "pyright>=1.1.406",
     "pytype>=2024.9.13", # 2024.9.13 is the last version supporting Python 3.9
     "ruff>=0.12.12",
 ]
