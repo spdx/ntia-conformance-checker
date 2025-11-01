@@ -33,8 +33,7 @@ jobs:
         python-version: ${{ matrix.python-version }}
     - name: Install dependencies
       run: |
-        pip install pylint==3.3.8
-        pip install .[test]
+        pip install pylint==3.3.9
     - name: Analysing the code with Pylint
       run: |
         pylint $(git ls-files '*.py')
