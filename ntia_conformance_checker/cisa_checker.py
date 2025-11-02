@@ -2,28 +2,28 @@
 # SPDX-FileType: SOURCE
 # SPDX-License-Identifier: Apache-2.0
 
-"""2021 NTIA SBOM Minimum Elements checking functionality."""
+"""2025 CISA SBOM Minimum Elements checking functionality."""
 
 from __future__ import annotations
 
-import warnings
+import logging
 
 from .base_checker import BaseChecker
 
 
-class NTIAChecker(BaseChecker):
+class CISA2025Checker(BaseChecker):
     """
-    2021 NTIA SBOM Minimum Elements checker.
+    2025 CISA SBOM Minimum Elements checker.
 
     See:
-        https://www.ntia.gov/report/2021/minimum-elements-software-bill-materials-sbom
+        https://www.cisa.gov/resources-tools/resources/2025-minimum-elements-software-bill-materials-sbom
     """
 
     def __init__(
         self,
         file: str,
         validate: bool = True,
-        compliance: str = "ntia",
+        compliance: str = "cisa2025",
         sbom_spec: str = "spdx2",
     ):
         """
@@ -38,9 +38,15 @@ class NTIAChecker(BaseChecker):
         super().__init__(
             file=file, validate=validate, compliance=compliance, sbom_spec=sbom_spec
         )
+        logging.warning(
+            "2025 CISA SBOM Minimum Elements document is in its Public Comment stage. "
+            "This checker is experimental."
+        )
 
-        if compliance not in {"ntia"}:
-            raise ValueError("Only NTIA Minimum Element compliance is supported.")
+        if compliance not in {"cisa2025"}:
+            raise ValueError(
+                "Only 2025 CISA SBOM Minimum Elements compliance is supported."
+            )
 
         if self.doc:
             self.compliant = self.check_compliance()
@@ -59,27 +65,23 @@ class NTIAChecker(BaseChecker):
                 not self.components_without_versions,
                 not self.components_without_identifiers,
                 not self.components_without_suppliers,
+                not self.components_without_concluded_licenses,
+                not self.components_without_copyright_texts,
                 not self.validation_messages,
             ]
         )
 
-    def check_ntia_minimum_elements_compliance(self) -> bool:
-        """Check overall compliance.
-
-        This method is kept for backward compatibility.
-        Please consider using check_compliance() instead."""
-        warnings.warn(
-            "NTIAChecker.check_ntia_minimum_elements_compliance is deprecated; "
-            "use check_compliance() instead.",
-            DeprecationWarning,
-            stacklevel=2,
-        )
-        return self.check_compliance()
-
     def print_components_missing_info(self, attributes=None) -> None:
         """Print detailed info about which components have missing info."""
         super().print_components_missing_info(
-            ["name", "version", "identifier", "supplier"]
+            attributes=[
+                "name",
+                "version",
+                "identifier",
+                "supplier",
+                "concluded_license",
+                "copyright_text",
+            ]
         )
 
     def print_table_output(self, verbose: bool = False, table_elements=None) -> None:
@@ -99,6 +101,14 @@ class NTIAChecker(BaseChecker):
                 (
                     "All component suppliers provided?",
                     not self.components_without_suppliers,
+                ),
+                (
+                    "All component concluded license provided?",
+                    not self.components_without_concluded_licenses,
+                ),
+                (
+                    "All component copyright notice provided?",
+                    not self.components_without_copyright_texts,
                 ),
                 ("SBOM author name provided?", self.doc_author),
                 ("SBOM creation timestamp provided?", self.doc_timestamp),
@@ -122,6 +132,14 @@ class NTIAChecker(BaseChecker):
                 (
                     "All component suppliers provided",
                     not self.components_without_suppliers,
+                ),
+                (
+                    "All component concluded license provided",
+                    not self.components_without_concluded_licenses,
+                ),
+                (
+                    "All component copyright notice provided",
+                    not self.components_without_copyright_texts,
                 ),
                 ("SBOM author name provided", self.doc_author),
                 ("SBOM creation timestamp provided", self.doc_timestamp),
