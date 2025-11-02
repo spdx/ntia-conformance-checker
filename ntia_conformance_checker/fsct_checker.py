@@ -50,9 +50,35 @@ class FSCT3Checker(BaseChecker):
 
         if self.doc:
             self.compliant = self.check_compliance()
-
             # for backward compatibility
             self.ntia_minimum_elements_compliant = self.compliant
+
+        self.table_elements = [
+            ("All component names provided?", not self.components_without_names),
+            (
+                "All component versions provided?",
+                not self.components_without_versions,
+            ),
+            (
+                "All component identifiers provided?",
+                not self.components_without_identifiers,
+            ),
+            (
+                "All component suppliers provided?",
+                not self.components_without_suppliers,
+            ),
+            (
+                "All component concluded license provided?",
+                not self.components_without_concluded_licenses,
+            ),
+            (
+                "All component copyright notice provided?",
+                not self.components_without_copyright_texts,
+            ),
+            ("SBOM author name provided?", self.doc_author),
+            ("SBOM creation timestamp provided?", self.doc_timestamp),
+            ("Dependency relationships provided?", self.dependency_relationships),
+        ]
 
     def check_compliance(self) -> bool:
         """Check overall compliance with FSCTv3 Minimum Expected"""
@@ -86,63 +112,8 @@ class FSCT3Checker(BaseChecker):
 
     def print_table_output(self, verbose: bool = False, table_elements=None) -> None:
         """Print element-by-element result table."""
-        super().print_table_output(
-            verbose=verbose,
-            table_elements=[
-                ("All component names provided?", not self.components_without_names),
-                (
-                    "All component versions provided?",
-                    not self.components_without_versions,
-                ),
-                (
-                    "All component identifiers provided?",
-                    not self.components_without_identifiers,
-                ),
-                (
-                    "All component suppliers provided?",
-                    not self.components_without_suppliers,
-                ),
-                (
-                    "All component concluded license provided?",
-                    not self.components_without_concluded_licenses,
-                ),
-                (
-                    "All component copyright notice provided?",
-                    not self.components_without_copyright_texts,
-                ),
-                ("SBOM author name provided?", self.doc_author),
-                ("SBOM creation timestamp provided?", self.doc_timestamp),
-                ("Dependency relationships provided?", self.dependency_relationships),
-            ],
-        )
+        super().print_table_output(verbose=verbose, table_elements=self.table_elements)
 
     def output_html(self, table_elements=None) -> str:
         """Create a HTML of results."""
-        return super().output_html(
-            table_elements=[
-                ("All component names provided", not self.components_without_names),
-                (
-                    "All component versions provided",
-                    not self.components_without_versions,
-                ),
-                (
-                    "All component identifiers provided",
-                    not self.components_without_identifiers,
-                ),
-                (
-                    "All component suppliers provided",
-                    not self.components_without_suppliers,
-                ),
-                (
-                    "All component concluded license provided",
-                    not self.components_without_concluded_licenses,
-                ),
-                (
-                    "All component copyright notice provided",
-                    not self.components_without_copyright_texts,
-                ),
-                ("SBOM author name provided", self.doc_author),
-                ("SBOM creation timestamp provided", self.doc_timestamp),
-                ("Dependency relationships provided", self.dependency_relationships),
-            ],
-        )
+        return super().output_html(table_elements=self.table_elements)

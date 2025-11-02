@@ -21,12 +21,8 @@ from spdx_tools.spdx.parser.error import SPDXParsingError
 from spdx_tools.spdx.validation.document_validator import validate_full_spdx_document
 from spdx_tools.spdx.validation.validation_message import ValidationMessage
 
-from .constants import (
-    DEFAULT_SBOM_SPEC,
-    SUPPORTED_COMPLIANCE_STANDARDS,
-    SUPPORTED_COMPLIANCE_STANDARDS_DESC,
-)
-from .report import get_validation_messages_html, print_validation_messages
+from .constants import DEFAULT_SBOM_SPEC, SUPPORTED_COMPLIANCE_STANDARDS_DESC
+from .report import ReportContext, report_html, report_text
 from .spdx3_utils import (
     get_boms_from_spdx_document,
     get_packages_from_bom,
@@ -862,35 +858,17 @@ class BaseChecker(ABC):
         Returns:
             None
         """
-        if not self.doc:
-            print("The document couldn't be parsed; check couldn't be performed.\n")
-            if self.parsing_error:
-                print("The following parsing error(s) were raised:\n")
-                for error in self.parsing_error:
-                    print(error)
-            return
+        report_context = ReportContext(
+            sbom_spec=self.sbom_spec,
+            compliance_standard=self.compliance_standard,
+            compliant=self.compliant,
+            title=self._get_table_title(),
+            table_elements=table_elements,
+            validation_messages=self.validation_messages,
+            parsing_error=self.parsing_error,
+        )
 
-        if self.compliance_standard not in SUPPORTED_COMPLIANCE_STANDARDS:
-            print(f"Unsupported compliance standard {self.compliance_standard!r}")
-            return
-
-        print(self._get_table_title())
-        print(f"Conformant: {self.compliant}\n")
-
-        if table_elements:
-            print("Individual elements                            | Status")
-            print("-------------------------------------------------------")
-            for label, value in table_elements:
-                print(f"{label:<46} | {value}")
-            print()
-
-        if self.validation_messages:
-            print(
-                "\nThe document is not valid according to the SBOM "
-                f'specification ("{self.sbom_spec}"). '
-                "The following violations were found:\n"
-            )
-            print_validation_messages(self.validation_messages, verbose)
+        print(report_text(report_context, verbose))
 
     def output_html(
         self,
@@ -907,73 +885,17 @@ class BaseChecker(ABC):
         Returns:
             str: The HTML representation of the results.
         """
-        html_parts: List[str] = []
-
-        # Parsing error
-        if not self.doc:
-            html_parts.append(
-                "<p class='conformance-error'>"
-                "The document couldn't be parsed; check couldn't be performed."
-                "</p>"
-            )
-            if self.parsing_error:
-                html_parts.append(
-                    "<p class='conformance-error-lead'>"
-                    "The following parsing errors were raised:"
-                    "</p>"
-                )
-                html_parts.append("<ul class='conformance-error-details'>")
-                for err in self.parsing_error:
-                    html_parts.append(f"<li>{err}</li>")
-                html_parts.append("</ul>")
-            return "\n".join(html_parts)
-
-        # Unsupported compliance standard
-        if self.compliance_standard not in SUPPORTED_COMPLIANCE_STANDARDS:
-            html_parts.append(
-                "<p class='conformance-error'>"
-                f"Unsupported compliance standard {self.compliance_standard!r}"
-                "</p>"
-            )
-            return "\n".join(html_parts)
-
-        # Compliance result
-        html_parts.append(
-            "<h2 class='conformance-result-title'>"
-            f"{self._get_table_title()}"
-            "</h2>"
-        )
-        html_parts.append(
-            "<h3 class='conformance-result-status'>"
-            f"Conformant: {self.compliant}"
-            "</h3>"
+        report_context = ReportContext(
+            sbom_spec=self.sbom_spec,
+            compliance_standard=self.compliance_standard,
+            compliant=self.compliant,
+            title=self._get_table_title(),
+            table_elements=table_elements,
+            validation_messages=self.validation_messages,
+            parsing_error=self.parsing_error,
         )
 
-        if table_elements:
-            html_parts.append("<table class='conformance-result-table'>")
-            html_parts.append(
-                "<tr><th>Individual elements</th><th>Conformant</th></tr>"
-            )
-            for label, val in table_elements:
-                html_parts.append(f"<tr><td>{label}</td><td>{val}</td></tr>")
-            html_parts.append("</table>")
-
-        # Validation messages
-        if self.validation_messages:
-            html_parts.append(
-                "<p class='conformance-validation'>"
-                "The document is not valid according to the SBOM specification"
-                f' ("{self.sbom_spec}").'
-                "</p>"
-            )
-            html_parts.append(
-                "<p class='conformance-validation-lead'>"
-                "The following violations were found:"
-                "</p>"
-            )
-            html_parts.append(get_validation_messages_html(self.validation_messages))
-
-        return "\n".join(html_parts)
+        return report_html(report_context, verbose=True)
 
     def output_json(self) -> Dict[str, Any]:
         """
