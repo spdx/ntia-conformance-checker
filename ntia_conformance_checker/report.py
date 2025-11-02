@@ -35,16 +35,17 @@ def get_validation_messages_html(validation_messages: List[ValidationMessage]) -
     if not validation_messages:
         return ""
 
-    html = "<ul>\n"
+    html = "<ul class='conformance-validation-list'>\n"
     for msg in validation_messages:
         if not getattr(msg, "validation_message", None):
             continue
         html += "<li>\n"
-        html += "<p><strong>Validation message:</strong></p>\n"
-        html += f"<p>{msg.validation_message}</p>\n"
+        html += "<p class='conformance-validation-msg-label'>Validation message:</p>\n"
+        html += f"<p class='conformance-validation-msg'>{msg.validation_message}</p>\n"
         ctx = getattr(msg, "context", None)
         if ctx:
-            html += "<p><strong>Validation context:</strong></p>\n<ul>\n"
+            html += "<p class='conformance-validation-context-label'>Validation context:</p>\n"
+            html += "<ul class='conformance-validation-context'>\n"
             spdx_id = getattr(ctx, "spdx_id", "N/A")
             parent_id = getattr(ctx, "parent_id", "N/A")
             elem_type = getattr(ctx, "element_type", "N/A")

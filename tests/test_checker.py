@@ -429,10 +429,10 @@ def test_sbomchecker_output_html():
 
     got = sbom.output_html()
     expected = (
-        "<h2>2021 NTIA SBOM Minimum Elements Conformance Results</h2>\n"
-        "<h3>Conformant: False</h3>\n"
-        "<table>\n"
-        "<tr><th>Individual Elements</th><th>Conformant</th></tr>\n"
+        "<h2 class='conformance-result-title'>2021 NTIA SBOM Minimum Elements Conformance Results</h2>\n"
+        "<h3 class='conformance-result-status'>Conformant: False</h3>\n"
+        "<table class='conformance-result-table'>\n"
+        "<tr><th>Individual elements</th><th>Conformant</th></tr>\n"
         "<tr><td>All component names provided</td><td>True</td></tr>\n"
         "<tr><td>All component versions provided</td><td>True</td></tr>\n"
         "<tr><td>All component identifiers provided</td><td>True</td></tr>\n"

@@ -888,7 +888,7 @@ class BaseChecker(ABC):
             print(
                 "\nThe document is not valid according to the SBOM "
                 f'specification ("{self.sbom_spec}"). '
-                "The following errors were found:\n"
+                "The following violations were found:\n"
             )
             print_validation_messages(self.validation_messages, verbose)
 
@@ -909,42 +909,68 @@ class BaseChecker(ABC):
         """
         html_parts: List[str] = []
 
+        # Parsing error
         if not self.doc:
             html_parts.append(
-                "<p>The document couldn't be parsed; check couldn't be performed.</p>"
+                "<p class='conformance-error'>"
+                "The document couldn't be parsed; check couldn't be performed."
+                "</p>"
             )
             if self.parsing_error:
-                html_parts.append("<p>The following parsing error(s) were raised:</p>")
-                html_parts.append("<ul>")
+                html_parts.append(
+                    "<p class='conformance-error-lead'>"
+                    "The following parsing errors were raised:"
+                    "</p>"
+                )
+                html_parts.append("<ul class='conformance-error-details'>")
                 for err in self.parsing_error:
                     html_parts.append(f"<li>{err}</li>")
                 html_parts.append("</ul>")
             return "\n".join(html_parts)
 
+        # Unsupported compliance standard
         if self.compliance_standard not in SUPPORTED_COMPLIANCE_STANDARDS:
             html_parts.append(
-                f"<p>Unsupported compliance standard {self.compliance_standard!r}</p>"
+                "<p class='conformance-error'>"
+                f"Unsupported compliance standard {self.compliance_standard!r}"
+                "</p>"
             )
             return "\n".join(html_parts)
 
-        html_parts.append(f"<h2>{self._get_table_title()}</h2>")
-        html_parts.append(f"<h3>Conformant: {self.compliant}</h3>")
+        # Compliance result
+        html_parts.append(
+            "<h2 class='conformance-result-title'>"
+            f"{self._get_table_title()}"
+            "</h2>"
+        )
+        html_parts.append(
+            "<h3 class='conformance-result-status'>"
+            f"Conformant: {self.compliant}"
+            "</h3>"
+        )
 
         if table_elements:
-            html_parts.append("<table>")
+            html_parts.append("<table class='conformance-result-table'>")
             html_parts.append(
-                "<tr><th>Individual Elements</th><th>Conformant</th></tr>"
+                "<tr><th>Individual elements</th><th>Conformant</th></tr>"
             )
             for label, val in table_elements:
                 html_parts.append(f"<tr><td>{label}</td><td>{val}</td></tr>")
             html_parts.append("</table>")
 
+        # Validation messages
         if self.validation_messages:
             html_parts.append(
-                "<p>The document is not valid according to the SBOM "
-                f'specification ("{self.sbom_spec}").</p>'
+                "<p class='conformance-validation'>"
+                "The document is not valid according to the SBOM specification"
+                f' ("{self.sbom_spec}").'
+                "</p>"
             )
-            html_parts.append("<p>The following errors were found:</p>")
+            html_parts.append(
+                "<p class='conformance-validation-lead'>"
+                "The following violations were found:"
+                "</p>"
+            )
             html_parts.append(get_validation_messages_html(self.validation_messages))
 
         return "\n".join(html_parts)
