@@ -20,8 +20,9 @@ class ReportContext:
 
     sbom_spec: str = ""
     compliance_standard: str = ""
-    compliant: bool = False
+    minimum_components: Optional[List[str]] = None
     title: str = ""
+    compliant: bool = False
     table_elements: Optional[List[Tuple[str, bool]]] = None
     validation_messages: Optional[List[ValidationMessage]] = None
     parsing_error: Optional[List[str]] = None
@@ -194,9 +195,13 @@ def report_html(
 
     if rc.table_elements:
         report.append("<table class='conformance-result-table'>")
-        report.append("<tr><th>Individual elements</th><th>Conformant</th></tr>")
+        report.append(
+            "<thead><tr><th>Individual elements</th><th>Conformant</th></tr></thead>"
+        )
+        report.append("<tbody>")
         for label, val in rc.table_elements:
             report.append(f"<tr><td>{label}</td><td>{val}</td></tr>")
+        report.append("</tbody>")
         report.append("</table>")
 
     # Validation messages

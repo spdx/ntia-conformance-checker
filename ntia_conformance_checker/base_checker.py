@@ -43,6 +43,8 @@ class BaseChecker(ABC):
     such as `check_compliance` and `output_json`.
     """
 
+    MINIMUM_COMPONENTS: List[str] = []
+
     _COMPONENTS_MISSING = {
         "name": ("components_without_names", "Components missing a name"),
         "version": ("components_without_versions", "Components missing a version"),
@@ -861,8 +863,9 @@ class BaseChecker(ABC):
         report_context = ReportContext(
             sbom_spec=self.sbom_spec,
             compliance_standard=self.compliance_standard,
-            compliant=self.compliant,
+            minimum_components=self.MINIMUM_COMPONENTS,
             title=self._get_table_title(),
+            compliant=self.compliant,
             table_elements=table_elements,
             validation_messages=self.validation_messages,
             parsing_error=self.parsing_error,
@@ -888,8 +891,9 @@ class BaseChecker(ABC):
         report_context = ReportContext(
             sbom_spec=self.sbom_spec,
             compliance_standard=self.compliance_standard,
-            compliant=self.compliant,
+            minimum_components=self.MINIMUM_COMPONENTS,
             title=self._get_table_title(),
+            compliant=self.compliant,
             table_elements=table_elements,
             validation_messages=self.validation_messages,
             parsing_error=self.parsing_error,
