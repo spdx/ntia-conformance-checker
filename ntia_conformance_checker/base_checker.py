@@ -10,18 +10,16 @@ import json
 import logging
 import os
 from abc import ABC, abstractmethod
-from typing import Any, Dict, List, Optional, Set, Tuple, Union, cast
+from typing import TYPE_CHECKING, Any, Dict, List, Optional, Set, Tuple, Union, cast
 
 from spdx_python_model import v3_0_1 as spdx3  # type: ignore # import-untyped
-from spdx_tools.spdx.model.document import Document
 from spdx_tools.spdx.model.relationship import RelationshipType
 from spdx_tools.spdx.model.spdx_no_assertion import SpdxNoAssertion
 from spdx_tools.spdx.parser import parse_anything
 from spdx_tools.spdx.parser.error import SPDXParsingError
 from spdx_tools.spdx.validation.document_validator import validate_full_spdx_document
-from spdx_tools.spdx.validation.validation_message import ValidationMessage
 
-from .constants import DEFAULT_SBOM_SPEC, SUPPORTED_COMPLIANCE_STANDARDS_DESC
+from .constants import DEFAULT_SBOM_SPEC
 from .report import ReportContext, report_html, report_text
 from .spdx3_utils import (
     get_boms_from_spdx_document,
@@ -30,6 +28,10 @@ from .spdx3_utils import (
     iter_relationships_by_type,
     validate_spdx3_data,
 )
+
+if TYPE_CHECKING:
+    from spdx_tools.spdx.model.document import Document
+    from spdx_tools.spdx.validation.validation_message import ValidationMessage
 
 
 # pylint: disable=too-many-instance-attributes
@@ -837,12 +839,6 @@ class BaseChecker(ABC):
             else:
                 print(f"Unknown attribute: {info!r}\n")
 
-    def _get_table_title(self) -> str:
-        return (
-            f"{SUPPORTED_COMPLIANCE_STANDARDS_DESC[self.compliance_standard]}"
-            " Conformance Results"
-        )
-
     def print_table_output(
         self,
         verbose: bool = False,
@@ -864,9 +860,8 @@ class BaseChecker(ABC):
             sbom_spec=self.sbom_spec,
             compliance_standard=self.compliance_standard,
             minimum_components=self.MINIMUM_COMPONENTS,
-            title=self._get_table_title(),
             compliant=self.compliant,
-            table_elements=table_elements,
+            requirement_results=table_elements,
             validation_messages=self.validation_messages,
             parsing_error=self.parsing_error,
         )
@@ -892,9 +887,8 @@ class BaseChecker(ABC):
             sbom_spec=self.sbom_spec,
             compliance_standard=self.compliance_standard,
             minimum_components=self.MINIMUM_COMPONENTS,
-            title=self._get_table_title(),
             compliant=self.compliant,
-            table_elements=table_elements,
+            requirement_results=table_elements,
             validation_messages=self.validation_messages,
             parsing_error=self.parsing_error,
         )

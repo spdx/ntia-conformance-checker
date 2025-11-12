@@ -13,7 +13,10 @@ from __future__ import annotations
 from dataclasses import dataclass
 from typing import TYPE_CHECKING, List, Optional, Tuple
 
-from .constants import SUPPORTED_COMPLIANCE_STANDARDS
+from .constants import (
+    SUPPORTED_COMPLIANCE_STANDARDS,
+    SUPPORTED_COMPLIANCE_STANDARDS_DESC,
+)
 
 if TYPE_CHECKING:
     from spdx_tools.spdx.validation.validation_message import ValidationMessage
@@ -26,9 +29,8 @@ class ReportContext:
     sbom_spec: str = ""
     compliance_standard: str = ""
     minimum_components: Optional[List[str]] = None
-    title: str = ""
     compliant: bool = False
-    table_elements: Optional[List[Tuple[str, bool]]] = None
+    requirement_results: Optional[List[Tuple[str, bool]]] = None
     validation_messages: Optional[List[ValidationMessage]] = None
     parsing_error: Optional[List[str]] = None
 
@@ -147,13 +149,16 @@ def report_text(
         report.append(f"Unsupported compliance standard {rc.compliance_standard!r}")
         return "\n".join(report)
 
-    report.append(rc.title)
+    # Compliance results
+    report.append(
+        f"{SUPPORTED_COMPLIANCE_STANDARDS_DESC[rc.compliance_standard]}"
+        " Conformance Results\n"
+    )
     report.append(f"Conformant: {rc.compliant}\n")
-
-    if rc.table_elements:
+    if rc.requirement_results:
         report.append("Requirement                                    | Status")
         report.append("-------------------------------------------------------")
-        for label, value in rc.table_elements:
+        for label, value in rc.requirement_results:
             report.append(f"{label:<46} | {value}")
         report.append("")
 
@@ -211,21 +216,21 @@ def report_html(
         )
         return "\n".join(report)
 
-    # Compliance result
-    report.append(f"<h2 class='conformance-res-title'>{rc.title}</h2>")
+    # Compliance results
     report.append(
-        f"<h3 class='conformance-res-status'>Conformant: {rc.compliant}</h3>"
+        "<h2 class='conformance-res-title'>"
+        f"{SUPPORTED_COMPLIANCE_STANDARDS_DESC[rc.compliance_standard]}"
+        " Conformance Results</h2>"
     )
+    report.append(f"<h3 class='conformance-res-status'>Conformant: {rc.compliant}</h3>")
 
-    if rc.table_elements:
+    if rc.requirement_results:
         report.append("<table class='conformance-res-tab'>")
         report.append(
-            "<thead>"
-            "<tr><th>Requirement</th><th>Conformant</th></tr>"
-            "</thead>"
+            "<thead><tr><th>Requirement</th><th>Conformant</th></tr></thead>"
         )
         report.append("<tbody>")
-        for label, val in rc.table_elements:
+        for label, val in rc.requirement_results:
             report.append(
                 "<tr>"
                 "<td class='conformance-res-tab-r'>"
