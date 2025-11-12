@@ -226,9 +226,7 @@ def report_html(
 
     if rc.requirement_results:
         report.append("<table class='conformance-res-tab'>")
-        report.append(
-            "<thead><tr><th>Requirement</th><th>Conformant</th></tr></thead>"
-        )
+        report.append("<thead><tr><th>Requirement</th><th>Conformant</th></tr></thead>")
         report.append("<tbody>")
         for label, val in rc.requirement_results:
             report.append(
