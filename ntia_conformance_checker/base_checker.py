@@ -45,12 +45,12 @@ class BaseChecker(ABC):
     such as `check_compliance` and `output_json`.
     """
 
-    # Minimum components required by the compliance standard
-    MIN_COMPONENTS: List[str] = []
+    # Minimum elements/baseline attributes required by a compliance standard
+    MIN_ELEMENTS: List[str] = []
 
-    # Missing components mapping
-    # SBOM component name: (instance variable name, display label)
-    _MISS_COMPONENTS_MAP = {
+    # Mapping of components without an information
+    # SBOM component name: (list containing components missing the info, label)
+    _COMPONENTS_WITHOUT_INFOS = {
         "name": ("components_without_names", "Components missing a name"),
         "version": ("components_without_versions", "Components missing a version"),
         "identifier": (
@@ -77,7 +77,7 @@ class BaseChecker(ABC):
     file: str = ""
     # For SPDX 3, we have to use SHACLObjectSet instead of SpdxDocument,
     # because we need access to relationships and other elements that are not
-    # accesible from SpdxDocument.
+    # accessible from SpdxDocument.
     doc: Union[Document, spdx3.SHACLObjectSet, None] = None
     __spdx3_doc: Optional[spdx3.SpdxDocument] = None  # cached SPDX 3 document
 
@@ -184,6 +184,10 @@ class BaseChecker(ABC):
             )
             self.components_without_copyright_texts = cast(
                 "List[str]", self.get_components_without_copyright_texts()
+            )
+
+            self.all_components_without_infos: List[Tuple[str, List[str]]] = (
+                self._get_all_components_without_infos()
             )
 
         self.table_elements: List[Tuple[str, bool]] = []
@@ -724,6 +728,26 @@ class BaseChecker(ABC):
 
         return []
 
+    def _get_all_components_without_infos(self) -> List[Tuple[str, List[str]]]:
+        """Get a list of components missing information for each minimum component."""
+
+        # If all lists are empty, return an empty list
+        if all(
+            not getattr(self, list_name, [])
+            for list_name, _ in self._COMPONENTS_WITHOUT_INFOS.values()
+        ):
+            return []
+
+        res: List[Tuple[str, List[str]]] = []
+        for component_name in self.MIN_ELEMENTS:
+            if component_name in self._COMPONENTS_WITHOUT_INFOS:
+                list_name, _ = self._COMPONENTS_WITHOUT_INFOS[component_name]
+                components_without_info = getattr(self, list_name, [])
+                if components_without_info:
+                    res.append((component_name, components_without_info))
+
+        return res
+
     def get_total_number_components(self) -> int:
         """
         Retrieve total number of components.
@@ -800,9 +824,7 @@ class BaseChecker(ABC):
 
         return object_set
 
-    def print_components_missing_info(
-        self, attributes: Optional[List[str]] = None
-    ) -> None:
+    def print_components_missing_info(self) -> None:
         """
         Print information about components that are missing required details.
 
@@ -816,33 +838,14 @@ class BaseChecker(ABC):
         if self.parsing_error:
             return
 
-        # If no specific info types are provided, check all minimum components
-        if not attributes:
-            attributes = self.MIN_COMPONENTS
-
-        if all(
-            not getattr(self, list_name, [])
-            for list_name, _ in self._MISS_COMPONENTS_MAP.values()
-        ):
-            print("No components with missing information.")
+        if not self.all_components_without_infos:
             return
 
-        for attr in attributes:
-            if attr in self._MISS_COMPONENTS_MAP:
-                list_name, label = self._MISS_COMPONENTS_MAP[attr]
-                components_without_info = getattr(self, list_name, [])
-                if components_without_info:
-                    print(
-                        f"{label} ({len(components_without_info)}): "
-                        f"{', '.join(components_without_info)}"
-                    )
-            else:
-                print(f"Unknown attribute: {attr!r}\n")
+        print("Missing required information in these components:")
+        for component_name, components in self.all_components_without_infos:
+            print(f"{component_name} ({len(components)}): " f"{', '.join(components)}")
 
-    def print_table_output(
-        self,
-        verbose: bool = False,
-    ) -> None:
+    def print_table_output(self, verbose: bool = False) -> None:
         """
         Print element-by-element result table.
 
@@ -857,16 +860,14 @@ class BaseChecker(ABC):
             compliance_standard=self.compliance_standard,
             compliant=self.compliant,
             requirement_results=self.table_elements,
-            missing_components=[],
+            components_without_infos=self.all_components_without_infos,
             validation_messages=self.validation_messages,
             parsing_error=self.parsing_error,
         )
 
         print(report_text(report_context, verbose))
 
-    def output_html(
-        self,
-    ) -> str:
+    def output_html(self) -> str:
         """
         Create element-by-element result table in HTML.
 
@@ -878,7 +879,7 @@ class BaseChecker(ABC):
             compliance_standard=self.compliance_standard,
             compliant=self.compliant,
             requirement_results=self.table_elements,
-            missing_components=[],
+            components_without_infos=self.all_components_without_infos,
             validation_messages=self.validation_messages,
             parsing_error=self.parsing_error,
         )

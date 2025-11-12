@@ -19,7 +19,7 @@ class NTIAChecker(BaseChecker):
         https://www.ntia.gov/report/2021/minimum-elements-software-bill-materials-sbom
     """
 
-    MIN_COMPONENTS = ["name", "version", "identifier", "supplier"]
+    MIN_ELEMENTS = ["name", "version", "identifier", "supplier"]
 
     def __init__(
         self,

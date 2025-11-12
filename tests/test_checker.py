@@ -452,7 +452,12 @@ def test_sbomchecker_output_html():
         "<tr><td class='conformance-res-tab-r'>Dependency relationships provided?</td>"
         "<td class='conformance-res-tab-v'>True</td></tr>\n"
         "</tbody>\n"
-        "</table>"
+        "</table>\n"
+        "<p class='conformance-missing-label'>"
+        "Missing required information in these components:</p>\n"
+        "<ul class='conformance-missing-list'>\n"
+        "<li>supplier (3): xyz, curl, openssl</li>\n"
+        "</ul>"
     )
 
     assert got == expected
