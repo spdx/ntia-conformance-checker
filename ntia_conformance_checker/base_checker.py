@@ -45,9 +45,12 @@ class BaseChecker(ABC):
     such as `check_compliance` and `output_json`.
     """
 
-    MINIMUM_COMPONENTS: List[str] = []
+    # Minimum components required by the compliance standard
+    MIN_COMPONENTS: List[str] = []
 
-    _COMPONENTS_MISSING = {
+    # Missing components mapping
+    # SBOM component name: (instance variable name, display label)
+    _MISS_COMPONENTS_MAP = {
         "name": ("components_without_names", "Components missing a name"),
         "version": ("components_without_versions", "Components missing a version"),
         "identifier": (
@@ -182,6 +185,8 @@ class BaseChecker(ABC):
             self.components_without_copyright_texts = cast(
                 "List[str]", self.get_components_without_copyright_texts()
             )
+
+        self.table_elements: List[Tuple[str, bool]] = []
 
     def check_doc_version(self) -> bool:
         """Check if the document's specification version exists."""
@@ -804,11 +809,6 @@ class BaseChecker(ABC):
         What is considered "missing" is determined by a compliance standard.
         Subclasses may override this method to provide custom behavior.
 
-        Args:
-            attributes (Optional[List[str]]): A list of attributes to check for missing
-                                              information. If not specified, all
-                                              available attributes will be checked.
-
         Returns:
             None
         """
@@ -816,20 +816,20 @@ class BaseChecker(ABC):
         if self.parsing_error:
             return
 
-        # If no specific info types are provided, check all
+        # If no specific info types are provided, check all minimum components
         if not attributes:
-            attributes = list(self._COMPONENTS_MISSING.keys())
+            attributes = self.MIN_COMPONENTS
 
         if all(
             not getattr(self, list_name, [])
-            for list_name, _ in self._COMPONENTS_MISSING.values()
+            for list_name, _ in self._MISS_COMPONENTS_MAP.values()
         ):
             print("No components with missing information.")
             return
 
-        for info in attributes:
-            if info in self._COMPONENTS_MISSING:
-                list_name, label = self._COMPONENTS_MISSING[info]
+        for attr in attributes:
+            if attr in self._MISS_COMPONENTS_MAP:
+                list_name, label = self._MISS_COMPONENTS_MAP[attr]
                 components_without_info = getattr(self, list_name, [])
                 if components_without_info:
                     print(
@@ -837,21 +837,17 @@ class BaseChecker(ABC):
                         f"{', '.join(components_without_info)}"
                     )
             else:
-                print(f"Unknown attribute: {info!r}\n")
+                print(f"Unknown attribute: {attr!r}\n")
 
     def print_table_output(
         self,
         verbose: bool = False,
-        table_elements: Optional[List[Tuple[str, bool]]] = None,
     ) -> None:
         """
         Print element-by-element result table.
 
         Args:
             verbose (bool): If True, print detailed information.
-            table_elements (Optional[List[Tuple[str, bool]]]): A list of tuples
-                            where each tuple contains a label and a boolean
-                            value indicating the status of that element.
 
         Returns:
             None
@@ -859,9 +855,9 @@ class BaseChecker(ABC):
         report_context = ReportContext(
             sbom_spec=self.sbom_spec,
             compliance_standard=self.compliance_standard,
-            minimum_components=self.MINIMUM_COMPONENTS,
             compliant=self.compliant,
-            requirement_results=table_elements,
+            requirement_results=self.table_elements,
+            missing_components=[],
             validation_messages=self.validation_messages,
             parsing_error=self.parsing_error,
         )
@@ -870,15 +866,9 @@ class BaseChecker(ABC):
 
     def output_html(
         self,
-        table_elements: Optional[List[Tuple[str, bool]]] = None,
     ) -> str:
         """
         Create element-by-element result table in HTML.
-
-        Args:
-            table_elements (Optional[List[Tuple[str, bool]]]): A list of tuples
-                            where each tuple contains a label and a boolean
-                            value indicating the status of that element.
 
         Returns:
             str: The HTML representation of the results.
@@ -886,9 +876,9 @@ class BaseChecker(ABC):
         report_context = ReportContext(
             sbom_spec=self.sbom_spec,
             compliance_standard=self.compliance_standard,
-            minimum_components=self.MINIMUM_COMPONENTS,
             compliant=self.compliant,
-            requirement_results=table_elements,
+            requirement_results=self.table_elements,
+            missing_components=[],
             validation_messages=self.validation_messages,
             parsing_error=self.parsing_error,
         )

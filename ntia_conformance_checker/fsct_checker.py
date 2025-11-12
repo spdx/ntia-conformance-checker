@@ -25,7 +25,7 @@ class FSCT3Checker(BaseChecker):
         https://www.cisa.gov/resources-tools/resources/framing-software-component-transparency-2024
     """
 
-    MINIMUM_COMPONENTS = [
+    MIN_COMPONENTS = [
         "name",
         "version",
         "identifier",
@@ -105,15 +105,3 @@ class FSCT3Checker(BaseChecker):
                 not self.validation_messages,
             ]
         )
-
-    def print_components_missing_info(self, attributes=None) -> None:
-        """Print detailed info about which components have missing info."""
-        super().print_components_missing_info(attributes=self.MINIMUM_COMPONENTS)
-
-    def print_table_output(self, verbose: bool = False, table_elements=None) -> None:
-        """Print element-by-element result table."""
-        super().print_table_output(verbose=verbose, table_elements=self.table_elements)
-
-    def output_html(self, table_elements=None) -> str:
-        """Create a HTML of results."""
-        return super().output_html(table_elements=self.table_elements)

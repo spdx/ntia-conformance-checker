@@ -28,9 +28,9 @@ class ReportContext:
 
     sbom_spec: str = ""
     compliance_standard: str = ""
-    minimum_components: Optional[List[str]] = None
     compliant: bool = False
     requirement_results: Optional[List[Tuple[str, bool]]] = None
+    missing_components: Optional[List[str]] = None
     validation_messages: Optional[List[ValidationMessage]] = None
     parsing_error: Optional[List[str]] = None
 

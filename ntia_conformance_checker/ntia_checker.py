@@ -19,7 +19,7 @@ class NTIAChecker(BaseChecker):
         https://www.ntia.gov/report/2021/minimum-elements-software-bill-materials-sbom
     """
 
-    MINIMUM_COMPONENTS = ["name", "version", "identifier", "supplier"]
+    MIN_COMPONENTS = ["name", "version", "identifier", "supplier"]
 
     def __init__(
         self,
@@ -96,15 +96,3 @@ class NTIAChecker(BaseChecker):
             stacklevel=2,
         )
         return self.check_compliance()
-
-    def print_components_missing_info(self, attributes=None) -> None:
-        """Print detailed info about which components have missing info."""
-        super().print_components_missing_info(attributes=self.MINIMUM_COMPONENTS)
-
-    def print_table_output(self, verbose: bool = False, table_elements=None) -> None:
-        """Print element-by-element result table."""
-        super().print_table_output(verbose=verbose, table_elements=self.table_elements)
-
-    def output_html(self, table_elements=None) -> str:
-        """Create a HTML of results."""
-        return super().output_html(table_elements=self.table_elements)
