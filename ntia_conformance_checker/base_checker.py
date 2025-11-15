@@ -1,4 +1,4 @@
-# SPDX-FileCopyrightText: 2024 SPDX contributors
+# SPDX-FileCopyrightText: 2024-2025 SPDX contributors
 # SPDX-FileType: SOURCE
 # SPDX-License-Identifier: Apache-2.0
 
@@ -48,7 +48,7 @@ class BaseChecker(ABC):
     # Minimum elements/baseline attributes required by a compliance standard
     MIN_ELEMENTS: List[str] = []
 
-    # Mapping of components without an information
+    # Mapping of components without information
     # SBOM component name: (list containing components missing the info, label)
     _COMPONENTS_WITHOUT_INFOS = {
         "name": ("components_without_names", "Components missing a name"),
