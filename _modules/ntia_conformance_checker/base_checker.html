@@ -69,7 +69,7 @@
            <div itemprop="articleBody">
              
   <h1>Source code for ntia_conformance_checker.base_checker</h1><div class="highlight"><pre>
-<span></span><span class="c1"># SPDX-FileCopyrightText: 2024 SPDX contributors</span>
+<span></span><span class="c1"># SPDX-FileCopyrightText: 2024-2025 SPDX contributors</span>
 <span class="c1"># SPDX-FileType: SOURCE</span>
 <span class="c1"># SPDX-License-Identifier: Apache-2.0</span>
 
@@ -81,23 +81,17 @@
 <span class="kn">import</span><span class="w"> </span><span class="nn">logging</span>
 <span class="kn">import</span><span class="w"> </span><span class="nn">os</span>
 <span class="kn">from</span><span class="w"> </span><span class="nn">abc</span><span class="w"> </span><span class="kn">import</span> <span class="n">ABC</span><span class="p">,</span> <span class="n">abstractmethod</span>
-<span class="kn">from</span><span class="w"> </span><span class="nn">typing</span><span class="w"> </span><span class="kn">import</span> <span class="n">Any</span><span class="p">,</span> <span class="n">Dict</span><span class="p">,</span> <span class="n">List</span><span class="p">,</span> <span class="n">Optional</span><span class="p">,</span> <span class="n">Set</span><span class="p">,</span> <span class="n">Tuple</span><span class="p">,</span> <span class="n">Union</span><span class="p">,</span> <span class="n">cast</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">typing</span><span class="w"> </span><span class="kn">import</span> <span class="n">TYPE_CHECKING</span><span class="p">,</span> <span class="n">Any</span><span class="p">,</span> <span class="n">Dict</span><span class="p">,</span> <span class="n">List</span><span class="p">,</span> <span class="n">Optional</span><span class="p">,</span> <span class="n">Set</span><span class="p">,</span> <span class="n">Tuple</span><span class="p">,</span> <span class="n">Union</span><span class="p">,</span> <span class="n">cast</span>
 
 <span class="kn">from</span><span class="w"> </span><span class="nn">spdx_python_model</span><span class="w"> </span><span class="kn">import</span> <span class="n">v3_0_1</span> <span class="k">as</span> <span class="n">spdx3</span>  <span class="c1"># type: ignore # import-untyped</span>
-<span class="kn">from</span><span class="w"> </span><span class="nn">spdx_tools.spdx.model.document</span><span class="w"> </span><span class="kn">import</span> <span class="n">Document</span>
 <span class="kn">from</span><span class="w"> </span><span class="nn">spdx_tools.spdx.model.relationship</span><span class="w"> </span><span class="kn">import</span> <span class="n">RelationshipType</span>
 <span class="kn">from</span><span class="w"> </span><span class="nn">spdx_tools.spdx.model.spdx_no_assertion</span><span class="w"> </span><span class="kn">import</span> <span class="n">SpdxNoAssertion</span>
 <span class="kn">from</span><span class="w"> </span><span class="nn">spdx_tools.spdx.parser</span><span class="w"> </span><span class="kn">import</span> <span class="n">parse_anything</span>
 <span class="kn">from</span><span class="w"> </span><span class="nn">spdx_tools.spdx.parser.error</span><span class="w"> </span><span class="kn">import</span> <span class="n">SPDXParsingError</span>
 <span class="kn">from</span><span class="w"> </span><span class="nn">spdx_tools.spdx.validation.document_validator</span><span class="w"> </span><span class="kn">import</span> <span class="n">validate_full_spdx_document</span>
-<span class="kn">from</span><span class="w"> </span><span class="nn">spdx_tools.spdx.validation.validation_message</span><span class="w"> </span><span class="kn">import</span> <span class="n">ValidationMessage</span>
 
-<span class="kn">from</span><span class="w"> </span><span class="nn">.constants</span><span class="w"> </span><span class="kn">import</span> <span class="p">(</span>
-    <span class="n">DEFAULT_SBOM_SPEC</span><span class="p">,</span>
-    <span class="n">SUPPORTED_COMPLIANCE_STANDARDS</span><span class="p">,</span>
-    <span class="n">SUPPORTED_COMPLIANCE_STANDARDS_DESC</span><span class="p">,</span>
-<span class="p">)</span>
-<span class="kn">from</span><span class="w"> </span><span class="nn">.report</span><span class="w"> </span><span class="kn">import</span> <span class="n">get_validation_messages_html</span><span class="p">,</span> <span class="n">print_validation_messages</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">.constants</span><span class="w"> </span><span class="kn">import</span> <span class="n">DEFAULT_SBOM_SPEC</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">.report</span><span class="w"> </span><span class="kn">import</span> <span class="n">ReportContext</span><span class="p">,</span> <span class="n">report_html</span><span class="p">,</span> <span class="n">report_text</span>
 <span class="kn">from</span><span class="w"> </span><span class="nn">.spdx3_utils</span><span class="w"> </span><span class="kn">import</span> <span class="p">(</span>
     <span class="n">get_boms_from_spdx_document</span><span class="p">,</span>
     <span class="n">get_packages_from_bom</span><span class="p">,</span>
@@ -105,6 +99,10 @@
     <span class="n">iter_relationships_by_type</span><span class="p">,</span>
     <span class="n">validate_spdx3_data</span><span class="p">,</span>
 <span class="p">)</span>
+
+<span class="k">if</span> <span class="n">TYPE_CHECKING</span><span class="p">:</span>
+    <span class="kn">from</span><span class="w"> </span><span class="nn">spdx_tools.spdx.model.document</span><span class="w"> </span><span class="kn">import</span> <span class="n">Document</span>
+    <span class="kn">from</span><span class="w"> </span><span class="nn">spdx_tools.spdx.validation.validation_message</span><span class="w"> </span><span class="kn">import</span> <span class="n">ValidationMessage</span>
 
 
 <span class="c1"># pylint: disable=too-many-instance-attributes</span>
@@ -120,7 +118,12 @@
 <span class="sd">    such as `check_compliance` and `output_json`.</span>
 <span class="sd">    &quot;&quot;&quot;</span>
 
-    <span class="n">_COMPONENTS_MISSING</span> <span class="o">=</span> <span class="p">{</span>
+    <span class="c1"># Minimum elements/baseline attributes required by a compliance standard</span>
+    <span class="n">MIN_ELEMENTS</span><span class="p">:</span> <span class="n">List</span><span class="p">[</span><span class="nb">str</span><span class="p">]</span> <span class="o">=</span> <span class="p">[]</span>
+
+    <span class="c1"># Mapping of components without information</span>
+    <span class="c1"># SBOM component name: (list containing components missing the info, label)</span>
+    <span class="n">_COMPONENTS_WITHOUT_INFO</span> <span class="o">=</span> <span class="p">{</span>
         <span class="s2">&quot;name&quot;</span><span class="p">:</span> <span class="p">(</span><span class="s2">&quot;components_without_names&quot;</span><span class="p">,</span> <span class="s2">&quot;Components missing a name&quot;</span><span class="p">),</span>
         <span class="s2">&quot;version&quot;</span><span class="p">:</span> <span class="p">(</span><span class="s2">&quot;components_without_versions&quot;</span><span class="p">,</span> <span class="s2">&quot;Components missing a version&quot;</span><span class="p">),</span>
         <span class="s2">&quot;identifier&quot;</span><span class="p">:</span> <span class="p">(</span>
@@ -147,7 +150,7 @@
     <span class="n">file</span><span class="p">:</span> <span class="nb">str</span> <span class="o">=</span> <span class="s2">&quot;&quot;</span>
     <span class="c1"># For SPDX 3, we have to use SHACLObjectSet instead of SpdxDocument,</span>
     <span class="c1"># because we need access to relationships and other elements that are not</span>
-    <span class="c1"># accesible from SpdxDocument.</span>
+    <span class="c1"># accessible from SpdxDocument.</span>
     <span class="n">doc</span><span class="p">:</span> <span class="n">Union</span><span class="p">[</span><span class="n">Document</span><span class="p">,</span> <span class="n">spdx3</span><span class="o">.</span><span class="n">SHACLObjectSet</span><span class="p">,</span> <span class="kc">None</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span>
     <span class="n">__spdx3_doc</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="n">spdx3</span><span class="o">.</span><span class="n">SpdxDocument</span><span class="p">]</span> <span class="o">=</span> <span class="kc">None</span>  <span class="c1"># cached SPDX 3 document</span>
 
@@ -258,6 +261,12 @@
             <span class="bp">self</span><span class="o">.</span><span class="n">components_without_copyright_texts</span> <span class="o">=</span> <span class="n">cast</span><span class="p">(</span>
                 <span class="s2">&quot;List[str]&quot;</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">get_components_without_copyright_texts</span><span class="p">()</span>
             <span class="p">)</span>
+
+            <span class="bp">self</span><span class="o">.</span><span class="n">all_components_without_info</span><span class="p">:</span> <span class="n">List</span><span class="p">[</span><span class="n">Tuple</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="n">List</span><span class="p">[</span><span class="nb">str</span><span class="p">]]]</span> <span class="o">=</span> <span class="p">(</span>
+                <span class="bp">self</span><span class="o">.</span><span class="n">_get_all_components_without_info</span><span class="p">()</span>
+            <span class="p">)</span>
+
+        <span class="bp">self</span><span class="o">.</span><span class="n">table_elements</span><span class="p">:</span> <span class="n">List</span><span class="p">[</span><span class="n">Tuple</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="nb">bool</span><span class="p">]]</span> <span class="o">=</span> <span class="p">[]</span>
 
 <div class="viewcode-block" id="BaseChecker.check_doc_version">
 <a class="viewcode-back" href="../../ntia_conformance_checker.html#ntia_conformance_checker.base_checker.BaseChecker.check_doc_version">[docs]</a>
@@ -831,6 +840,26 @@
         <span class="k">return</span> <span class="p">[]</span></div>
 
 
+    <span class="k">def</span><span class="w"> </span><span class="nf">_get_all_components_without_info</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">List</span><span class="p">[</span><span class="n">Tuple</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="n">List</span><span class="p">[</span><span class="nb">str</span><span class="p">]]]:</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;Get a list of components missing information for each minimum component.&quot;&quot;&quot;</span>
+
+        <span class="c1"># If all lists are empty, return an empty list</span>
+        <span class="k">if</span> <span class="nb">all</span><span class="p">(</span>
+            <span class="ow">not</span> <span class="nb">getattr</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">list_name</span><span class="p">,</span> <span class="p">[])</span>
+            <span class="k">for</span> <span class="n">list_name</span><span class="p">,</span> <span class="n">_</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">_COMPONENTS_WITHOUT_INFO</span><span class="o">.</span><span class="n">values</span><span class="p">()</span>
+        <span class="p">):</span>
+            <span class="k">return</span> <span class="p">[]</span>
+
+        <span class="n">res</span><span class="p">:</span> <span class="n">List</span><span class="p">[</span><span class="n">Tuple</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="n">List</span><span class="p">[</span><span class="nb">str</span><span class="p">]]]</span> <span class="o">=</span> <span class="p">[]</span>
+        <span class="k">for</span> <span class="n">component_name</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">MIN_ELEMENTS</span><span class="p">:</span>
+            <span class="k">if</span> <span class="n">component_name</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">_COMPONENTS_WITHOUT_INFO</span><span class="p">:</span>
+                <span class="n">list_name</span><span class="p">,</span> <span class="n">_</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_COMPONENTS_WITHOUT_INFO</span><span class="p">[</span><span class="n">component_name</span><span class="p">]</span>
+                <span class="n">components_without_info</span> <span class="o">=</span> <span class="nb">getattr</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">list_name</span><span class="p">,</span> <span class="p">[])</span>
+                <span class="k">if</span> <span class="n">components_without_info</span><span class="p">:</span>
+                    <span class="n">res</span><span class="o">.</span><span class="n">append</span><span class="p">((</span><span class="n">component_name</span><span class="p">,</span> <span class="n">components_without_info</span><span class="p">))</span>
+
+        <span class="k">return</span> <span class="n">res</span>
+
 <div class="viewcode-block" id="BaseChecker.get_total_number_components">
 <a class="viewcode-back" href="../../ntia_conformance_checker.html#ntia_conformance_checker.base_checker.BaseChecker.get_total_number_components">[docs]</a>
     <span class="k">def</span><span class="w"> </span><span class="nf">get_total_number_components</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">int</span><span class="p">:</span>
@@ -918,19 +947,12 @@
 
 <div class="viewcode-block" id="BaseChecker.print_components_missing_info">
 <a class="viewcode-back" href="../../ntia_conformance_checker.html#ntia_conformance_checker.base_checker.BaseChecker.print_components_missing_info">[docs]</a>
-    <span class="k">def</span><span class="w"> </span><span class="nf">print_components_missing_info</span><span class="p">(</span>
-        <span class="bp">self</span><span class="p">,</span> <span class="n">attributes</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="n">List</span><span class="p">[</span><span class="nb">str</span><span class="p">]]</span> <span class="o">=</span> <span class="kc">None</span>
-    <span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">print_components_missing_info</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
 <span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">        Print information about components that are missing required details.</span>
 
 <span class="sd">        What is considered &quot;missing&quot; is determined by a compliance standard.</span>
 <span class="sd">        Subclasses may override this method to provide custom behavior.</span>
-
-<span class="sd">        Args:</span>
-<span class="sd">            attributes (Optional[List[str]]): A list of attributes to check for missing</span>
-<span class="sd">                                              information. If not specified, all</span>
-<span class="sd">                                              available attributes will be checked.</span>
 
 <span class="sd">        Returns:</span>
 <span class="sd">            None</span>
@@ -939,144 +961,59 @@
         <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">parsing_error</span><span class="p">:</span>
             <span class="k">return</span>
 
-        <span class="c1"># If no specific info types are provided, check all</span>
-        <span class="k">if</span> <span class="ow">not</span> <span class="n">attributes</span><span class="p">:</span>
-            <span class="n">attributes</span> <span class="o">=</span> <span class="nb">list</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_COMPONENTS_MISSING</span><span class="o">.</span><span class="n">keys</span><span class="p">())</span>
-
-        <span class="k">if</span> <span class="nb">all</span><span class="p">(</span>
-            <span class="ow">not</span> <span class="nb">getattr</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">list_name</span><span class="p">,</span> <span class="p">[])</span>
-            <span class="k">for</span> <span class="n">list_name</span><span class="p">,</span> <span class="n">_</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">_COMPONENTS_MISSING</span><span class="o">.</span><span class="n">values</span><span class="p">()</span>
-        <span class="p">):</span>
-            <span class="nb">print</span><span class="p">(</span><span class="s2">&quot;No components with missing information.&quot;</span><span class="p">)</span>
+        <span class="k">if</span> <span class="ow">not</span> <span class="bp">self</span><span class="o">.</span><span class="n">all_components_without_info</span><span class="p">:</span>
             <span class="k">return</span>
 
-        <span class="k">for</span> <span class="n">info</span> <span class="ow">in</span> <span class="n">attributes</span><span class="p">:</span>
-            <span class="k">if</span> <span class="n">info</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">_COMPONENTS_MISSING</span><span class="p">:</span>
-                <span class="n">list_name</span><span class="p">,</span> <span class="n">label</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_COMPONENTS_MISSING</span><span class="p">[</span><span class="n">info</span><span class="p">]</span>
-                <span class="n">components_without_info</span> <span class="o">=</span> <span class="nb">getattr</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">list_name</span><span class="p">,</span> <span class="p">[])</span>
-                <span class="k">if</span> <span class="n">components_without_info</span><span class="p">:</span>
-                    <span class="nb">print</span><span class="p">(</span>
-                        <span class="sa">f</span><span class="s2">&quot;</span><span class="si">{</span><span class="n">label</span><span class="si">}</span><span class="s2"> (</span><span class="si">{</span><span class="nb">len</span><span class="p">(</span><span class="n">components_without_info</span><span class="p">)</span><span class="si">}</span><span class="s2">): &quot;</span>
-                        <span class="sa">f</span><span class="s2">&quot;</span><span class="si">{</span><span class="s1">&#39;, &#39;</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">components_without_info</span><span class="p">)</span><span class="si">}</span><span class="s2">&quot;</span>
-                    <span class="p">)</span>
-            <span class="k">else</span><span class="p">:</span>
-                <span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;Unknown attribute: </span><span class="si">{</span><span class="n">info</span><span class="si">!r}</span><span class="se">\n</span><span class="s2">&quot;</span><span class="p">)</span></div>
+        <span class="nb">print</span><span class="p">(</span><span class="s2">&quot;Missing required information in these components:&quot;</span><span class="p">)</span>
+        <span class="k">for</span> <span class="n">component_name</span><span class="p">,</span> <span class="n">components</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">all_components_without_info</span><span class="p">:</span>
+            <span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;</span><span class="si">{</span><span class="n">component_name</span><span class="si">}</span><span class="s2"> (</span><span class="si">{</span><span class="nb">len</span><span class="p">(</span><span class="n">components</span><span class="p">)</span><span class="si">}</span><span class="s2">): &quot;</span> <span class="sa">f</span><span class="s2">&quot;</span><span class="si">{</span><span class="s1">&#39;, &#39;</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">components</span><span class="p">)</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span></div>
 
-
-    <span class="k">def</span><span class="w"> </span><span class="nf">_get_table_title</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">str</span><span class="p">:</span>
-        <span class="k">return</span> <span class="p">(</span>
-            <span class="sa">f</span><span class="s2">&quot;</span><span class="si">{</span><span class="n">SUPPORTED_COMPLIANCE_STANDARDS_DESC</span><span class="p">[</span><span class="bp">self</span><span class="o">.</span><span class="n">compliance_standard</span><span class="p">]</span><span class="si">}</span><span class="s2">&quot;</span>
-            <span class="s2">&quot; Conformance Results&quot;</span>
-        <span class="p">)</span>
 
 <div class="viewcode-block" id="BaseChecker.print_table_output">
 <a class="viewcode-back" href="../../ntia_conformance_checker.html#ntia_conformance_checker.base_checker.BaseChecker.print_table_output">[docs]</a>
-    <span class="k">def</span><span class="w"> </span><span class="nf">print_table_output</span><span class="p">(</span>
-        <span class="bp">self</span><span class="p">,</span>
-        <span class="n">verbose</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">False</span><span class="p">,</span>
-        <span class="n">table_elements</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="n">List</span><span class="p">[</span><span class="n">Tuple</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="nb">bool</span><span class="p">]]]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
-    <span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">print_table_output</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">verbose</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">False</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
 <span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">        Print element-by-element result table.</span>
 
 <span class="sd">        Args:</span>
 <span class="sd">            verbose (bool): If True, print detailed information.</span>
-<span class="sd">            table_elements (Optional[List[Tuple[str, bool]]]): A list of tuples</span>
-<span class="sd">                            where each tuple contains a label and a boolean</span>
-<span class="sd">                            value indicating the status of that element.</span>
 
 <span class="sd">        Returns:</span>
 <span class="sd">            None</span>
 <span class="sd">        &quot;&quot;&quot;</span>
-        <span class="k">if</span> <span class="ow">not</span> <span class="bp">self</span><span class="o">.</span><span class="n">doc</span><span class="p">:</span>
-            <span class="nb">print</span><span class="p">(</span><span class="s2">&quot;The document couldn&#39;t be parsed; check couldn&#39;t be performed.</span><span class="se">\n</span><span class="s2">&quot;</span><span class="p">)</span>
-            <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">parsing_error</span><span class="p">:</span>
-                <span class="nb">print</span><span class="p">(</span><span class="s2">&quot;The following parsing error(s) were raised:</span><span class="se">\n</span><span class="s2">&quot;</span><span class="p">)</span>
-                <span class="k">for</span> <span class="n">error</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">parsing_error</span><span class="p">:</span>
-                    <span class="nb">print</span><span class="p">(</span><span class="n">error</span><span class="p">)</span>
-            <span class="k">return</span>
+        <span class="n">report_context</span> <span class="o">=</span> <span class="n">ReportContext</span><span class="p">(</span>
+            <span class="n">sbom_spec</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">sbom_spec</span><span class="p">,</span>
+            <span class="n">compliance_standard</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">compliance_standard</span><span class="p">,</span>
+            <span class="n">compliant</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">compliant</span><span class="p">,</span>
+            <span class="n">requirement_results</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">table_elements</span><span class="p">,</span>
+            <span class="n">components_without_info</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">all_components_without_info</span><span class="p">,</span>
+            <span class="n">validation_messages</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">validation_messages</span><span class="p">,</span>
+            <span class="n">parsing_error</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">parsing_error</span><span class="p">,</span>
+        <span class="p">)</span>
 
-        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">compliance_standard</span> <span class="ow">not</span> <span class="ow">in</span> <span class="n">SUPPORTED_COMPLIANCE_STANDARDS</span><span class="p">:</span>
-            <span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;Unsupported compliance standard </span><span class="si">{</span><span class="bp">self</span><span class="o">.</span><span class="n">compliance_standard</span><span class="si">!r}</span><span class="s2">&quot;</span><span class="p">)</span>
-            <span class="k">return</span>
-
-        <span class="nb">print</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">_get_table_title</span><span class="p">())</span>
-        <span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;Conformant: </span><span class="si">{</span><span class="bp">self</span><span class="o">.</span><span class="n">compliant</span><span class="si">}</span><span class="se">\n</span><span class="s2">&quot;</span><span class="p">)</span>
-
-        <span class="k">if</span> <span class="n">table_elements</span><span class="p">:</span>
-            <span class="nb">print</span><span class="p">(</span><span class="s2">&quot;Individual elements                            | Status&quot;</span><span class="p">)</span>
-            <span class="nb">print</span><span class="p">(</span><span class="s2">&quot;-------------------------------------------------------&quot;</span><span class="p">)</span>
-            <span class="k">for</span> <span class="n">label</span><span class="p">,</span> <span class="n">value</span> <span class="ow">in</span> <span class="n">table_elements</span><span class="p">:</span>
-                <span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;</span><span class="si">{</span><span class="n">label</span><span class="si">:</span><span class="s2">&lt;46</span><span class="si">}</span><span class="s2"> | </span><span class="si">{</span><span class="n">value</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
-            <span class="nb">print</span><span class="p">()</span>
-
-        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">validation_messages</span><span class="p">:</span>
-            <span class="nb">print</span><span class="p">(</span>
-                <span class="s2">&quot;</span><span class="se">\n</span><span class="s2">The document is not valid according to the SBOM &quot;</span>
-                <span class="sa">f</span><span class="s1">&#39;specification (&quot;</span><span class="si">{</span><span class="bp">self</span><span class="o">.</span><span class="n">sbom_spec</span><span class="si">}</span><span class="s1">&quot;). &#39;</span>
-                <span class="s2">&quot;The following errors were found:</span><span class="se">\n</span><span class="s2">&quot;</span>
-            <span class="p">)</span>
-            <span class="n">print_validation_messages</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">validation_messages</span><span class="p">,</span> <span class="n">verbose</span><span class="p">)</span></div>
+        <span class="nb">print</span><span class="p">(</span><span class="n">report_text</span><span class="p">(</span><span class="n">report_context</span><span class="p">,</span> <span class="n">verbose</span><span class="p">))</span></div>
 
 
 <div class="viewcode-block" id="BaseChecker.output_html">
 <a class="viewcode-back" href="../../ntia_conformance_checker.html#ntia_conformance_checker.base_checker.BaseChecker.output_html">[docs]</a>
-    <span class="k">def</span><span class="w"> </span><span class="nf">output_html</span><span class="p">(</span>
-        <span class="bp">self</span><span class="p">,</span>
-        <span class="n">table_elements</span><span class="p">:</span> <span class="n">Optional</span><span class="p">[</span><span class="n">List</span><span class="p">[</span><span class="n">Tuple</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="nb">bool</span><span class="p">]]]</span> <span class="o">=</span> <span class="kc">None</span><span class="p">,</span>
-    <span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">str</span><span class="p">:</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">output_html</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">str</span><span class="p">:</span>
 <span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
 <span class="sd">        Create element-by-element result table in HTML.</span>
-
-<span class="sd">        Args:</span>
-<span class="sd">            table_elements (Optional[List[Tuple[str, bool]]]): A list of tuples</span>
-<span class="sd">                            where each tuple contains a label and a boolean</span>
-<span class="sd">                            value indicating the status of that element.</span>
 
 <span class="sd">        Returns:</span>
 <span class="sd">            str: The HTML representation of the results.</span>
 <span class="sd">        &quot;&quot;&quot;</span>
-        <span class="n">html_parts</span><span class="p">:</span> <span class="n">List</span><span class="p">[</span><span class="nb">str</span><span class="p">]</span> <span class="o">=</span> <span class="p">[]</span>
+        <span class="n">report_context</span> <span class="o">=</span> <span class="n">ReportContext</span><span class="p">(</span>
+            <span class="n">sbom_spec</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">sbom_spec</span><span class="p">,</span>
+            <span class="n">compliance_standard</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">compliance_standard</span><span class="p">,</span>
+            <span class="n">compliant</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">compliant</span><span class="p">,</span>
+            <span class="n">requirement_results</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">table_elements</span><span class="p">,</span>
+            <span class="n">components_without_info</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">all_components_without_info</span><span class="p">,</span>
+            <span class="n">validation_messages</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">validation_messages</span><span class="p">,</span>
+            <span class="n">parsing_error</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">parsing_error</span><span class="p">,</span>
+        <span class="p">)</span>
 
-        <span class="k">if</span> <span class="ow">not</span> <span class="bp">self</span><span class="o">.</span><span class="n">doc</span><span class="p">:</span>
-            <span class="n">html_parts</span><span class="o">.</span><span class="n">append</span><span class="p">(</span>
-                <span class="s2">&quot;&lt;p&gt;The document couldn&#39;t be parsed; check couldn&#39;t be performed.&lt;/p&gt;&quot;</span>
-            <span class="p">)</span>
-            <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">parsing_error</span><span class="p">:</span>
-                <span class="n">html_parts</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="s2">&quot;&lt;p&gt;The following parsing error(s) were raised:&lt;/p&gt;&quot;</span><span class="p">)</span>
-                <span class="n">html_parts</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="s2">&quot;&lt;ul&gt;&quot;</span><span class="p">)</span>
-                <span class="k">for</span> <span class="n">err</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">parsing_error</span><span class="p">:</span>
-                    <span class="n">html_parts</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;&lt;li&gt;</span><span class="si">{</span><span class="n">err</span><span class="si">}</span><span class="s2">&lt;/li&gt;&quot;</span><span class="p">)</span>
-                <span class="n">html_parts</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="s2">&quot;&lt;/ul&gt;&quot;</span><span class="p">)</span>
-            <span class="k">return</span> <span class="s2">&quot;</span><span class="se">\n</span><span class="s2">&quot;</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">html_parts</span><span class="p">)</span>
-
-        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">compliance_standard</span> <span class="ow">not</span> <span class="ow">in</span> <span class="n">SUPPORTED_COMPLIANCE_STANDARDS</span><span class="p">:</span>
-            <span class="n">html_parts</span><span class="o">.</span><span class="n">append</span><span class="p">(</span>
-                <span class="sa">f</span><span class="s2">&quot;&lt;p&gt;Unsupported compliance standard </span><span class="si">{</span><span class="bp">self</span><span class="o">.</span><span class="n">compliance_standard</span><span class="si">!r}</span><span class="s2">&lt;/p&gt;&quot;</span>
-            <span class="p">)</span>
-            <span class="k">return</span> <span class="s2">&quot;</span><span class="se">\n</span><span class="s2">&quot;</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">html_parts</span><span class="p">)</span>
-
-        <span class="n">html_parts</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;&lt;h2&gt;</span><span class="si">{</span><span class="bp">self</span><span class="o">.</span><span class="n">_get_table_title</span><span class="p">()</span><span class="si">}</span><span class="s2">&lt;/h2&gt;&quot;</span><span class="p">)</span>
-        <span class="n">html_parts</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;&lt;h3&gt;Conformant: </span><span class="si">{</span><span class="bp">self</span><span class="o">.</span><span class="n">compliant</span><span class="si">}</span><span class="s2">&lt;/h3&gt;&quot;</span><span class="p">)</span>
-
-        <span class="k">if</span> <span class="n">table_elements</span><span class="p">:</span>
-            <span class="n">html_parts</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="s2">&quot;&lt;table&gt;&quot;</span><span class="p">)</span>
-            <span class="n">html_parts</span><span class="o">.</span><span class="n">append</span><span class="p">(</span>
-                <span class="s2">&quot;&lt;tr&gt;&lt;th&gt;Individual Elements&lt;/th&gt;&lt;th&gt;Conformant&lt;/th&gt;&lt;/tr&gt;&quot;</span>
-            <span class="p">)</span>
-            <span class="k">for</span> <span class="n">label</span><span class="p">,</span> <span class="n">val</span> <span class="ow">in</span> <span class="n">table_elements</span><span class="p">:</span>
-                <span class="n">html_parts</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;&lt;tr&gt;&lt;td&gt;</span><span class="si">{</span><span class="n">label</span><span class="si">}</span><span class="s2">&lt;/td&gt;&lt;td&gt;</span><span class="si">{</span><span class="n">val</span><span class="si">}</span><span class="s2">&lt;/td&gt;&lt;/tr&gt;&quot;</span><span class="p">)</span>
-            <span class="n">html_parts</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="s2">&quot;&lt;/table&gt;&quot;</span><span class="p">)</span>
-
-        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">validation_messages</span><span class="p">:</span>
-            <span class="n">html_parts</span><span class="o">.</span><span class="n">append</span><span class="p">(</span>
-                <span class="s2">&quot;&lt;p&gt;The document is not valid according to the SBOM &quot;</span>
-                <span class="sa">f</span><span class="s1">&#39;specification (&quot;</span><span class="si">{</span><span class="bp">self</span><span class="o">.</span><span class="n">sbom_spec</span><span class="si">}</span><span class="s1">&quot;).&lt;/p&gt;&#39;</span>
-            <span class="p">)</span>
-            <span class="n">html_parts</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="s2">&quot;&lt;p&gt;The following errors were found:&lt;/p&gt;&quot;</span><span class="p">)</span>
-            <span class="n">html_parts</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">get_validation_messages_html</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">validation_messages</span><span class="p">))</span>
-
-        <span class="k">return</span> <span class="s2">&quot;</span><span class="se">\n</span><span class="s2">&quot;</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">html_parts</span><span class="p">)</span></div>
+        <span class="k">return</span> <span class="n">report_html</span><span class="p">(</span><span class="n">report_context</span><span class="p">,</span> <span class="n">verbose</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span></div>
 
 
 <div class="viewcode-block" id="BaseChecker.output_json">
@@ -1116,10 +1053,10 @@
         <span class="p">}</span>
 
         <span class="k">for</span> <span class="n">key_</span><span class="p">,</span> <span class="n">attr</span> <span class="ow">in</span> <span class="n">_groups</span><span class="o">.</span><span class="n">items</span><span class="p">():</span>
-            <span class="n">components_without_infos</span> <span class="o">=</span> <span class="nb">getattr</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">attr</span><span class="p">,</span> <span class="p">[])</span>
+            <span class="n">components_without_info</span> <span class="o">=</span> <span class="nb">getattr</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">attr</span><span class="p">,</span> <span class="p">[])</span>
             <span class="n">result</span><span class="p">[</span><span class="n">key_</span><span class="p">]</span> <span class="o">=</span> <span class="p">{</span>
-                <span class="s2">&quot;nonconformantComponents&quot;</span><span class="p">:</span> <span class="n">components_without_infos</span><span class="p">,</span>
-                <span class="s2">&quot;allProvided&quot;</span><span class="p">:</span> <span class="ow">not</span> <span class="nb">bool</span><span class="p">(</span><span class="n">components_without_infos</span><span class="p">),</span>
+                <span class="s2">&quot;nonconformantComponents&quot;</span><span class="p">:</span> <span class="n">components_without_info</span><span class="p">,</span>
+                <span class="s2">&quot;allProvided&quot;</span><span class="p">:</span> <span class="ow">not</span> <span class="nb">bool</span><span class="p">(</span><span class="n">components_without_info</span><span class="p">),</span>
             <span class="p">}</span>
 
         <span class="k">return</span> <span class="n">result</span></div>

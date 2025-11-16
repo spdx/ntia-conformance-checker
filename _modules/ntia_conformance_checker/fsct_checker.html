@@ -69,7 +69,7 @@
            <div itemprop="articleBody">
              
   <h1>Source code for ntia_conformance_checker.fsct_checker</h1><div class="highlight"><pre>
-<span></span><span class="c1"># SPDX-FileCopyrightText: 2024 SPDX contributors</span>
+<span></span><span class="c1"># SPDX-FileCopyrightText: 2024-2025 SPDX contributors</span>
 <span class="c1"># SPDX-FileType: SOURCE</span>
 <span class="c1"># SPDX-License-Identifier: Apache-2.0</span>
 
@@ -98,6 +98,15 @@
 <span class="sd">        https://www.cisa.gov/resources-tools/resources/framing-software-component-transparency-2024</span>
 <span class="sd">    &quot;&quot;&quot;</span>
 
+    <span class="n">MIN_COMPONENTS</span> <span class="o">=</span> <span class="p">[</span>
+        <span class="s2">&quot;name&quot;</span><span class="p">,</span>
+        <span class="s2">&quot;version&quot;</span><span class="p">,</span>
+        <span class="s2">&quot;identifier&quot;</span><span class="p">,</span>
+        <span class="s2">&quot;supplier&quot;</span><span class="p">,</span>
+        <span class="s2">&quot;concluded_license&quot;</span><span class="p">,</span>
+        <span class="s2">&quot;copyright_text&quot;</span><span class="p">,</span>
+    <span class="p">]</span>
+
     <span class="k">def</span><span class="w"> </span><span class="fm">__init__</span><span class="p">(</span>
         <span class="bp">self</span><span class="p">,</span>
         <span class="n">file</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span>
@@ -123,9 +132,35 @@
 
         <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">doc</span><span class="p">:</span>
             <span class="bp">self</span><span class="o">.</span><span class="n">compliant</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">check_compliance</span><span class="p">()</span>
-
             <span class="c1"># for backward compatibility</span>
             <span class="bp">self</span><span class="o">.</span><span class="n">ntia_minimum_elements_compliant</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">compliant</span>
+
+        <span class="bp">self</span><span class="o">.</span><span class="n">table_elements</span> <span class="o">=</span> <span class="p">[</span>
+            <span class="p">(</span><span class="s2">&quot;All component names provided?&quot;</span><span class="p">,</span> <span class="ow">not</span> <span class="bp">self</span><span class="o">.</span><span class="n">components_without_names</span><span class="p">),</span>
+            <span class="p">(</span>
+                <span class="s2">&quot;All component versions provided?&quot;</span><span class="p">,</span>
+                <span class="ow">not</span> <span class="bp">self</span><span class="o">.</span><span class="n">components_without_versions</span><span class="p">,</span>
+            <span class="p">),</span>
+            <span class="p">(</span>
+                <span class="s2">&quot;All component identifiers provided?&quot;</span><span class="p">,</span>
+                <span class="ow">not</span> <span class="bp">self</span><span class="o">.</span><span class="n">components_without_identifiers</span><span class="p">,</span>
+            <span class="p">),</span>
+            <span class="p">(</span>
+                <span class="s2">&quot;All component suppliers provided?&quot;</span><span class="p">,</span>
+                <span class="ow">not</span> <span class="bp">self</span><span class="o">.</span><span class="n">components_without_suppliers</span><span class="p">,</span>
+            <span class="p">),</span>
+            <span class="p">(</span>
+                <span class="s2">&quot;All component concluded license provided?&quot;</span><span class="p">,</span>
+                <span class="ow">not</span> <span class="bp">self</span><span class="o">.</span><span class="n">components_without_concluded_licenses</span><span class="p">,</span>
+            <span class="p">),</span>
+            <span class="p">(</span>
+                <span class="s2">&quot;All component copyright notice provided?&quot;</span><span class="p">,</span>
+                <span class="ow">not</span> <span class="bp">self</span><span class="o">.</span><span class="n">components_without_copyright_texts</span><span class="p">,</span>
+            <span class="p">),</span>
+            <span class="p">(</span><span class="s2">&quot;SBOM author name provided?&quot;</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">doc_author</span><span class="p">),</span>
+            <span class="p">(</span><span class="s2">&quot;SBOM creation timestamp provided?&quot;</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">doc_timestamp</span><span class="p">),</span>
+            <span class="p">(</span><span class="s2">&quot;Dependency relationships provided?&quot;</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">dependency_relationships</span><span class="p">),</span>
+        <span class="p">]</span>
 
 <div class="viewcode-block" id="FSCT3Checker.check_compliance">
 <a class="viewcode-back" href="../../ntia_conformance_checker.html#ntia_conformance_checker.fsct_checker.FSCT3Checker.check_compliance">[docs]</a>
@@ -144,91 +179,6 @@
                 <span class="ow">not</span> <span class="bp">self</span><span class="o">.</span><span class="n">components_without_copyright_texts</span><span class="p">,</span>
                 <span class="ow">not</span> <span class="bp">self</span><span class="o">.</span><span class="n">validation_messages</span><span class="p">,</span>
             <span class="p">]</span>
-        <span class="p">)</span></div>
-
-
-<div class="viewcode-block" id="FSCT3Checker.print_components_missing_info">
-<a class="viewcode-back" href="../../ntia_conformance_checker.html#ntia_conformance_checker.fsct_checker.FSCT3Checker.print_components_missing_info">[docs]</a>
-    <span class="k">def</span><span class="w"> </span><span class="nf">print_components_missing_info</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">attributes</span><span class="o">=</span><span class="kc">None</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
-<span class="w">        </span><span class="sd">&quot;&quot;&quot;Print detailed info about which components have missing info.&quot;&quot;&quot;</span>
-        <span class="nb">super</span><span class="p">()</span><span class="o">.</span><span class="n">print_components_missing_info</span><span class="p">(</span>
-            <span class="n">attributes</span><span class="o">=</span><span class="p">[</span>
-                <span class="s2">&quot;name&quot;</span><span class="p">,</span>
-                <span class="s2">&quot;version&quot;</span><span class="p">,</span>
-                <span class="s2">&quot;identifier&quot;</span><span class="p">,</span>
-                <span class="s2">&quot;supplier&quot;</span><span class="p">,</span>
-                <span class="s2">&quot;concluded_license&quot;</span><span class="p">,</span>
-                <span class="s2">&quot;copyright_text&quot;</span><span class="p">,</span>
-            <span class="p">]</span>
-        <span class="p">)</span></div>
-
-
-<div class="viewcode-block" id="FSCT3Checker.print_table_output">
-<a class="viewcode-back" href="../../ntia_conformance_checker.html#ntia_conformance_checker.fsct_checker.FSCT3Checker.print_table_output">[docs]</a>
-    <span class="k">def</span><span class="w"> </span><span class="nf">print_table_output</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">verbose</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">False</span><span class="p">,</span> <span class="n">table_elements</span><span class="o">=</span><span class="kc">None</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
-<span class="w">        </span><span class="sd">&quot;&quot;&quot;Print element-by-element result table.&quot;&quot;&quot;</span>
-        <span class="nb">super</span><span class="p">()</span><span class="o">.</span><span class="n">print_table_output</span><span class="p">(</span>
-            <span class="n">verbose</span><span class="o">=</span><span class="n">verbose</span><span class="p">,</span>
-            <span class="n">table_elements</span><span class="o">=</span><span class="p">[</span>
-                <span class="p">(</span><span class="s2">&quot;All component names provided?&quot;</span><span class="p">,</span> <span class="ow">not</span> <span class="bp">self</span><span class="o">.</span><span class="n">components_without_names</span><span class="p">),</span>
-                <span class="p">(</span>
-                    <span class="s2">&quot;All component versions provided?&quot;</span><span class="p">,</span>
-                    <span class="ow">not</span> <span class="bp">self</span><span class="o">.</span><span class="n">components_without_versions</span><span class="p">,</span>
-                <span class="p">),</span>
-                <span class="p">(</span>
-                    <span class="s2">&quot;All component identifiers provided?&quot;</span><span class="p">,</span>
-                    <span class="ow">not</span> <span class="bp">self</span><span class="o">.</span><span class="n">components_without_identifiers</span><span class="p">,</span>
-                <span class="p">),</span>
-                <span class="p">(</span>
-                    <span class="s2">&quot;All component suppliers provided?&quot;</span><span class="p">,</span>
-                    <span class="ow">not</span> <span class="bp">self</span><span class="o">.</span><span class="n">components_without_suppliers</span><span class="p">,</span>
-                <span class="p">),</span>
-                <span class="p">(</span>
-                    <span class="s2">&quot;All component concluded license provided?&quot;</span><span class="p">,</span>
-                    <span class="ow">not</span> <span class="bp">self</span><span class="o">.</span><span class="n">components_without_concluded_licenses</span><span class="p">,</span>
-                <span class="p">),</span>
-                <span class="p">(</span>
-                    <span class="s2">&quot;All component copyright notice provided?&quot;</span><span class="p">,</span>
-                    <span class="ow">not</span> <span class="bp">self</span><span class="o">.</span><span class="n">components_without_copyright_texts</span><span class="p">,</span>
-                <span class="p">),</span>
-                <span class="p">(</span><span class="s2">&quot;SBOM author name provided?&quot;</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">doc_author</span><span class="p">),</span>
-                <span class="p">(</span><span class="s2">&quot;SBOM creation timestamp provided?&quot;</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">doc_timestamp</span><span class="p">),</span>
-                <span class="p">(</span><span class="s2">&quot;Dependency relationships provided?&quot;</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">dependency_relationships</span><span class="p">),</span>
-            <span class="p">],</span>
-        <span class="p">)</span></div>
-
-
-<div class="viewcode-block" id="FSCT3Checker.output_html">
-<a class="viewcode-back" href="../../ntia_conformance_checker.html#ntia_conformance_checker.fsct_checker.FSCT3Checker.output_html">[docs]</a>
-    <span class="k">def</span><span class="w"> </span><span class="nf">output_html</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">table_elements</span><span class="o">=</span><span class="kc">None</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">str</span><span class="p">:</span>
-<span class="w">        </span><span class="sd">&quot;&quot;&quot;Create a HTML of results.&quot;&quot;&quot;</span>
-        <span class="k">return</span> <span class="nb">super</span><span class="p">()</span><span class="o">.</span><span class="n">output_html</span><span class="p">(</span>
-            <span class="n">table_elements</span><span class="o">=</span><span class="p">[</span>
-                <span class="p">(</span><span class="s2">&quot;All component names provided&quot;</span><span class="p">,</span> <span class="ow">not</span> <span class="bp">self</span><span class="o">.</span><span class="n">components_without_names</span><span class="p">),</span>
-                <span class="p">(</span>
-                    <span class="s2">&quot;All component versions provided&quot;</span><span class="p">,</span>
-                    <span class="ow">not</span> <span class="bp">self</span><span class="o">.</span><span class="n">components_without_versions</span><span class="p">,</span>
-                <span class="p">),</span>
-                <span class="p">(</span>
-                    <span class="s2">&quot;All component identifiers provided&quot;</span><span class="p">,</span>
-                    <span class="ow">not</span> <span class="bp">self</span><span class="o">.</span><span class="n">components_without_identifiers</span><span class="p">,</span>
-                <span class="p">),</span>
-                <span class="p">(</span>
-                    <span class="s2">&quot;All component suppliers provided&quot;</span><span class="p">,</span>
-                    <span class="ow">not</span> <span class="bp">self</span><span class="o">.</span><span class="n">components_without_suppliers</span><span class="p">,</span>
-                <span class="p">),</span>
-                <span class="p">(</span>
-                    <span class="s2">&quot;All component concluded license provided&quot;</span><span class="p">,</span>
-                    <span class="ow">not</span> <span class="bp">self</span><span class="o">.</span><span class="n">components_without_concluded_licenses</span><span class="p">,</span>
-                <span class="p">),</span>
-                <span class="p">(</span>
-                    <span class="s2">&quot;All component copyright notice provided&quot;</span><span class="p">,</span>
-                    <span class="ow">not</span> <span class="bp">self</span><span class="o">.</span><span class="n">components_without_copyright_texts</span><span class="p">,</span>
-                <span class="p">),</span>
-                <span class="p">(</span><span class="s2">&quot;SBOM author name provided&quot;</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">doc_author</span><span class="p">),</span>
-                <span class="p">(</span><span class="s2">&quot;SBOM creation timestamp provided&quot;</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">doc_timestamp</span><span class="p">),</span>
-                <span class="p">(</span><span class="s2">&quot;Dependency relationships provided&quot;</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">dependency_relationships</span><span class="p">),</span>
-            <span class="p">],</span>
         <span class="p">)</span></div>
 </div>
 
