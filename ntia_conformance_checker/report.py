@@ -30,7 +30,7 @@ class ReportContext:
     compliance_standard: str = ""
     compliant: bool = False
     requirement_results: Optional[List[Tuple[str, bool]]] = None
-    components_without_infos: Optional[List[Tuple[str, List[str]]]] = None
+    components_without_info: Optional[List[Tuple[str, List[str]]]] = None
     validation_messages: Optional[List[ValidationMessage]] = None
     parsing_error: Optional[List[str]] = None
 
@@ -241,14 +241,14 @@ def report_html(
         report.append("</table>")
 
     # Components without required information
-    if rc.components_without_infos:
+    if rc.components_without_info:
         report.append(
             "<p class='conformance-missing-label'>"
             "Missing required information in these components:"
             "</p>"
         )
         report.append("<ul class='conformance-missing-list'>")
-        for component_name, components in rc.components_without_infos:
+        for component_name, components in rc.components_without_info:
             report.append(
                 f"<li>{component_name} ({len(components)}): "
                 f"{', '.join(components)}</li>"

@@ -50,7 +50,7 @@ class BaseChecker(ABC):
 
     # Mapping of components without information
     # SBOM component name: (list containing components missing the info, label)
-    _COMPONENTS_WITHOUT_INFOS = {
+    _COMPONENTS_WITHOUT_INFO = {
         "name": ("components_without_names", "Components missing a name"),
         "version": ("components_without_versions", "Components missing a version"),
         "identifier": (
@@ -186,8 +186,8 @@ class BaseChecker(ABC):
                 "List[str]", self.get_components_without_copyright_texts()
             )
 
-            self.all_components_without_infos: List[Tuple[str, List[str]]] = (
-                self._get_all_components_without_infos()
+            self.all_components_without_info: List[Tuple[str, List[str]]] = (
+                self._get_all_components_without_info()
             )
 
         self.table_elements: List[Tuple[str, bool]] = []
@@ -728,20 +728,20 @@ class BaseChecker(ABC):
 
         return []
 
-    def _get_all_components_without_infos(self) -> List[Tuple[str, List[str]]]:
+    def _get_all_components_without_info(self) -> List[Tuple[str, List[str]]]:
         """Get a list of components missing information for each minimum component."""
 
         # If all lists are empty, return an empty list
         if all(
             not getattr(self, list_name, [])
-            for list_name, _ in self._COMPONENTS_WITHOUT_INFOS.values()
+            for list_name, _ in self._COMPONENTS_WITHOUT_INFO.values()
         ):
             return []
 
         res: List[Tuple[str, List[str]]] = []
         for component_name in self.MIN_ELEMENTS:
-            if component_name in self._COMPONENTS_WITHOUT_INFOS:
-                list_name, _ = self._COMPONENTS_WITHOUT_INFOS[component_name]
+            if component_name in self._COMPONENTS_WITHOUT_INFO:
+                list_name, _ = self._COMPONENTS_WITHOUT_INFO[component_name]
                 components_without_info = getattr(self, list_name, [])
                 if components_without_info:
                     res.append((component_name, components_without_info))
@@ -838,11 +838,11 @@ class BaseChecker(ABC):
         if self.parsing_error:
             return
 
-        if not self.all_components_without_infos:
+        if not self.all_components_without_info:
             return
 
         print("Missing required information in these components:")
-        for component_name, components in self.all_components_without_infos:
+        for component_name, components in self.all_components_without_info:
             print(f"{component_name} ({len(components)}): " f"{', '.join(components)}")
 
     def print_table_output(self, verbose: bool = False) -> None:
@@ -860,7 +860,7 @@ class BaseChecker(ABC):
             compliance_standard=self.compliance_standard,
             compliant=self.compliant,
             requirement_results=self.table_elements,
-            components_without_infos=self.all_components_without_infos,
+            components_without_info=self.all_components_without_info,
             validation_messages=self.validation_messages,
             parsing_error=self.parsing_error,
         )
@@ -879,7 +879,7 @@ class BaseChecker(ABC):
             compliance_standard=self.compliance_standard,
             compliant=self.compliant,
             requirement_results=self.table_elements,
-            components_without_infos=self.all_components_without_infos,
+            components_without_info=self.all_components_without_info,
             validation_messages=self.validation_messages,
             parsing_error=self.parsing_error,
         )
@@ -921,10 +921,10 @@ class BaseChecker(ABC):
         }
 
         for key_, attr in _groups.items():
-            components_without_infos = getattr(self, attr, [])
+            components_without_info = getattr(self, attr, [])
             result[key_] = {
-                "nonconformantComponents": components_without_infos,
-                "allProvided": not bool(components_without_infos),
+                "nonconformantComponents": components_without_info,
+                "allProvided": not bool(components_without_info),
             }
 
         return result
