@@ -49,6 +49,5 @@ keywords:
   - NTIA
   - CISA
 license: Apache-2.0
-commit: 0ea788768fc39f0eacf9c9300c75a328799fbbd3
-version: 4.0.0
-date-released: '2025-09-05'
+version: 4.1.0
+date-released: '2025-11-17'

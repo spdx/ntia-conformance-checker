@@ -8,7 +8,7 @@ build-backend = "setuptools.build_meta"
 
 [project]
 name = "ntia_conformance_checker"
-version = "4.0.0"
+version = "4.1.0"
 authors = [
     { name = "Josh Lin", email = "linynjosh@gmail.com" },
     { name = "John Speed Meyers", email = "johnmeyersster@gmail.com" },
@@ -59,10 +59,10 @@ dev = [
     "black>=25.9.0",
     "mypy>=1.18.2",
     "pylint>=3.3.9", # 3.3.9 is the last version supporting Python 3.9
-    "pyrefly>=0.39.4",
+    "pyrefly>=0.42.0",
     "pyright>=1.1.407",
     "pytype>=2024.9.13", # 2024.9.13 is the last version supporting Python 3.9
-    "ruff>=0.14.3",
+    "ruff>=0.14.5",
 ]
 docs = [
     "sphinx>=7.4.7", # 7.4.7 is the last version supporting Python 3.9
@@ -71,7 +71,7 @@ docs = [
 test = [
     "beartype==0.21.0", # 0.21.0 is the last version supporting Python 3.9
     "coverage==7.10.7", # 7.10.7 is the last version supporting Python 3.9
-    "pytest==8.4.2"
+    "pytest==8.4.2", # 8.4.2 is the last version supporting Python 3.9
 ]
 
 [project.scripts]

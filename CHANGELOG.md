@@ -11,13 +11,31 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog][keepachangelog]
 and this project adheres to [Semantic Versioning][semver].
 
-## [Unreleased]
+## [4.1.0] - 2025-11-17
+
+This version primarily focused on improving the HTML output.
+
+Note: Python 3.9 support will be dropped in the next major release.
+This is likely the final version supporting it.
+
+### Added
+
+- Use detected SPDX version if found ([#309][])
+- HTML output now has stylesheet classes for easier formatting ([#323][])
+
+### Changed
+
+- Include components without required information in the HTML output ([#323][])
 
 ### Fixed
 
-- Fix verbosity bug ([#308][])
+- Make "--output quiet" print nothing except errors ([#308][])
+- Write HTML output to file with --output-file option ([#311][])
 
 [#308]: https://github.com/spdx/ntia-conformance-checker/pull/308
+[#309]: https://github.com/spdx/ntia-conformance-checker/pull/309
+[#311]: https://github.com/spdx/ntia-conformance-checker/pull/311
+[#323]: https://github.com/spdx/ntia-conformance-checker/pull/323
 
 ## [4.0.0] - 2025-09-05
 
@@ -83,6 +101,46 @@ and this project adheres to [Semantic Versioning][semver].
 [#224]: https://github.com/spdx/ntia-conformance-checker/pull/224
 [#226]: https://github.com/spdx/ntia-conformance-checker/pull/226
 
+## [3.0.0] - 2024-08-16
+
+### Changed
+
+- BREAKING CHANGE: Find the DESCRIBES relationship by looking through attached
+  packages ([#189][])
+
+[#189]: https://github.com/spdx/ntia-conformance-checker/pull/189
+
+## [2.0.0] - 2024-04-29
+
+### Changed
+
+- BREAKING CHANGE: Fixed spelling of `ntia_mininum_elements_compliant` property
+  ([#175][])
+- BREAKING CHANGE: Fix logic error in `get_components_without_suppliers`
+  ([#176][])
+- BREAKING CHANGE: Revise the implementation of
+  `check_dependency_relationships` ([#182][])
+
+[#175]: https://github.com/spdx/ntia-conformance-checker/pull/175
+[#176]: https://github.com/spdx/ntia-conformance-checker/pull/176
+[#182]: https://github.com/spdx/ntia-conformance-checker/pull/182
+
+## [1.1.0] - 2023-12-28
+
+### Changed
+
+- Provide more information in `get_components_without_`* functions ([#169][])
+
+[#169]: https://github.com/spdx/ntia-conformance-checker/pull/169
+
+## [1.0.0] - 2023-11-25
+
+### Added
+
+- Cut v1.0.0 release ([#163][])
+
+[#163]: https://github.com/spdx/ntia-conformance-checker/pull/163
+
 ## [0.1.0] - 2023-01-06
 
 First official release.
@@ -101,8 +159,12 @@ Thanks to @goneall, @licquia, and @kestewart for mentoring @linynjosh.
 [#1]: https://github.com/spdx/ntia-conformance-checker/pull/1
 [keepachangelog]: https://keepachangelog.com/en/1.1.0/
 [semver]: https://semver.org/spec/v2.0.0.html
-[unreleased]: https://github.com/spdx/ntia-conformance-checker/compare/v4.0.0...main
+[4.1.0]: https://github.com/spdx/ntia-conformance-checker/releases/tag/v4.1.0
 [4.0.0]: https://github.com/spdx/ntia-conformance-checker/releases/tag/v4.0.0
 [3.2.0]: https://github.com/spdx/ntia-conformance-checker/releases/tag/v3.2.0
 [3.1.0]: https://github.com/spdx/ntia-conformance-checker/releases/tag/v3.1.0
+[3.0.0]: https://github.com/spdx/ntia-conformance-checker/releases/tag/v3.0.0
+[2.0.0]: https://github.com/spdx/ntia-conformance-checker/releases/tag/v2.0.0
+[1.1.0]: https://github.com/spdx/ntia-conformance-checker/releases/tag/v1.1.0
+[1.0.0]: https://github.com/spdx/ntia-conformance-checker/releases/tag/v1.0.0
 [0.1.0]: https://github.com/spdx/ntia-conformance-checker/releases/tag/v0.1.0
