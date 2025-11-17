@@ -81,7 +81,7 @@ def validate_spdx3_data(
         if not isinstance(root_element, (spdx3.Bom, spdx3.software_Sbom)):
             error_msg = (
                 "The root element must be of type Bom or software_Sbom. "
-                f"Found: {type(root_element)}"
+                f"Found: r{type(root_element)}"
             )
             root_element_id = getattr(root_element, "spdxId", None)
             context = ValidationContext(parent_id=doc_id, spdx_id=root_element_id)

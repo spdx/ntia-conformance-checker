@@ -11,6 +11,12 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog][keepachangelog]
 and this project adheres to [Semantic Versioning][semver].
 
+## [4.1.1] - 2025-11-17
+
+### Fixed
+
+- Fix FSCT3Checker that do not report components without required information
+
 ## [4.1.0] - 2025-11-17
 
 This version primarily focused on improving the HTML output.
@@ -159,6 +165,7 @@ Thanks to @goneall, @licquia, and @kestewart for mentoring @linynjosh.
 [#1]: https://github.com/spdx/ntia-conformance-checker/pull/1
 [keepachangelog]: https://keepachangelog.com/en/1.1.0/
 [semver]: https://semver.org/spec/v2.0.0.html
+[4.1.1]: https://github.com/spdx/ntia-conformance-checker/releases/tag/v4.1.1
 [4.1.0]: https://github.com/spdx/ntia-conformance-checker/releases/tag/v4.1.0
 [4.0.0]: https://github.com/spdx/ntia-conformance-checker/releases/tag/v4.0.0
 [3.2.0]: https://github.com/spdx/ntia-conformance-checker/releases/tag/v3.2.0
