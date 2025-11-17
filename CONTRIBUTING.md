@@ -160,7 +160,7 @@ Here's the process to make changes to the codebase:
 
 ## How to run tests
 
-The tests framework is using [`pytest`][pytest] as the test runner
+The test framework is using [`pytest`][pytest] as the test runner
 and [`Coverage.py`][coverage] to measure code coverage.
 
 Install test dependencies:
