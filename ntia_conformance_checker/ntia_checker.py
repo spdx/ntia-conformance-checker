@@ -46,7 +46,6 @@ class NTIAChecker(BaseChecker):
 
         if self.doc:
             self.compliant = self.check_compliance()
-
             # for backward compatibility
             self.ntia_minimum_elements_compliant = self.compliant
 

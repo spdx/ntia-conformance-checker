@@ -16,6 +16,9 @@ and this project adheres to [Semantic Versioning][semver].
 ### Fixed
 
 - Fix FSCT3Checker that do not report components without required information
+  ([#326][])
+
+[#326]: https://github.com/spdx/ntia-conformance-checker/pull/326
 
 ## [4.1.0] - 2025-11-17
 
