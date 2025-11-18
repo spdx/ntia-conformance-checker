@@ -164,11 +164,11 @@ def report_text(
 
     if rc.validation_messages:
         report.append(
-            "\nThe document is not valid according to the SBOM "
+            "The document is not valid according to the SBOM "
             f'specification ("{rc.sbom_spec}"). '
             "The following violations were found:\n"
         )
-        print_validation_messages(rc.validation_messages, verbose)
+        report.append(get_validation_messages_text(rc.validation_messages, verbose))
 
     return "\n".join(report)
 
