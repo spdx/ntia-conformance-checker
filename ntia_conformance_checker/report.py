@@ -240,7 +240,7 @@ def report_html(
         report.append("</tbody>")
         report.append("</table>")
 
-    report.append("</div>") # End of conformance-res
+    report.append("</div>")  # End of conformance-res
 
     # Components without required information
     if rc.components_without_info:

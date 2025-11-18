@@ -466,6 +466,7 @@ def test_sbomchecker_output_html():
 
     assert got == expected
 
+
 def test_sbomchecker_fsct3_output_html():
     filepath = os.path.join(
         os.path.dirname(__file__), "data", "other_tests", "SPDXSBOMExample.spdx.yml"
@@ -516,6 +517,7 @@ def test_sbomchecker_fsct3_output_html():
     )
 
     assert got == expected
+
 
 def test_components_without_functions():
     filepath = os.path.join(
