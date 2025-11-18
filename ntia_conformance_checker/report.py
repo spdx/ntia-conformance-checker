@@ -190,33 +190,33 @@ def report_html(
 
     # Parsing error
     if rc.parsing_error:
+        report.append("<div class='conformance-err'>")
         report.append(
-            "<p class='conformance-err'>"
-            "The document couldn't be parsed; check couldn't be performed."
+            "<p class='conformance-err-label'>"
+            "The document couldn't be parsed; check couldn't be performed.<br />"
+            "The following parsing errors were raised:"
             "</p>"
         )
-        if rc.parsing_error:
-            report.append(
-                "<p class='conformance-err-details-label'>"
-                "The following parsing errors were raised:"
-                "</p>"
-            )
-            report.append("<ul class='conformance-err-details'>")
-            for err in rc.parsing_error:
-                report.append(f"<li>{err}</li>")
-            report.append("</ul>")
+        report.append("<ul class='conformance-err-list'>")
+        for err in rc.parsing_error:
+            report.append(f"<li>{err}</li>")
+        report.append("</ul>")
+        report.append("</div>")
         return "\n".join(report)
 
     # Unsupported compliance standard
     if rc.compliance_standard not in SUPPORTED_COMPLIANCE_STANDARDS:
         report.append(
-            "<p class='conformance-err'>"
+            "<div class='conformance-err'>"
+            "<p class='conformance-err-label'>"
             f"Unsupported compliance standard {rc.compliance_standard!r}"
             "</p>"
+            "</div>"
         )
         return "\n".join(report)
 
     # Compliance results
+    report.append("<div class='conformance-res'>")
     report.append(
         "<h2 class='conformance-res-title'>"
         f"{SUPPORTED_COMPLIANCE_STANDARDS_DESC[rc.compliance_standard]}"
@@ -240,15 +240,17 @@ def report_html(
         report.append("</tbody>")
         report.append("</table>")
 
+    report.append("</div>") # End of conformance-res
+
     # Components without required information
     if rc.components_without_info:
-        report.append("<div class='conformance-missing'>")
+        report.append("<div class='conformance-mis'>")
         report.append(
-            "<p class='conformance-missing-label'>"
+            "<p class='conformance-mis-label'>"
             "Missing required information in these components:"
             "</p>"
         )
-        report.append("<ul class='conformance-missing-list'>")
+        report.append("<ul class='conformance-mis-list'>")
         for component_name, components in rc.components_without_info:
             report.append(
                 f"<li>{component_name} ({len(components)}): "
