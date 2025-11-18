@@ -1,4 +1,4 @@
-# SPDX-FileCopyrightText: 2024 SPDX contributors
+# SPDX-FileCopyrightText: 2024-2025 SPDX contributors
 # SPDX-FileType: SOURCE
 # SPDX-License-Identifier: Apache-2.0
 
@@ -429,6 +429,7 @@ def test_sbomchecker_output_html():
 
     got = sbom.output_html()
     expected = (
+        "<div class='conformance-res'>\n"
         "<h2 class='conformance-res-title'>"
         "2021 NTIA SBOM Minimum Elements Conformance Results"
         "</h2>\n"
@@ -453,11 +454,66 @@ def test_sbomchecker_output_html():
         "<td class='conformance-res-tab-v'>True</td></tr>\n"
         "</tbody>\n"
         "</table>\n"
-        "<p class='conformance-missing-label'>"
+        "</div>\n"
+        "<div class='conformance-mis'>\n"
+        "<p class='conformance-mis-label'>"
         "Missing required information in these components:</p>\n"
-        "<ul class='conformance-missing-list'>\n"
+        "<ul class='conformance-mis-list'>\n"
         "<li>supplier (3): xyz, curl, openssl</li>\n"
-        "</ul>"
+        "</ul>\n"
+        "</div>"
+    )
+
+    assert got == expected
+
+
+def test_sbomchecker_fsct3_output_html():
+    filepath = os.path.join(
+        os.path.dirname(__file__), "data", "other_tests", "SPDXSBOMExample.spdx.yml"
+    )
+    sbom = sbom_checker.SbomChecker(filepath, compliance="fsct3-min")
+
+    got = sbom.output_html()
+    expected = (
+        "<div class='conformance-res'>\n"
+        "<h2 class='conformance-res-title'>"
+        "2024 CISA Framing Software Component Transparency"
+        " (minimum expectation) Conformance Results"
+        "</h2>\n"
+        "<h3 class='conformance-res-status'>Conformant: False</h3>\n"
+        "<table class='conformance-res-tab'>\n"
+        "<thead><tr><th>Requirement</th>"
+        "<th>Conformant</th></tr></thead>\n"
+        "<tbody>\n"
+        "<tr><td class='conformance-res-tab-r'>All component names provided?</td>"
+        "<td class='conformance-res-tab-v'>True</td></tr>\n"
+        "<tr><td class='conformance-res-tab-r'>All component versions provided?</td>"
+        "<td class='conformance-res-tab-v'>True</td></tr>\n"
+        "<tr><td class='conformance-res-tab-r'>All component identifiers provided?</td>"
+        "<td class='conformance-res-tab-v'>True</td></tr>\n"
+        "<tr><td class='conformance-res-tab-r'>All component suppliers provided?</td>"
+        "<td class='conformance-res-tab-v'>False</td></tr>\n"
+        "<tr><td class='conformance-res-tab-r'>All component concluded license provided?</td>"
+        "<td class='conformance-res-tab-v'>False</td></tr>\n"
+        "<tr><td class='conformance-res-tab-r'>All component copyright notice provided?</td>"
+        "<td class='conformance-res-tab-v'>True</td></tr>\n"
+        "<tr><td class='conformance-res-tab-r'>SBOM author name provided?</td>"
+        "<td class='conformance-res-tab-v'>True</td></tr>\n"
+        "<tr><td class='conformance-res-tab-r'>SBOM creation timestamp provided?</td>"
+        "<td class='conformance-res-tab-v'>True</td></tr>\n"
+        "<tr><td class='conformance-res-tab-r'>Dependency relationships provided?</td>"
+        "<td class='conformance-res-tab-v'>True</td></tr>\n"
+        "</tbody>\n"
+        "</table>\n"
+        "</div>\n"
+        "<div class='conformance-mis'>\n"
+        "<p class='conformance-mis-label'>"
+        "Missing required information in these components:</p>\n"
+        "<ul class='conformance-mis-list'>\n"
+        "<li>supplier (3): xyz, curl, openssl</li>\n"
+        "<li>concluded_license (3): xyz, curl, openssl</li>\n"
+        "</ul>\n"
+        "</div>"
     )
 
     assert got == expected

@@ -25,7 +25,7 @@ class FSCT3Checker(BaseChecker):
         https://www.cisa.gov/resources-tools/resources/framing-software-component-transparency-2024
     """
 
-    MIN_COMPONENTS = [
+    MIN_ELEMENTS = [
         "name",
         "version",
         "identifier",

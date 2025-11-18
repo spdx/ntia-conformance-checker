@@ -11,6 +11,28 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog][keepachangelog]
 and this project adheres to [Semantic Versioning][semver].
 
+## [4.1.1] - 2025-11-18
+
+This version primarily focused on improving the HTML output.
+
+The HTML output is now organized into four distinct div blocks,
+each with a specific CSS class for easy styling and targeting:
+
+- Errors (parsing, etc.): `<div class="conformance-err">`
+- Conformance results: `<div class="conformance-res">`
+- Components missing required information: `<div class="conformance-mis">`
+- Detailed validation information: `<div class="conformance-val">`
+
+Note: Python 3.9 support will be dropped in the next major release.
+This is likely the final version supporting it.
+
+### Fixed
+
+- Fix FSCT3Checker that do not report components without required information
+  ([#326][])
+
+[#326]: https://github.com/spdx/ntia-conformance-checker/pull/326
+
 ## [4.1.0] - 2025-11-17
 
 This version primarily focused on improving the HTML output.
@@ -159,6 +181,7 @@ Thanks to @goneall, @licquia, and @kestewart for mentoring @linynjosh.
 [#1]: https://github.com/spdx/ntia-conformance-checker/pull/1
 [keepachangelog]: https://keepachangelog.com/en/1.1.0/
 [semver]: https://semver.org/spec/v2.0.0.html
+[4.1.1]: https://github.com/spdx/ntia-conformance-checker/releases/tag/v4.1.1
 [4.1.0]: https://github.com/spdx/ntia-conformance-checker/releases/tag/v4.1.0
 [4.0.0]: https://github.com/spdx/ntia-conformance-checker/releases/tag/v4.0.0
 [3.2.0]: https://github.com/spdx/ntia-conformance-checker/releases/tag/v3.2.0
