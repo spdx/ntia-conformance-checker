@@ -278,33 +278,33 @@
 
     <span class="c1"># Parsing error</span>
     <span class="k">if</span> <span class="n">rc</span><span class="o">.</span><span class="n">parsing_error</span><span class="p">:</span>
+        <span class="n">report</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="s2">&quot;&lt;div class=&#39;conformance-err&#39;&gt;&quot;</span><span class="p">)</span>
         <span class="n">report</span><span class="o">.</span><span class="n">append</span><span class="p">(</span>
-            <span class="s2">&quot;&lt;p class=&#39;conformance-err&#39;&gt;&quot;</span>
-            <span class="s2">&quot;The document couldn&#39;t be parsed; check couldn&#39;t be performed.&quot;</span>
+            <span class="s2">&quot;&lt;p class=&#39;conformance-err-label&#39;&gt;&quot;</span>
+            <span class="s2">&quot;The document couldn&#39;t be parsed; check couldn&#39;t be performed.&lt;br /&gt;&quot;</span>
+            <span class="s2">&quot;The following parsing errors were raised:&quot;</span>
             <span class="s2">&quot;&lt;/p&gt;&quot;</span>
         <span class="p">)</span>
-        <span class="k">if</span> <span class="n">rc</span><span class="o">.</span><span class="n">parsing_error</span><span class="p">:</span>
-            <span class="n">report</span><span class="o">.</span><span class="n">append</span><span class="p">(</span>
-                <span class="s2">&quot;&lt;p class=&#39;conformance-err-details-label&#39;&gt;&quot;</span>
-                <span class="s2">&quot;The following parsing errors were raised:&quot;</span>
-                <span class="s2">&quot;&lt;/p&gt;&quot;</span>
-            <span class="p">)</span>
-            <span class="n">report</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="s2">&quot;&lt;ul class=&#39;conformance-err-details&#39;&gt;&quot;</span><span class="p">)</span>
-            <span class="k">for</span> <span class="n">err</span> <span class="ow">in</span> <span class="n">rc</span><span class="o">.</span><span class="n">parsing_error</span><span class="p">:</span>
-                <span class="n">report</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;&lt;li&gt;</span><span class="si">{</span><span class="n">err</span><span class="si">}</span><span class="s2">&lt;/li&gt;&quot;</span><span class="p">)</span>
-            <span class="n">report</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="s2">&quot;&lt;/ul&gt;&quot;</span><span class="p">)</span>
+        <span class="n">report</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="s2">&quot;&lt;ul class=&#39;conformance-err-list&#39;&gt;&quot;</span><span class="p">)</span>
+        <span class="k">for</span> <span class="n">err</span> <span class="ow">in</span> <span class="n">rc</span><span class="o">.</span><span class="n">parsing_error</span><span class="p">:</span>
+            <span class="n">report</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;&lt;li&gt;</span><span class="si">{</span><span class="n">err</span><span class="si">}</span><span class="s2">&lt;/li&gt;&quot;</span><span class="p">)</span>
+        <span class="n">report</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="s2">&quot;&lt;/ul&gt;&quot;</span><span class="p">)</span>
+        <span class="n">report</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="s2">&quot;&lt;/div&gt;&quot;</span><span class="p">)</span>
         <span class="k">return</span> <span class="s2">&quot;</span><span class="se">\n</span><span class="s2">&quot;</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">report</span><span class="p">)</span>
 
     <span class="c1"># Unsupported compliance standard</span>
     <span class="k">if</span> <span class="n">rc</span><span class="o">.</span><span class="n">compliance_standard</span> <span class="ow">not</span> <span class="ow">in</span> <span class="n">SUPPORTED_COMPLIANCE_STANDARDS</span><span class="p">:</span>
         <span class="n">report</span><span class="o">.</span><span class="n">append</span><span class="p">(</span>
-            <span class="s2">&quot;&lt;p class=&#39;conformance-err&#39;&gt;&quot;</span>
+            <span class="s2">&quot;&lt;div class=&#39;conformance-err&#39;&gt;&quot;</span>
+            <span class="s2">&quot;&lt;p class=&#39;conformance-err-label&#39;&gt;&quot;</span>
             <span class="sa">f</span><span class="s2">&quot;Unsupported compliance standard </span><span class="si">{</span><span class="n">rc</span><span class="o">.</span><span class="n">compliance_standard</span><span class="si">!r}</span><span class="s2">&quot;</span>
             <span class="s2">&quot;&lt;/p&gt;&quot;</span>
+            <span class="s2">&quot;&lt;/div&gt;&quot;</span>
         <span class="p">)</span>
         <span class="k">return</span> <span class="s2">&quot;</span><span class="se">\n</span><span class="s2">&quot;</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">report</span><span class="p">)</span>
 
     <span class="c1"># Compliance results</span>
+    <span class="n">report</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="s2">&quot;&lt;div class=&#39;conformance-res&#39;&gt;&quot;</span><span class="p">)</span>
     <span class="n">report</span><span class="o">.</span><span class="n">append</span><span class="p">(</span>
         <span class="s2">&quot;&lt;h2 class=&#39;conformance-res-title&#39;&gt;&quot;</span>
         <span class="sa">f</span><span class="s2">&quot;</span><span class="si">{</span><span class="n">SUPPORTED_COMPLIANCE_STANDARDS_DESC</span><span class="p">[</span><span class="n">rc</span><span class="o">.</span><span class="n">compliance_standard</span><span class="p">]</span><span class="si">}</span><span class="s2">&quot;</span>
@@ -328,37 +328,39 @@
         <span class="n">report</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="s2">&quot;&lt;/tbody&gt;&quot;</span><span class="p">)</span>
         <span class="n">report</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="s2">&quot;&lt;/table&gt;&quot;</span><span class="p">)</span>
 
+    <span class="n">report</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="s2">&quot;&lt;/div&gt;&quot;</span><span class="p">)</span>  <span class="c1"># End of conformance-res</span>
+
     <span class="c1"># Components without required information</span>
     <span class="k">if</span> <span class="n">rc</span><span class="o">.</span><span class="n">components_without_info</span><span class="p">:</span>
+        <span class="n">report</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="s2">&quot;&lt;div class=&#39;conformance-mis&#39;&gt;&quot;</span><span class="p">)</span>
         <span class="n">report</span><span class="o">.</span><span class="n">append</span><span class="p">(</span>
-            <span class="s2">&quot;&lt;p class=&#39;conformance-missing-label&#39;&gt;&quot;</span>
+            <span class="s2">&quot;&lt;p class=&#39;conformance-mis-label&#39;&gt;&quot;</span>
             <span class="s2">&quot;Missing required information in these components:&quot;</span>
             <span class="s2">&quot;&lt;/p&gt;&quot;</span>
         <span class="p">)</span>
-        <span class="n">report</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="s2">&quot;&lt;ul class=&#39;conformance-missing-list&#39;&gt;&quot;</span><span class="p">)</span>
+        <span class="n">report</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="s2">&quot;&lt;ul class=&#39;conformance-mis-list&#39;&gt;&quot;</span><span class="p">)</span>
         <span class="k">for</span> <span class="n">component_name</span><span class="p">,</span> <span class="n">components</span> <span class="ow">in</span> <span class="n">rc</span><span class="o">.</span><span class="n">components_without_info</span><span class="p">:</span>
             <span class="n">report</span><span class="o">.</span><span class="n">append</span><span class="p">(</span>
                 <span class="sa">f</span><span class="s2">&quot;&lt;li&gt;</span><span class="si">{</span><span class="n">component_name</span><span class="si">}</span><span class="s2"> (</span><span class="si">{</span><span class="nb">len</span><span class="p">(</span><span class="n">components</span><span class="p">)</span><span class="si">}</span><span class="s2">): &quot;</span>
                 <span class="sa">f</span><span class="s2">&quot;</span><span class="si">{</span><span class="s1">&#39;, &#39;</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">components</span><span class="p">)</span><span class="si">}</span><span class="s2">&lt;/li&gt;&quot;</span>
             <span class="p">)</span>
         <span class="n">report</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="s2">&quot;&lt;/ul&gt;&quot;</span><span class="p">)</span>
+        <span class="n">report</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="s2">&quot;&lt;/div&gt;&quot;</span><span class="p">)</span>
 
     <span class="c1"># Validation messages</span>
     <span class="k">if</span> <span class="n">rc</span><span class="o">.</span><span class="n">validation_messages</span><span class="p">:</span>
-        <span class="n">report</span><span class="o">.</span><span class="n">append</span><span class="p">(</span>
-            <span class="s2">&quot;&lt;p class=&#39;conformance-val&#39;&gt;&quot;</span>
-            <span class="s2">&quot;The document is not valid according to the SBOM specification&quot;</span>
-            <span class="sa">f</span><span class="s1">&#39; (&quot;</span><span class="si">{</span><span class="n">rc</span><span class="o">.</span><span class="n">sbom_spec</span><span class="si">}</span><span class="s1">&quot;).&#39;</span>
-            <span class="s2">&quot;&lt;/p&gt;&quot;</span>
-        <span class="p">)</span>
+        <span class="n">report</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="s2">&quot;&lt;div class=&#39;conformance-val&#39;&gt;&quot;</span><span class="p">)</span>
         <span class="n">report</span><span class="o">.</span><span class="n">append</span><span class="p">(</span>
             <span class="s2">&quot;&lt;p class=&#39;conformance-val-label&#39;&gt;&quot;</span>
+            <span class="s2">&quot;The document is not valid according to the SBOM specification&quot;</span>
+            <span class="sa">f</span><span class="s1">&#39; (&quot;</span><span class="si">{</span><span class="n">rc</span><span class="o">.</span><span class="n">sbom_spec</span><span class="si">}</span><span class="s1">&quot;).&lt;br /&gt;&#39;</span>
             <span class="s2">&quot;The following violations were found:&quot;</span>
             <span class="s2">&quot;&lt;/p&gt;&quot;</span>
         <span class="p">)</span>
         <span class="n">report</span><span class="o">.</span><span class="n">append</span><span class="p">(</span>
             <span class="n">get_validation_messages_html</span><span class="p">(</span><span class="n">rc</span><span class="o">.</span><span class="n">validation_messages</span><span class="p">,</span> <span class="n">verbose</span><span class="o">=</span><span class="n">verbose</span><span class="p">)</span>
         <span class="p">)</span>
+        <span class="n">report</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="s2">&quot;&lt;/div&gt;&quot;</span><span class="p">)</span>
 
     <span class="k">return</span> <span class="s2">&quot;</span><span class="se">\n</span><span class="s2">&quot;</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">report</span><span class="p">)</span></div>
 
