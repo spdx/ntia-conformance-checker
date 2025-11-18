@@ -11,6 +11,9 @@ This tool determines whether a [SPDX](https://spdx.dev/) software bill of
 materials (SBOM) document contains informational items as required by a
 certain specification.
 
+A web-based version of the tool is available (no installation needed) at:
+<https://tools.spdx.org/app/ntia_checker/>
+
 ## Conformance
 
 Currently, the supported specifications are:
@@ -77,7 +80,7 @@ if you work with multiple Python versions.
 it lets you keep a project's dependencies in a single environment
 or create separate environments for testing with different Python versions.
 
-## CLI Usage
+## CLI usage
 
 ```text
 usage: sbomcheck [OPTIONS] FILE
@@ -143,7 +146,7 @@ Use `-h` for help:
 sbomcheck -h
 ```
 
-## Usage as a Library
+## Usage as a library
 
 `ntia-conformance-checker` can also be imported as a library. For example:
 
@@ -164,12 +167,22 @@ Specific properties and methods for a particular specification can be found
 at the checker for that specification. For example, `NTIAChecker` class
 at [`ntia_checker.py`](ntia_conformance_checker/ntia_checker.py).
 
-## Online Usage
+## Online usage
 
 With the SPDX Online Tool, you can check the SBOM conformance without the need
 to install the Python package.
 
 Go to this page: <https://tools.spdx.org/app/ntia_checker/>.
+
+## HTML output
+
+The HTML output is organized into four distinct div blocks,
+each with a specific CSS class for easy styling and targeting:
+
+- Errors (parsing, etc.): `<div class="conformance-err">`
+- Conformance results: `<div class="conformance-res">`
+- Components missing required information: `<div class="conformance-mis">`
+- Detailed validation information: `<div class="conformance-val">`
 
 ## History
 

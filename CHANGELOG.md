@@ -13,6 +13,19 @@ and this project adheres to [Semantic Versioning][semver].
 
 ## [4.1.1] - 2025-11-18
 
+This version primarily focused on improving the HTML output.
+
+The HTML output is now organized into four distinct div blocks,
+each with a specific CSS class for easy styling and targeting:
+
+- Errors (parsing, etc.): `<div class="conformance-err">`
+- Conformance results: `<div class="conformance-res">`
+- Components missing required information: `<div class="conformance-mis">`
+- Detailed validation information: `<div class="conformance-val">`
+
+Note: Python 3.9 support will be dropped in the next major release.
+This is likely the final version supporting it.
+
 ### Fixed
 
 - Fix FSCT3Checker that do not report components without required information
