@@ -242,6 +242,7 @@ def report_html(
 
     # Components without required information
     if rc.components_without_info:
+        report.append("<div class='conformance-missing'>")
         report.append(
             "<p class='conformance-missing-label'>"
             "Missing required information in these components:"
@@ -254,22 +255,21 @@ def report_html(
                 f"{', '.join(components)}</li>"
             )
         report.append("</ul>")
+        report.append("</div>")
 
     # Validation messages
     if rc.validation_messages:
-        report.append(
-            "<p class='conformance-val'>"
-            "The document is not valid according to the SBOM specification"
-            f' ("{rc.sbom_spec}").'
-            "</p>"
-        )
+        report.append("<div class='conformance-val'>")
         report.append(
             "<p class='conformance-val-label'>"
+            "The document is not valid according to the SBOM specification"
+            f' ("{rc.sbom_spec}").<br />'
             "The following violations were found:"
             "</p>"
         )
         report.append(
             get_validation_messages_html(rc.validation_messages, verbose=verbose)
         )
+        report.append("</div>")
 
     return "\n".join(report)
