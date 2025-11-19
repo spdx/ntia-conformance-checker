@@ -81,17 +81,20 @@ Here's the process to make changes to the codebase:
 
 5. Test your changes:
 
+   For every major new functionality added, tests of that functionality should
+   be added to an automated test suite. The added tests should be documented in
+   the PR description.
+
+   As we use some [`pytest`][pytest] constructs in our test suite, it is needed
+   as the test runner:
+
    In the repo root:
 
    ```sh
-   python setup.py test
+   pytest -vvs
    ```
 
-   You may use other test runners, such as [`pytest`][pytest] or [`nose`][nose]
-   at your preference.
-
    [pytest]: https://docs.pytest.org/
-   [nose]: https://nose.readthedocs.io/
 
 6. Lint / static analyse your changes, using [`pylint`][pylint]:
 
