@@ -11,6 +11,17 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog][keepachangelog]
 and this project adheres to [Semantic Versioning][semver].
 
+## [4.1.2] - 2025-11-19
+
+Note: Python 3.9 support will be dropped in the next major release.
+This is likely the final version supporting it.
+
+### Fixed
+
+- Fix validation message order at command line ([#327][])
+
+[#327]: https://github.com/spdx/ntia-conformance-checker/pull/327
+
 ## [4.1.1] - 2025-11-18
 
 This version primarily focused on improving the HTML output.
@@ -181,6 +192,7 @@ Thanks to @goneall, @licquia, and @kestewart for mentoring @linynjosh.
 [#1]: https://github.com/spdx/ntia-conformance-checker/pull/1
 [keepachangelog]: https://keepachangelog.com/en/1.1.0/
 [semver]: https://semver.org/spec/v2.0.0.html
+[4.1.2]: https://github.com/spdx/ntia-conformance-checker/releases/tag/v4.1.2
 [4.1.1]: https://github.com/spdx/ntia-conformance-checker/releases/tag/v4.1.1
 [4.1.0]: https://github.com/spdx/ntia-conformance-checker/releases/tag/v4.1.0
 [4.0.0]: https://github.com/spdx/ntia-conformance-checker/releases/tag/v4.0.0
