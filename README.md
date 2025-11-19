@@ -5,7 +5,10 @@
 [![PyPI version](https://img.shields.io/pypi/v/ntia-conformance-checker.svg)](https://pypi.org/project/ntia-conformance-checker/)
 [![Pylint Score](https://img.shields.io/badge/pylint-10/10-green)](https://github.com/spdx/ntia-conformance-checker)
 [![OpenSSF Scorecard](https://api.scorecard.dev/projects/github.com/spdx/ntia-conformance-checker/badge)](https://scorecard.dev/viewer/?uri=github.com/spdx/ntia-conformance-checker)
-[![DOI](https://zenodo.org/badge/DOI/10.5281/zenodo.17068670.svg)](https://doi.org/10.5281/zenodo.17068670)
+[![OpenSSF Best Practices](https://www.bestpractices.dev/projects/10727/badge)](https://www.bestpractices.dev/projects/10727)
+[![DOI](https://zenodo.org/badge/DOI/10.5281/zenodo.17068669.svg)](https://doi.org/10.5281/zenodo.17068669)
+
+Validate the SPDX SBOM against NTIA, CISA, and other minimum element requirements.
 
 This tool determines whether a [SPDX](https://spdx.dev/) software bill of
 materials (SBOM) document contains informational items as required by a
