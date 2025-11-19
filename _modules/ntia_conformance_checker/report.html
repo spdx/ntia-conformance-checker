@@ -249,11 +249,11 @@
 
     <span class="k">if</span> <span class="n">rc</span><span class="o">.</span><span class="n">validation_messages</span><span class="p">:</span>
         <span class="n">report</span><span class="o">.</span><span class="n">append</span><span class="p">(</span>
-            <span class="s2">&quot;</span><span class="se">\n</span><span class="s2">The document is not valid according to the SBOM &quot;</span>
+            <span class="s2">&quot;The document is not valid according to the SBOM &quot;</span>
             <span class="sa">f</span><span class="s1">&#39;specification (&quot;</span><span class="si">{</span><span class="n">rc</span><span class="o">.</span><span class="n">sbom_spec</span><span class="si">}</span><span class="s1">&quot;). &#39;</span>
             <span class="s2">&quot;The following violations were found:</span><span class="se">\n</span><span class="s2">&quot;</span>
         <span class="p">)</span>
-        <span class="n">print_validation_messages</span><span class="p">(</span><span class="n">rc</span><span class="o">.</span><span class="n">validation_messages</span><span class="p">,</span> <span class="n">verbose</span><span class="p">)</span>
+        <span class="n">report</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">get_validation_messages_text</span><span class="p">(</span><span class="n">rc</span><span class="o">.</span><span class="n">validation_messages</span><span class="p">,</span> <span class="n">verbose</span><span class="p">))</span>
 
     <span class="k">return</span> <span class="s2">&quot;</span><span class="se">\n</span><span class="s2">&quot;</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">report</span><span class="p">)</span></div>
 
