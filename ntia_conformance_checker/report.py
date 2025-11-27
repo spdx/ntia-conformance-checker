@@ -11,7 +11,7 @@ Some of the code here was originally in the BaseChecker class.
 from __future__ import annotations
 
 from dataclasses import dataclass
-from typing import TYPE_CHECKING, List, Optional, Tuple
+from typing import TYPE_CHECKING, Dict, List, Optional, Tuple
 
 from .constants import (
     SUPPORTED_COMPLIANCE_STANDARDS,
@@ -118,6 +118,34 @@ def get_validation_messages_html(
     html += "</ul>"
 
     return html
+
+
+def get_validation_messages_json(
+    validation_messages: List[ValidationMessage], verbose: bool = True
+) -> List[Dict[str, str]]:
+    """Generates JSON-serializable list for validation messages and context details.
+
+    Args:
+        validation_messages (List[ValidationMessage]): List of validation messages.
+        verbose (bool): If True, include detailed validation context.
+
+    Returns:
+        List[Dict[str, str]]: JSON-serializable representation of the validation messages.
+    """
+    json_output: List[Dict[str, str]] = []
+
+    for msg in validation_messages:
+        if not getattr(msg, "validation_message", None):
+            continue
+        val_msg = {"message": msg.validation_message}
+        if verbose and getattr(msg, "context", None):
+            ctx = msg.context
+            val_msg["spdx_id"] = str(getattr(ctx, "spdx_id", ""))
+            val_msg["parent_id"] = str(getattr(ctx, "parent_id", ""))
+            val_msg["element_type"] = str(getattr(ctx, "element_type", ""))
+        json_output.append(val_msg)
+
+    return json_output
 
 
 def report_text(
