@@ -140,9 +140,9 @@ def get_validation_messages_json(
         val_msg = {"message": msg.validation_message}
         if verbose and getattr(msg, "context", None):
             ctx = msg.context
-            val_msg["spdx_id"] = str(getattr(ctx, "spdx_id", ""))
-            val_msg["parent_id"] = str(getattr(ctx, "parent_id", ""))
-            val_msg["element_type"] = str(getattr(ctx, "element_type", ""))
+            val_msg["spdxId"] = str(getattr(ctx, "spdx_id", ""))
+            val_msg["parentId"] = str(getattr(ctx, "parent_id", ""))
+            val_msg["elementType"] = str(getattr(ctx, "element_type", ""))
         json_output.append(val_msg)
 
     return json_output
