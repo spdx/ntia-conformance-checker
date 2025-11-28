@@ -121,13 +121,12 @@ def get_validation_messages_html(
 
 
 def get_validation_messages_json(
-    validation_messages: List[ValidationMessage], verbose: bool = True
+    validation_messages: List[ValidationMessage],
 ) -> List[Dict[str, str]]:
     """Generates JSON-serializable list for validation messages and context details.
 
     Args:
         validation_messages (List[ValidationMessage]): List of validation messages.
-        verbose (bool): If True, include detailed validation context.
 
     Returns:
         List[Dict[str, str]]: JSON-serializable representation of the validation messages.
@@ -138,7 +137,7 @@ def get_validation_messages_json(
         if not getattr(msg, "validation_message", None):
             continue
         val_msg = {"message": msg.validation_message}
-        if verbose and getattr(msg, "context", None):
+        if getattr(msg, "context", None):
             ctx = msg.context
             val_msg["spdxId"] = str(getattr(ctx, "spdx_id", ""))
             val_msg["parentId"] = str(getattr(ctx, "parent_id", ""))

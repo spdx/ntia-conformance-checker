@@ -905,7 +905,7 @@ class BaseChecker(ABC):
             "complianceStandard": getattr(self, "compliance_standard", ""),
             "sbomSpec": getattr(self, "sbom_spec", ""),
             "validationMessages": get_validation_messages_json(
-                getattr(self, "validation_messages", []), verbose=True
+                getattr(self, "validation_messages", [])
             ),
             "parsingError": getattr(self, "parsing_error", []),
             "sbomName": getattr(self, "sbom_name", ""),
