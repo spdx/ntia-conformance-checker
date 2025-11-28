@@ -11,6 +11,31 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog][keepachangelog]
 and this project adheres to [Semantic Versioning][semver].
 
+## [4.1.3] - 2025-11-29
+
+Note: Python 3.9 support will be dropped in the next major release.
+This is likely the final version supporting it.
+
+### Fixed
+
+- Fix validation messages that did not properly serialize in JSON output
+  ([#331][])
+
+  The JSON output for validation messages now follows this structure:
+
+  ```json
+  "validationMessages": [
+    {
+      "message": "...",
+      "spdxId": "...",
+      "parentId": "...",
+      "elementType": "..."
+    }
+  ]
+  ```
+
+[#331]: https://github.com/spdx/ntia-conformance-checker/pull/331
+
 ## [4.1.2] - 2025-11-19
 
 Note: Python 3.9 support will be dropped in the next major release.
@@ -192,6 +217,7 @@ Thanks to @goneall, @licquia, and @kestewart for mentoring @linynjosh.
 [#1]: https://github.com/spdx/ntia-conformance-checker/pull/1
 [keepachangelog]: https://keepachangelog.com/en/1.1.0/
 [semver]: https://semver.org/spec/v2.0.0.html
+[4.1.3]: https://github.com/spdx/ntia-conformance-checker/releases/tag/v4.1.3
 [4.1.2]: https://github.com/spdx/ntia-conformance-checker/releases/tag/v4.1.2
 [4.1.1]: https://github.com/spdx/ntia-conformance-checker/releases/tag/v4.1.1
 [4.1.0]: https://github.com/spdx/ntia-conformance-checker/releases/tag/v4.1.0
