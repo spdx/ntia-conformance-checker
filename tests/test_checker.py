@@ -429,7 +429,8 @@ def test_sbomchecker_output_json_validation_messages():
     test_file = Path(__file__).parent / "data" / "spdx3" / "has_no_sbom.json"
     sbom = sbom_checker.SbomChecker(str(test_file), sbom_spec="spdx3")
     got = sbom.output_json()
-    assert got["validationMessages"]  # Should be a validation error about rootElement
+    assert got["validationMessages"]
+    assert "root element" in got["validationMessages"][0]["message"]
 
 
 def test_sbomchecker_output_html():
