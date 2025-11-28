@@ -361,6 +361,7 @@ def test_sbomchecker_fsct3_spdx3_no_elements_missing():
     assert sbom.doc is not None
     assert isinstance(sbom.doc, spdx3.SHACLObjectSet)
     assert sbom.compliant
+    assert len(sbom.validation_messages) == 0
 
 
 def test_sbomchecker_spdx3_missing_supplier_name():
@@ -370,6 +371,7 @@ def test_sbomchecker_spdx3_missing_supplier_name():
     assert sbom.doc is not None
     assert isinstance(sbom.doc, spdx3.SHACLObjectSet)
     assert len(sbom.components_without_suppliers) == 1
+    assert len(sbom.validation_messages) == 0
 
 
 def test_sbomchecker_spdx3_missing_version():
@@ -379,6 +381,7 @@ def test_sbomchecker_spdx3_missing_version():
     assert sbom.doc is not None
     assert isinstance(sbom.doc, spdx3.SHACLObjectSet)
     assert len(sbom.components_without_versions) == 1
+    assert len(sbom.validation_messages) == 0
 
 
 def test_sbomchecker_spdx3_missing_unique_identifiers():
@@ -403,6 +406,7 @@ def test_sbomchecker_output_json():
     assert got["sbomName"] == "xyz-0.1.0"
     assert not got["isNtiaConformant"]
     assert not got["isConformant"]
+    assert not got["validationMessages"]
     assert got["authorNameProvided"]
     assert got["timestampProvided"]
     assert got["dependencyRelationshipsProvided"]
@@ -419,6 +423,14 @@ def test_sbomchecker_output_json():
         "openssl",
     ]
     assert got["totalNumberComponents"] == 3
+
+
+def test_sbomchecker_output_json_validation_messages():
+    test_file = Path(__file__).parent / "data" / "spdx3" / "has_no_sbom.json"
+    sbom = sbom_checker.SbomChecker(str(test_file), sbom_spec="spdx3")
+    got = sbom.output_json()
+    assert got["validationMessages"]
+    assert "root element" in got["validationMessages"][0]["message"]
 
 
 def test_sbomchecker_output_html():

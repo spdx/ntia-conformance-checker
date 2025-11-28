@@ -20,7 +20,12 @@ from spdx_tools.spdx.parser.error import SPDXParsingError
 from spdx_tools.spdx.validation.document_validator import validate_full_spdx_document
 
 from .constants import DEFAULT_SBOM_SPEC
-from .report import ReportContext, report_html, report_text
+from .report import (
+    ReportContext,
+    get_validation_messages_json,
+    report_html,
+    report_text,
+)
 from .spdx3_utils import (
     get_boms_from_spdx_document,
     get_packages_from_bom,
@@ -856,13 +861,13 @@ class BaseChecker(ABC):
             None
         """
         report_context = ReportContext(
-            sbom_spec=self.sbom_spec,
-            compliance_standard=self.compliance_standard,
-            compliant=self.compliant,
-            requirement_results=self.table_elements,
-            components_without_info=self.all_components_without_info,
-            validation_messages=self.validation_messages,
-            parsing_error=self.parsing_error,
+            sbom_spec=getattr(self, "sbom_spec", ""),
+            compliance_standard=getattr(self, "compliance_standard", ""),
+            compliant=getattr(self, "compliant", False),
+            requirement_results=getattr(self, "table_elements", []),
+            components_without_info=getattr(self, "all_components_without_info", []),
+            validation_messages=getattr(self, "validation_messages", []),
+            parsing_error=getattr(self, "parsing_error", []),
         )
 
         print(report_text(report_context, verbose))
@@ -875,13 +880,13 @@ class BaseChecker(ABC):
             str: The HTML representation of the results.
         """
         report_context = ReportContext(
-            sbom_spec=self.sbom_spec,
-            compliance_standard=self.compliance_standard,
-            compliant=self.compliant,
-            requirement_results=self.table_elements,
-            components_without_info=self.all_components_without_info,
-            validation_messages=self.validation_messages,
-            parsing_error=self.parsing_error,
+            sbom_spec=getattr(self, "sbom_spec", ""),
+            compliance_standard=getattr(self, "compliance_standard", ""),
+            compliant=getattr(self, "compliant", False),
+            requirement_results=getattr(self, "table_elements", []),
+            components_without_info=getattr(self, "all_components_without_info", []),
+            validation_messages=getattr(self, "validation_messages", []),
+            parsing_error=getattr(self, "parsing_error", []),
         )
 
         return report_html(report_context, verbose=True)
@@ -893,21 +898,23 @@ class BaseChecker(ABC):
         Subclasses may override to provide custom fields.
         """
         result: Dict[str, Any] = {
-            "isConformant": self.compliant,
-            "isNtiaConformant": self.compliant,  # backward compatibility
-            "complianceStandard": self.compliance_standard,
-            "sbomSpec": self.sbom_spec,
-            "validationMessages": (
-                list(map(str, self.validation_messages))
-                if self.validation_messages
-                else []
+            "isConformant": getattr(self, "compliant", False),
+            "isNtiaConformant": getattr(
+                self, "compliant", False
+            ),  # backward compatibility
+            "complianceStandard": getattr(self, "compliance_standard", ""),
+            "sbomSpec": getattr(self, "sbom_spec", ""),
+            "validationMessages": get_validation_messages_json(
+                getattr(self, "validation_messages", [])
             ),
-            "parsingError": self.parsing_error,
-            "sbomName": self.sbom_name,
-            "specVersionProvided": self.doc_version,
-            "authorNameProvided": self.doc_author,
-            "timestampProvided": self.doc_timestamp,
-            "dependencyRelationshipsProvided": self.dependency_relationships,
+            "parsingError": getattr(self, "parsing_error", []),
+            "sbomName": getattr(self, "sbom_name", ""),
+            "specVersionProvided": getattr(self, "doc_version", False),
+            "authorNameProvided": getattr(self, "doc_author", False),
+            "timestampProvided": getattr(self, "doc_timestamp", False),
+            "dependencyRelationshipsProvided": getattr(
+                self, "dependency_relationships", False
+            ),
             "totalNumberComponents": self.get_total_number_components(),
         }
 
