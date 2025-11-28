@@ -73,6 +73,7 @@
 <li class="toctree-l3"><a class="reference internal" href="#module-ntia_conformance_checker.report">ntia_conformance_checker.report module</a><ul>
 <li class="toctree-l4"><a class="reference internal" href="#ntia_conformance_checker.report.ReportContext"><code class="docutils literal notranslate"><span class="pre">ReportContext</span></code></a></li>
 <li class="toctree-l4"><a class="reference internal" href="#ntia_conformance_checker.report.get_validation_messages_html"><code class="docutils literal notranslate"><span class="pre">get_validation_messages_html()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="#ntia_conformance_checker.report.get_validation_messages_json"><code class="docutils literal notranslate"><span class="pre">get_validation_messages_json()</span></code></a></li>
 <li class="toctree-l4"><a class="reference internal" href="#ntia_conformance_checker.report.get_validation_messages_text"><code class="docutils literal notranslate"><span class="pre">get_validation_messages_text()</span></code></a></li>
 <li class="toctree-l4"><a class="reference internal" href="#ntia_conformance_checker.report.print_validation_messages"><code class="docutils literal notranslate"><span class="pre">print_validation_messages()</span></code></a></li>
 <li class="toctree-l4"><a class="reference internal" href="#ntia_conformance_checker.report.report_html"><code class="docutils literal notranslate"><span class="pre">report_html()</span></code></a></li>
@@ -686,6 +687,23 @@ Please consider using check_compliance() instead.</p>
 </dd>
 <dt class="field-odd">Return type<span class="colon">:</span></dt>
 <dd class="field-odd"><p>str</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="ntia_conformance_checker.report.get_validation_messages_json">
+<span class="sig-prename descclassname"><span class="pre">ntia_conformance_checker.report.</span></span><span class="sig-name descname"><span class="pre">get_validation_messages_json</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">validation_messages</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">List</span><span class="p"><span class="pre">[</span></span><span class="pre">ValidationMessage</span><span class="p"><span class="pre">]</span></span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">List</span><span class="p"><span class="pre">[</span></span><span class="pre">Dict</span><span class="p"><span class="pre">[</span></span><span class="pre">str</span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="pre">str</span><span class="p"><span class="pre">]</span></span><span class="p"><span class="pre">]</span></span></span></span><a class="reference internal" href="_modules/ntia_conformance_checker/report.html#get_validation_messages_json"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#ntia_conformance_checker.report.get_validation_messages_json" title="Link to this definition"></a></dt>
+<dd><p>Generates JSON-serializable list for validation messages and context details.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><p><strong>validation_messages</strong> (<em>List</em><em>[</em><em>ValidationMessage</em><em>]</em>) – List of validation messages.</p>
+</dd>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
+<dd class="field-even"><p>JSON-serializable representation of the validation messages.</p>
+</dd>
+<dt class="field-odd">Return type<span class="colon">:</span></dt>
+<dd class="field-odd"><p>List[Dict[str, str]]</p>
 </dd>
 </dl>
 </dd></dl>

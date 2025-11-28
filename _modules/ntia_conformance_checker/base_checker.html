@@ -91,7 +91,12 @@
 <span class="kn">from</span><span class="w"> </span><span class="nn">spdx_tools.spdx.validation.document_validator</span><span class="w"> </span><span class="kn">import</span> <span class="n">validate_full_spdx_document</span>
 
 <span class="kn">from</span><span class="w"> </span><span class="nn">.constants</span><span class="w"> </span><span class="kn">import</span> <span class="n">DEFAULT_SBOM_SPEC</span>
-<span class="kn">from</span><span class="w"> </span><span class="nn">.report</span><span class="w"> </span><span class="kn">import</span> <span class="n">ReportContext</span><span class="p">,</span> <span class="n">report_html</span><span class="p">,</span> <span class="n">report_text</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">.report</span><span class="w"> </span><span class="kn">import</span> <span class="p">(</span>
+    <span class="n">ReportContext</span><span class="p">,</span>
+    <span class="n">get_validation_messages_json</span><span class="p">,</span>
+    <span class="n">report_html</span><span class="p">,</span>
+    <span class="n">report_text</span><span class="p">,</span>
+<span class="p">)</span>
 <span class="kn">from</span><span class="w"> </span><span class="nn">.spdx3_utils</span><span class="w"> </span><span class="kn">import</span> <span class="p">(</span>
     <span class="n">get_boms_from_spdx_document</span><span class="p">,</span>
     <span class="n">get_packages_from_bom</span><span class="p">,</span>
@@ -982,13 +987,13 @@
 <span class="sd">            None</span>
 <span class="sd">        &quot;&quot;&quot;</span>
         <span class="n">report_context</span> <span class="o">=</span> <span class="n">ReportContext</span><span class="p">(</span>
-            <span class="n">sbom_spec</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">sbom_spec</span><span class="p">,</span>
-            <span class="n">compliance_standard</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">compliance_standard</span><span class="p">,</span>
-            <span class="n">compliant</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">compliant</span><span class="p">,</span>
-            <span class="n">requirement_results</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">table_elements</span><span class="p">,</span>
-            <span class="n">components_without_info</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">all_components_without_info</span><span class="p">,</span>
-            <span class="n">validation_messages</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">validation_messages</span><span class="p">,</span>
-            <span class="n">parsing_error</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">parsing_error</span><span class="p">,</span>
+            <span class="n">sbom_spec</span><span class="o">=</span><span class="nb">getattr</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="s2">&quot;sbom_spec&quot;</span><span class="p">,</span> <span class="s2">&quot;&quot;</span><span class="p">),</span>
+            <span class="n">compliance_standard</span><span class="o">=</span><span class="nb">getattr</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="s2">&quot;compliance_standard&quot;</span><span class="p">,</span> <span class="s2">&quot;&quot;</span><span class="p">),</span>
+            <span class="n">compliant</span><span class="o">=</span><span class="nb">getattr</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="s2">&quot;compliant&quot;</span><span class="p">,</span> <span class="kc">False</span><span class="p">),</span>
+            <span class="n">requirement_results</span><span class="o">=</span><span class="nb">getattr</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="s2">&quot;table_elements&quot;</span><span class="p">,</span> <span class="p">[]),</span>
+            <span class="n">components_without_info</span><span class="o">=</span><span class="nb">getattr</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="s2">&quot;all_components_without_info&quot;</span><span class="p">,</span> <span class="p">[]),</span>
+            <span class="n">validation_messages</span><span class="o">=</span><span class="nb">getattr</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="s2">&quot;validation_messages&quot;</span><span class="p">,</span> <span class="p">[]),</span>
+            <span class="n">parsing_error</span><span class="o">=</span><span class="nb">getattr</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="s2">&quot;parsing_error&quot;</span><span class="p">,</span> <span class="p">[]),</span>
         <span class="p">)</span>
 
         <span class="nb">print</span><span class="p">(</span><span class="n">report_text</span><span class="p">(</span><span class="n">report_context</span><span class="p">,</span> <span class="n">verbose</span><span class="p">))</span></div>
@@ -1004,13 +1009,13 @@
 <span class="sd">            str: The HTML representation of the results.</span>
 <span class="sd">        &quot;&quot;&quot;</span>
         <span class="n">report_context</span> <span class="o">=</span> <span class="n">ReportContext</span><span class="p">(</span>
-            <span class="n">sbom_spec</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">sbom_spec</span><span class="p">,</span>
-            <span class="n">compliance_standard</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">compliance_standard</span><span class="p">,</span>
-            <span class="n">compliant</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">compliant</span><span class="p">,</span>
-            <span class="n">requirement_results</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">table_elements</span><span class="p">,</span>
-            <span class="n">components_without_info</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">all_components_without_info</span><span class="p">,</span>
-            <span class="n">validation_messages</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">validation_messages</span><span class="p">,</span>
-            <span class="n">parsing_error</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">parsing_error</span><span class="p">,</span>
+            <span class="n">sbom_spec</span><span class="o">=</span><span class="nb">getattr</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="s2">&quot;sbom_spec&quot;</span><span class="p">,</span> <span class="s2">&quot;&quot;</span><span class="p">),</span>
+            <span class="n">compliance_standard</span><span class="o">=</span><span class="nb">getattr</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="s2">&quot;compliance_standard&quot;</span><span class="p">,</span> <span class="s2">&quot;&quot;</span><span class="p">),</span>
+            <span class="n">compliant</span><span class="o">=</span><span class="nb">getattr</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="s2">&quot;compliant&quot;</span><span class="p">,</span> <span class="kc">False</span><span class="p">),</span>
+            <span class="n">requirement_results</span><span class="o">=</span><span class="nb">getattr</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="s2">&quot;table_elements&quot;</span><span class="p">,</span> <span class="p">[]),</span>
+            <span class="n">components_without_info</span><span class="o">=</span><span class="nb">getattr</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="s2">&quot;all_components_without_info&quot;</span><span class="p">,</span> <span class="p">[]),</span>
+            <span class="n">validation_messages</span><span class="o">=</span><span class="nb">getattr</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="s2">&quot;validation_messages&quot;</span><span class="p">,</span> <span class="p">[]),</span>
+            <span class="n">parsing_error</span><span class="o">=</span><span class="nb">getattr</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="s2">&quot;parsing_error&quot;</span><span class="p">,</span> <span class="p">[]),</span>
         <span class="p">)</span>
 
         <span class="k">return</span> <span class="n">report_html</span><span class="p">(</span><span class="n">report_context</span><span class="p">,</span> <span class="n">verbose</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span></div>
@@ -1025,21 +1030,23 @@
 <span class="sd">        Subclasses may override to provide custom fields.</span>
 <span class="sd">        &quot;&quot;&quot;</span>
         <span class="n">result</span><span class="p">:</span> <span class="n">Dict</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="n">Any</span><span class="p">]</span> <span class="o">=</span> <span class="p">{</span>
-            <span class="s2">&quot;isConformant&quot;</span><span class="p">:</span> <span class="bp">self</span><span class="o">.</span><span class="n">compliant</span><span class="p">,</span>
-            <span class="s2">&quot;isNtiaConformant&quot;</span><span class="p">:</span> <span class="bp">self</span><span class="o">.</span><span class="n">compliant</span><span class="p">,</span>  <span class="c1"># backward compatibility</span>
-            <span class="s2">&quot;complianceStandard&quot;</span><span class="p">:</span> <span class="bp">self</span><span class="o">.</span><span class="n">compliance_standard</span><span class="p">,</span>
-            <span class="s2">&quot;sbomSpec&quot;</span><span class="p">:</span> <span class="bp">self</span><span class="o">.</span><span class="n">sbom_spec</span><span class="p">,</span>
-            <span class="s2">&quot;validationMessages&quot;</span><span class="p">:</span> <span class="p">(</span>
-                <span class="nb">list</span><span class="p">(</span><span class="nb">map</span><span class="p">(</span><span class="nb">str</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">validation_messages</span><span class="p">))</span>
-                <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">validation_messages</span>
-                <span class="k">else</span> <span class="p">[]</span>
+            <span class="s2">&quot;isConformant&quot;</span><span class="p">:</span> <span class="nb">getattr</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="s2">&quot;compliant&quot;</span><span class="p">,</span> <span class="kc">False</span><span class="p">),</span>
+            <span class="s2">&quot;isNtiaConformant&quot;</span><span class="p">:</span> <span class="nb">getattr</span><span class="p">(</span>
+                <span class="bp">self</span><span class="p">,</span> <span class="s2">&quot;compliant&quot;</span><span class="p">,</span> <span class="kc">False</span>
+            <span class="p">),</span>  <span class="c1"># backward compatibility</span>
+            <span class="s2">&quot;complianceStandard&quot;</span><span class="p">:</span> <span class="nb">getattr</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="s2">&quot;compliance_standard&quot;</span><span class="p">,</span> <span class="s2">&quot;&quot;</span><span class="p">),</span>
+            <span class="s2">&quot;sbomSpec&quot;</span><span class="p">:</span> <span class="nb">getattr</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="s2">&quot;sbom_spec&quot;</span><span class="p">,</span> <span class="s2">&quot;&quot;</span><span class="p">),</span>
+            <span class="s2">&quot;validationMessages&quot;</span><span class="p">:</span> <span class="n">get_validation_messages_json</span><span class="p">(</span>
+                <span class="nb">getattr</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="s2">&quot;validation_messages&quot;</span><span class="p">,</span> <span class="p">[])</span>
             <span class="p">),</span>
-            <span class="s2">&quot;parsingError&quot;</span><span class="p">:</span> <span class="bp">self</span><span class="o">.</span><span class="n">parsing_error</span><span class="p">,</span>
-            <span class="s2">&quot;sbomName&quot;</span><span class="p">:</span> <span class="bp">self</span><span class="o">.</span><span class="n">sbom_name</span><span class="p">,</span>
-            <span class="s2">&quot;specVersionProvided&quot;</span><span class="p">:</span> <span class="bp">self</span><span class="o">.</span><span class="n">doc_version</span><span class="p">,</span>
-            <span class="s2">&quot;authorNameProvided&quot;</span><span class="p">:</span> <span class="bp">self</span><span class="o">.</span><span class="n">doc_author</span><span class="p">,</span>
-            <span class="s2">&quot;timestampProvided&quot;</span><span class="p">:</span> <span class="bp">self</span><span class="o">.</span><span class="n">doc_timestamp</span><span class="p">,</span>
-            <span class="s2">&quot;dependencyRelationshipsProvided&quot;</span><span class="p">:</span> <span class="bp">self</span><span class="o">.</span><span class="n">dependency_relationships</span><span class="p">,</span>
+            <span class="s2">&quot;parsingError&quot;</span><span class="p">:</span> <span class="nb">getattr</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="s2">&quot;parsing_error&quot;</span><span class="p">,</span> <span class="p">[]),</span>
+            <span class="s2">&quot;sbomName&quot;</span><span class="p">:</span> <span class="nb">getattr</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="s2">&quot;sbom_name&quot;</span><span class="p">,</span> <span class="s2">&quot;&quot;</span><span class="p">),</span>
+            <span class="s2">&quot;specVersionProvided&quot;</span><span class="p">:</span> <span class="nb">getattr</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="s2">&quot;doc_version&quot;</span><span class="p">,</span> <span class="kc">False</span><span class="p">),</span>
+            <span class="s2">&quot;authorNameProvided&quot;</span><span class="p">:</span> <span class="nb">getattr</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="s2">&quot;doc_author&quot;</span><span class="p">,</span> <span class="kc">False</span><span class="p">),</span>
+            <span class="s2">&quot;timestampProvided&quot;</span><span class="p">:</span> <span class="nb">getattr</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="s2">&quot;doc_timestamp&quot;</span><span class="p">,</span> <span class="kc">False</span><span class="p">),</span>
+            <span class="s2">&quot;dependencyRelationshipsProvided&quot;</span><span class="p">:</span> <span class="nb">getattr</span><span class="p">(</span>
+                <span class="bp">self</span><span class="p">,</span> <span class="s2">&quot;dependency_relationships&quot;</span><span class="p">,</span> <span class="kc">False</span>
+            <span class="p">),</span>
             <span class="s2">&quot;totalNumberComponents&quot;</span><span class="p">:</span> <span class="bp">self</span><span class="o">.</span><span class="n">get_total_number_components</span><span class="p">(),</span>
         <span class="p">}</span>
 
