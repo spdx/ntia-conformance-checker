@@ -11,7 +11,7 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog][keepachangelog]
 and this project adheres to [Semantic Versioning][semver].
 
-## [4.1.3] - 2025-11-29
+## [4.1.3] - 2025-11-30
 
 Note: Python 3.9 support will be dropped in the next major release.
 This is likely the final version supporting it.
@@ -19,7 +19,7 @@ This is likely the final version supporting it.
 ### Fixed
 
 - Fix validation messages that did not properly serialize in JSON output
-  ([#331][])
+  ([#331])
 
   The JSON output for validation messages now follows this structure:
 
@@ -43,7 +43,7 @@ This is likely the final version supporting it.
 
 ### Fixed
 
-- Fix validation message order at command line ([#327][])
+- Fix validation message order at command line ([#327])
 
 [#327]: https://github.com/spdx/ntia-conformance-checker/pull/327
 
@@ -65,7 +65,7 @@ This is likely the final version supporting it.
 ### Fixed
 
 - Fix FSCT3Checker that do not report components without required information
-  ([#326][])
+  ([#326])
 
 [#326]: https://github.com/spdx/ntia-conformance-checker/pull/326
 
@@ -78,17 +78,17 @@ This is likely the final version supporting it.
 
 ### Added
 
-- Use detected SPDX version if found ([#309][])
-- HTML output now has stylesheet classes for easier formatting ([#323][])
+- Use detected SPDX version if found ([#309])
+- HTML output now has stylesheet classes for easier formatting ([#323])
 
 ### Changed
 
-- Include components without required information in the HTML output ([#323][])
+- Include components without required information in the HTML output ([#323])
 
 ### Fixed
 
-- Make "--output quiet" print nothing except errors ([#308][])
-- Write HTML output to file with --output-file option ([#311][])
+- Make "--output quiet" print nothing except errors ([#308])
+- Write HTML output to file with --output-file option ([#311])
 
 [#308]: https://github.com/spdx/ntia-conformance-checker/pull/308
 [#309]: https://github.com/spdx/ntia-conformance-checker/pull/309
@@ -99,12 +99,12 @@ This is likely the final version supporting it.
 
 ### Added
 
-- Add support of SPDX 3.0 ([#277][], [#282][] [#284][], [#290][]).
-  - Using [spdx-python-model][] to parse and deserialize SPDX 3 documents.
+- Add support of SPDX 3.0 ([#277], [#282], [#284], [#290]).
+  - Using [spdx-python-model] to parse and deserialize SPDX 3 documents.
   - The SPDX 3 support in v4.0.0 is completed during the [Google Summer of Code
     (GSoC) 2025][gsoc2025] program by @bact with the mentorship and support of
     @jspeed-meyers @goneall @jpewdev @rtgdk and the Linux Foundation.
-- Add Makefile to simplify common development tasks ([#294][])
+- Add Makefile to simplify common development tasks ([#294])
 
 [#277]: https://github.com/spdx/ntia-conformance-checker/pull/277
 [#282]: https://github.com/spdx/ntia-conformance-checker/pull/282
@@ -116,7 +116,7 @@ This is likely the final version supporting it.
 
 ### Changed
 
-- Print validation context along with validation message ([#274][], [#276][]).
+- Print validation context along with validation message ([#274], [#276]).
 - Drop support for Python 3.8.
   - spdx-python-model requires Python 3.9+.
 
@@ -126,14 +126,14 @@ This is likely the final version supporting it.
 ### Fixed
 
 - Add components without copyright texts and without concluded licenses in the
-  FSCTv3 output report ([#288][]).
-- Fix and improve type hints ([#272][], [#281][]). For example:
+  FSCTv3 output report ([#288])
+- Fix and improve type hints ([#272], [#281]). For example:
   - Fix `BaseChecker.validation_messages` type to `List[ValidationMessage]`.
   - Fix return type of `get_components_without_concluded_licenses`,
     `get_components_without_copyright_texts`, `get_components_without_suppliers`,
     and `get_components_without_versions`
     to honour the `return_tuples` parameter.
-  - Note that the next major version may adopt [PEP 585][] and [PEP 604][]
+  - Note that the next major version may adopt [PEP 585] and [PEP 604]
     for less verbose type hinting, which will require Python 3.10.
 
 [#288]: https://github.com/spdx/ntia-conformance-checker/pull/288
@@ -146,16 +146,32 @@ This is likely the final version supporting it.
 
 ### Added
 
-- Add Sphinx documentation generation support ([#237][]).
+- Add Sphinx documentation generation support ([#237]).
 
 [#237]: https://github.com/spdx/ntia-conformance-checker/pull/237
 
 ## [3.1.0] - 2024-12-31
 
+Refactor the `SBOMChecker` class to support multiple compliance checkers.
+
+The internal working of the `SBOMChecker` class has been restructured and it is
+now acts as a "dispatcher" or a factory that returns a subclass of
+`BaseChecker` based on the given "compliance" argument during instantiation.
+
+If no compliance argument is given, return an instance of `NTIAChecker`, which
+is a conformance checker for the NTIA Minimum Elements, to maintain backward
+compatibility.
+
+See the [design documentation][new-sbomchecker] and discussion in
+issue [#214][] for more details.
+
 ### Added
 
-- Add FSCTv3 Common SBOM Baseline Attributes checker ([#224][], [#226][]).
+- Add FSCTv3 checker fo Baseline Attributes in 2024 CISA Framing Software
+  Component Transparency ([#224], [#226])
 
+[new-sbomchecker]: https://docs.google.com/document/d/1pueRxlxoM9n1eG9g6AihjLvybEBTd77m22mRYBQltpg/edit?usp=sharing
+[#214]: https://github.com/spdx/ntia-conformance-checker/issues/214
 [#224]: https://github.com/spdx/ntia-conformance-checker/pull/224
 [#226]: https://github.com/spdx/ntia-conformance-checker/pull/226
 
@@ -164,7 +180,7 @@ This is likely the final version supporting it.
 ### Changed
 
 - BREAKING CHANGE: Find the DESCRIBES relationship by looking through attached
-  packages ([#189][])
+  packages ([#189])
 
 [#189]: https://github.com/spdx/ntia-conformance-checker/pull/189
 
@@ -173,11 +189,11 @@ This is likely the final version supporting it.
 ### Changed
 
 - BREAKING CHANGE: Fixed spelling of `ntia_mininum_elements_compliant` property
-  ([#175][])
+  ([#175])
 - BREAKING CHANGE: Fix logic error in `get_components_without_suppliers`
-  ([#176][])
+  ([#176])
 - BREAKING CHANGE: Revise the implementation of
-  `check_dependency_relationships` ([#182][])
+  `check_dependency_relationships` ([#182])
 
 [#175]: https://github.com/spdx/ntia-conformance-checker/pull/175
 [#176]: https://github.com/spdx/ntia-conformance-checker/pull/176
@@ -187,7 +203,7 @@ This is likely the final version supporting it.
 
 ### Changed
 
-- Provide more information in `get_components_without_`* functions ([#169][])
+- Provide more information in `get_components_without_`* functions ([#169])
 
 [#169]: https://github.com/spdx/ntia-conformance-checker/pull/169
 
@@ -195,9 +211,49 @@ This is likely the final version supporting it.
 
 ### Added
 
-- Cut v1.0.0 release ([#163][])
+- Cut v1.0.0 release ([#163])
 
 [#163]: https://github.com/spdx/ntia-conformance-checker/pull/163
+
+## [0.2.0] - 2023-02-03
+
+First release on PyPI.
+
+Moving towards a production-grade release,
+@jspeed-meyers rearchitects the codebase to object-oriented design,
+updates command line interface to be more scripting-friendly,
+and improves test coverage.
+While @jspeed-meyers and @anthonyharrison setup for release to PyPI.
+
+### Added
+
+- Add testing coverage to PRs ([#36])
+- Add functionality and tests for retrieving number of components ([#45])
+- Add graceful exit when file does not exist ([#55])
+- Add quiet mode ([#58])
+- Add FAQ ([#60])
+- Add CONTRIBUTING ([#61])
+- Publish to PyPI ([#61], [#62])
+
+## Changed
+
+- Rearchitect to object-oriented design ([#41])
+
+## Fixed
+
+- Fix dependency in package metadata ([#47])
+- Fix author check ([#56])
+
+[#36]: https://github.com/spdx/ntia-conformance-checker/pull/36
+[#41]: https://github.com/spdx/ntia-conformance-checker/pull/41
+[#45]: https://github.com/spdx/ntia-conformance-checker/pull/45
+[#47]: https://github.com/spdx/ntia-conformance-checker/pull/47
+[#55]: https://github.com/spdx/ntia-conformance-checker/pull/55
+[#56]: https://github.com/spdx/ntia-conformance-checker/pull/56
+[#58]: https://github.com/spdx/ntia-conformance-checker/pull/58
+[#60]: https://github.com/spdx/ntia-conformance-checker/pull/60
+[#61]: https://github.com/spdx/ntia-conformance-checker/pull/61
+[#62]: https://github.com/spdx/ntia-conformance-checker/pull/62
 
 ## [0.1.0] - 2023-01-06
 
@@ -228,4 +284,5 @@ Thanks to @goneall, @licquia, and @kestewart for mentoring @linynjosh.
 [2.0.0]: https://github.com/spdx/ntia-conformance-checker/releases/tag/v2.0.0
 [1.1.0]: https://github.com/spdx/ntia-conformance-checker/releases/tag/v1.1.0
 [1.0.0]: https://github.com/spdx/ntia-conformance-checker/releases/tag/v1.0.0
+[0.2.0]: https://github.com/spdx/ntia-conformance-checker/releases/tag/v0.2.0
 [0.1.0]: https://github.com/spdx/ntia-conformance-checker/releases/tag/v0.1.0
