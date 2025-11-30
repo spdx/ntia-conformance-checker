@@ -209,6 +209,8 @@ issue [#214][] for more details.
 
 ## [1.0.0] - 2023-11-25
 
+First major release, offers a promise of stability.
+
 ### Added
 
 - Cut v1.0.0 release ([#163])
