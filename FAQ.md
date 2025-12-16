@@ -1,4 +1,4 @@
-# Frequently Asked Questions
+# Frequently asked questions
 
 Q: I am having trouble installing the Python modules. What gives?
 
