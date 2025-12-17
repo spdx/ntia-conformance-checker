@@ -58,7 +58,7 @@ Mappings:
 
 ## Installation
 
-This tool requires Python 3.9+.
+This tool requires Python 3.12 or newer.
 Its dependencies may require a more recent version of Python.
 
 *Installation Method #1*:
