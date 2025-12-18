@@ -27,6 +27,8 @@ readme = "README.md"
 classifiers = [
     "Intended Audience :: Developers",
     "Intended Audience :: System Administrators",
+    "Programming Language :: Python :: 3.10",
+    "Programming Language :: Python :: 3.11",
     "Programming Language :: Python :: 3.12",
     "Programming Language :: Python :: 3.13",
     "Programming Language :: Python :: 3.14",
@@ -35,7 +37,7 @@ classifiers = [
     "Topic :: System :: Systems Administration",
 ]
 urls = { Homepage = "https://github.com/spdx/ntia-conformance-checker" }
-requires-python = ">=3.12"
+requires-python = ">=3.10"
 keywords = [
     "spdx",
     "sbom",
@@ -62,15 +64,8 @@ dev = [
     "pytype>=2024.10.11",
     "ruff>=0.14.9",
 ]
-docs = [
-    "Sphinx>=9.0.4",
-    "sphinx-rtd-theme>=3.0.2",
-]
-test = [
-    "beartype>=0.22.9",
-    "coverage>=7.13.0",
-    "pytest>=9.0.2",
-]
+docs = ["Sphinx>=9.0.4", "sphinx-rtd-theme>=3.0.2"]
+test = ["beartype>=0.22.9", "coverage>=7.13.0", "pytest>=9.0.2"]
 
 [project.scripts]
 # Both "ntia-checker" and "sbomcheck" are identical.
@@ -83,7 +78,7 @@ sbomcheck = "ntia_conformance_checker.main:main"
 [tool.ruff]
 line-length = 88 # Same as black
 indent-width = 4 # Same as black
-target-version = "py39"
+target-version = "py310"
 exclude = [
     "build",
     "dist",

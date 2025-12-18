@@ -13,7 +13,7 @@ and this project adheres to [Semantic Versioning][semver].
 
 ## [5.0.0] - 2025-12-18
 
-ntia-conformance-checker 5.0.0 requires Python 3.12 or newer.
+ntia-conformance-checker 5.0.0 requires Python 3.10 or newer.
 
 Update code to use type hinting generics for standard collections ([PEP 585])
 and use `X | Y` for union types ([PEP 604]).

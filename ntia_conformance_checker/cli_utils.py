@@ -304,7 +304,7 @@ def print_output(
                             "<html>\n"
                             "<head>\n"
                             "  <title>SBOM Conformance Report</title>\n"
-                            "  <meta charset=\"utf-8\" />\n"
+                            '  <meta charset="utf-8" />\n'
                             "</head>\n"
                             "<body>\n"
                             "<h1>SBOM Conformance Report</h1>\n"
