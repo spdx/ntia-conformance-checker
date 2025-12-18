@@ -15,9 +15,6 @@ and this project adheres to [Semantic Versioning][semver].
 
 ntia-conformance-checker 5.0.0 requires Python 3.10 or newer.
 
-Update code to use type hinting generics for standard collections ([PEP 585])
-and use `X | Y` for union types ([PEP 604]).
-
 ### Fixed
 
 - Fix validation messages that did not properly serialize in JSON output
@@ -36,9 +33,11 @@ and use `X | Y` for union types ([PEP 604]).
   ]
   ```
 
-- The type hints have been updated to use generics (PEP 585) in standard collections and union types as X | Y (PEP 604).
+- Use type hinting generics for standard collections ([PEP 585])
+  and use `X | Y` for union types ([PEP 604]) ([#339])
 
 [#331]: https://github.com/spdx/ntia-conformance-checker/pull/331
+[#339]: https://github.com/spdx/ntia-conformance-checker/pull/339
 [PEP 585]: https://peps.python.org/pep-0585/
 [PEP 604]: https://peps.python.org/pep-0604/
 
