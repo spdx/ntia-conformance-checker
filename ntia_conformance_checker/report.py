@@ -46,7 +46,7 @@ def print_validation_messages(
     """Prints validation messages and optional context details.
 
     Args:
-        validation_messages (List[ValidationMessage]): List of validation messages.
+        validation_messages (list[ValidationMessage]): List of validation messages.
         verbose (bool): If True, include detailed validation context.
 
     Returns:
@@ -61,7 +61,7 @@ def get_validation_messages_text(
     """Generates validation messages and optional context details.
 
     Args:
-        validation_messages (List[ValidationMessage]): List of validation messages.
+        validation_messages (list[ValidationMessage]): List of validation messages.
         verbose (bool): If True, include detailed validation context.
 
     Returns:
@@ -89,7 +89,7 @@ def get_validation_messages_html(
     """Generates HTML for validation messages and context details.
 
     Args:
-        validation_messages (List[ValidationMessage]): List of validation messages.
+        validation_messages (list[ValidationMessage]): List of validation messages.
         verbose (bool): If True, include detailed validation context.
 
     Returns:
@@ -126,10 +126,10 @@ def get_validation_messages_json(
     """Generates JSON-serializable list for validation messages and context details.
 
     Args:
-        validation_messages (List[ValidationMessage]): List of validation messages.
+        validation_messages (list[ValidationMessage]): List of validation messages.
 
     Returns:
-        List[Dict[str, str]]: JSON-serializable representation of the validation messages.
+        list[dict[str, str]]: JSON-serializable representation of the validation messages.
     """
     json_output: list[dict[str, str]] = []
 
@@ -213,7 +213,7 @@ def report_html(
     Returns:
         str: HTML representation of the results.
     """
-    report: List[str] = []
+    report: list[str] = []
 
     # Parsing error
     if rc.parsing_error:

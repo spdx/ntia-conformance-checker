@@ -11,9 +11,12 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog][keepachangelog]
 and this project adheres to [Semantic Versioning][semver].
 
-## [5.0.0] - 2025-12-17
+## [5.0.0] - 2025-12-18
 
 ntia-conformance-checker 5.0.0 requires Python 3.12 or newer.
+
+Update code to use type hinting generics for standard collections ([PEP 585])
+and use `X | Y` for union types ([PEP 604]).
 
 ### Fixed
 
@@ -33,7 +36,11 @@ ntia-conformance-checker 5.0.0 requires Python 3.12 or newer.
   ]
   ```
 
+- The type hints have been updated to use generics (PEP 585) in standard collections and union types as X | Y (PEP 604).
+
 [#331]: https://github.com/spdx/ntia-conformance-checker/pull/331
+[PEP 585]: https://peps.python.org/pep-0585/
+[PEP 604]: https://peps.python.org/pep-0604/
 
 ## [4.1.2] - 2025-11-19
 
@@ -138,8 +145,6 @@ This is likely the final version supporting it.
 [#288]: https://github.com/spdx/ntia-conformance-checker/pull/288
 [#272]: https://github.com/spdx/ntia-conformance-checker/pull/272
 [#281]: https://github.com/spdx/ntia-conformance-checker/pull/281
-[PEP 585]: https://peps.python.org/pep-0585/
-[PEP 604]: https://peps.python.org/pep-0604/
 
 ## [3.2.0] - 2025-03-12
 

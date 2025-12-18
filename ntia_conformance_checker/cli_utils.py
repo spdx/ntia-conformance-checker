@@ -12,7 +12,7 @@ import logging
 import re
 import sys
 from importlib.metadata import version
-from typing import Any, Dict, Optional, Tuple
+from typing import Any
 
 from spdx_tools.spdx.parser.error import SPDXParsingError
 from spdx_tools.spdx.parser.parse_anything import parse_file as parse_spdx2_file
@@ -283,7 +283,7 @@ def print_output(
         if verbose:
             sbom.print_components_missing_info()
     elif output_type == "json":
-        result_dict: Dict[str, Any] = sbom.output_json()
+        result_dict: dict[str, Any] = sbom.output_json()
         if output_file:
             with open(output_file, "w", encoding="utf-8") as outfile:
                 json.dump(result_dict, outfile)
