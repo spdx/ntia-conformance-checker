@@ -11,7 +11,7 @@ Some of the code here was originally in the BaseChecker class.
 from __future__ import annotations
 
 from dataclasses import dataclass
-from typing import TYPE_CHECKING, Dict, List, Optional, Tuple
+from typing import TYPE_CHECKING
 
 from .constants import (
     SUPPORTED_COMPLIANCE_STANDARDS,
@@ -29,10 +29,10 @@ class ReportContext:
     sbom_spec: str = ""
     compliance_standard: str = ""
     compliant: bool = False
-    requirement_results: Optional[List[Tuple[str, bool]]] = None
-    components_without_info: Optional[List[Tuple[str, List[str]]]] = None
-    validation_messages: Optional[List[ValidationMessage]] = None
-    parsing_error: Optional[List[str]] = None
+    requirement_results: list[tuple[str, bool]] | None = None
+    components_without_info: list[tuple[str, list[str]]] | None = None
+    validation_messages: list[ValidationMessage] | None = None
+    parsing_error: list[str] | None = None
 
 
 def _safe_attr(obj: object, name: str) -> str:
@@ -41,7 +41,7 @@ def _safe_attr(obj: object, name: str) -> str:
 
 
 def print_validation_messages(
-    validation_messages: List[ValidationMessage], verbose: bool = False
+    validation_messages: list[ValidationMessage], verbose: bool = False
 ) -> None:
     """Prints validation messages and optional context details.
 
@@ -56,7 +56,7 @@ def print_validation_messages(
 
 
 def get_validation_messages_text(
-    validation_messages: List[ValidationMessage], verbose: bool = False
+    validation_messages: list[ValidationMessage], verbose: bool = False
 ) -> str:
     """Generates validation messages and optional context details.
 
@@ -67,7 +67,7 @@ def get_validation_messages_text(
     Returns:
         str: Plain-text representation of the validation messages.
     """
-    report: List[str] = []
+    report: list[str] = []
 
     for msg in validation_messages:
         if not msg.validation_message:
@@ -84,7 +84,7 @@ def get_validation_messages_text(
 
 
 def get_validation_messages_html(
-    validation_messages: List[ValidationMessage], verbose: bool = False
+    validation_messages: list[ValidationMessage], verbose: bool = False
 ) -> str:
     """Generates HTML for validation messages and context details.
 
@@ -121,8 +121,8 @@ def get_validation_messages_html(
 
 
 def get_validation_messages_json(
-    validation_messages: List[ValidationMessage],
-) -> List[Dict[str, str]]:
+    validation_messages: list[ValidationMessage],
+) -> list[dict[str, str]]:
     """Generates JSON-serializable list for validation messages and context details.
 
     Args:
@@ -131,7 +131,7 @@ def get_validation_messages_json(
     Returns:
         List[Dict[str, str]]: JSON-serializable representation of the validation messages.
     """
-    json_output: List[Dict[str, str]] = []
+    json_output: list[dict[str, str]] = []
 
     for msg in validation_messages:
         if not getattr(msg, "validation_message", None):
@@ -160,7 +160,7 @@ def report_text(
     Returns:
         str: Plain-text representation of the results.
     """
-    report: List[str] = []
+    report: list[str] = []
 
     # Parsing error
     if rc.parsing_error:

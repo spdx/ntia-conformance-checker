@@ -6,7 +6,7 @@
 
 from __future__ import annotations
 
-from typing import Any, Iterator, List, Optional, Set, Tuple, Type, cast
+from typing import Any, Iterator, Optional, Set, Type, cast
 
 from spdx_python_model import v3_0_1 as spdx3  # type: ignore # import-untyped
 from spdx_tools.spdx.validation.validation_message import (
@@ -17,7 +17,7 @@ from spdx_tools.spdx.validation.validation_message import (
 
 def validate_spdx3_data(
     object_set: spdx3.SHACLObjectSet,
-) -> Tuple[Optional[spdx3.SpdxDocument], List[ValidationMessage]]:
+) -> tuple[spdx3.SpdxDocument | None, list[ValidationMessage]]:
     """
     Validate an SHACLObjectSet if it contains a valid SpdxDocument.
 
@@ -43,10 +43,10 @@ def validate_spdx3_data(
     # which is originally meant for SPDX 2, to report validation errors for
     # SPDX 3 as well, so the print/HTML/JSON output functions can be reused.
 
-    doc: Optional[spdx3.SpdxDocument] = None
-    validation_messages: List[ValidationMessage] = []
+    doc: spdx3.SpdxDocument | None = None
+    validation_messages: list[ValidationMessage] = []
 
-    spdx_documents: List[spdx3.SpdxDocument] = [
+    spdx_documents: list[spdx3.SpdxDocument] = [
         cast("spdx3.SpdxDocument", obj)
         for obj in object_set.foreach_type("SpdxDocument")
     ]
@@ -91,8 +91,8 @@ def validate_spdx3_data(
 
 
 def get_boms_from_spdx_document(
-    spdx_doc: Optional[spdx3.SpdxDocument],
-) -> Optional[List[spdx3.Bom]]:
+    spdx_doc: spdx3.SpdxDocument | None,
+) -> list[spdx3.Bom] | None:
     """
     Retrieve the BOMs that are rootElements of an SPDX 3 SpdxDocument.
 
@@ -105,7 +105,7 @@ def get_boms_from_spdx_document(
     if not spdx_doc:
         return None
 
-    root_elements: List[spdx3.Bom] = getattr(spdx_doc, "rootElement", [])
+    root_elements: list[spdx3.Bom] = getattr(spdx_doc, "rootElement", [])
     if not root_elements:
         return None
 
@@ -113,8 +113,8 @@ def get_boms_from_spdx_document(
 
 
 def get_packages_from_bom(
-    bom: Optional[spdx3.Bom],
-) -> Optional[List[spdx3.software_Package]]:
+    bom: spdx3.Bom | None,
+) -> list[spdx3.software_Package] | None:
     """
     Retrieve the /Software/Packages that are rootElements of an SPDX 3 BOM.
 
@@ -127,7 +127,7 @@ def get_packages_from_bom(
     if not bom:
         return None
 
-    root_elements: List[spdx3.software_Package] = getattr(bom, "rootElement", [])
+    root_elements: list[spdx3.software_Package] = getattr(bom, "rootElement", [])
     if not root_elements or len(root_elements) != 1:
         return None
 
@@ -138,7 +138,7 @@ def iter_objects_with_property(
     object_set: spdx3.SHACLObjectSet,
     typ: Type[spdx3.SHACLObject] = spdx3.Artifact,
     property_name: str = "spdxId",
-) -> Iterator[Tuple[str, str, Any]]:
+) -> Iterator[tuple[str, str, Any]]:
     """
     Yield (name, spdxId, property) for each SPDX 3 object.
 
@@ -162,7 +162,7 @@ def iter_objects_with_property(
 def iter_relationships_by_type(
     object_set: spdx3.SHACLObjectSet,
     rel_type: str,
-) -> Iterator[Tuple[str, str]]:
+) -> Iterator[tuple[str, str]]:
     """
     Yield (from_id, to_id) for each relationship of the specified relationship type.
     """
@@ -172,8 +172,8 @@ def iter_relationships_by_type(
         # Remove the IRI prefix of entry name before compare
         if not _rel_type or _rel_type.split("/")[-1] != rel_type:
             continue
-        from_: Optional[spdx3.Element] = getattr(obj, "from_", None)
-        to: Optional[spdx3.Element] = getattr(obj, "to", None)
+        from_: spdx3.Element | None = getattr(obj, "from_", None)
+        to: spdx3.Element | None = getattr(obj, "to", None)
         if not from_ or not to:
             continue
 

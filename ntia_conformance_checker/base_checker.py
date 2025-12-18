@@ -51,7 +51,7 @@ class BaseChecker(ABC):
     """
 
     # Minimum elements/baseline attributes required by a compliance standard
-    MIN_ELEMENTS: List[str] = []
+    MIN_ELEMENTS: list[str] = []
 
     # Mapping of components without information
     # SBOM component name: (list containing components missing the info, label)
@@ -83,19 +83,20 @@ class BaseChecker(ABC):
     # For SPDX 3, we have to use SHACLObjectSet instead of SpdxDocument,
     # because we need access to relationships and other elements that are not
     # accessible from SpdxDocument.
-    doc: Union[Document, spdx3.SHACLObjectSet, None] = None
-    __spdx3_doc: Optional[spdx3.SpdxDocument] = None  # cached SPDX 3 document
 
-    parsing_error: List[str] = []
-    validation_messages: List[ValidationMessage] = []
+    doc: Document | spdx3.SHACLObjectSet | None = None
+    __spdx3_doc: spdx3.SpdxDocument | None = None  # cached SPDX 3 document
+
+    parsing_error: list[str] = []
+    validation_messages: list[ValidationMessage] = []
 
     sbom_name: str = ""
-    components_without_names: List[str] = []
-    components_without_versions: List[str] = []
-    components_without_suppliers: List[str] = []
-    components_without_identifiers: List[str] = []
-    components_without_concluded_licenses: List[str] = []
-    components_without_copyright_texts: List[str] = []
+    components_without_names: list[str] = []
+    components_without_versions: list[str] = []
+    components_without_suppliers: list[str] = []
+    components_without_identifiers: list[str] = []
+    components_without_concluded_licenses: list[str] = []
+    components_without_copyright_texts: list[str] = []
 
     doc_version: bool = False  # Has SPDX document version?
     doc_author: bool = False  # Has SPDX document author?
@@ -191,11 +192,11 @@ class BaseChecker(ABC):
                 "List[str]", self.get_components_without_copyright_texts()
             )
 
-            self.all_components_without_info: List[Tuple[str, List[str]]] = (
+            self.all_components_without_info: list[tuple[str, list[str]]] = (
                 self._get_all_components_without_info()
             )
 
-        self.table_elements: List[Tuple[str, bool]] = []
+        self.table_elements: list[tuple[str, bool]] = []
 
     def check_doc_version(self) -> bool:
         """Check if the document's specification version exists."""
@@ -308,12 +309,12 @@ class BaseChecker(ABC):
 
         return False
 
-    def get_doc_spec_version(self) -> Optional[str]:
+    def get_doc_spec_version(self) -> str | None:
         """Retrieve the document's specification version."""
         if not self.doc:
             return None
 
-        doc_spec_version: Optional[str] = None
+        doc_spec_version: str | None = None
 
         # SPDX 2
         if self.sbom_spec == "spdx2":
@@ -778,7 +779,7 @@ class BaseChecker(ABC):
 
         return 0
 
-    def parse_file(self) -> Optional[Document]:
+    def parse_file(self) -> Document | None:
         """
         Parse SPDX 2 SBOM document.
 
@@ -802,7 +803,7 @@ class BaseChecker(ABC):
 
         return cast("Document", doc)
 
-    def parse_spdx3_file(self) -> Optional[spdx3.SHACLObjectSet]:
+    def parse_spdx3_file(self) -> spdx3.SHACLObjectSet | None:
         """
         Parse SPDX 3 SBOM document.
 

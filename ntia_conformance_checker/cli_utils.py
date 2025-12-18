@@ -151,7 +151,7 @@ def get_parsed_args() -> argparse.Namespace:
     return args
 
 
-def get_spdx_version(file: str, sbom_spec: str = "spdx2") -> Optional[Tuple[int, int]]:
+def get_spdx_version(file: str, sbom_spec: str = "spdx2") -> tuple[int, int] | None:
     """
     Detect the SPDX version of the SBOM file.
 
@@ -247,7 +247,7 @@ def get_sbom_spec(file: str, sbom_spec: str) -> str:
         return ""
 
     if sbom_spec.startswith("spdx"):
-        spdx_version: Optional[Tuple[int, int]] = get_spdx_version(
+        spdx_version: tuple[int, int] | None = get_spdx_version(
             file, sbom_spec=sbom_spec
         )
         if not spdx_version:
