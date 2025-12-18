@@ -140,25 +140,24 @@ class BaseChecker(ABC):
         self.parsing_error = []
         self.validation_messages = []
 
-        # SPDX 2
-        if sbom_spec == "spdx2":
-            self.doc = self.parse_file()
-        # SPDX 3
-        elif sbom_spec == "spdx3":
-            object_set = self.parse_spdx3_file()
-            if not object_set:
-                logging.error("Failed to parse the SPDX 3 file.")
-            else:
-                self.doc = object_set
-                _doc, _validation_messages = validate_spdx3_data(object_set)
-                if not _doc or _validation_messages:
-                    logging.error("SpdxDocument not found or invalid.")
-                self.__spdx3_doc = _doc  # cache the extracted SpdxDocument
-                self.validation_messages.extend(_validation_messages)
-        else:
-            # We can add a heuristic to detect the spec from the file content here,
-            # in case sbom_spec is not provided or invalid.
-            raise ValueError(f"Unsupported SBOM specification: {sbom_spec}")
+        match sbom_spec:
+            case "spdx2":
+                self.doc = self.parse_file()
+            case "spdx3":
+                object_set = self.parse_spdx3_file()
+                if not object_set:
+                    logging.error("Failed to parse the SPDX 3 file.")
+                else:
+                    self.doc = object_set
+                    _doc, _validation_messages = validate_spdx3_data(object_set)
+                    if not _doc or _validation_messages:
+                        logging.error("SpdxDocument not found or invalid.")
+                    self.__spdx3_doc = _doc  # cache the extracted SpdxDocument
+                    self.validation_messages.extend(_validation_messages)
+            case _:
+                # We can add a heuristic to detect the spec from the file content here,
+                # in case sbom_spec is not provided or invalid.
+                raise ValueError(f"Unsupported SBOM specification: {sbom_spec}")
 
         if self.doc:
             if validate:

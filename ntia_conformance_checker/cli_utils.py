@@ -266,10 +266,11 @@ def get_sbom_spec(file: str, sbom_spec: str) -> str:
             )
             return ""
 
-        if spdx_version[0] == 3:
-            detected_sbom_spec = "spdx3"
-        elif spdx_version[0] == 2:
-            detected_sbom_spec = "spdx2"
+        match spdx_version[0]:
+            case 3:
+                detected_sbom_spec = "spdx3"
+            case 2:
+                detected_sbom_spec = "spdx2"
 
     return detected_sbom_spec
 
@@ -278,39 +279,42 @@ def print_output(
     sbom: BaseChecker, *, output_type: str, output_file: str, verbose: bool
 ) -> None:
     """Print or save the output report."""
-    if output_type == "print":
-        sbom.print_table_output(verbose=verbose)
-        if verbose:
-            sbom.print_components_missing_info()
-    elif output_type == "json":
-        result_dict: dict[str, Any] = sbom.output_json()
-        if output_file:
-            with open(output_file, "w", encoding="utf-8") as outfile:
-                json.dump(result_dict, outfile)
-        else:
-            print(json.dumps(result_dict, indent=2))
-    elif output_type == "html":
-        html_output = sbom.output_html()
-        if output_file:
-            try:
+    match output_type:
+        case "print":
+            sbom.print_table_output(verbose=verbose)
+            if verbose:
+                sbom.print_components_missing_info()
+
+        case "json":
+            result_dict: dict[str, Any] = sbom.output_json()
+            if output_file:
                 with open(output_file, "w", encoding="utf-8") as outfile:
-                    # Put a simple HTML wrapper around the HTML report snippet
-                    outfile.write(
-                        "<!DOCTYPE html>\n"
-                        "<html>\n"
-                        "<head>\n"
-                        "  <title>SBOM Conformance Report</title>\n"
-                        '  <meta charset="utf-8" />\n'
-                        "</head>\n"
-                        "<body>\n"
-                        "<h1>SBOM Conformance Report</h1>\n"
-                    )
-                    outfile.write(f"<p>Filename: {sbom.file}</p>\n")
-                    outfile.write(html_output)
-                    outfile.write("\n</body>\n</html>\n")
-            except OSError as exc:
-                logging.error("Could not write HTML output file: %s", exc)
-        else:
-            print(html_output)
+                    json.dump(result_dict, outfile)
+            else:
+                print(json.dumps(result_dict, indent=2))
+
+        case "html":
+            html_output = sbom.output_html()
+            if output_file:
+                try:
+                    with open(output_file, "w", encoding="utf-8") as outfile:
+                        # Put a simple HTML wrapper around the HTML report snippet
+                        outfile.write(
+                            "<!DOCTYPE html>\n"
+                            "<html>\n"
+                            "<head>\n"
+                            "  <title>SBOM Conformance Report</title>\n"
+                            "  <meta charset=\"utf-8\" />\n"
+                            "</head>\n"
+                            "<body>\n"
+                            "<h1>SBOM Conformance Report</h1>\n"
+                        )
+                        outfile.write(f"<p>Filename: {sbom.file}</p>\n")
+                        outfile.write(html_output)
+                        outfile.write("\n</body>\n</html>\n")
+                except OSError as exc:
+                    logging.error("Could not write HTML output file: %s", exc)
+            else:
+                print(html_output)
 
     # do nothing if output_type is "quiet" or unrecognized
