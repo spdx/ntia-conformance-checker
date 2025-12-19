@@ -11,10 +11,9 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog][keepachangelog]
 and this project adheres to [Semantic Versioning][semver].
 
-## [4.1.3] - 2025-11-30
+## [5.0.0] - 2025-12-18
 
-Note: Python 3.9 support will be dropped in the next major release.
-This is likely the final version supporting it.
+ntia-conformance-checker 5.0.0 requires Python 3.10 or newer.
 
 ### Fixed
 
@@ -34,7 +33,13 @@ This is likely the final version supporting it.
   ]
   ```
 
+- Use type hinting generics for standard collections ([PEP 585])
+  and use `X | Y` for union types ([PEP 604]) ([#339])
+
 [#331]: https://github.com/spdx/ntia-conformance-checker/pull/331
+[#339]: https://github.com/spdx/ntia-conformance-checker/pull/339
+[PEP 585]: https://peps.python.org/pep-0585/
+[PEP 604]: https://peps.python.org/pep-0604/
 
 ## [4.1.2] - 2025-11-19
 
@@ -139,8 +144,6 @@ This is likely the final version supporting it.
 [#288]: https://github.com/spdx/ntia-conformance-checker/pull/288
 [#272]: https://github.com/spdx/ntia-conformance-checker/pull/272
 [#281]: https://github.com/spdx/ntia-conformance-checker/pull/281
-[PEP 585]: https://peps.python.org/pep-0585/
-[PEP 604]: https://peps.python.org/pep-0604/
 
 ## [3.2.0] - 2025-03-12
 
@@ -275,7 +278,7 @@ Thanks to @goneall, @licquia, and @kestewart for mentoring @linynjosh.
 [#1]: https://github.com/spdx/ntia-conformance-checker/pull/1
 [keepachangelog]: https://keepachangelog.com/en/1.1.0/
 [semver]: https://semver.org/spec/v2.0.0.html
-[4.1.3]: https://github.com/spdx/ntia-conformance-checker/releases/tag/v4.1.3
+[5.0.0]: https://github.com/spdx/ntia-conformance-checker/releases/tag/v5.0.0
 [4.1.2]: https://github.com/spdx/ntia-conformance-checker/releases/tag/v4.1.2
 [4.1.1]: https://github.com/spdx/ntia-conformance-checker/releases/tag/v4.1.1
 [4.1.0]: https://github.com/spdx/ntia-conformance-checker/releases/tag/v4.1.0
