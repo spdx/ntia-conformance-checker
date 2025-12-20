@@ -263,13 +263,13 @@ class BaseChecker(ABC):
         # SPDX 3
         if self.sbom_spec == "spdx3":
             # If a BOM/an SBOM's rootElement is a /Software/Package (or its subclass),
-            # it is considered to have a relationship.
+            # it is considered to have a dependency relationship.
             #
             # Note that if there is neither /Software/Package(s) nor /Core/Bom,
             # a DESCRIBES relationship is not needed; however, this method may still
             # return False, since it is factually considered as "no relationship".
 
-            # There is a BOM and an /Software/Package,
+            # There is a BOM/SBOM and an /Software/Package,
             # check if there is at least one package listed in any BOM/SBOM
             boms = get_boms_from_spdx_document(self.__spdx3_doc)
             if boms:
@@ -463,10 +463,10 @@ class BaseChecker(ABC):
         """
         Retrieve components missing unique identifiers (SPDX IDs).
 
-        Note that SPDX 3 requires identifiers for all elements, so this
-        should not happen in a valid SPDX 3 document. The
-        spdx-python-model JSON deserializer will raise a ValueError if
-        any element is missing an identifier.
+        Note that SPDX 3 requires identifiers for all elements,
+        so this should not happen in a valid SPDX 3 document.
+        The spdx-python-model JSON deserializer will raise a ValueError
+        if any element is missing an identifier.
 
         Returns:
             list[tuple[str, str]]: A list of tuples of the form
@@ -638,7 +638,7 @@ class BaseChecker(ABC):
     def _get_all_components_without_info(
         self,
     ) -> list[tuple[str, list[tuple[str, str]]]]:
-        """Get a list of components missing information for each minimum component."""
+        """Get a list of components missing information for each required info."""
 
         # If all lists are empty, return an empty list
         if all(
@@ -647,15 +647,12 @@ class BaseChecker(ABC):
         ):
             return []
 
-        res: list[tuple[str, list[tuple[str, str]]]] = []
-        for component_name in self.MIN_ELEMENTS:
-            if component_name in self._COMPONENTS_WITHOUT_INFO:
-                list_name, _ = self._COMPONENTS_WITHOUT_INFO[component_name]
-                components_without_info = getattr(self, list_name, [])
-                if components_without_info:
-                    res.append((component_name, components_without_info))
-
-        return res
+        return [
+            (info_name, getattr(self, self._COMPONENTS_WITHOUT_INFO[info_name][0], []))
+            for info_name in self.MIN_ELEMENTS
+            if info_name in self._COMPONENTS_WITHOUT_INFO
+            and getattr(self, self._COMPONENTS_WITHOUT_INFO[info_name][0], [])
+        ]
 
     def get_total_number_components(self) -> int:
         """
