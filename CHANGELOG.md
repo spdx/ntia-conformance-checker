@@ -11,13 +11,13 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog][keepachangelog]
 and this project adheres to [Semantic Versioning][semver].
 
-## [5.0.0] - 2025-12-18
+## [5.0.0] - 2025-12-20
 
 ntia-conformance-checker 5.0.0 requires Python 3.10 or newer.
 
 ### Changed
 
-- BREAKING CHANGE: Drop support for Python 3.9
+- Drop support for Python 3.9
 - BREAKING CHANGE: All `get_components_without_*` functions now return a
   unified `list[tuple[str, str]]` where each tuple is
   `(component_name, spdx_id)` ([#341]).
@@ -35,8 +35,8 @@ ntia-conformance-checker 5.0.0 requires Python 3.10 or newer.
 
 ### Fixed
 
-- Fix validation messages that did not properly serialize in JSON output
-  ([#331])
+- BREAKING CHANGE: Fix validation messages that did not properly serialize
+  in JSON output ([#331])
 
   The JSON output for validation messages now follows this structure:
 
