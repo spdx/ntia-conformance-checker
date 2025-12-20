@@ -20,7 +20,7 @@ ntia-conformance-checker 5.0.0 requires Python 3.10 or newer.
 - BREAKING CHANGE: Drop support for Python 3.9
 - BREAKING CHANGE: All `get_components_without_*` functions now return a
   unified `list[tuple[str, str]]` where each tuple is
-  `(component_name, spdx_id)`.
+  `(component_name, spdx_id)` ([#341]).
   Consumers should extract the preferred value (name or SPDX ID) as needed.
   For example:
 
@@ -53,6 +53,7 @@ ntia-conformance-checker 5.0.0 requires Python 3.10 or newer.
 
 [#331]: https://github.com/spdx/ntia-conformance-checker/pull/331
 [#339]: https://github.com/spdx/ntia-conformance-checker/pull/339
+[#341]: https://github.com/spdx/ntia-conformance-checker/pull/341
 [PEP 585]: https://peps.python.org/pep-0585/
 [PEP 604]: https://peps.python.org/pep-0604/
 
