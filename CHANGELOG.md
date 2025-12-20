@@ -25,9 +25,8 @@ ntia-conformance-checker 5.0.0 requires Python 3.10 or newer.
   For example:
 
   ```python
-  # returns list[tuple[str, str]]
-  components = sbom_checker.get_components_without_versions()
-  names = [name for name, _ in components]
+  components = sbom_checker.get_components_without_versions()  # list[tuple[str, str]]
+  names = [name for name, _ in components]  # list[str]
   ```
 
 - Use type hinting generics for standard collections ([PEP 585])
