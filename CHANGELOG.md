@@ -11,14 +11,32 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog][keepachangelog]
 and this project adheres to [Semantic Versioning][semver].
 
-## [5.0.0] - 2025-12-18
+## [5.0.0] - 2025-12-20
 
 ntia-conformance-checker 5.0.0 requires Python 3.10 or newer.
 
+### Changed
+
+- Drop support for Python 3.9
+- BREAKING CHANGE: All `get_components_without_*` functions now return a
+  unified `list[tuple[str, str]]` where each tuple is
+  `(component_name, spdx_id)` ([#341]).
+
+  Consumers should extract the preferred value (name or SPDX ID) as needed.
+  For example:
+
+  ```python
+  components = sbom_checker.get_components_without_versions()  # list[tuple[str, str]]
+  names = [name for name, _ in components]  # list[str]
+  ```
+
+- Use type hinting generics for standard collections ([PEP 585])
+  and use `X | Y` for union types ([PEP 604]) ([#339])
+
 ### Fixed
 
-- Fix validation messages that did not properly serialize in JSON output
-  ([#331])
+- BREAKING CHANGE: Fix validation messages that did not properly serialize
+  in JSON output ([#331])
 
   The JSON output for validation messages now follows this structure:
 
@@ -33,11 +51,9 @@ ntia-conformance-checker 5.0.0 requires Python 3.10 or newer.
   ]
   ```
 
-- Use type hinting generics for standard collections ([PEP 585])
-  and use `X | Y` for union types ([PEP 604]) ([#339])
-
 [#331]: https://github.com/spdx/ntia-conformance-checker/pull/331
 [#339]: https://github.com/spdx/ntia-conformance-checker/pull/339
+[#341]: https://github.com/spdx/ntia-conformance-checker/pull/341
 [PEP 585]: https://peps.python.org/pep-0585/
 [PEP 604]: https://peps.python.org/pep-0604/
 
