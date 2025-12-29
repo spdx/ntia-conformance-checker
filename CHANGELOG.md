@@ -21,6 +21,7 @@ ntia-conformance-checker 5.0.0 requires Python 3.10 or newer.
 - BREAKING CHANGE: All `get_components_without_*` functions now return a
   unified `list[tuple[str, str]]` where each tuple is
   `(component_name, spdx_id)` ([#341]).
+
   Consumers should extract the preferred value (name or SPDX ID) as needed.
   For example:
 

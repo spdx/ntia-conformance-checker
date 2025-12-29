@@ -19,7 +19,11 @@ from ntia_conformance_checker import FSCT3Checker, NTIAChecker
 from ntia_conformance_checker.base_checker import validate_spdx3_data
 
 
-def _component_names_from_tuples(tuples_list: list[tuple[str, str]]) -> list[str]:
+def _component_names(tuples_list: list[tuple[str, str]]) -> list[str]:
+    """
+    Extract first element from list of tuples,
+    or second if first is None or empty.
+    """
     return [
         t[0] if t and t[0] not in (None, "") else (t[1] if t else "")
         for t in tuples_list
@@ -201,7 +205,7 @@ def test_sbomchecker_missing_component_version(test_file):
     assert sbom.dependency_relationships
     assert not sbom.components_without_names
     TestCase().assertCountEqual(
-        _component_names_from_tuples(sbom.components_without_versions), ["glibc"]
+        _component_names(sbom.components_without_versions), ["glibc"]
     )
     assert not sbom.components_without_suppliers
     assert not sbom.components_without_identifiers
@@ -226,7 +230,7 @@ def test_sbomchecker_missing_supplier_name(test_file):
     assert not sbom.components_without_names
     assert not sbom.components_without_versions
     TestCase().assertCountEqual(
-        _component_names_from_tuples(sbom.components_without_suppliers),
+        _component_names(sbom.components_without_suppliers),
         ["glibc", "Jena", "Saxon"],
     )
     assert not sbom.components_without_identifiers
@@ -268,7 +272,7 @@ def test_sbomchecker_tern_photon_example():
     )
     sbom = sbom_checker.SbomChecker(test_file)
     assert sbom.doc_author
-    assert _component_names_from_tuples(sbom.components_without_versions) == [
+    assert _component_names(sbom.components_without_versions) == [
         "5e94941e3961b26645fbfdc71a59d439537b98417546bfdab35fa074f121eb15",
         "bash",
     ]
@@ -286,7 +290,7 @@ def test_sbomchecker_bom_alpine_example():
     # currently checking only one component with a missing version
     assert (
         "sha256:850d4aa2c32a30db71a7e54dab7c605f74a4aeabf9418ccd9273b2480fcb6c04"
-        in _component_names_from_tuples(sbom.components_without_versions)
+        in _component_names(sbom.components_without_versions)
     )
 
 
