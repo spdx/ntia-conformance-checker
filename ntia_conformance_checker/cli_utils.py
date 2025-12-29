@@ -12,7 +12,7 @@ import logging
 import re
 import sys
 from importlib.metadata import version
-from typing import Any
+from typing import TYPE_CHECKING, Any
 
 from spdx_tools.spdx.parser.error import SPDXParsingError
 from spdx_tools.spdx.parser.parse_anything import parse_file as parse_spdx2_file
@@ -26,7 +26,9 @@ from .constants import (
     SUPPORTED_SBOM_SPECS_DESC,
     SUPPORTED_SPDX_VERSIONS,
 )
-from .sbom_checker import BaseChecker
+
+if TYPE_CHECKING:
+    from .sbom_checker import BaseChecker
 
 _OUTPUT_CHOICES = {
     "print": "Print report to console",
