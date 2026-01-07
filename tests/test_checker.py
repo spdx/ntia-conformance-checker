@@ -18,6 +18,18 @@ import ntia_conformance_checker.sbom_checker as sbom_checker
 from ntia_conformance_checker import FSCT3Checker, NTIAChecker
 from ntia_conformance_checker.base_checker import validate_spdx3_data
 
+
+def _component_names(tuples_list: list[tuple[str, str]]) -> list[str]:
+    """
+    Extract first element from list of tuples,
+    or second if first is None or empty.
+    """
+    return [
+        t[0] if t and t[0] not in (None, "") else (t[1] if t else "")
+        for t in tuples_list
+    ]
+
+
 ### Test no element missing
 
 dirname = os.path.join(os.path.dirname(__file__), "data", "no_elements_missing")
@@ -192,7 +204,9 @@ def test_sbomchecker_missing_component_version(test_file):
     assert sbom.doc_timestamp
     assert sbom.dependency_relationships
     assert not sbom.components_without_names
-    TestCase().assertCountEqual(sbom.components_without_versions, ["glibc"])
+    TestCase().assertCountEqual(
+        _component_names(sbom.components_without_versions), ["glibc"]
+    )
     assert not sbom.components_without_suppliers
     assert not sbom.components_without_identifiers
     assert not sbom.compliant
@@ -216,7 +230,8 @@ def test_sbomchecker_missing_supplier_name(test_file):
     assert not sbom.components_without_names
     assert not sbom.components_without_versions
     TestCase().assertCountEqual(
-        sbom.components_without_suppliers, ["glibc", "Jena", "Saxon"]
+        _component_names(sbom.components_without_suppliers),
+        ["glibc", "Jena", "Saxon"],
     )
     assert not sbom.components_without_identifiers
     assert not sbom.compliant
@@ -257,7 +272,7 @@ def test_sbomchecker_tern_photon_example():
     )
     sbom = sbom_checker.SbomChecker(test_file)
     assert sbom.doc_author
-    assert sbom.components_without_versions == [
+    assert _component_names(sbom.components_without_versions) == [
         "5e94941e3961b26645fbfdc71a59d439537b98417546bfdab35fa074f121eb15",
         "bash",
     ]
@@ -275,7 +290,7 @@ def test_sbomchecker_bom_alpine_example():
     # currently checking only one component with a missing version
     assert (
         "sha256:850d4aa2c32a30db71a7e54dab7c605f74a4aeabf9418ccd9273b2480fcb6c04"
-        in sbom.components_without_versions
+        in _component_names(sbom.components_without_versions)
     )
 
 
@@ -540,17 +555,13 @@ def test_components_without_functions():
     )
     sbom = sbom_checker.SbomChecker(filepath)
     components = sbom.get_components_without_names()
-    assert components == ["SPDXRef-Package1"]
+    assert components == [("", "SPDXRef-Package1")]
     components = sbom.get_components_without_versions()
-    assert components == ["glibc-no-version-1", "glibc-no-version-2"]
-    components = sbom.get_components_without_versions(return_tuples=True)
     assert components == [
         ("glibc-no-version-1", "SPDXRef-Package2"),
         ("glibc-no-version-2", "SPDXRef-Package3"),
     ]
     components = sbom.get_components_without_suppliers()
-    assert components == ["glibc-no-supplier"]
-    components = sbom.get_components_without_suppliers(return_tuples=True)
     assert components == [("glibc-no-supplier", "SPDXRef-Package4")]
     # Not sure how to test this.
     # If any package misses the SPDXID the whole file seems to be invalid.

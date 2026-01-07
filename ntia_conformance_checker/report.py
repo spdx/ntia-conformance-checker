@@ -30,7 +30,7 @@ class ReportContext:
     compliance_standard: str = ""
     compliant: bool = False
     requirement_results: list[tuple[str, bool]] | None = None
-    components_without_info: list[tuple[str, list[str]]] | None = None
+    components_without_info: list[tuple[str, list[tuple[str, str]]]] | None = None
     validation_messages: list[ValidationMessage] | None = None
     parsing_error: list[str] | None = None
 
@@ -255,11 +255,11 @@ def report_html(
         report.append("<table class='conformance-res-tab'>")
         report.append("<thead><tr><th>Requirement</th><th>Conformant</th></tr></thead>")
         report.append("<tbody>")
-        for component_name, val in rc.requirement_results:
+        for info_name, val in rc.requirement_results:
             report.append(
                 "<tr>"
                 "<td class='conformance-res-tab-r'>"
-                f"{component_name}</td>"
+                f"{info_name}</td>"
                 "<td class='conformance-res-tab-v'>"
                 f"{val}</td>"
                 "</tr>"
@@ -278,10 +278,13 @@ def report_html(
             "</p>"
         )
         report.append("<ul class='conformance-mis-list'>")
-        for component_name, components in rc.components_without_info:
+        for info_name, components in rc.components_without_info:
+            component_names = [
+                name if name not in (None, "") else id for name, id in components
+            ]
             report.append(
-                f"<li>{component_name} ({len(components)}): "
-                f"{', '.join(components)}</li>"
+                f"<li>{info_name} ({len(components)}): "
+                f"{', '.join(component_names)}</li>"
             )
         report.append("</ul>")
         report.append("</div>")
