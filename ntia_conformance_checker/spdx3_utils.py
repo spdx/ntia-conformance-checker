@@ -6,14 +6,16 @@
 
 from __future__ import annotations
 
-from collections.abc import Iterator
-from typing import Any, cast
+from typing import TYPE_CHECKING, Any, cast
 
 from spdx_python_model import v3_0_1 as spdx3  # type: ignore # import-untyped
 from spdx_tools.spdx.validation.validation_message import (
     ValidationContext,
     ValidationMessage,
 )
+
+if TYPE_CHECKING:
+    from collections.abc import Iterator
 
 
 def validate_spdx3_data(
