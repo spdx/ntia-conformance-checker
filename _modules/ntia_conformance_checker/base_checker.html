@@ -126,12 +126,14 @@
     <span class="n">validation_messages</span><span class="p">:</span> <span class="nb">list</span><span class="p">[</span><span class="n">ValidationMessage</span><span class="p">]</span> <span class="o">=</span> <span class="p">[]</span>
 
     <span class="n">sbom_name</span><span class="p">:</span> <span class="nb">str</span> <span class="o">=</span> <span class="s2">&quot;&quot;</span>
-    <span class="n">components_without_names</span><span class="p">:</span> <span class="nb">list</span><span class="p">[</span><span class="nb">str</span><span class="p">]</span> <span class="o">=</span> <span class="p">[]</span>
-    <span class="n">components_without_versions</span><span class="p">:</span> <span class="nb">list</span><span class="p">[</span><span class="nb">str</span><span class="p">]</span> <span class="o">=</span> <span class="p">[]</span>
-    <span class="n">components_without_suppliers</span><span class="p">:</span> <span class="nb">list</span><span class="p">[</span><span class="nb">str</span><span class="p">]</span> <span class="o">=</span> <span class="p">[]</span>
-    <span class="n">components_without_identifiers</span><span class="p">:</span> <span class="nb">list</span><span class="p">[</span><span class="nb">str</span><span class="p">]</span> <span class="o">=</span> <span class="p">[]</span>
-    <span class="n">components_without_concluded_licenses</span><span class="p">:</span> <span class="nb">list</span><span class="p">[</span><span class="nb">str</span><span class="p">]</span> <span class="o">=</span> <span class="p">[]</span>
-    <span class="n">components_without_copyright_texts</span><span class="p">:</span> <span class="nb">list</span><span class="p">[</span><span class="nb">str</span><span class="p">]</span> <span class="o">=</span> <span class="p">[]</span>
+    <span class="c1"># Lists of components missing required information.</span>
+    <span class="c1"># Each item is a tuple of (component name, component SPDX ID).</span>
+    <span class="n">components_without_names</span><span class="p">:</span> <span class="nb">list</span><span class="p">[</span><span class="nb">tuple</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="nb">str</span><span class="p">]]</span> <span class="o">=</span> <span class="p">[]</span>
+    <span class="n">components_without_versions</span><span class="p">:</span> <span class="nb">list</span><span class="p">[</span><span class="nb">tuple</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="nb">str</span><span class="p">]]</span> <span class="o">=</span> <span class="p">[]</span>
+    <span class="n">components_without_suppliers</span><span class="p">:</span> <span class="nb">list</span><span class="p">[</span><span class="nb">tuple</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="nb">str</span><span class="p">]]</span> <span class="o">=</span> <span class="p">[]</span>
+    <span class="n">components_without_identifiers</span><span class="p">:</span> <span class="nb">list</span><span class="p">[</span><span class="nb">tuple</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="nb">str</span><span class="p">]]</span> <span class="o">=</span> <span class="p">[]</span>
+    <span class="n">components_without_concluded_licenses</span><span class="p">:</span> <span class="nb">list</span><span class="p">[</span><span class="nb">tuple</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="nb">str</span><span class="p">]]</span> <span class="o">=</span> <span class="p">[]</span>
+    <span class="n">components_without_copyright_texts</span><span class="p">:</span> <span class="nb">list</span><span class="p">[</span><span class="nb">tuple</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="nb">str</span><span class="p">]]</span> <span class="o">=</span> <span class="p">[]</span>
 
     <span class="n">doc_version</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">False</span>  <span class="c1"># Has SPDX document version?</span>
     <span class="n">doc_author</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">False</span>  <span class="c1"># Has SPDX document author?</span>
@@ -213,25 +215,23 @@
             <span class="bp">self</span><span class="o">.</span><span class="n">dependency_relationships</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">check_dependency_relationships</span><span class="p">()</span>
 
             <span class="bp">self</span><span class="o">.</span><span class="n">components_without_names</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">get_components_without_names</span><span class="p">()</span>
-            <span class="bp">self</span><span class="o">.</span><span class="n">components_without_versions</span> <span class="o">=</span> <span class="n">cast</span><span class="p">(</span>
-                <span class="s2">&quot;list[str]&quot;</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">get_components_without_versions</span><span class="p">()</span>
-            <span class="p">)</span>  <span class="c1"># with return_tuples=False, always get list[str]</span>
-            <span class="bp">self</span><span class="o">.</span><span class="n">components_without_suppliers</span> <span class="o">=</span> <span class="n">cast</span><span class="p">(</span>
-                <span class="s2">&quot;list[str]&quot;</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">get_components_without_suppliers</span><span class="p">()</span>
-            <span class="p">)</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">components_without_versions</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">get_components_without_versions</span><span class="p">()</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">components_without_suppliers</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">get_components_without_suppliers</span><span class="p">()</span>
             <span class="bp">self</span><span class="o">.</span><span class="n">components_without_identifiers</span> <span class="o">=</span> <span class="p">(</span>
                 <span class="bp">self</span><span class="o">.</span><span class="n">get_components_without_identifiers</span><span class="p">()</span>
             <span class="p">)</span>
-            <span class="bp">self</span><span class="o">.</span><span class="n">components_without_concluded_licenses</span> <span class="o">=</span> <span class="n">cast</span><span class="p">(</span>
-                <span class="s2">&quot;list[str]&quot;</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">get_components_without_concluded_licenses</span><span class="p">()</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">components_without_concluded_licenses</span> <span class="o">=</span> <span class="p">(</span>
+                <span class="bp">self</span><span class="o">.</span><span class="n">get_components_without_concluded_licenses</span><span class="p">()</span>
             <span class="p">)</span>
-            <span class="bp">self</span><span class="o">.</span><span class="n">components_without_copyright_texts</span> <span class="o">=</span> <span class="n">cast</span><span class="p">(</span>
-                <span class="s2">&quot;list[str]&quot;</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">get_components_without_copyright_texts</span><span class="p">()</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">components_without_copyright_texts</span> <span class="o">=</span> <span class="p">(</span>
+                <span class="bp">self</span><span class="o">.</span><span class="n">get_components_without_copyright_texts</span><span class="p">()</span>
             <span class="p">)</span>
 
-            <span class="bp">self</span><span class="o">.</span><span class="n">all_components_without_info</span><span class="p">:</span> <span class="nb">list</span><span class="p">[</span><span class="nb">tuple</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="nb">list</span><span class="p">[</span><span class="nb">str</span><span class="p">]]]</span> <span class="o">=</span> <span class="p">(</span>
-                <span class="bp">self</span><span class="o">.</span><span class="n">_get_all_components_without_info</span><span class="p">()</span>
-            <span class="p">)</span>
+            <span class="c1"># List of (info_name, components) tuples,</span>
+            <span class="c1"># where components is a list of (component_name, spdx_id) tuples</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">all_components_without_info</span><span class="p">:</span> <span class="nb">list</span><span class="p">[</span>
+                <span class="nb">tuple</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="nb">list</span><span class="p">[</span><span class="nb">tuple</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="nb">str</span><span class="p">]]]</span>
+            <span class="p">]</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_get_all_components_without_info</span><span class="p">()</span>
 
         <span class="bp">self</span><span class="o">.</span><span class="n">table_elements</span><span class="p">:</span> <span class="nb">list</span><span class="p">[</span><span class="nb">tuple</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="nb">bool</span><span class="p">]]</span> <span class="o">=</span> <span class="p">[]</span>
 
@@ -309,13 +309,13 @@
         <span class="c1"># SPDX 3</span>
         <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">sbom_spec</span> <span class="o">==</span> <span class="s2">&quot;spdx3&quot;</span><span class="p">:</span>
             <span class="c1"># If a BOM/an SBOM&#39;s rootElement is a /Software/Package (or its subclass),</span>
-            <span class="c1"># it is considered to have a relationship.</span>
+            <span class="c1"># it is considered to have a dependency relationship.</span>
             <span class="c1">#</span>
             <span class="c1"># Note that if there is neither /Software/Package(s) nor /Core/Bom,</span>
             <span class="c1"># a DESCRIBES relationship is not needed; however, this method may still</span>
             <span class="c1"># return False, since it is factually considered as &quot;no relationship&quot;.</span>
 
-            <span class="c1"># There is a BOM and an /Software/Package,</span>
+            <span class="c1"># There is a BOM/SBOM and an /Software/Package,</span>
             <span class="c1"># check if there is at least one package listed in any BOM/SBOM</span>
             <span class="n">boms</span> <span class="o">=</span> <span class="n">get_boms_from_spdx_document</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">__spdx3_doc</span><span class="p">)</span>
             <span class="k">if</span> <span class="n">boms</span><span class="p">:</span>
@@ -410,24 +410,16 @@
         <span class="k">return</span> <span class="n">name</span></div>
 
 
-    <span class="c1"># pylint: disable=too-many-branches</span>
-    <span class="c1"># pylint: disable=too-many-return-statements</span>
 <div class="viewcode-block" id="BaseChecker.get_components_without_concluded_licenses">
 <a class="viewcode-back" href="../../ntia_conformance_checker.html#ntia_conformance_checker.base_checker.BaseChecker.get_components_without_concluded_licenses">[docs]</a>
-    <span class="k">def</span><span class="w"> </span><span class="nf">get_components_without_concluded_licenses</span><span class="p">(</span>
-        <span class="bp">self</span><span class="p">,</span> <span class="n">return_tuples</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">False</span>
-    <span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">list</span><span class="p">[</span><span class="nb">str</span><span class="p">]</span> <span class="o">|</span> <span class="nb">list</span><span class="p">[</span><span class="nb">tuple</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="nb">str</span><span class="p">]]:</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">get_components_without_concluded_licenses</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">list</span><span class="p">[</span><span class="nb">tuple</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="nb">str</span><span class="p">]]:</span>
 <span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
-<span class="sd">        Retrieve names and/or SPDX IDs of components without concluded licenses.</span>
-
-<span class="sd">        Args:</span>
-<span class="sd">            return_tuples (bool): If True, return a list of tuples with</span>
-<span class="sd">                                  component names and SPDX IDs.</span>
-<span class="sd">                                  If False, return a list of component names.</span>
+<span class="sd">        Retrieve components missing a concluded license.</span>
 
 <span class="sd">        Returns:</span>
-<span class="sd">            list[str] | list[tuple[str, str]]: A list of component names</span>
-<span class="sd">            or a list of tuples with component names and SPDX IDs.</span>
+<span class="sd">            list[tuple[str, str]]: A list of tuples of the form</span>
+<span class="sd">            (component_name, spdx_id). Consumers should extract the</span>
+<span class="sd">            preferred value (name or SPDX ID) as needed.</span>
 <span class="sd">        &quot;&quot;&quot;</span>
         <span class="c1"># Note: concluded license is mandatory in SPDX-2.2 and SPDX-2.3</span>
         <span class="k">if</span> <span class="ow">not</span> <span class="bp">self</span><span class="o">.</span><span class="n">doc</span><span class="p">:</span>
@@ -436,27 +428,12 @@
         <span class="c1"># SPDX 2</span>
         <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">sbom_spec</span> <span class="o">==</span> <span class="s2">&quot;spdx2&quot;</span><span class="p">:</span>
             <span class="bp">self</span><span class="o">.</span><span class="n">doc</span> <span class="o">=</span> <span class="n">cast</span><span class="p">(</span><span class="s2">&quot;Document&quot;</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">doc</span><span class="p">)</span>
-            <span class="k">if</span> <span class="ow">not</span> <span class="bp">self</span><span class="o">.</span><span class="n">doc</span><span class="o">.</span><span class="n">packages</span><span class="p">:</span>
-                <span class="k">return</span> <span class="p">[]</span>
+            <span class="n">packages</span> <span class="o">=</span> <span class="nb">getattr</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">doc</span><span class="p">,</span> <span class="s2">&quot;packages&quot;</span><span class="p">,</span> <span class="p">[])</span>
 
-            <span class="k">if</span> <span class="n">return_tuples</span><span class="p">:</span>
-                <span class="n">components_name_id</span><span class="p">:</span> <span class="nb">list</span><span class="p">[</span><span class="nb">tuple</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="nb">str</span><span class="p">]]</span> <span class="o">=</span> <span class="p">[]</span>
-                <span class="k">for</span> <span class="n">package</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">doc</span><span class="o">.</span><span class="n">packages</span><span class="p">:</span>
-                    <span class="n">no_license</span> <span class="o">=</span> <span class="p">(</span>
-                        <span class="n">package</span><span class="o">.</span><span class="n">license_concluded</span> <span class="ow">is</span> <span class="kc">None</span>
-                        <span class="ow">or</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">package</span><span class="o">.</span><span class="n">license_concluded</span><span class="p">,</span> <span class="n">SpdxNoAssertion</span><span class="p">)</span>
-                        <span class="ow">or</span> <span class="p">(</span>
-                            <span class="nb">isinstance</span><span class="p">(</span><span class="n">package</span><span class="o">.</span><span class="n">license_concluded</span><span class="p">,</span> <span class="nb">str</span><span class="p">)</span>
-                            <span class="ow">and</span> <span class="n">package</span><span class="o">.</span><span class="n">license_concluded</span><span class="o">.</span><span class="n">strip</span><span class="p">()</span> <span class="o">==</span> <span class="s2">&quot;&quot;</span>
-                        <span class="p">)</span>
-                    <span class="p">)</span>
-                    <span class="k">if</span> <span class="n">no_license</span><span class="p">:</span>
-                        <span class="n">components_name_id</span><span class="o">.</span><span class="n">append</span><span class="p">((</span><span class="n">package</span><span class="o">.</span><span class="n">name</span><span class="p">,</span> <span class="n">package</span><span class="o">.</span><span class="n">spdx_id</span><span class="p">))</span>
-                <span class="k">return</span> <span class="n">components_name_id</span>
-
-            <span class="n">components_name</span><span class="p">:</span> <span class="nb">list</span><span class="p">[</span><span class="nb">str</span><span class="p">]</span> <span class="o">=</span> <span class="p">[]</span>
-            <span class="k">for</span> <span class="n">package</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">doc</span><span class="o">.</span><span class="n">packages</span><span class="p">:</span>
-                <span class="n">no_license</span> <span class="o">=</span> <span class="p">(</span>
+            <span class="k">return</span> <span class="p">[</span>
+                <span class="p">(</span><span class="n">package</span><span class="o">.</span><span class="n">name</span> <span class="ow">or</span> <span class="s2">&quot;&quot;</span><span class="p">,</span> <span class="n">package</span><span class="o">.</span><span class="n">spdx_id</span> <span class="ow">or</span> <span class="s2">&quot;&quot;</span><span class="p">)</span>
+                <span class="k">for</span> <span class="n">package</span> <span class="ow">in</span> <span class="n">packages</span>
+                <span class="k">if</span> <span class="p">(</span>
                     <span class="n">package</span><span class="o">.</span><span class="n">license_concluded</span> <span class="ow">is</span> <span class="kc">None</span>
                     <span class="ow">or</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">package</span><span class="o">.</span><span class="n">license_concluded</span><span class="p">,</span> <span class="n">SpdxNoAssertion</span><span class="p">)</span>
                     <span class="ow">or</span> <span class="p">(</span>
@@ -464,9 +441,7 @@
                         <span class="ow">and</span> <span class="n">package</span><span class="o">.</span><span class="n">license_concluded</span><span class="o">.</span><span class="n">strip</span><span class="p">()</span> <span class="o">==</span> <span class="s2">&quot;&quot;</span>
                     <span class="p">)</span>
                 <span class="p">)</span>
-                <span class="k">if</span> <span class="n">no_license</span><span class="p">:</span>
-                    <span class="n">components_name</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">package</span><span class="o">.</span><span class="n">name</span><span class="p">)</span>
-            <span class="k">return</span> <span class="n">components_name</span>
+            <span class="p">]</span>
 
         <span class="c1"># SPDX 3</span>
         <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">sbom_spec</span> <span class="o">==</span> <span class="s2">&quot;spdx3&quot;</span><span class="p">:</span>
@@ -483,19 +458,8 @@
                 <span class="p">]</span>
             <span class="p">}</span>
 
-            <span class="k">if</span> <span class="n">return_tuples</span><span class="p">:</span>
-                <span class="k">return</span> <span class="p">[</span>
-                    <span class="p">(</span><span class="n">name</span><span class="p">,</span> <span class="n">spdx_id</span><span class="p">)</span>
-                    <span class="k">for</span> <span class="n">name</span><span class="p">,</span> <span class="n">spdx_id</span><span class="p">,</span> <span class="n">_</span> <span class="ow">in</span> <span class="n">iter_objects_with_property</span><span class="p">(</span>
-                        <span class="bp">self</span><span class="o">.</span><span class="n">doc</span><span class="p">,</span>
-                        <span class="n">spdx3</span><span class="o">.</span><span class="n">software_Package</span><span class="p">,</span>
-                        <span class="s2">&quot;spdxId&quot;</span><span class="p">,</span>
-                    <span class="p">)</span>
-                    <span class="k">if</span> <span class="n">spdx_id</span> <span class="ow">not</span> <span class="ow">in</span> <span class="n">has_concluded_license_ids</span>
-                <span class="p">]</span>
-
             <span class="k">return</span> <span class="p">[</span>
-                <span class="n">name</span>
+                <span class="p">(</span><span class="n">name</span> <span class="ow">or</span> <span class="s2">&quot;&quot;</span><span class="p">,</span> <span class="n">spdx_id</span> <span class="ow">or</span> <span class="s2">&quot;&quot;</span><span class="p">)</span>
                 <span class="k">for</span> <span class="n">name</span><span class="p">,</span> <span class="n">spdx_id</span><span class="p">,</span> <span class="n">_</span> <span class="ow">in</span> <span class="n">iter_objects_with_property</span><span class="p">(</span>
                     <span class="bp">self</span><span class="o">.</span><span class="n">doc</span><span class="p">,</span>
                     <span class="n">spdx3</span><span class="o">.</span><span class="n">software_Package</span><span class="p">,</span>
@@ -507,24 +471,16 @@
         <span class="k">return</span> <span class="p">[]</span></div>
 
 
-    <span class="c1"># pylint: disable=too-many-branches</span>
-    <span class="c1"># pylint: disable=too-many-return-statements</span>
 <div class="viewcode-block" id="BaseChecker.get_components_without_copyright_texts">
 <a class="viewcode-back" href="../../ntia_conformance_checker.html#ntia_conformance_checker.base_checker.BaseChecker.get_components_without_copyright_texts">[docs]</a>
-    <span class="k">def</span><span class="w"> </span><span class="nf">get_components_without_copyright_texts</span><span class="p">(</span>
-        <span class="bp">self</span><span class="p">,</span> <span class="n">return_tuples</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">False</span>
-    <span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">list</span><span class="p">[</span><span class="nb">str</span><span class="p">]</span> <span class="o">|</span> <span class="nb">list</span><span class="p">[</span><span class="nb">tuple</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="nb">str</span><span class="p">]]:</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">get_components_without_copyright_texts</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">list</span><span class="p">[</span><span class="nb">tuple</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="nb">str</span><span class="p">]]:</span>
 <span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
-<span class="sd">        Retrieve names and/or SPDX IDs of components without copyright texts.</span>
-
-<span class="sd">        Args:</span>
-<span class="sd">            return_tuples (bool): If True, return a list of tuples with</span>
-<span class="sd">                                  component names and SPDX IDs.</span>
-<span class="sd">                                  If False, return a list of component names.</span>
+<span class="sd">        Retrieve components missing a copyright text.</span>
 
 <span class="sd">        Returns:</span>
-<span class="sd">            list[str] | list[tuple[str, str]]: A list of component names</span>
-<span class="sd">            or a list of tuples with component names and SPDX IDs.</span>
+<span class="sd">            list[tuple[str, str]]: A list of tuples of the form</span>
+<span class="sd">            (component_name, spdx_id). Consumers should extract the</span>
+<span class="sd">            preferred value (name or SPDX ID) as needed.</span>
 <span class="sd">        &quot;&quot;&quot;</span>
         <span class="k">if</span> <span class="ow">not</span> <span class="bp">self</span><span class="o">.</span><span class="n">doc</span><span class="p">:</span>
             <span class="k">return</span> <span class="p">[]</span>
@@ -532,27 +488,12 @@
         <span class="c1"># SPDX 2</span>
         <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">sbom_spec</span> <span class="o">==</span> <span class="s2">&quot;spdx2&quot;</span><span class="p">:</span>
             <span class="bp">self</span><span class="o">.</span><span class="n">doc</span> <span class="o">=</span> <span class="n">cast</span><span class="p">(</span><span class="s2">&quot;Document&quot;</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">doc</span><span class="p">)</span>
-            <span class="k">if</span> <span class="ow">not</span> <span class="bp">self</span><span class="o">.</span><span class="n">doc</span><span class="o">.</span><span class="n">packages</span><span class="p">:</span>
-                <span class="k">return</span> <span class="p">[]</span>
+            <span class="n">packages</span> <span class="o">=</span> <span class="nb">getattr</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">doc</span><span class="p">,</span> <span class="s2">&quot;packages&quot;</span><span class="p">,</span> <span class="p">[])</span>
 
-            <span class="k">if</span> <span class="n">return_tuples</span><span class="p">:</span>
-                <span class="n">components_name_id</span><span class="p">:</span> <span class="nb">list</span><span class="p">[</span><span class="nb">tuple</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="nb">str</span><span class="p">]]</span> <span class="o">=</span> <span class="p">[]</span>
-                <span class="k">for</span> <span class="n">package</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">doc</span><span class="o">.</span><span class="n">packages</span><span class="p">:</span>
-                    <span class="n">no_license</span> <span class="o">=</span> <span class="p">(</span>
-                        <span class="n">package</span><span class="o">.</span><span class="n">copyright_text</span> <span class="ow">is</span> <span class="kc">None</span>
-                        <span class="ow">or</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">package</span><span class="o">.</span><span class="n">copyright_text</span><span class="p">,</span> <span class="n">SpdxNoAssertion</span><span class="p">)</span>
-                        <span class="ow">or</span> <span class="p">(</span>
-                            <span class="nb">isinstance</span><span class="p">(</span><span class="n">package</span><span class="o">.</span><span class="n">copyright_text</span><span class="p">,</span> <span class="nb">str</span><span class="p">)</span>
-                            <span class="ow">and</span> <span class="n">package</span><span class="o">.</span><span class="n">copyright_text</span><span class="o">.</span><span class="n">strip</span><span class="p">()</span> <span class="o">==</span> <span class="s2">&quot;&quot;</span>
-                        <span class="p">)</span>
-                    <span class="p">)</span>
-                    <span class="k">if</span> <span class="n">no_license</span><span class="p">:</span>
-                        <span class="n">components_name_id</span><span class="o">.</span><span class="n">append</span><span class="p">((</span><span class="n">package</span><span class="o">.</span><span class="n">name</span><span class="p">,</span> <span class="n">package</span><span class="o">.</span><span class="n">spdx_id</span><span class="p">))</span>
-                <span class="k">return</span> <span class="n">components_name_id</span>
-
-            <span class="n">components_name</span><span class="p">:</span> <span class="nb">list</span><span class="p">[</span><span class="nb">str</span><span class="p">]</span> <span class="o">=</span> <span class="p">[]</span>
-            <span class="k">for</span> <span class="n">package</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">doc</span><span class="o">.</span><span class="n">packages</span><span class="p">:</span>
-                <span class="n">no_license</span> <span class="o">=</span> <span class="p">(</span>
+            <span class="k">return</span> <span class="p">[</span>
+                <span class="p">(</span><span class="n">package</span><span class="o">.</span><span class="n">name</span> <span class="ow">or</span> <span class="s2">&quot;&quot;</span><span class="p">,</span> <span class="n">package</span><span class="o">.</span><span class="n">spdx_id</span> <span class="ow">or</span> <span class="s2">&quot;&quot;</span><span class="p">)</span>
+                <span class="k">for</span> <span class="n">package</span> <span class="ow">in</span> <span class="n">packages</span>
+                <span class="k">if</span> <span class="p">(</span>
                     <span class="n">package</span><span class="o">.</span><span class="n">copyright_text</span> <span class="ow">is</span> <span class="kc">None</span>
                     <span class="ow">or</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">package</span><span class="o">.</span><span class="n">copyright_text</span><span class="p">,</span> <span class="n">SpdxNoAssertion</span><span class="p">)</span>
                     <span class="ow">or</span> <span class="p">(</span>
@@ -560,32 +501,18 @@
                         <span class="ow">and</span> <span class="n">package</span><span class="o">.</span><span class="n">copyright_text</span><span class="o">.</span><span class="n">strip</span><span class="p">()</span> <span class="o">==</span> <span class="s2">&quot;&quot;</span>
                     <span class="p">)</span>
                 <span class="p">)</span>
-                <span class="k">if</span> <span class="n">no_license</span><span class="p">:</span>
-                    <span class="n">components_name</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">package</span><span class="o">.</span><span class="n">name</span><span class="p">)</span>
-            <span class="k">return</span> <span class="n">components_name</span>
+            <span class="p">]</span>
 
         <span class="c1"># SPDX 3</span>
         <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">sbom_spec</span> <span class="o">==</span> <span class="s2">&quot;spdx3&quot;</span><span class="p">:</span>
             <span class="bp">self</span><span class="o">.</span><span class="n">doc</span> <span class="o">=</span> <span class="n">cast</span><span class="p">(</span><span class="s2">&quot;spdx3.SHACLObjectSet&quot;</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">doc</span><span class="p">)</span>
 
-            <span class="k">if</span> <span class="n">return_tuples</span><span class="p">:</span>
-                <span class="k">return</span> <span class="p">[</span>
-                    <span class="p">(</span><span class="n">name</span><span class="p">,</span> <span class="n">spdx_id</span><span class="p">)</span>
-                    <span class="k">for</span> <span class="n">name</span><span class="p">,</span> <span class="n">spdx_id</span><span class="p">,</span> <span class="n">copyright_text</span> <span class="ow">in</span> <span class="n">iter_objects_with_property</span><span class="p">(</span>
-                        <span class="bp">self</span><span class="o">.</span><span class="n">doc</span><span class="p">,</span>
-                        <span class="n">spdx3</span><span class="o">.</span><span class="n">software_Package</span><span class="p">,</span>
-                        <span class="s2">&quot;software_copyrightText&quot;</span><span class="p">,</span>
-                    <span class="p">)</span>
-                    <span class="k">if</span> <span class="ow">not</span> <span class="n">copyright_text</span>
-                    <span class="ow">or</span> <span class="p">(</span>
-                        <span class="nb">isinstance</span><span class="p">(</span><span class="n">copyright_text</span><span class="p">,</span> <span class="nb">str</span><span class="p">)</span> <span class="ow">and</span> <span class="n">copyright_text</span><span class="o">.</span><span class="n">strip</span><span class="p">()</span> <span class="o">==</span> <span class="s2">&quot;&quot;</span>
-                    <span class="p">)</span>
-                <span class="p">]</span>
-
             <span class="k">return</span> <span class="p">[</span>
-                <span class="n">name</span>
-                <span class="k">for</span> <span class="n">name</span><span class="p">,</span> <span class="n">_</span><span class="p">,</span> <span class="n">copyright_text</span> <span class="ow">in</span> <span class="n">iter_objects_with_property</span><span class="p">(</span>
-                    <span class="bp">self</span><span class="o">.</span><span class="n">doc</span><span class="p">,</span> <span class="n">spdx3</span><span class="o">.</span><span class="n">software_Package</span><span class="p">,</span> <span class="s2">&quot;software_copyrightText&quot;</span>
+                <span class="p">(</span><span class="n">name</span> <span class="ow">or</span> <span class="s2">&quot;&quot;</span><span class="p">,</span> <span class="n">spdx_id</span> <span class="ow">or</span> <span class="s2">&quot;&quot;</span><span class="p">)</span>
+                <span class="k">for</span> <span class="n">name</span><span class="p">,</span> <span class="n">spdx_id</span><span class="p">,</span> <span class="n">copyright_text</span> <span class="ow">in</span> <span class="n">iter_objects_with_property</span><span class="p">(</span>
+                    <span class="bp">self</span><span class="o">.</span><span class="n">doc</span><span class="p">,</span>
+                    <span class="n">spdx3</span><span class="o">.</span><span class="n">software_Package</span><span class="p">,</span>
+                    <span class="s2">&quot;software_copyrightText&quot;</span><span class="p">,</span>
                 <span class="p">)</span>
                 <span class="k">if</span> <span class="ow">not</span> <span class="n">copyright_text</span>
                 <span class="ow">or</span> <span class="p">(</span><span class="nb">isinstance</span><span class="p">(</span><span class="n">copyright_text</span><span class="p">,</span> <span class="nb">str</span><span class="p">)</span> <span class="ow">and</span> <span class="n">copyright_text</span><span class="o">.</span><span class="n">strip</span><span class="p">()</span> <span class="o">==</span> <span class="s2">&quot;&quot;</span><span class="p">)</span>
@@ -596,17 +523,19 @@
 
 <div class="viewcode-block" id="BaseChecker.get_components_without_identifiers">
 <a class="viewcode-back" href="../../ntia_conformance_checker.html#ntia_conformance_checker.base_checker.BaseChecker.get_components_without_identifiers">[docs]</a>
-    <span class="k">def</span><span class="w"> </span><span class="nf">get_components_without_identifiers</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">list</span><span class="p">[</span><span class="nb">str</span><span class="p">]:</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">get_components_without_identifiers</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">list</span><span class="p">[</span><span class="nb">tuple</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="nb">str</span><span class="p">]]:</span>
 <span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
-<span class="sd">        Retrieve name of components without identifiers.</span>
+<span class="sd">        Retrieve components missing unique identifiers (SPDX IDs).</span>
 
 <span class="sd">        Note that SPDX 3 requires identifiers for all elements,</span>
 <span class="sd">        so this should not happen in a valid SPDX 3 document.</span>
-<span class="sd">        spdx-python-model JSON deserializer will raise a ValueError</span>
+<span class="sd">        The spdx-python-model JSON deserializer will raise a ValueError</span>
 <span class="sd">        if any element is missing an identifier.</span>
 
 <span class="sd">        Returns:</span>
-<span class="sd">            list[str]: A list of component names.</span>
+<span class="sd">            list[tuple[str, str]]: A list of tuples of the form</span>
+<span class="sd">            (component_name, spdx_id). Consumers should extract the</span>
+<span class="sd">            preferred value (name or SPDX ID) as needed.</span>
 <span class="sd">        &quot;&quot;&quot;</span>
         <span class="k">if</span> <span class="ow">not</span> <span class="bp">self</span><span class="o">.</span><span class="n">doc</span><span class="p">:</span>
             <span class="k">return</span> <span class="p">[]</span>
@@ -614,10 +543,18 @@
         <span class="c1"># SPDX 2</span>
         <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">sbom_spec</span> <span class="o">==</span> <span class="s2">&quot;spdx2&quot;</span><span class="p">:</span>
             <span class="bp">self</span><span class="o">.</span><span class="n">doc</span> <span class="o">=</span> <span class="n">cast</span><span class="p">(</span><span class="s2">&quot;Document&quot;</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">doc</span><span class="p">)</span>
-            <span class="k">if</span> <span class="ow">not</span> <span class="bp">self</span><span class="o">.</span><span class="n">doc</span><span class="o">.</span><span class="n">packages</span><span class="p">:</span>
-                <span class="k">return</span> <span class="p">[]</span>
+            <span class="n">packages</span> <span class="o">=</span> <span class="nb">getattr</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">doc</span><span class="p">,</span> <span class="s2">&quot;packages&quot;</span><span class="p">,</span> <span class="p">[])</span>
+
             <span class="k">return</span> <span class="p">[</span>
-                <span class="n">package</span><span class="o">.</span><span class="n">name</span> <span class="k">for</span> <span class="n">package</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">doc</span><span class="o">.</span><span class="n">packages</span> <span class="k">if</span> <span class="ow">not</span> <span class="n">package</span><span class="o">.</span><span class="n">spdx_id</span>
+                <span class="p">(</span><span class="n">package</span><span class="o">.</span><span class="n">name</span> <span class="ow">or</span> <span class="s2">&quot;&quot;</span><span class="p">,</span> <span class="n">package</span><span class="o">.</span><span class="n">spdx_id</span> <span class="ow">or</span> <span class="s2">&quot;&quot;</span><span class="p">)</span>
+                <span class="k">for</span> <span class="n">package</span> <span class="ow">in</span> <span class="n">packages</span>
+                <span class="k">if</span> <span class="p">(</span>
+                    <span class="n">package</span><span class="o">.</span><span class="n">spdx_id</span> <span class="ow">is</span> <span class="kc">None</span>
+                    <span class="ow">or</span> <span class="p">(</span>
+                        <span class="nb">isinstance</span><span class="p">(</span><span class="n">package</span><span class="o">.</span><span class="n">spdx_id</span><span class="p">,</span> <span class="nb">str</span><span class="p">)</span>
+                        <span class="ow">and</span> <span class="n">package</span><span class="o">.</span><span class="n">spdx_id</span><span class="o">.</span><span class="n">strip</span><span class="p">()</span> <span class="o">==</span> <span class="s2">&quot;&quot;</span>
+                    <span class="p">)</span>
+                <span class="p">)</span>
             <span class="p">]</span>
 
         <span class="c1"># SPDX 3</span>
@@ -625,7 +562,7 @@
             <span class="bp">self</span><span class="o">.</span><span class="n">doc</span> <span class="o">=</span> <span class="n">cast</span><span class="p">(</span><span class="s2">&quot;spdx3.SHACLObjectSet&quot;</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">doc</span><span class="p">)</span>
 
             <span class="k">return</span> <span class="p">[</span>
-                <span class="n">name</span>
+                <span class="p">(</span><span class="n">name</span> <span class="ow">or</span> <span class="s2">&quot;&quot;</span><span class="p">,</span> <span class="n">spdx_id</span> <span class="ow">or</span> <span class="s2">&quot;&quot;</span><span class="p">)</span>
                 <span class="k">for</span> <span class="n">name</span><span class="p">,</span> <span class="n">_</span><span class="p">,</span> <span class="n">spdx_id</span> <span class="ow">in</span> <span class="n">iter_objects_with_property</span><span class="p">(</span>
                     <span class="bp">self</span><span class="o">.</span><span class="n">doc</span><span class="p">,</span> <span class="n">spdx3</span><span class="o">.</span><span class="n">Element</span><span class="p">,</span> <span class="s2">&quot;spdxId&quot;</span>
                 <span class="p">)</span>
@@ -637,12 +574,14 @@
 
 <div class="viewcode-block" id="BaseChecker.get_components_without_names">
 <a class="viewcode-back" href="../../ntia_conformance_checker.html#ntia_conformance_checker.base_checker.BaseChecker.get_components_without_names">[docs]</a>
-    <span class="k">def</span><span class="w"> </span><span class="nf">get_components_without_names</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">list</span><span class="p">[</span><span class="nb">str</span><span class="p">]:</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">get_components_without_names</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">list</span><span class="p">[</span><span class="nb">tuple</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="nb">str</span><span class="p">]]:</span>
 <span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
-<span class="sd">        Retrieve SPDX ID of components without names.</span>
+<span class="sd">        Retrieve components missing a name.</span>
 
 <span class="sd">        Returns:</span>
-<span class="sd">            list[str]: A list of component SPDX IDs.</span>
+<span class="sd">            list[tuple[str, str]]: A list of tuples of the form</span>
+<span class="sd">            (component_name, spdx_id). Consumers should extract the</span>
+<span class="sd">            preferred value (name or SPDX ID) as needed.</span>
 <span class="sd">        &quot;&quot;&quot;</span>
         <span class="k">if</span> <span class="ow">not</span> <span class="bp">self</span><span class="o">.</span><span class="n">doc</span><span class="p">:</span>
             <span class="k">return</span> <span class="p">[]</span>
@@ -650,20 +589,23 @@
         <span class="c1"># SPDX 2</span>
         <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">sbom_spec</span> <span class="o">==</span> <span class="s2">&quot;spdx2&quot;</span><span class="p">:</span>
             <span class="bp">self</span><span class="o">.</span><span class="n">doc</span> <span class="o">=</span> <span class="n">cast</span><span class="p">(</span><span class="s2">&quot;Document&quot;</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">doc</span><span class="p">)</span>
-            <span class="k">if</span> <span class="ow">not</span> <span class="bp">self</span><span class="o">.</span><span class="n">doc</span><span class="o">.</span><span class="n">packages</span><span class="p">:</span>
-                <span class="k">return</span> <span class="p">[]</span>
-            <span class="n">components_without_names</span><span class="p">:</span> <span class="nb">list</span><span class="p">[</span><span class="nb">str</span><span class="p">]</span> <span class="o">=</span> <span class="p">[]</span>
-            <span class="k">for</span> <span class="n">package</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">doc</span><span class="o">.</span><span class="n">packages</span><span class="p">:</span>
-                <span class="k">if</span> <span class="ow">not</span> <span class="n">package</span><span class="o">.</span><span class="n">name</span><span class="p">:</span>
-                    <span class="n">components_without_names</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">package</span><span class="o">.</span><span class="n">spdx_id</span><span class="p">)</span>
-            <span class="k">return</span> <span class="n">components_without_names</span>
+            <span class="n">packages</span> <span class="o">=</span> <span class="nb">getattr</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">doc</span><span class="p">,</span> <span class="s2">&quot;packages&quot;</span><span class="p">,</span> <span class="p">[])</span>
+
+            <span class="k">return</span> <span class="p">[</span>
+                <span class="p">(</span><span class="n">package</span><span class="o">.</span><span class="n">name</span> <span class="ow">or</span> <span class="s2">&quot;&quot;</span><span class="p">,</span> <span class="n">package</span><span class="o">.</span><span class="n">spdx_id</span> <span class="ow">or</span> <span class="s2">&quot;&quot;</span><span class="p">)</span>
+                <span class="k">for</span> <span class="n">package</span> <span class="ow">in</span> <span class="n">packages</span>
+                <span class="k">if</span> <span class="p">(</span>
+                    <span class="n">package</span><span class="o">.</span><span class="n">name</span> <span class="ow">is</span> <span class="kc">None</span>
+                    <span class="ow">or</span> <span class="p">(</span><span class="nb">isinstance</span><span class="p">(</span><span class="n">package</span><span class="o">.</span><span class="n">name</span><span class="p">,</span> <span class="nb">str</span><span class="p">)</span> <span class="ow">and</span> <span class="n">package</span><span class="o">.</span><span class="n">name</span><span class="o">.</span><span class="n">strip</span><span class="p">()</span> <span class="o">==</span> <span class="s2">&quot;&quot;</span><span class="p">)</span>
+                <span class="p">)</span>
+            <span class="p">]</span>
 
         <span class="c1"># SPDX 3</span>
         <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">sbom_spec</span> <span class="o">==</span> <span class="s2">&quot;spdx3&quot;</span><span class="p">:</span>
             <span class="bp">self</span><span class="o">.</span><span class="n">doc</span> <span class="o">=</span> <span class="n">cast</span><span class="p">(</span><span class="s2">&quot;spdx3.SHACLObjectSet&quot;</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">doc</span><span class="p">)</span>
 
             <span class="k">return</span> <span class="p">[</span>
-                <span class="n">spdx_id</span>
+                <span class="p">(</span><span class="n">name</span> <span class="ow">or</span> <span class="s2">&quot;&quot;</span><span class="p">,</span> <span class="n">spdx_id</span> <span class="ow">or</span> <span class="s2">&quot;&quot;</span><span class="p">)</span>
                 <span class="k">for</span> <span class="n">_</span><span class="p">,</span> <span class="n">spdx_id</span><span class="p">,</span> <span class="n">name</span> <span class="ow">in</span> <span class="n">iter_objects_with_property</span><span class="p">(</span>
                     <span class="bp">self</span><span class="o">.</span><span class="n">doc</span><span class="p">,</span> <span class="n">spdx3</span><span class="o">.</span><span class="n">software_Package</span><span class="p">,</span> <span class="s2">&quot;name&quot;</span>
                 <span class="p">)</span>
@@ -673,24 +615,16 @@
         <span class="k">return</span> <span class="p">[]</span></div>
 
 
-    <span class="c1"># pylint: disable=too-many-branches</span>
-    <span class="c1"># pylint: disable=too-many-return-statements</span>
 <div class="viewcode-block" id="BaseChecker.get_components_without_suppliers">
 <a class="viewcode-back" href="../../ntia_conformance_checker.html#ntia_conformance_checker.base_checker.BaseChecker.get_components_without_suppliers">[docs]</a>
-    <span class="k">def</span><span class="w"> </span><span class="nf">get_components_without_suppliers</span><span class="p">(</span>
-        <span class="bp">self</span><span class="p">,</span> <span class="n">return_tuples</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">False</span>
-    <span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">list</span><span class="p">[</span><span class="nb">str</span><span class="p">]</span> <span class="o">|</span> <span class="nb">list</span><span class="p">[</span><span class="nb">tuple</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="nb">str</span><span class="p">]]:</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">get_components_without_suppliers</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">list</span><span class="p">[</span><span class="nb">tuple</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="nb">str</span><span class="p">]]:</span>
 <span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
-<span class="sd">        Retrieve names and/or SPDX IDs of components without suppliers.</span>
-
-<span class="sd">        Args:</span>
-<span class="sd">            return_tuples (bool): If True, return a list of tuples with</span>
-<span class="sd">                                  component names and SPDX IDs.</span>
-<span class="sd">                                  If False, return a list of component names.</span>
+<span class="sd">        Retrieve components missing supplier information.</span>
 
 <span class="sd">        Returns:</span>
-<span class="sd">            list[str] | list[tuple[str, str]]: A list of component names</span>
-<span class="sd">            or a list of tuples with component names and SPDX IDs.</span>
+<span class="sd">            list[tuple[str, str]]: A list of tuples of the form</span>
+<span class="sd">            (component_name, spdx_id). Consumers should extract the</span>
+<span class="sd">            preferred value (name or SPDX ID) as needed.</span>
 <span class="sd">        &quot;&quot;&quot;</span>
         <span class="k">if</span> <span class="ow">not</span> <span class="bp">self</span><span class="o">.</span><span class="n">doc</span><span class="p">:</span>
             <span class="k">return</span> <span class="p">[]</span>
@@ -698,44 +632,28 @@
         <span class="c1"># SPDX 2</span>
         <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">sbom_spec</span> <span class="o">==</span> <span class="s2">&quot;spdx2&quot;</span><span class="p">:</span>
             <span class="bp">self</span><span class="o">.</span><span class="n">doc</span> <span class="o">=</span> <span class="n">cast</span><span class="p">(</span><span class="s2">&quot;Document&quot;</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">doc</span><span class="p">)</span>
-            <span class="k">if</span> <span class="ow">not</span> <span class="bp">self</span><span class="o">.</span><span class="n">doc</span><span class="o">.</span><span class="n">packages</span><span class="p">:</span>
-                <span class="k">return</span> <span class="p">[]</span>
+            <span class="n">packages</span> <span class="o">=</span> <span class="nb">getattr</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">doc</span><span class="p">,</span> <span class="s2">&quot;packages&quot;</span><span class="p">,</span> <span class="p">[])</span>
 
-            <span class="k">if</span> <span class="n">return_tuples</span><span class="p">:</span>
-                <span class="n">components_name_id</span><span class="p">:</span> <span class="nb">list</span><span class="p">[</span><span class="nb">tuple</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="nb">str</span><span class="p">]]</span> <span class="o">=</span> <span class="p">[]</span>
-                <span class="k">for</span> <span class="n">package</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">doc</span><span class="o">.</span><span class="n">packages</span><span class="p">:</span>
-                    <span class="n">no_supplier</span> <span class="o">=</span> <span class="n">package</span><span class="o">.</span><span class="n">supplier</span> <span class="ow">is</span> <span class="kc">None</span> <span class="ow">or</span> <span class="nb">isinstance</span><span class="p">(</span>
-                        <span class="n">package</span><span class="o">.</span><span class="n">supplier</span><span class="p">,</span> <span class="n">SpdxNoAssertion</span>
+            <span class="k">return</span> <span class="p">[</span>
+                <span class="p">(</span><span class="n">package</span><span class="o">.</span><span class="n">name</span> <span class="ow">or</span> <span class="s2">&quot;&quot;</span><span class="p">,</span> <span class="n">package</span><span class="o">.</span><span class="n">spdx_id</span> <span class="ow">or</span> <span class="s2">&quot;&quot;</span><span class="p">)</span>
+                <span class="k">for</span> <span class="n">package</span> <span class="ow">in</span> <span class="n">packages</span>
+                <span class="k">if</span> <span class="p">(</span>
+                    <span class="n">package</span><span class="o">.</span><span class="n">supplier</span> <span class="ow">is</span> <span class="kc">None</span>
+                    <span class="ow">or</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">package</span><span class="o">.</span><span class="n">supplier</span><span class="p">,</span> <span class="n">SpdxNoAssertion</span><span class="p">)</span>
+                    <span class="ow">or</span> <span class="p">(</span>
+                        <span class="nb">isinstance</span><span class="p">(</span><span class="n">package</span><span class="o">.</span><span class="n">supplier</span><span class="p">,</span> <span class="nb">str</span><span class="p">)</span>
+                        <span class="ow">and</span> <span class="n">package</span><span class="o">.</span><span class="n">supplier</span><span class="o">.</span><span class="n">strip</span><span class="p">()</span> <span class="o">==</span> <span class="s2">&quot;&quot;</span>
                     <span class="p">)</span>
-                    <span class="k">if</span> <span class="n">no_supplier</span><span class="p">:</span>
-                        <span class="n">components_name_id</span><span class="o">.</span><span class="n">append</span><span class="p">((</span><span class="n">package</span><span class="o">.</span><span class="n">name</span><span class="p">,</span> <span class="n">package</span><span class="o">.</span><span class="n">spdx_id</span><span class="p">))</span>
-                <span class="k">return</span> <span class="n">components_name_id</span>
-
-            <span class="n">components_name</span><span class="p">:</span> <span class="nb">list</span><span class="p">[</span><span class="nb">str</span><span class="p">]</span> <span class="o">=</span> <span class="p">[]</span>
-            <span class="k">for</span> <span class="n">package</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">doc</span><span class="o">.</span><span class="n">packages</span><span class="p">:</span>
-                <span class="n">no_supplier</span> <span class="o">=</span> <span class="n">package</span><span class="o">.</span><span class="n">supplier</span> <span class="ow">is</span> <span class="kc">None</span> <span class="ow">or</span> <span class="nb">isinstance</span><span class="p">(</span>
-                    <span class="n">package</span><span class="o">.</span><span class="n">supplier</span><span class="p">,</span> <span class="n">SpdxNoAssertion</span>
                 <span class="p">)</span>
-                <span class="k">if</span> <span class="n">no_supplier</span><span class="p">:</span>
-                    <span class="n">components_name</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">package</span><span class="o">.</span><span class="n">name</span><span class="p">)</span>
-            <span class="k">return</span> <span class="n">components_name</span>
+            <span class="p">]</span>
 
         <span class="c1"># SPDX 3</span>
         <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">sbom_spec</span> <span class="o">==</span> <span class="s2">&quot;spdx3&quot;</span><span class="p">:</span>
             <span class="bp">self</span><span class="o">.</span><span class="n">doc</span> <span class="o">=</span> <span class="n">cast</span><span class="p">(</span><span class="s2">&quot;spdx3.SHACLObjectSet&quot;</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">doc</span><span class="p">)</span>
 
-            <span class="k">if</span> <span class="n">return_tuples</span><span class="p">:</span>
-                <span class="k">return</span> <span class="p">[</span>
-                    <span class="p">(</span><span class="n">name</span><span class="p">,</span> <span class="n">spdx_id</span><span class="p">)</span>
-                    <span class="k">for</span> <span class="n">name</span><span class="p">,</span> <span class="n">spdx_id</span><span class="p">,</span> <span class="n">supplier</span> <span class="ow">in</span> <span class="n">iter_objects_with_property</span><span class="p">(</span>
-                        <span class="bp">self</span><span class="o">.</span><span class="n">doc</span><span class="p">,</span> <span class="n">spdx3</span><span class="o">.</span><span class="n">software_Package</span><span class="p">,</span> <span class="s2">&quot;suppliedBy&quot;</span>
-                    <span class="p">)</span>
-                    <span class="k">if</span> <span class="ow">not</span> <span class="n">supplier</span> <span class="ow">or</span> <span class="ow">not</span> <span class="n">supplier</span><span class="o">.</span><span class="n">name</span> <span class="ow">or</span> <span class="n">supplier</span><span class="o">.</span><span class="n">name</span><span class="o">.</span><span class="n">strip</span><span class="p">()</span> <span class="o">==</span> <span class="s2">&quot;&quot;</span>
-                <span class="p">]</span>
-
             <span class="k">return</span> <span class="p">[</span>
-                <span class="n">name</span>
-                <span class="k">for</span> <span class="n">name</span><span class="p">,</span> <span class="n">_</span><span class="p">,</span> <span class="n">supplier</span> <span class="ow">in</span> <span class="n">iter_objects_with_property</span><span class="p">(</span>
+                <span class="p">(</span><span class="n">name</span> <span class="ow">or</span> <span class="s2">&quot;&quot;</span><span class="p">,</span> <span class="n">spdx_id</span> <span class="ow">or</span> <span class="s2">&quot;&quot;</span><span class="p">)</span>
+                <span class="k">for</span> <span class="n">name</span><span class="p">,</span> <span class="n">spdx_id</span><span class="p">,</span> <span class="n">supplier</span> <span class="ow">in</span> <span class="n">iter_objects_with_property</span><span class="p">(</span>
                     <span class="bp">self</span><span class="o">.</span><span class="n">doc</span><span class="p">,</span> <span class="n">spdx3</span><span class="o">.</span><span class="n">software_Package</span><span class="p">,</span> <span class="s2">&quot;suppliedBy&quot;</span>
                 <span class="p">)</span>
                 <span class="k">if</span> <span class="ow">not</span> <span class="n">supplier</span> <span class="ow">or</span> <span class="ow">not</span> <span class="n">supplier</span><span class="o">.</span><span class="n">name</span> <span class="ow">or</span> <span class="n">supplier</span><span class="o">.</span><span class="n">name</span><span class="o">.</span><span class="n">strip</span><span class="p">()</span> <span class="o">==</span> <span class="s2">&quot;&quot;</span>
@@ -746,20 +664,14 @@
 
 <div class="viewcode-block" id="BaseChecker.get_components_without_versions">
 <a class="viewcode-back" href="../../ntia_conformance_checker.html#ntia_conformance_checker.base_checker.BaseChecker.get_components_without_versions">[docs]</a>
-    <span class="k">def</span><span class="w"> </span><span class="nf">get_components_without_versions</span><span class="p">(</span>
-        <span class="bp">self</span><span class="p">,</span> <span class="n">return_tuples</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">False</span>
-    <span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">list</span><span class="p">[</span><span class="nb">str</span><span class="p">]</span> <span class="o">|</span> <span class="nb">list</span><span class="p">[</span><span class="nb">tuple</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="nb">str</span><span class="p">]]:</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">get_components_without_versions</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">list</span><span class="p">[</span><span class="nb">tuple</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="nb">str</span><span class="p">]]:</span>
 <span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
-<span class="sd">        Retrieve name and/or SPDX ID of components without versions.</span>
-
-<span class="sd">        Args:</span>
-<span class="sd">            return_tuples (bool): If True, return a list of tuples with</span>
-<span class="sd">                                  component names and SPDX IDs.</span>
-<span class="sd">                                  If False, return a list of component names.</span>
+<span class="sd">        Retrieve components missing version information.</span>
 
 <span class="sd">        Returns:</span>
-<span class="sd">            list[str] | list[tuple[str, str]]: A list of component names</span>
-<span class="sd">            or a list of tuples with component names and SPDX IDs.</span>
+<span class="sd">            list[tuple[str, str]]: A list of tuples of the form</span>
+<span class="sd">            (component_name, spdx_id). Consumers should extract the</span>
+<span class="sd">            preferred value (name or SPDX ID) as needed.</span>
 <span class="sd">        &quot;&quot;&quot;</span>
         <span class="k">if</span> <span class="ow">not</span> <span class="bp">self</span><span class="o">.</span><span class="n">doc</span><span class="p">:</span>
             <span class="k">return</span> <span class="p">[]</span>
@@ -767,38 +679,28 @@
         <span class="c1"># SPDX 2</span>
         <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">sbom_spec</span> <span class="o">==</span> <span class="s2">&quot;spdx2&quot;</span><span class="p">:</span>
             <span class="bp">self</span><span class="o">.</span><span class="n">doc</span> <span class="o">=</span> <span class="n">cast</span><span class="p">(</span><span class="s2">&quot;Document&quot;</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">doc</span><span class="p">)</span>
-            <span class="k">if</span> <span class="ow">not</span> <span class="bp">self</span><span class="o">.</span><span class="n">doc</span><span class="o">.</span><span class="n">packages</span><span class="p">:</span>
-                <span class="k">return</span> <span class="p">[]</span>
+            <span class="n">packages</span> <span class="o">=</span> <span class="nb">getattr</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">doc</span><span class="p">,</span> <span class="s2">&quot;packages&quot;</span><span class="p">,</span> <span class="p">[])</span>
 
-            <span class="k">if</span> <span class="n">return_tuples</span><span class="p">:</span>
-                <span class="n">components_name_id</span><span class="p">:</span> <span class="nb">list</span><span class="p">[</span><span class="nb">tuple</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="nb">str</span><span class="p">]]</span> <span class="o">=</span> <span class="p">[]</span>
-                <span class="k">for</span> <span class="n">package</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">doc</span><span class="o">.</span><span class="n">packages</span><span class="p">:</span>
-                    <span class="k">if</span> <span class="ow">not</span> <span class="n">package</span><span class="o">.</span><span class="n">version</span><span class="p">:</span>
-                        <span class="n">components_name_id</span><span class="o">.</span><span class="n">append</span><span class="p">((</span><span class="n">package</span><span class="o">.</span><span class="n">name</span><span class="p">,</span> <span class="n">package</span><span class="o">.</span><span class="n">spdx_id</span><span class="p">))</span>
-                <span class="k">return</span> <span class="n">components_name_id</span>
-
-            <span class="n">components_name</span><span class="p">:</span> <span class="nb">list</span><span class="p">[</span><span class="nb">str</span><span class="p">]</span> <span class="o">=</span> <span class="p">[]</span>
-            <span class="k">for</span> <span class="n">package</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">doc</span><span class="o">.</span><span class="n">packages</span><span class="p">:</span>
-                <span class="k">if</span> <span class="ow">not</span> <span class="n">package</span><span class="o">.</span><span class="n">version</span><span class="p">:</span>
-                    <span class="n">components_name</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">package</span><span class="o">.</span><span class="n">name</span><span class="p">)</span>
-            <span class="k">return</span> <span class="n">components_name</span>
+            <span class="k">return</span> <span class="p">[</span>
+                <span class="p">(</span><span class="n">package</span><span class="o">.</span><span class="n">name</span> <span class="ow">or</span> <span class="s2">&quot;&quot;</span><span class="p">,</span> <span class="n">package</span><span class="o">.</span><span class="n">spdx_id</span> <span class="ow">or</span> <span class="s2">&quot;&quot;</span><span class="p">)</span>
+                <span class="k">for</span> <span class="n">package</span> <span class="ow">in</span> <span class="n">packages</span>
+                <span class="k">if</span> <span class="p">(</span>
+                    <span class="n">package</span><span class="o">.</span><span class="n">version</span> <span class="ow">is</span> <span class="kc">None</span>
+                    <span class="ow">or</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">package</span><span class="o">.</span><span class="n">version</span><span class="p">,</span> <span class="n">SpdxNoAssertion</span><span class="p">)</span>
+                    <span class="ow">or</span> <span class="p">(</span>
+                        <span class="nb">isinstance</span><span class="p">(</span><span class="n">package</span><span class="o">.</span><span class="n">version</span><span class="p">,</span> <span class="nb">str</span><span class="p">)</span>
+                        <span class="ow">and</span> <span class="n">package</span><span class="o">.</span><span class="n">version</span><span class="o">.</span><span class="n">strip</span><span class="p">()</span> <span class="o">==</span> <span class="s2">&quot;&quot;</span>
+                    <span class="p">)</span>
+                <span class="p">)</span>
+            <span class="p">]</span>
 
         <span class="c1"># SPDX 3</span>
         <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">sbom_spec</span> <span class="o">==</span> <span class="s2">&quot;spdx3&quot;</span><span class="p">:</span>
             <span class="bp">self</span><span class="o">.</span><span class="n">doc</span> <span class="o">=</span> <span class="n">cast</span><span class="p">(</span><span class="s2">&quot;spdx3.SHACLObjectSet&quot;</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">doc</span><span class="p">)</span>
 
-            <span class="k">if</span> <span class="n">return_tuples</span><span class="p">:</span>
-                <span class="k">return</span> <span class="p">[</span>
-                    <span class="p">(</span><span class="n">name</span><span class="p">,</span> <span class="n">spdx_id</span><span class="p">)</span>
-                    <span class="k">for</span> <span class="n">name</span><span class="p">,</span> <span class="n">spdx_id</span><span class="p">,</span> <span class="n">package_version</span> <span class="ow">in</span> <span class="n">iter_objects_with_property</span><span class="p">(</span>
-                        <span class="bp">self</span><span class="o">.</span><span class="n">doc</span><span class="p">,</span> <span class="n">spdx3</span><span class="o">.</span><span class="n">software_Package</span><span class="p">,</span> <span class="s2">&quot;software_packageVersion&quot;</span>
-                    <span class="p">)</span>
-                    <span class="k">if</span> <span class="ow">not</span> <span class="n">package_version</span> <span class="ow">or</span> <span class="n">package_version</span><span class="o">.</span><span class="n">strip</span><span class="p">()</span> <span class="o">==</span> <span class="s2">&quot;&quot;</span>
-                <span class="p">]</span>
-
             <span class="k">return</span> <span class="p">[</span>
-                <span class="n">name</span>
-                <span class="k">for</span> <span class="n">name</span><span class="p">,</span> <span class="n">_</span><span class="p">,</span> <span class="n">package_version</span> <span class="ow">in</span> <span class="n">iter_objects_with_property</span><span class="p">(</span>
+                <span class="p">(</span><span class="n">name</span> <span class="ow">or</span> <span class="s2">&quot;&quot;</span><span class="p">,</span> <span class="n">spdx_id</span> <span class="ow">or</span> <span class="s2">&quot;&quot;</span><span class="p">)</span>
+                <span class="k">for</span> <span class="n">name</span><span class="p">,</span> <span class="n">spdx_id</span><span class="p">,</span> <span class="n">package_version</span> <span class="ow">in</span> <span class="n">iter_objects_with_property</span><span class="p">(</span>
                     <span class="bp">self</span><span class="o">.</span><span class="n">doc</span><span class="p">,</span> <span class="n">spdx3</span><span class="o">.</span><span class="n">software_Package</span><span class="p">,</span> <span class="s2">&quot;software_packageVersion&quot;</span>
                 <span class="p">)</span>
                 <span class="k">if</span> <span class="ow">not</span> <span class="n">package_version</span> <span class="ow">or</span> <span class="n">package_version</span><span class="o">.</span><span class="n">strip</span><span class="p">()</span> <span class="o">==</span> <span class="s2">&quot;&quot;</span>
@@ -807,8 +709,10 @@
         <span class="k">return</span> <span class="p">[]</span></div>
 
 
-    <span class="k">def</span><span class="w"> </span><span class="nf">_get_all_components_without_info</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">list</span><span class="p">[</span><span class="nb">tuple</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="nb">list</span><span class="p">[</span><span class="nb">str</span><span class="p">]]]:</span>
-<span class="w">        </span><span class="sd">&quot;&quot;&quot;Get a list of components missing information for each minimum component.&quot;&quot;&quot;</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">_get_all_components_without_info</span><span class="p">(</span>
+        <span class="bp">self</span><span class="p">,</span>
+    <span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">list</span><span class="p">[</span><span class="nb">tuple</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="nb">list</span><span class="p">[</span><span class="nb">tuple</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="nb">str</span><span class="p">]]]]:</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;Get a list of components missing information for each required info.&quot;&quot;&quot;</span>
 
         <span class="c1"># If all lists are empty, return an empty list</span>
         <span class="k">if</span> <span class="nb">all</span><span class="p">(</span>
@@ -817,15 +721,12 @@
         <span class="p">):</span>
             <span class="k">return</span> <span class="p">[]</span>
 
-        <span class="n">res</span><span class="p">:</span> <span class="nb">list</span><span class="p">[</span><span class="nb">tuple</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="nb">list</span><span class="p">[</span><span class="nb">str</span><span class="p">]]]</span> <span class="o">=</span> <span class="p">[]</span>
-        <span class="k">for</span> <span class="n">component_name</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">MIN_ELEMENTS</span><span class="p">:</span>
-            <span class="k">if</span> <span class="n">component_name</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">_COMPONENTS_WITHOUT_INFO</span><span class="p">:</span>
-                <span class="n">list_name</span><span class="p">,</span> <span class="n">_</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_COMPONENTS_WITHOUT_INFO</span><span class="p">[</span><span class="n">component_name</span><span class="p">]</span>
-                <span class="n">components_without_info</span> <span class="o">=</span> <span class="nb">getattr</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">list_name</span><span class="p">,</span> <span class="p">[])</span>
-                <span class="k">if</span> <span class="n">components_without_info</span><span class="p">:</span>
-                    <span class="n">res</span><span class="o">.</span><span class="n">append</span><span class="p">((</span><span class="n">component_name</span><span class="p">,</span> <span class="n">components_without_info</span><span class="p">))</span>
-
-        <span class="k">return</span> <span class="n">res</span>
+        <span class="k">return</span> <span class="p">[</span>
+            <span class="p">(</span><span class="n">info_name</span><span class="p">,</span> <span class="nb">getattr</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">_COMPONENTS_WITHOUT_INFO</span><span class="p">[</span><span class="n">info_name</span><span class="p">][</span><span class="mi">0</span><span class="p">],</span> <span class="p">[]))</span>
+            <span class="k">for</span> <span class="n">info_name</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">MIN_ELEMENTS</span>
+            <span class="k">if</span> <span class="n">info_name</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">_COMPONENTS_WITHOUT_INFO</span>
+            <span class="ow">and</span> <span class="nb">getattr</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">_COMPONENTS_WITHOUT_INFO</span><span class="p">[</span><span class="n">info_name</span><span class="p">][</span><span class="mi">0</span><span class="p">],</span> <span class="p">[])</span>
+        <span class="p">]</span>
 
 <div class="viewcode-block" id="BaseChecker.get_total_number_components">
 <a class="viewcode-back" href="../../ntia_conformance_checker.html#ntia_conformance_checker.base_checker.BaseChecker.get_total_number_components">[docs]</a>
@@ -930,8 +831,11 @@
             <span class="k">return</span>
 
         <span class="nb">print</span><span class="p">(</span><span class="s2">&quot;Missing required information in these components:&quot;</span><span class="p">)</span>
-        <span class="k">for</span> <span class="n">component_name</span><span class="p">,</span> <span class="n">components</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">all_components_without_info</span><span class="p">:</span>
-            <span class="nb">print</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;</span><span class="si">{</span><span class="n">component_name</span><span class="si">}</span><span class="s2"> (</span><span class="si">{</span><span class="nb">len</span><span class="p">(</span><span class="n">components</span><span class="p">)</span><span class="si">}</span><span class="s2">): &quot;</span> <span class="sa">f</span><span class="s2">&quot;</span><span class="si">{</span><span class="s1">&#39;, &#39;</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">components</span><span class="p">)</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span></div>
+        <span class="k">for</span> <span class="n">info_name</span><span class="p">,</span> <span class="n">components</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">all_components_without_info</span><span class="p">:</span>
+            <span class="nb">print</span><span class="p">(</span>
+                <span class="sa">f</span><span class="s2">&quot;</span><span class="si">{</span><span class="n">info_name</span><span class="si">}</span><span class="s2"> (</span><span class="si">{</span><span class="nb">len</span><span class="p">(</span><span class="n">components</span><span class="p">)</span><span class="si">}</span><span class="s2">): &quot;</span>
+                <span class="sa">f</span><span class="s2">&quot;</span><span class="si">{</span><span class="s1">&#39;, &#39;</span><span class="o">.</span><span class="n">join</span><span class="p">([</span><span class="n">name</span><span class="w"> </span><span class="k">for</span><span class="w"> </span><span class="n">name</span><span class="p">,</span><span class="w"> </span><span class="n">_</span><span class="w"> </span><span class="ow">in</span><span class="w"> </span><span class="n">components</span><span class="p">])</span><span class="si">}</span><span class="s2">&quot;</span>
+            <span class="p">)</span></div>
 
 
 <div class="viewcode-block" id="BaseChecker.print_table_output">
@@ -1021,9 +925,16 @@
 
         <span class="k">for</span> <span class="n">key_</span><span class="p">,</span> <span class="n">attr</span> <span class="ow">in</span> <span class="n">_groups</span><span class="o">.</span><span class="n">items</span><span class="p">():</span>
             <span class="n">components_without_info</span> <span class="o">=</span> <span class="nb">getattr</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">attr</span><span class="p">,</span> <span class="p">[])</span>
+            <span class="c1"># components_without_info is a list[tuple[name, spdx_id]];</span>
+            <span class="c1"># prefer the human-readable name and fall back to SPDX ID.</span>
+            <span class="n">nonconformant</span> <span class="o">=</span> <span class="p">[</span>
+                <span class="p">(</span><span class="n">name</span> <span class="k">if</span> <span class="n">name</span> <span class="ow">not</span> <span class="ow">in</span> <span class="p">(</span><span class="kc">None</span><span class="p">,</span> <span class="s2">&quot;&quot;</span><span class="p">)</span> <span class="k">else</span> <span class="n">spdx_id</span><span class="p">)</span>
+                <span class="k">for</span> <span class="n">name</span><span class="p">,</span> <span class="n">spdx_id</span> <span class="ow">in</span> <span class="n">components_without_info</span>
+            <span class="p">]</span>
+
             <span class="n">result</span><span class="p">[</span><span class="n">key_</span><span class="p">]</span> <span class="o">=</span> <span class="p">{</span>
-                <span class="s2">&quot;nonconformantComponents&quot;</span><span class="p">:</span> <span class="n">components_without_info</span><span class="p">,</span>
-                <span class="s2">&quot;allProvided&quot;</span><span class="p">:</span> <span class="ow">not</span> <span class="nb">bool</span><span class="p">(</span><span class="n">components_without_info</span><span class="p">),</span>
+                <span class="s2">&quot;nonconformantComponents&quot;</span><span class="p">:</span> <span class="n">nonconformant</span><span class="p">,</span>
+                <span class="s2">&quot;allProvided&quot;</span><span class="p">:</span> <span class="ow">not</span> <span class="nb">bool</span><span class="p">(</span><span class="n">nonconformant</span><span class="p">),</span>
             <span class="p">}</span>
 
         <span class="k">return</span> <span class="n">result</span></div>
