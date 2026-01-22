@@ -699,6 +699,17 @@ class BaseChecker(ABC):
         except SPDXParsingError as err:
             self.parsing_error.extend(err.get_messages())
             return None
+        except Exception as err:  # pylint: disable=broad-except
+            # Catch any other errors, including BeartypeCallHintParamViolation
+            # from the spdx-tools library when parsing invalid SPDX files.
+            # The spdx-tools library uses beartype for runtime type checking,
+            # which throws exceptions when encountering missing required fields
+            # (e.g., missing author, timestamp, or identifiers).
+            logging.debug("Error parsing file: %s", err)
+            self.parsing_error.append(
+                f"Error parsing file: {type(err).__name__}: {str(err)}"
+            )
+            return None
 
         return cast("Document", doc)
 

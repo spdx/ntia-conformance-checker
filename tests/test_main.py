@@ -9,9 +9,6 @@
 from pathlib import Path
 from typing import List, Tuple
 
-import pytest
-from beartype.roar import BeartypeCallHintParamViolation
-
 from ntia_conformance_checker.cli_utils import get_sbom_spec, get_spdx_version
 
 spdx2_2_dir = Path(__file__).parent / "data" / "missing_component_name"
@@ -35,15 +32,10 @@ detect_version_test: List[Tuple[Path, Tuple[int, ...]]] = [
 
 def test_detect_spdx_version():
     for file_path, expected_version in detect_version_test:
-        try:
-            version = get_spdx_version(str(file_path))
-            assert (
-                version == expected_version
-            ), f"Expected {expected_version}, got {version} for {file_path}"
-        except BeartypeCallHintParamViolation:
-            pytest.xfail(
-                "Beartype type violation (assigning None) due to missing field in SPDX document"
-            )
+        version = get_spdx_version(str(file_path))
+        assert (
+            version == expected_version
+        ), f"Expected {expected_version}, got {version} for {file_path}"
 
 
 detect_sbom_spec_test: List[Tuple[Path, str]] = [
@@ -62,12 +54,7 @@ detect_sbom_spec_test: List[Tuple[Path, str]] = [
 
 def test_detect_sbom_spec():
     for file_path, expected_sbom_spec in detect_sbom_spec_test:
-        try:
-            sbom_spec = get_sbom_spec(str(file_path), sbom_spec=expected_sbom_spec)
-            assert (
-                sbom_spec == expected_sbom_spec
-            ), f"Expected {expected_sbom_spec}, got {sbom_spec} for {file_path}"
-        except BeartypeCallHintParamViolation:
-            pytest.xfail(
-                "Beartype type violation (assigning None) due to missing field in SPDX document"
-            )
+        sbom_spec = get_sbom_spec(str(file_path), sbom_spec=expected_sbom_spec)
+        assert (
+            sbom_spec == expected_sbom_spec
+        ), f"Expected {expected_sbom_spec}, got {sbom_spec} for {file_path}"
