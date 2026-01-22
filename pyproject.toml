@@ -103,3 +103,6 @@ fixable = ["ALL"]
 
 [tool.setuptools]
 packages = ["ntia_conformance_checker"]
+
+[tool.setuptools.package-data]
+ntia_conformance_checker = ["py.typed"]  # Signal type hinting support
