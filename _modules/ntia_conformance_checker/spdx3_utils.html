@@ -138,10 +138,10 @@
 <span class="sd">    Retrieve the BOMs that are rootElements of an SPDX 3 SpdxDocument.</span>
 
 <span class="sd">    Args:</span>
-<span class="sd">        spdx_doc (spdx3.SpdxDocument): The SPDX 3 SpdxDocument.</span>
+<span class="sd">        spdx_doc (spdx3.SpdxDocument | None): The SPDX 3 SpdxDocument.</span>
 
 <span class="sd">    Returns:</span>
-<span class="sd">        list[spdx3.Bom] | None: The Boms if found, otherwise None.</span>
+<span class="sd">        list[spdx3.Bom] | None: A list of BOMs if found, otherwise None.</span>
 <span class="sd">    &quot;&quot;&quot;</span>
     <span class="k">if</span> <span class="ow">not</span> <span class="n">spdx_doc</span><span class="p">:</span>
         <span class="k">return</span> <span class="kc">None</span>
@@ -163,10 +163,10 @@
 <span class="sd">    Retrieve the /Software/Packages that are rootElements of an SPDX 3 BOM.</span>
 
 <span class="sd">    Args:</span>
-<span class="sd">        spdx_doc (spdx3.Bom): The SPDX 3 Bom.</span>
+<span class="sd">        bom (spdx3.Bom | None): The SPDX 3 Bom.</span>
 
 <span class="sd">    Returns:</span>
-<span class="sd">        list[spdx3.software_Package] | None: The packages if found, otherwise None.</span>
+<span class="sd">        list[spdx3.software_Package] | None: A list of packages if found, otherwise None.</span>
 <span class="sd">    &quot;&quot;&quot;</span>
     <span class="k">if</span> <span class="ow">not</span> <span class="n">bom</span><span class="p">:</span>
         <span class="k">return</span> <span class="kc">None</span>

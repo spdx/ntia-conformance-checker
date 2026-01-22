@@ -778,6 +778,17 @@
         <span class="k">except</span> <span class="n">SPDXParsingError</span> <span class="k">as</span> <span class="n">err</span><span class="p">:</span>
             <span class="bp">self</span><span class="o">.</span><span class="n">parsing_error</span><span class="o">.</span><span class="n">extend</span><span class="p">(</span><span class="n">err</span><span class="o">.</span><span class="n">get_messages</span><span class="p">())</span>
             <span class="k">return</span> <span class="kc">None</span>
+        <span class="k">except</span> <span class="ne">Exception</span> <span class="k">as</span> <span class="n">err</span><span class="p">:</span>  <span class="c1"># pylint: disable=broad-except</span>
+            <span class="c1"># Catch any other errors, including BeartypeCallHintParamViolation</span>
+            <span class="c1"># from the spdx-tools library when parsing invalid SPDX files.</span>
+            <span class="c1"># The spdx-tools library uses beartype for runtime type checking,</span>
+            <span class="c1"># which throws exceptions when encountering missing required fields</span>
+            <span class="c1"># (e.g., missing author, timestamp, or identifiers).</span>
+            <span class="n">logging</span><span class="o">.</span><span class="n">debug</span><span class="p">(</span><span class="s2">&quot;Error parsing file: </span><span class="si">%s</span><span class="s2">&quot;</span><span class="p">,</span> <span class="n">err</span><span class="p">)</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">parsing_error</span><span class="o">.</span><span class="n">append</span><span class="p">(</span>
+                <span class="sa">f</span><span class="s2">&quot;Error parsing file: </span><span class="si">{</span><span class="nb">type</span><span class="p">(</span><span class="n">err</span><span class="p">)</span><span class="o">.</span><span class="vm">__name__</span><span class="si">}</span><span class="s2">: </span><span class="si">{</span><span class="nb">str</span><span class="p">(</span><span class="n">err</span><span class="p">)</span><span class="si">}</span><span class="s2">&quot;</span>
+            <span class="p">)</span>
+            <span class="k">return</span> <span class="kc">None</span>
 
         <span class="k">return</span> <span class="n">cast</span><span class="p">(</span><span class="s2">&quot;Document&quot;</span><span class="p">,</span> <span class="n">doc</span><span class="p">)</span></div>
 

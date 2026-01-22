@@ -414,13 +414,14 @@ use the appropriate parser first.</p></li>
 </dd>
 <dt class="field-even">Returns<span class="colon">:</span></dt>
 <dd class="field-even"><p><dl class="simple">
-<dt>The SPDX major.minor version of the SBOM.</dt><dd><p>E.g. (2, 3) for version 2.3.</p>
+<dt>The SPDX major.minor version of the SBOM.</dt><dd><p>E.g. (2, 3) for version 2.3.
+Returns None if the version cannot be determined.</p>
 </dd>
 </dl>
 </p>
 </dd>
 <dt class="field-odd">Return type<span class="colon">:</span></dt>
-<dd class="field-odd"><p>Tuple[int, int]</p>
+<dd class="field-odd"><p>Tuple[int, int] | None</p>
 </dd>
 </dl>
 </dd></dl>
@@ -717,10 +718,10 @@ during instantiation.</p>
 <dd><p>Retrieve the BOMs that are rootElements of an SPDX 3 SpdxDocument.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters<span class="colon">:</span></dt>
-<dd class="field-odd"><p><strong>spdx_doc</strong> (<em>spdx3.SpdxDocument</em>) – The SPDX 3 SpdxDocument.</p>
+<dd class="field-odd"><p><strong>spdx_doc</strong> (<em>spdx3.SpdxDocument</em><em> | </em><em>None</em>) – The SPDX 3 SpdxDocument.</p>
 </dd>
 <dt class="field-even">Returns<span class="colon">:</span></dt>
-<dd class="field-even"><p>The Boms if found, otherwise None.</p>
+<dd class="field-even"><p>A list of BOMs if found, otherwise None.</p>
 </dd>
 <dt class="field-odd">Return type<span class="colon">:</span></dt>
 <dd class="field-odd"><p>list[spdx3.Bom] | None</p>
@@ -734,10 +735,10 @@ during instantiation.</p>
 <dd><p>Retrieve the /Software/Packages that are rootElements of an SPDX 3 BOM.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters<span class="colon">:</span></dt>
-<dd class="field-odd"><p><strong>spdx_doc</strong> (<em>spdx3.Bom</em>) – The SPDX 3 Bom.</p>
+<dd class="field-odd"><p><strong>bom</strong> (<em>spdx3.Bom</em><em> | </em><em>None</em>) – The SPDX 3 Bom.</p>
 </dd>
 <dt class="field-even">Returns<span class="colon">:</span></dt>
-<dd class="field-even"><p>The packages if found, otherwise None.</p>
+<dd class="field-even"><p>A list of packages if found, otherwise None.</p>
 </dd>
 <dt class="field-odd">Return type<span class="colon">:</span></dt>
 <dd class="field-odd"><p>list[spdx3.software_Package] | None</p>

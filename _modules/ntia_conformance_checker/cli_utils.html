@@ -203,8 +203,9 @@
 <span class="sd">                         use the appropriate parser first.</span>
 
 <span class="sd">    Returns:</span>
-<span class="sd">        Tuple[int, int]: The SPDX major.minor version of the SBOM.</span>
-<span class="sd">                         E.g. (2, 3) for version 2.3.</span>
+<span class="sd">        Tuple[int, int] | None: The SPDX major.minor version of the SBOM.</span>
+<span class="sd">                                E.g. (2, 3) for version 2.3.</span>
+<span class="sd">                                Returns None if the version cannot be determined.</span>
 <span class="sd">    &quot;&quot;&quot;</span>
     <span class="k">if</span> <span class="n">file</span><span class="o">.</span><span class="n">lower</span><span class="p">()</span><span class="o">.</span><span class="n">endswith</span><span class="p">(</span><span class="s2">&quot;.xls&quot;</span><span class="p">)</span> <span class="ow">or</span> <span class="n">file</span><span class="o">.</span><span class="n">lower</span><span class="p">()</span><span class="o">.</span><span class="n">endswith</span><span class="p">(</span><span class="s2">&quot;.xlsx&quot;</span><span class="p">):</span>
         <span class="n">logging</span><span class="o">.</span><span class="n">debug</span><span class="p">(</span><span class="s2">&quot;Detect SPDX version: Excel file format is not supported&quot;</span><span class="p">)</span>
@@ -220,8 +221,17 @@
             <span class="n">doc</span> <span class="o">=</span> <span class="kc">None</span>
         <span class="k">except</span> <span class="p">(</span><span class="ne">ValueError</span><span class="p">,</span> <span class="ne">TypeError</span><span class="p">,</span> <span class="ne">OSError</span><span class="p">)</span> <span class="k">as</span> <span class="n">exc</span><span class="p">:</span>
             <span class="n">logging</span><span class="o">.</span><span class="n">debug</span><span class="p">(</span>
-                <span class="s2">&quot;Detect SPDX version: Unexpected error while parsing with spdx_tools: </span><span class="si">%s</span><span class="s2">&quot;</span><span class="p">,</span>
-                <span class="n">exc</span><span class="p">,</span>
+                <span class="s2">&quot;Detect SPDX version: spdx_tools parser unexpected error: </span><span class="si">%s</span><span class="s2">&quot;</span><span class="p">,</span> <span class="n">exc</span>
+            <span class="p">)</span>
+            <span class="n">doc</span> <span class="o">=</span> <span class="kc">None</span>
+        <span class="k">except</span> <span class="ne">Exception</span> <span class="k">as</span> <span class="n">exc</span><span class="p">:</span>  <span class="c1"># pylint: disable=broad-except</span>
+            <span class="c1"># Catch any other errors, including BeartypeCallHintParamViolation</span>
+            <span class="c1"># from the spdx-tools library when parsing invalid SPDX files.</span>
+            <span class="c1"># The spdx-tools library uses beartype for runtime type checking,</span>
+            <span class="c1"># which throws exceptions when encountering missing required fields</span>
+            <span class="c1"># (e.g., missing author, timestamp, or identifiers).</span>
+            <span class="n">logging</span><span class="o">.</span><span class="n">debug</span><span class="p">(</span>
+                <span class="s2">&quot;Detect SPDX version: spdx_tools parser unexpected error: </span><span class="si">%s</span><span class="s2">&quot;</span><span class="p">,</span> <span class="n">exc</span>
             <span class="p">)</span>
             <span class="n">doc</span> <span class="o">=</span> <span class="kc">None</span>
 
