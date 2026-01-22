@@ -100,10 +100,10 @@ def get_boms_from_spdx_document(
     Retrieve the BOMs that are rootElements of an SPDX 3 SpdxDocument.
 
     Args:
-        spdx_doc (spdx3.SpdxDocument): The SPDX 3 SpdxDocument.
+        spdx_doc (spdx3.SpdxDocument | None): The SPDX 3 SpdxDocument.
 
     Returns:
-        list[spdx3.Bom] | None: The Boms if found, otherwise None.
+        list[spdx3.Bom] | None: A list of BOMs if found, otherwise None.
     """
     if not spdx_doc:
         return None
@@ -122,10 +122,10 @@ def get_packages_from_bom(
     Retrieve the /Software/Packages that are rootElements of an SPDX 3 BOM.
 
     Args:
-        spdx_doc (spdx3.Bom): The SPDX 3 Bom.
+        bom (spdx3.Bom | None): The SPDX 3 Bom.
 
     Returns:
-        list[spdx3.software_Package] | None: The packages if found, otherwise None.
+        list[spdx3.software_Package] | None: A list of packages if found, otherwise None.
     """
     if not bom:
         return None

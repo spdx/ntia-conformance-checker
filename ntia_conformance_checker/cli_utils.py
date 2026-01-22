@@ -165,8 +165,9 @@ def get_spdx_version(file: str, sbom_spec: str = "spdx2") -> tuple[int, int] | N
                          use the appropriate parser first.
 
     Returns:
-        Tuple[int, int]: The SPDX major.minor version of the SBOM.
-                         E.g. (2, 3) for version 2.3.
+        Tuple[int, int] | None: The SPDX major.minor version of the SBOM.
+                                E.g. (2, 3) for version 2.3.
+                                Returns None if the version cannot be determined.
     """
     if file.lower().endswith(".xls") or file.lower().endswith(".xlsx"):
         logging.debug("Detect SPDX version: Excel file format is not supported")
@@ -182,8 +183,17 @@ def get_spdx_version(file: str, sbom_spec: str = "spdx2") -> tuple[int, int] | N
             doc = None
         except (ValueError, TypeError, OSError) as exc:
             logging.debug(
-                "Detect SPDX version: Unexpected error while parsing with spdx_tools: %s",
-                exc,
+                "Detect SPDX version: spdx_tools parser unexpected error: %s", exc
+            )
+            doc = None
+        except Exception as exc:  # pylint: disable=broad-except
+            # Catch any other errors, including BeartypeCallHintParamViolation
+            # from the spdx-tools library when parsing invalid SPDX files.
+            # The spdx-tools library uses beartype for runtime type checking,
+            # which throws exceptions when encountering missing required fields
+            # (e.g., missing author, timestamp, or identifiers).
+            logging.debug(
+                "Detect SPDX version: spdx_tools parser unexpected error: %s", exc
             )
             doc = None
 

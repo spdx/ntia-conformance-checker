@@ -11,7 +11,6 @@ from pathlib import Path
 from unittest import TestCase
 
 import pytest
-from beartype.roar import BeartypeCallHintParamViolation
 from spdx_python_model import v3_0_1 as spdx3  # type: ignore # import-untyped
 
 import ntia_conformance_checker.sbom_checker as sbom_checker
@@ -113,15 +112,10 @@ test_files_missing_author_name = [
 def test_sbomchecker_missing_author_name(test_file):
     """The parser from spdx-tools will raise an SPDXParsingError if
     the document does not contain a creator."""
-    try:
-        sbom_check = sbom_checker.SbomChecker(test_file)
+    sbom_check = sbom_checker.SbomChecker(test_file)
 
-        assert not sbom_check.ntia_minimum_elements_compliant
-        assert sbom_check.parsing_error
-    except BeartypeCallHintParamViolation:
-        pytest.xfail(
-            "Beartype type violation (assigning None) due to missing author field"
-        )
+    assert not sbom_check.ntia_minimum_elements_compliant
+    assert sbom_check.parsing_error
 
 
 ### Test missing timestamp
@@ -134,15 +128,10 @@ test_files_missing_timestamp = [os.path.join(dirname, fn) for fn in os.listdir(d
 def test_sbomchecker_missing_timestamp(test_file):
     """The parser from spdx-tools will raise an SPDXParsingError if
     the document does not contain a created date."""
-    try:
-        sbom_check = sbom_checker.SbomChecker(test_file)
+    sbom_check = sbom_checker.SbomChecker(test_file)
 
-        assert not sbom_check.ntia_minimum_elements_compliant
-        assert sbom_check.parsing_error
-    except BeartypeCallHintParamViolation:
-        pytest.xfail(
-            "Beartype type violation (assigning None) due to missing timestamp field"
-        )
+    assert not sbom_check.ntia_minimum_elements_compliant
+    assert sbom_check.parsing_error
 
 
 ### Test missing concluded licenses
@@ -250,16 +239,12 @@ test_files_missing_unique_identifiers = [
 def test_sbomchecker_missing_unique_identifiers(test_file):
     """The parser from spdx-tools will raise an SPDXParsingError if
     the document contains an element without SPDXID."""
-    try:
-        sbom_check = sbom_checker.SbomChecker(test_file)
 
-        assert not sbom_check.compliant
-        assert not sbom_check.ntia_minimum_elements_compliant
-        assert sbom_check.parsing_error
-    except BeartypeCallHintParamViolation:
-        pytest.xfail(
-            "Beartype type violation (assigning None) due to missing unique identifier field"
-        )
+    sbom_check = sbom_checker.SbomChecker(test_file)
+
+    assert not sbom_check.compliant
+    assert not sbom_check.ntia_minimum_elements_compliant
+    assert sbom_check.parsing_error
 
 
 ### Test SBOM example from various sources
