@@ -35,6 +35,7 @@ classifiers = [
     "Topic :: Security",
     "Topic :: Software Development :: Libraries :: Python Modules",
     "Topic :: System :: Systems Administration",
+    "Typing :: Typed",
 ]
 urls = { Homepage = "https://github.com/spdx/ntia-conformance-checker" }
 requires-python = ">=3.10"
