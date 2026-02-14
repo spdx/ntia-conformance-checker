@@ -1,0 +1,717 @@
+<?xml version="1.0" encoding="utf-8"?>
+<bom xmlns="http://cyclonedx.org/schema/bom/1.3" serialNumber="urn:uuid:2d31b1d1-bdfa-4408-af11-afa35471878a" version="1">
+    <metadata>
+        <timestamp>2023-11-21T13:57:07.315Z</timestamp>
+        <tools>
+            <tool>
+                <vendor>CycloneDX</vendor>
+                <name>Node.js module</name>
+                <version>3.10.6</version>
+            </tool>
+        </tools>
+        <component type="library" bom-ref="pkg:npm/atlas-uikit@5.9.0">
+            <name>atlas-uikit</name>
+            <version>5.9.0</version>
+            <description>
+                <![CDATA[This project was generated with [Angular CLI](https://github.com/angular/angular-cli) version 12.2.12.]]>
+            </description>
+            <purl>pkg:npm/atlas-uikit@5.9.0</purl>
+        </component>
+    </metadata>
+    <components>
+        <component type="library" bom-ref="pkg:npm/%40angular/animations@16.2.12">
+            <author>angular</author>
+            <group>@angular</group>
+            <name>animations</name>
+            <version>16.2.12</version>
+            <description>
+                <![CDATA[Angular - animations integration with web-animations]]>
+            </description>
+            <hashes>
+                <hash alg="SHA-512">303d0496f8847c0258f2a30e77afe38d24afb6a111d910c08b49717ba12d51a702d431c262468faca5b8bcba98fad999060d727feea7fae4bbee95dc1c7700df</hash>
+            </hashes>
+            <licenses>
+                <license>
+                    <id>MIT</id>
+                </license>
+            </licenses>
+            <purl>pkg:npm/%40angular/animations@16.2.12</purl>
+            <externalReferences>
+                <reference type="website">
+                    <url>https://github.com/angular/angular#readme</url>
+                </reference>
+                <reference type="issue-tracker">
+                    <url>https://github.com/angular/angular/issues</url>
+                </reference>
+                <reference type="vcs">
+                    <url>git+https://github.com/angular/angular.git</url>
+                </reference>
+            </externalReferences>
+        </component>
+        <component type="library" bom-ref="pkg:npm/tslib@2.6.2">
+            <author>Microsoft Corp.</author>
+            <name>tslib</name>
+            <version>2.6.2</version>
+            <description>
+                <![CDATA[Runtime library for TypeScript helper functions]]>
+            </description>
+            <hashes>
+                <hash alg="SHA-512">0046311fdde31853e7fdada2540c16f3b56e508911d45554281efb370305ee70530e40ebad3fc7a6dfc8ac2274417856dbb8d304371fe5963bc3a462a93330d9</hash>
+            </hashes>
+            <licenses>
+                <license>
+                    <id>0BSD</id>
+                </license>
+            </licenses>
+            <purl>pkg:npm/tslib@2.6.2</purl>
+            <externalReferences>
+                <reference type="website">
+                    <url>https://www.typescriptlang.org/</url>
+                </reference>
+                <reference type="issue-tracker">
+                    <url>https://github.com/Microsoft/TypeScript/issues</url>
+                </reference>
+                <reference type="vcs">
+                    <url>git+https://github.com/Microsoft/tslib.git</url>
+                </reference>
+            </externalReferences>
+        </component>
+        <component type="library" bom-ref="pkg:npm/%40angular/cdk@16.2.12">
+            <group>@angular</group>
+            <name>cdk</name>
+            <version>16.2.12</version>
+            <description>
+                <![CDATA[Angular Material Component Development Kit]]>
+            </description>
+            <hashes>
+                <hash alg="SHA-512">c13f3fdbae739b658a634043691a186eb013e2469dae67a34d12e3ba299020450a9f0e2f06c24c582c10929168deceb3afa7b39c6a9854015bf0a28f54b28606</hash>
+            </hashes>
+            <licenses>
+                <license>
+                    <id>MIT</id>
+                </license>
+            </licenses>
+            <purl>pkg:npm/%40angular/cdk@16.2.12</purl>
+            <externalReferences>
+                <reference type="website">
+                    <url>https://github.com/angular/components#readme</url>
+                </reference>
+                <reference type="issue-tracker">
+                    <url>https://github.com/angular/components/issues</url>
+                </reference>
+                <reference type="vcs">
+                    <url>git+https://github.com/angular/components.git</url>
+                </reference>
+            </externalReferences>
+        </component>
+        <component type="library" bom-ref="pkg:npm/%40angular/common@16.2.12">
+            <author>angular</author>
+            <group>@angular</group>
+            <name>common</name>
+            <version>16.2.12</version>
+            <description>
+                <![CDATA[Angular - commonly needed directives and services]]>
+            </description>
+            <hashes>
+                <hash alg="SHA-512">07e598fdc4f656011acfd1df262b419a0764e08df7dd71bfc9b0bdf02302e16cfc138f53f32ce2be69b15c1dce0faaaf8dc381e9fb6e89c97a581a8b6d9360db</hash>
+            </hashes>
+            <licenses>
+                <license>
+                    <id>MIT</id>
+                </license>
+            </licenses>
+            <purl>pkg:npm/%40angular/common@16.2.12</purl>
+            <externalReferences>
+                <reference type="website">
+                    <url>https://github.com/angular/angular#readme</url>
+                </reference>
+                <reference type="issue-tracker">
+                    <url>https://github.com/angular/angular/issues</url>
+                </reference>
+                <reference type="vcs">
+                    <url>git+https://github.com/angular/angular.git</url>
+                </reference>
+            </externalReferences>
+        </component>
+        <component type="library" bom-ref="pkg:npm/%40angular/compiler@16.2.12">
+            <author>angular</author>
+            <group>@angular</group>
+            <name>compiler</name>
+            <version>16.2.12</version>
+            <description>
+                <![CDATA[Angular - the compiler library]]>
+            </description>
+            <hashes>
+                <hash alg="SHA-512">e923175204957a418ced1ea5d59f6b0ad506b65839f0616681ba4c0ac19ff955f13f8ebc363c3cae34f661991fe5a10fc44b91a521e10d88eacfb9f5e1cc025d</hash>
+            </hashes>
+            <licenses>
+                <license>
+                    <id>MIT</id>
+                </license>
+            </licenses>
+            <purl>pkg:npm/%40angular/compiler@16.2.12</purl>
+            <externalReferences>
+                <reference type="website">
+                    <url>https://github.com/angular/angular#readme</url>
+                </reference>
+                <reference type="issue-tracker">
+                    <url>https://github.com/angular/angular/issues</url>
+                </reference>
+                <reference type="vcs">
+                    <url>git+https://github.com/angular/angular.git</url>
+                </reference>
+            </externalReferences>
+        </component>
+        <component type="library" bom-ref="pkg:npm/%40angular/core@16.2.12">
+            <author>angular</author>
+            <group>@angular</group>
+            <name>core</name>
+            <version>16.2.12</version>
+            <description>
+                <![CDATA[Angular - the core framework]]>
+            </description>
+            <hashes>
+                <hash alg="SHA-512">18b2e50de91efcd8eba1a2d83a4b34bb2cc5568e87c8b97b54e9b42b54292d79d8bd6eb75bd425fd3df282e4596bbb5190e01e159de3c3ed709c10f83bc32850</hash>
+            </hashes>
+            <licenses>
+                <license>
+                    <id>MIT</id>
+                </license>
+            </licenses>
+            <purl>pkg:npm/%40angular/core@16.2.12</purl>
+            <externalReferences>
+                <reference type="website">
+                    <url>https://github.com/angular/angular#readme</url>
+                </reference>
+                <reference type="issue-tracker">
+                    <url>https://github.com/angular/angular/issues</url>
+                </reference>
+                <reference type="vcs">
+                    <url>git+https://github.com/angular/angular.git</url>
+                </reference>
+            </externalReferences>
+        </component>
+        <component type="library" bom-ref="pkg:npm/%40angular/forms@16.2.12">
+            <author>angular</author>
+            <group>@angular</group>
+            <name>forms</name>
+            <version>16.2.12</version>
+            <description>
+                <![CDATA[Angular - directives and services for creating forms]]>
+            </description>
+            <hashes>
+                <hash alg="SHA-512">d446a8f3d8650602d1deff2d53dd6f71c9f6d4104a2f4e965b197bccba50986e87ba7fb68eb4e180e1383dfde8b387e491b1f80298f4b562f67cd2167bf6e56f</hash>
+            </hashes>
+            <licenses>
+                <license>
+                    <id>MIT</id>
+                </license>
+            </licenses>
+            <purl>pkg:npm/%40angular/forms@16.2.12</purl>
+            <externalReferences>
+                <reference type="website">
+                    <url>https://github.com/angular/angular#readme</url>
+                </reference>
+                <reference type="issue-tracker">
+                    <url>https://github.com/angular/angular/issues</url>
+                </reference>
+                <reference type="vcs">
+                    <url>git+https://github.com/angular/angular.git</url>
+                </reference>
+            </externalReferences>
+        </component>
+        <component type="library" bom-ref="pkg:npm/%40angular/platform-browser@16.2.12">
+            <author>angular</author>
+            <group>@angular</group>
+            <name>platform-browser</name>
+            <version>16.2.12</version>
+            <description>
+                <![CDATA[Angular - library for using Angular in a web browser]]>
+            </description>
+            <hashes>
+                <hash alg="SHA-512">3671fb8eed628ab99512c52ae37d834e6d27641190b01ad4e3433765e547310dacb9b9c68b252cdd0cb30f3f3e5562cbfd3e714f158bb7d0640e7eb9be0ce521</hash>
+            </hashes>
+            <licenses>
+                <license>
+                    <id>MIT</id>
+                </license>
+            </licenses>
+            <purl>pkg:npm/%40angular/platform-browser@16.2.12</purl>
+            <externalReferences>
+                <reference type="website">
+                    <url>https://github.com/angular/angular#readme</url>
+                </reference>
+                <reference type="issue-tracker">
+                    <url>https://github.com/angular/angular/issues</url>
+                </reference>
+                <reference type="vcs">
+                    <url>git+https://github.com/angular/angular.git</url>
+                </reference>
+            </externalReferences>
+        </component>
+        <component type="library" bom-ref="pkg:npm/%40angular/platform-browser-dynamic@16.2.12">
+            <author>angular</author>
+            <group>@angular</group>
+            <name>platform-browser-dynamic</name>
+            <version>16.2.12</version>
+            <description>
+                <![CDATA[Angular - library for using Angular in a web browser with JIT compilation]]>
+            </description>
+            <hashes>
+                <hash alg="SHA-512">c9ae788deacd82b782540476efcc196afc23ad458898caf617cc8ce67f4706fb0c05b15a010f376a7c1b384887105d81951fa02621012dfa6e3d1330db4a47ab</hash>
+            </hashes>
+            <licenses>
+                <license>
+                    <id>MIT</id>
+                </license>
+            </licenses>
+            <purl>pkg:npm/%40angular/platform-browser-dynamic@16.2.12</purl>
+            <externalReferences>
+                <reference type="website">
+                    <url>https://github.com/angular/angular#readme</url>
+                </reference>
+                <reference type="issue-tracker">
+                    <url>https://github.com/angular/angular/issues</url>
+                </reference>
+                <reference type="vcs">
+                    <url>git+https://github.com/angular/angular.git</url>
+                </reference>
+            </externalReferences>
+        </component>
+        <component type="library" bom-ref="pkg:npm/%40angular/router@16.2.12">
+            <author>angular</author>
+            <group>@angular</group>
+            <name>router</name>
+            <version>16.2.12</version>
+            <description>
+                <![CDATA[Angular - the routing library]]>
+            </description>
+            <hashes>
+                <hash alg="SHA-512">694e909d84b36b4d3957d3f75ba3e992278be7a3b4207a6cf7a0e3a88d514bcc8e2549774c79a892a60de059b9f875f2e1fdfdd0537d8ba7ed69d6100ca79698</hash>
+            </hashes>
+            <licenses>
+                <license>
+                    <id>MIT</id>
+                </license>
+            </licenses>
+            <purl>pkg:npm/%40angular/router@16.2.12</purl>
+            <externalReferences>
+                <reference type="website">
+                    <url>https://github.com/angular/angular/tree/main/packages/router</url>
+                </reference>
+                <reference type="issue-tracker">
+                    <url>https://github.com/angular/angular/issues</url>
+                </reference>
+                <reference type="vcs">
+                    <url>git+https://github.com/angular/angular.git</url>
+                </reference>
+            </externalReferences>
+        </component>
+        <component type="library" bom-ref="pkg:npm/%40materia-ui/ngx-monaco-editor@6.0.0">
+            <author>Jean-Marc Roy</author>
+            <group>@materia-ui</group>
+            <name>ngx-monaco-editor</name>
+            <version>6.0.0</version>
+            <description>
+                <![CDATA[Monaco Editor Library for Angular v6 and above]]>
+            </description>
+            <hashes>
+                <hash alg="SHA-512">813a8d423386ce7671382d0d96629d29218226e4edb3c6262b876c4d0006739220215edc65d416896e802fbe36874aee103eaad1c02e9c46235d3ea3cc706821</hash>
+            </hashes>
+            <licenses>
+                <license>
+                    <id>MIT</id>
+                </license>
+            </licenses>
+            <purl>pkg:npm/%40materia-ui/ngx-monaco-editor@6.0.0</purl>
+            <externalReferences>
+                <reference type="website">
+                    <url>https://github.com/geoastronaute/ngx-monaco-editor#readme</url>
+                </reference>
+                <reference type="issue-tracker">
+                    <url>https://github.com/geoastronaute/ngx-monaco-editor/issues</url>
+                </reference>
+                <reference type="vcs">
+                    <url>git+https://github.com/geoastronaute/ngx-monaco-editor.git</url>
+                </reference>
+            </externalReferences>
+        </component>
+        <component type="library" bom-ref="pkg:npm/%40ngx-translate/core@15.0.0">
+            <group>@ngx-translate</group>
+            <name>core</name>
+            <version>15.0.0</version>
+            <hashes>
+                <hash alg="SHA-512">026e6e8ae4746ce3b1ca87ab7039c0037ac9562ce8e1146a247a3c37746a27e5dfcd53ff23ce39c849cc003ca4387bcce879159b84994a72413a2cf4027c7904</hash>
+            </hashes>
+            <licenses>
+                <license>
+                    <name>SEE LICENSE IN LICENSE</name>
+                </license>
+            </licenses>
+            <purl>pkg:npm/%40ngx-translate/core@15.0.0</purl>
+        </component>
+        <component type="library" bom-ref="pkg:npm/%40ngx-translate/http-loader@8.0.0">
+            <group>@ngx-translate</group>
+            <name>http-loader</name>
+            <version>8.0.0</version>
+            <hashes>
+                <hash alg="SHA-512">48532c7547261c5e4e75990bd421c4a120306cfe446c038f4cb2dba0e0914683a0db53f8189c7ee758f119d25e1af7ba2d228b7f83dacbb0644f0984eafc5896</hash>
+            </hashes>
+            <licenses>
+                <license>
+                    <name>SEE LICENSE IN LICENSE</name>
+                </license>
+            </licenses>
+            <purl>pkg:npm/%40ngx-translate/http-loader@8.0.0</purl>
+        </component>
+        <component type="library" bom-ref="pkg:npm/%40syncpilot/atlas-icons@3.0.7">
+            <author>SIP Syncpilot GmbH &amp; Co. KG</author>
+            <group>@syncpilot</group>
+            <name>atlas-icons</name>
+            <version>3.0.7</version>
+            <description>
+                <![CDATA[Syncpilot Atlas UI Icons]]>
+            </description>
+            <hashes>
+                <hash alg="SHA-1">9c1dc16e47cf091e8c8bb188f871302694f09a59</hash>
+            </hashes>
+            <licenses>
+                <license>
+                    <name>SEE LICENSE IN LICENSE.txt</name>
+                </license>
+            </licenses>
+            <purl>pkg:npm/%40syncpilot/atlas-icons@3.0.7</purl>
+        </component>
+        <component type="library" bom-ref="pkg:npm/%40syncpilot/common@3.3.3">
+            <author>SIP Syncpilot GmbH &amp; Co. KG</author>
+            <group>@syncpilot</group>
+            <name>common</name>
+            <version>3.3.3</version>
+            <description>
+                <![CDATA[LiveContract API - Common Components]]>
+            </description>
+            <hashes>
+                <hash alg="SHA-1">7e0a2037ec03f067baf0be736c98f73fa866953a</hash>
+            </hashes>
+            <licenses>
+                <license>
+                    <name>SEE LICENSE IN LICENSE.txt</name>
+                </license>
+            </licenses>
+            <purl>pkg:npm/%40syncpilot/common@3.3.3</purl>
+            <externalReferences>
+                <reference type="website">
+                    <url>https://bitbucket.org/lascucarachas/lc-api-common#readme</url>
+                </reference>
+                <reference type="vcs">
+                    <url>git+https://bitbucket.org/lascucarachas/lc-api-common.git</url>
+                </reference>
+            </externalReferences>
+        </component>
+        <component type="framework" bom-ref="pkg:npm/bootstrap@4.6.2">
+            <author>The Bootstrap Authors</author>
+            <name>bootstrap</name>
+            <version>4.6.2</version>
+            <description>
+                <![CDATA[The most popular front-end framework for developing responsive, mobile first projects on the web.]]>
+            </description>
+            <hashes>
+                <hash alg="SHA-512">e7505ba7f531afd693bb2e9c6bff056c59680542592c7c278537278c87919f6b2e416b16cdcb898468ca0c1e5ea6956d7bff2809d38bdd5bb0c6f64352083019</hash>
+            </hashes>
+            <licenses>
+                <license>
+                    <id>MIT</id>
+                </license>
+            </licenses>
+            <purl>pkg:npm/bootstrap@4.6.2</purl>
+            <externalReferences>
+                <reference type="website">
+                    <url>https://getbootstrap.com/</url>
+                </reference>
+                <reference type="issue-tracker">
+                    <url>https://github.com/twbs/bootstrap/issues</url>
+                </reference>
+                <reference type="vcs">
+                    <url>git+https://github.com/twbs/bootstrap.git</url>
+                </reference>
+            </externalReferences>
+        </component>
+        <component type="library" bom-ref="pkg:npm/monaco-editor@0.34.1">
+            <author>Microsoft Corporation</author>
+            <name>monaco-editor</name>
+            <version>0.34.1</version>
+            <description>
+                <![CDATA[A browser based code editor]]>
+            </description>
+            <hashes>
+                <hash alg="SHA-512">14a73cd13ca231aaee84928a3f3e52a493c88cbf9d7e51afcf80a9b9385a3cc73de00c8ded2782f4743c86bbdac57ec4c877497146398b80f480dc898f5bd265</hash>
+            </hashes>
+            <licenses>
+                <license>
+                    <id>MIT</id>
+                </license>
+            </licenses>
+            <purl>pkg:npm/monaco-editor@0.34.1</purl>
+            <externalReferences>
+                <reference type="website">
+                    <url>https://github.com/microsoft/monaco-editor#readme</url>
+                </reference>
+                <reference type="issue-tracker">
+                    <url>https://github.com/microsoft/monaco-editor/issues</url>
+                </reference>
+                <reference type="vcs">
+                    <url>git+https://github.com/microsoft/monaco-editor.git</url>
+                </reference>
+            </externalReferences>
+        </component>
+        <component type="library" bom-ref="pkg:npm/rxjs@7.8.1">
+            <author>Ben Lesh</author>
+            <name>rxjs</name>
+            <version>7.8.1</version>
+            <description>
+                <![CDATA[Reactive Extensions for modern JavaScript]]>
+            </description>
+            <hashes>
+                <hash alg="SHA-512">000dd3563fb40368ae2284245842bfb6a16306ada3fba3cee98d3325cbf32c016110520edc72f4be5b3d8562e77196c001b2b499aafba19e15d3bf48fea3ccc6</hash>
+            </hashes>
+            <licenses>
+                <license>
+                    <id>Apache-2.0</id>
+                </license>
+            </licenses>
+            <purl>pkg:npm/rxjs@7.8.1</purl>
+            <externalReferences>
+                <reference type="website">
+                    <url>https://rxjs.dev</url>
+                </reference>
+                <reference type="issue-tracker">
+                    <url>https://github.com/ReactiveX/RxJS/issues</url>
+                </reference>
+                <reference type="vcs">
+                    <url>git+https://github.com/reactivex/rxjs.git</url>
+                </reference>
+            </externalReferences>
+        </component>
+        <component type="library" bom-ref="pkg:npm/ua-parser-js@1.0.37">
+            <author>Faisal Salman</author>
+            <name>ua-parser-js</name>
+            <version>1.0.37</version>
+            <description>
+                <![CDATA[Detect Browser, Engine, OS, CPU, and Device type/model from User-Agent data. Supports browser & node.js environment]]>
+            </description>
+            <hashes>
+                <hash alg="SHA-512">6e14f223de2d6687e3a3e0e7f1237a66ff27043bf25d3ca601d3372c323fd086e8214c13bb5ac4856eefd937e256ca185a0910e24395aa723c00f5056c840815</hash>
+            </hashes>
+            <licenses>
+                <license>
+                    <id>MIT</id>
+                </license>
+            </licenses>
+            <purl>pkg:npm/ua-parser-js@1.0.37</purl>
+            <externalReferences>
+                <reference type="website">
+                    <url>https://github.com/faisalman/ua-parser-js</url>
+                </reference>
+                <reference type="issue-tracker">
+                    <url>https://github.com/faisalman/ua-parser-js/issues</url>
+                </reference>
+                <reference type="vcs">
+                    <url>git+https://github.com/faisalman/ua-parser-js.git</url>
+                </reference>
+            </externalReferences>
+        </component>
+        <component type="library" bom-ref="pkg:npm/zone.js@0.13.3">
+            <author>Brian Ford</author>
+            <name>zone.js</name>
+            <version>0.13.3</version>
+            <description>
+                <![CDATA[Zones for JavaScript]]>
+            </description>
+            <hashes>
+                <hash alg="SHA-512">30a3db99989ee9f0120bfa6ce1d926221693e5ea271e412de9e032f342b8dad026d06d96f806a12c98db7e2e97f4d3dd722384f464454d333cbb622217a3b7c3</hash>
+            </hashes>
+            <licenses>
+                <license>
+                    <id>MIT</id>
+                </license>
+            </licenses>
+            <purl>pkg:npm/zone.js@0.13.3</purl>
+            <externalReferences>
+                <reference type="website">
+                    <url>https://github.com/angular/angular#readme</url>
+                </reference>
+                <reference type="issue-tracker">
+                    <url>https://github.com/angular/angular/issues</url>
+                </reference>
+                <reference type="vcs">
+                    <url>git://github.com/angular/angular.git</url>
+                </reference>
+            </externalReferences>
+        </component>
+        <component type="library" bom-ref="pkg:npm/entities@4.5.0">
+            <author>Felix Boehm</author>
+            <name>entities</name>
+            <version>4.5.0</version>
+            <description>
+                <![CDATA[Encode & decode XML and HTML entities with ease & speed]]>
+            </description>
+            <hashes>
+                <hash alg="SHA-512">5748631f87463e1f40a39a74328458e8156ab700a3873eaf2392d3f00279e47fb883dff8bdb1f1d48e787d2d17b9c94b8431c0acf40288c8c3c6368bf1f3f187</hash>
+            </hashes>
+            <licenses>
+                <license>
+                    <id>BSD-2-Clause</id>
+                </license>
+            </licenses>
+            <purl>pkg:npm/entities@4.5.0</purl>
+            <externalReferences>
+                <reference type="website">
+                    <url>https://github.com/fb55/entities#readme</url>
+                </reference>
+                <reference type="issue-tracker">
+                    <url>https://github.com/fb55/entities/issues</url>
+                </reference>
+                <reference type="vcs">
+                    <url>git://github.com/fb55/entities.git</url>
+                </reference>
+            </externalReferences>
+        </component>
+        <component type="library" bom-ref="pkg:npm/jquery@3.7.1">
+            <author>OpenJS Foundation and other contributors</author>
+            <name>jquery</name>
+            <version>3.7.1</version>
+            <description>
+                <![CDATA[JavaScript library for DOM operations]]>
+            </description>
+            <hashes>
+                <hash alg="SHA-512">9b86afafcc8bf2498537ca6cadb14516607f21fd7888de68f67c3f3609e733e9326c326946c0329d5d81b1fa5362b4d1cac6147400d50fb0a45148b3824a4b7e</hash>
+            </hashes>
+            <licenses>
+                <license>
+                    <id>MIT</id>
+                </license>
+            </licenses>
+            <purl>pkg:npm/jquery@3.7.1</purl>
+            <externalReferences>
+                <reference type="website">
+                    <url>https://jquery.com</url>
+                </reference>
+                <reference type="issue-tracker">
+                    <url>https://github.com/jquery/jquery/issues</url>
+                </reference>
+                <reference type="vcs">
+                    <url>git+https://github.com/jquery/jquery.git</url>
+                </reference>
+            </externalReferences>
+        </component>
+        <component type="library" bom-ref="pkg:npm/parse5@7.1.2">
+            <author>Ivan Nikulin</author>
+            <name>parse5</name>
+            <version>7.1.2</version>
+            <description>
+                <![CDATA[HTML parser and serializer.]]>
+            </description>
+            <hashes>
+                <hash alg="SHA-512">0b38f559a495a5aa23d306e13332e6583ebd6a7a76587ec55cc07d9f54b2f3f64517d8e895241532ed488f9588c8699c066864ec43a77693b8988a62855a805f</hash>
+            </hashes>
+            <licenses>
+                <license>
+                    <id>MIT</id>
+                </license>
+            </licenses>
+            <purl>pkg:npm/parse5@7.1.2</purl>
+            <externalReferences>
+                <reference type="website">
+                    <url>https://github.com/inikulin/parse5</url>
+                </reference>
+                <reference type="issue-tracker">
+                    <url>https://github.com/inikulin/parse5/issues</url>
+                </reference>
+                <reference type="vcs">
+                    <url>git://github.com/inikulin/parse5.git</url>
+                </reference>
+            </externalReferences>
+        </component>
+        <component type="library" bom-ref="pkg:npm/popper.js@1.16.1">
+            <author>Federico Zivolo</author>
+            <name>popper.js</name>
+            <version>1.16.1</version>
+            <description>
+                <![CDATA[A kickass library to manage your poppers]]>
+            </description>
+            <hashes>
+                <hash alg="SHA-512">59be29d49e33c854db33ebba5ae3b85ecb58c782b2f427b07b80d6ade97b074c3a555202bcfc1d3a9a2d8f371fe9e0fc4ec72456720c34e350c8f21414e51b09</hash>
+            </hashes>
+            <licenses>
+                <license>
+                    <id>MIT</id>
+                </license>
+            </licenses>
+            <purl>pkg:npm/popper.js@1.16.1</purl>
+            <externalReferences>
+                <reference type="website">
+                    <url>https://popper.js.org</url>
+                </reference>
+                <reference type="issue-tracker">
+                    <url>https://github.com/FezVrasta/popper.js/issues</url>
+                </reference>
+                <reference type="vcs">
+                    <url>git+https://github.com/FezVrasta/popper.js.git</url>
+                </reference>
+            </externalReferences>
+        </component>
+    </components>
+    <dependencies>
+        <dependency ref="pkg:npm/tslib@2.6.2"/>
+        <dependency ref="pkg:npm/%40angular/animations@16.2.12">
+            <dependency ref="pkg:npm/tslib@2.6.2"/>
+        </dependency>
+        <dependency ref="pkg:npm/%40angular/cdk@16.2.12"/>
+        <dependency ref="pkg:npm/%40angular/common@16.2.12"/>
+        <dependency ref="pkg:npm/%40angular/compiler@16.2.12"/>
+        <dependency ref="pkg:npm/%40angular/core@16.2.12"/>
+        <dependency ref="pkg:npm/%40angular/forms@16.2.12"/>
+        <dependency ref="pkg:npm/%40angular/platform-browser@16.2.12"/>
+        <dependency ref="pkg:npm/%40angular/platform-browser-dynamic@16.2.12"/>
+        <dependency ref="pkg:npm/%40angular/router@16.2.12"/>
+        <dependency ref="pkg:npm/%40materia-ui/ngx-monaco-editor@6.0.0"/>
+        <dependency ref="pkg:npm/%40ngx-translate/core@15.0.0"/>
+        <dependency ref="pkg:npm/%40ngx-translate/http-loader@8.0.0"/>
+        <dependency ref="pkg:npm/%40syncpilot/atlas-icons@3.0.7"/>
+        <dependency ref="pkg:npm/%40syncpilot/common@3.3.3"/>
+        <dependency ref="pkg:npm/bootstrap@4.6.2"/>
+        <dependency ref="pkg:npm/monaco-editor@0.34.1"/>
+        <dependency ref="pkg:npm/rxjs@7.8.1"/>
+        <dependency ref="pkg:npm/ua-parser-js@1.0.37"/>
+        <dependency ref="pkg:npm/zone.js@0.13.3"/>
+        <dependency ref="pkg:npm/entities@4.5.0"/>
+        <dependency ref="pkg:npm/jquery@3.7.1"/>
+        <dependency ref="pkg:npm/parse5@7.1.2"/>
+        <dependency ref="pkg:npm/popper.js@1.16.1"/>
+        <dependency ref="pkg:npm/atlas-uikit@5.9.0">
+            <dependency ref="pkg:npm/%40angular/animations@16.2.12"/>
+            <dependency ref="pkg:npm/%40angular/cdk@16.2.12"/>
+            <dependency ref="pkg:npm/%40angular/common@16.2.12"/>
+            <dependency ref="pkg:npm/%40angular/compiler@16.2.12"/>
+            <dependency ref="pkg:npm/%40angular/core@16.2.12"/>
+            <dependency ref="pkg:npm/%40angular/forms@16.2.12"/>
+            <dependency ref="pkg:npm/%40angular/platform-browser@16.2.12"/>
+            <dependency ref="pkg:npm/%40angular/platform-browser-dynamic@16.2.12"/>
+            <dependency ref="pkg:npm/%40angular/router@16.2.12"/>
+            <dependency ref="pkg:npm/%40materia-ui/ngx-monaco-editor@6.0.0"/>
+            <dependency ref="pkg:npm/%40ngx-translate/core@15.0.0"/>
+            <dependency ref="pkg:npm/%40ngx-translate/http-loader@8.0.0"/>
+            <dependency ref="pkg:npm/%40syncpilot/atlas-icons@3.0.7"/>
+            <dependency ref="pkg:npm/%40syncpilot/common@3.3.3"/>
+            <dependency ref="pkg:npm/bootstrap@4.6.2"/>
+            <dependency ref="pkg:npm/monaco-editor@0.34.1"/>
+            <dependency ref="pkg:npm/rxjs@7.8.1"/>
+            <dependency ref="pkg:npm/ua-parser-js@1.0.37"/>
+            <dependency ref="pkg:npm/zone.js@0.13.3"/>
+            <dependency ref="pkg:npm/entities@4.5.0"/>
+            <dependency ref="pkg:npm/jquery@3.7.1"/>
+            <dependency ref="pkg:npm/parse5@7.1.2"/>
+            <dependency ref="pkg:npm/popper.js@1.16.1"/>
+        </dependency>
+    </dependencies>
+</bom>
