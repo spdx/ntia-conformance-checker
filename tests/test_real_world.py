@@ -38,6 +38,6 @@ def test_real_world_robustness(filename):
         is_compliant = sbom.compliant
         assert isinstance(is_compliant, bool)
 
-    except Exception as e: # pylint: disable=broad-exception-caught
+    except Exception as e:  # pylint: disable=broad-exception-caught
         # If it crashes, fail the test and show us the error
         pytest.fail(f"CRASHED on {filename} with error: {e}")
