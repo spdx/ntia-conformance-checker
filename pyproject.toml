@@ -75,6 +75,9 @@ test = ["coverage>=7.13.0", "pytest>=9.0.2"]
 ntia-checker = "ntia_conformance_checker.main:main"
 sbomcheck = "ntia_conformance_checker.main:main"
 
+[tool.pylint.main]
+disable = "duplicate-code"
+
 [tool.ruff]
 line-length = 88 # Same as black
 indent-width = 4 # Same as black
@@ -105,4 +108,4 @@ fixable = ["ALL"]
 packages = ["ntia_conformance_checker"]
 
 [tool.setuptools.package-data]
-ntia_conformance_checker = ["py.typed"]  # Signal type hinting support
+ntia_conformance_checker = ["py.typed"] # Signal type hinting support
