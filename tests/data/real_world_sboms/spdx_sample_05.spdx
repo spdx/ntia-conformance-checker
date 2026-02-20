@@ -1,0 +1,370 @@
+SPDXVersion: SPDX-2.3
+DataLicense: CC0-1.0
+SPDXID: SPDXRef-DOCUMENT
+DocumentName: gitlab.com/ownageoss/utils
+DocumentNamespace: https://spdx.org/spdxdocs/k8s-releng-bom-0a2b0ad1-9b88-4208-85fc-5f1076f4f16d
+Creator: Organization: Kubernetes Release Engineering
+Creator: Tool: bom-v0.6.0
+LicenseListVersion: 3.21
+Created: 2024-05-10T02:04:50Z
+
+
+##### Package: utils
+
+PackageName: utils
+SPDXID: SPDXRef-Package-utils
+PackageDownloadLocation: NONE
+FilesAnalyzed: true
+PackageVerificationCode: ce77446a99ba85a53cbfab241c331a8e6d63e44b
+PackageLicenseConcluded: NOASSERTION
+PackageLicenseDeclared: NOASSERTION
+PackageCopyrightText: NOASSERTION
+
+FileName: README.md
+SPDXID: SPDXRef-File-utils-README.md
+FileChecksum: SHA1: a0d1bdc637134a263ee3e07f68ce2f5397d2fc34
+FileChecksum: SHA256: e8f3af0657c7bd4618119c6b4de0ab65259471b5570d2200703b84a22161ef89
+FileChecksum: SHA512: c438fea7a9e629f52b319a36d188df6e190a40fa50f54259b63b4c981a9f4f03f01e65dcde64ba24e0c52edc4f12be73d5285e1e8ed2439e9a0fbeec7d383588
+FileType: TEXT
+FileType: DOCUMENTATION
+LicenseConcluded: NOASSERTION
+LicenseInfoInFile: NONE
+FileCopyrightText: NOASSERTION
+
+Relationship: SPDXRef-Package-utils CONTAINS SPDXRef-File-utils-README.md
+FileName: Makefile
+SPDXID: SPDXRef-File-utils-Makefile
+FileChecksum: SHA1: b773b0549b971e3303140d2b1943186049b39aa2
+FileChecksum: SHA256: cda25875721b4c835df39080a0e7b77271913cfeab96044c81ef0b6874f69582
+FileChecksum: SHA512: 66f73e649e7ac5c7f7652a3d9b87cea68f0a83ad94ecbf7442b7f10b5004e483fe9a7fd0d04cdffe06410e550067a7222477da17859d8f32a675523a5781979e
+FileType: BINARY
+FileType: APPLICATION
+LicenseConcluded: NOASSERTION
+LicenseInfoInFile: NONE
+FileCopyrightText: NOASSERTION
+
+Relationship: SPDXRef-Package-utils CONTAINS SPDXRef-File-utils-Makefile
+FileName: .gitlab-ci.yml
+SPDXID: SPDXRef-File-utils-.gitlab-ci.yml
+FileChecksum: SHA1: 07ea8dbe0d17e2ffdb5c3b1c7ca0838161591807
+FileChecksum: SHA256: 235ec2c03e3152b4059ffc3634345fa18cf7f1c3ee0e7ba6985e7549c392ad6e
+FileChecksum: SHA512: 33b32a5a5ac5394a849b3200c36f518c48a287417d003a4744e35c3a2d6b34e62f6e67172d975714d020e2391d288c0a67852a8b719f89544a0503898c37ae57
+FileType: TEXT
+LicenseConcluded: NOASSERTION
+LicenseInfoInFile: NONE
+FileCopyrightText: NOASSERTION
+
+Relationship: SPDXRef-Package-utils CONTAINS SPDXRef-File-utils-.gitlab-ci.yml
+FileName: LICENSE
+SPDXID: SPDXRef-File-utils-LICENSE
+FileChecksum: SHA1: 8e49eaeb600794879313a05d2865001a4ce8cbf0
+FileChecksum: SHA256: 0a4754bb0455469ab90163b236dcbca46b6ac8ca70ec972f924502e4563db106
+FileChecksum: SHA512: 8619c7c5bf6efd87b3b819f67b7b34d5cc3af721281d7b029e47805196d7480c69b94d5f154fed4ca739d6a2969077727e3be157a9f4de3d57ce6fade5e80b0c
+FileType: TEXT
+FileType: DOCUMENTATION
+LicenseConcluded: NOASSERTION
+LicenseInfoInFile: NONE
+FileCopyrightText: NOASSERTION
+
+Relationship: SPDXRef-Package-utils CONTAINS SPDXRef-File-utils-LICENSE
+FileName: .gitignore
+SPDXID: SPDXRef-File-utils-.gitignore
+FileChecksum: SHA1: b87877a27e81824ca57bb37c62af47b492cc7317
+FileChecksum: SHA256: 57c03e3546a8ea3f731ea11b3a9891840c9dead66b6e571ff61d25bad0b616e4
+FileChecksum: SHA512: cc2b9c13ee9bb2dea2950edb3d753693e18d83e22c5e87bdc1a28d02e727ac60dfee68df3d2b484b92cfd7618537e657db32537ff9352c9ea12462e1278c7406
+FileType: OTHER
+LicenseConcluded: NOASSERTION
+LicenseInfoInFile: NONE
+FileCopyrightText: NOASSERTION
+
+Relationship: SPDXRef-Package-utils CONTAINS SPDXRef-File-utils-.gitignore
+FileName: digit.go
+SPDXID: SPDXRef-File-utils-digit.go
+FileChecksum: SHA1: f79f5b2db2013469d6bfa1e9ce5bedc1ac556290
+FileChecksum: SHA256: f567de6e4b4985279d20283408b1b548c528b685c491a0c3db2182e8f7d49939
+FileChecksum: SHA512: ef5aa848a20ce887b2edf06c4ff69f16aa0d63f220c8b9efdb6dfb5fbcd75f39876b206c3d6fd6f61d0984f8f24d6770dcf9de514326c6c0a118676229b575a4
+FileType: SOURCE
+LicenseConcluded: NOASSERTION
+LicenseInfoInFile: NONE
+FileCopyrightText: NOASSERTION
+
+Relationship: SPDXRef-Package-utils CONTAINS SPDXRef-File-utils-digit.go
+FileName: digit_test.go
+SPDXID: SPDXRef-File-utils-digitC95test.go
+FileChecksum: SHA1: 55d3bc9ec6d992710686435096e3016aeb34d5e4
+FileChecksum: SHA256: 48dbd7d00dc6d33985d9abbd30b4849330c450360bfaf8beb7018b96347b21cf
+FileChecksum: SHA512: e2066426ec98703be142d4d2d468a724d6415cbcfdbcbcc9e6505d7940a35769cfd4f01c978b5d0262e803cfab1e25d86ab863d3f4c53b7deacb1549501799c9
+FileType: SOURCE
+LicenseConcluded: NOASSERTION
+LicenseInfoInFile: NONE
+FileCopyrightText: NOASSERTION
+
+Relationship: SPDXRef-Package-utils CONTAINS SPDXRef-File-utils-digitC95test.go
+FileName: error_test.go
+SPDXID: SPDXRef-File-utils-errorC95test.go
+FileChecksum: SHA1: 192fe2098b7fe80ddbb64cf6de1faebc45e3e487
+FileChecksum: SHA256: 1aa60ca54999478c96c677c18e45db13b226cc95370004554c8269e45f5fecd4
+FileChecksum: SHA512: 3b73b814a21ac4a0424d2d1704a1ef5d13bfa0cc65372a8adb24f9e0ce8f0bbfcf46a16368ce109e275f9db89926725a49b25f62bba3b84e7bfaac0b529b83aa
+FileType: SOURCE
+LicenseConcluded: NOASSERTION
+LicenseInfoInFile: NONE
+FileCopyrightText: NOASSERTION
+
+Relationship: SPDXRef-Package-utils CONTAINS SPDXRef-File-utils-errorC95test.go
+FileName: go.sum
+SPDXID: SPDXRef-File-utils-go.sum
+FileChecksum: SHA1: 5252ebe905f5c0e88ae1f1b65ab75d9074824bbd
+FileChecksum: SHA256: 738344a1df47c8913ab574b594b65e41080fd7dbe5ef49cbf5c42554fee5c12f
+FileChecksum: SHA512: ca7ffc122d8282253651dd8c51b554aa258e1491adc528acd9ba82b9cdbe43bf10a69aabf2e08eb0b01dbf683693396e007eb2306113c43ad0c0f87f5649b459
+FileType: OTHER
+LicenseConcluded: NOASSERTION
+LicenseInfoInFile: NONE
+FileCopyrightText: NOASSERTION
+
+Relationship: SPDXRef-Package-utils CONTAINS SPDXRef-File-utils-go.sum
+FileName: hash.go
+SPDXID: SPDXRef-File-utils-hash.go
+FileChecksum: SHA1: 3448c4b76726cb9bfead5f778758a5616b2c3f7b
+FileChecksum: SHA256: dd301d2e025a3b4a020d92f26f3b38f475ec4a631491ab9b902ba59ac27c2ddb
+FileChecksum: SHA512: a98dd3c344cd35d8ce6391a95d40fbee954b15b5f297355163121beab5f26e07c0b6bf118bd7e5d4c76224891642c5e02018d4042f8993b3f6f0158a5e5a93c1
+FileType: SOURCE
+LicenseConcluded: NOASSERTION
+LicenseInfoInFile: NONE
+FileCopyrightText: NOASSERTION
+
+Relationship: SPDXRef-Package-utils CONTAINS SPDXRef-File-utils-hash.go
+FileName: go.mod
+SPDXID: SPDXRef-File-utils-go.mod
+FileChecksum: SHA1: aca3110433f921a8b8a90468906025808c0f95cc
+FileChecksum: SHA256: 9ef4dc47e5ba1e4f8b4f23a58454c9998c8c0d1b462cef1e6483e1fb60a94715
+FileChecksum: SHA512: 25cad594faf2715a9faabbe00c48f4eeb31d7f634b7bf198b8c2d67e875208157d95f69861304d3d4be2fe7dc5a13787e8ec45d4586a4d505a5205a5cad71e75
+FileType: OTHER
+LicenseConcluded: NOASSERTION
+LicenseInfoInFile: NONE
+FileCopyrightText: NOASSERTION
+
+Relationship: SPDXRef-Package-utils CONTAINS SPDXRef-File-utils-go.mod
+FileName: error.go
+SPDXID: SPDXRef-File-utils-error.go
+FileChecksum: SHA1: 686efd69ac67837573597f96e1e1a816a0177167
+FileChecksum: SHA256: 960142d1e456bb4d110304db7e9073ff4345cc2eef07e8f24b0ffeb5929ef1d4
+FileChecksum: SHA512: d56c624c72c0f831b477fbe25b5b11f12a7a174cd3f48b27348e717d395070e59d71aea71437bbebec0cfc191b0b2d1eba9eb2bf53fed2ef1ae8c8d370c90233
+FileType: SOURCE
+LicenseConcluded: NOASSERTION
+LicenseInfoInFile: NONE
+FileCopyrightText: NOASSERTION
+
+Relationship: SPDXRef-Package-utils CONTAINS SPDXRef-File-utils-error.go
+FileName: hash_test.go
+SPDXID: SPDXRef-File-utils-hashC95test.go
+FileChecksum: SHA1: f57fdebf250c9d47c9c39b8159f78f6fbf376db3
+FileChecksum: SHA256: 52d250c18fecef75fd52e78d5328cf770f260557373bdabeaf543f2c90d74df7
+FileChecksum: SHA512: e139d6deb8f3e18df1828110352a1e09a66d23a50b94026aac72eb65aee84076b5665729175922cbfdb3aeb00234fb42db15ecbbd0607e283e88f918e9ddea72
+FileType: SOURCE
+LicenseConcluded: NOASSERTION
+LicenseInfoInFile: NONE
+FileCopyrightText: NOASSERTION
+
+Relationship: SPDXRef-Package-utils CONTAINS SPDXRef-File-utils-hashC95test.go
+FileName: json.go
+SPDXID: SPDXRef-File-utils-json.go
+FileChecksum: SHA1: af28e2d812ac41a8c9fd669004d9390bf7f0ab0e
+FileChecksum: SHA256: c18404f514970410c2ba3ffc822c95a9bb6d9d6495514bdc7d7ae57632b1f8a5
+FileChecksum: SHA512: e4cf418dba288a31c4746a168c8518fc5abfb40b63340dfb8c93d959eaecb0a9587b287e40aa5e8e6b277c6cc31e3546d88ae9ca630ea86867eb3f4cbc7804ea
+FileType: SOURCE
+LicenseConcluded: NOASSERTION
+LicenseInfoInFile: NONE
+FileCopyrightText: NOASSERTION
+
+Relationship: SPDXRef-Package-utils CONTAINS SPDXRef-File-utils-json.go
+FileName: json_test.go
+SPDXID: SPDXRef-File-utils-jsonC95test.go
+FileChecksum: SHA1: 1499a06fcc3ceabf07611a9dc463bbd534b45c98
+FileChecksum: SHA256: 1cac1124a1686105f2eddab2004789a3ecbf93ad15252ac83b8d764037b68038
+FileChecksum: SHA512: ba58b6b02e0aa58439fddcb882384ad8e74fc43886a40d889a5ae35ccc0ac22b30c439f422c9030511a604854e8c7fada3bd1aaf1aae6046fd0c7e97c977befd
+FileType: SOURCE
+LicenseConcluded: NOASSERTION
+LicenseInfoInFile: NONE
+FileCopyrightText: NOASSERTION
+
+Relationship: SPDXRef-Package-utils CONTAINS SPDXRef-File-utils-jsonC95test.go
+FileName: random.go
+SPDXID: SPDXRef-File-utils-random.go
+FileChecksum: SHA1: 4adb6f33a061b384aef8a0cbcc1cfd2ba0970649
+FileChecksum: SHA256: 6f67fbb1075af7e0d23db30646641d088eb50c7ad5567eec511262eb8d8198ad
+FileChecksum: SHA512: 471111ac25d63c2bb66a108ae5842dca6bd0f23ffdd3d753d4c6ab9ae4a246806b407681a52ca48854d1274f49084054f3e67cc88d7af6a1182d9c1f3e84b216
+FileType: SOURCE
+LicenseConcluded: NOASSERTION
+LicenseInfoInFile: NONE
+FileCopyrightText: NOASSERTION
+
+Relationship: SPDXRef-Package-utils CONTAINS SPDXRef-File-utils-random.go
+FileName: random_test.go
+SPDXID: SPDXRef-File-utils-randomC95test.go
+FileChecksum: SHA1: 31241846981cf84772c633edb8f0c85a1d36f6a8
+FileChecksum: SHA256: fffd373c6e652a38ff03581e8b134511560aca895d3fb508785920d63bc85eb1
+FileChecksum: SHA512: f3671270c24350bddc3aee51ffa58bddbd59dd5e0e7e46db3ac1d07259c221b24dca3f90375739e1079c2ac10288bf9c1ab1773833c348cb414fecd84374d8ed
+FileType: SOURCE
+LicenseConcluded: NOASSERTION
+LicenseInfoInFile: NONE
+FileCopyrightText: NOASSERTION
+
+Relationship: SPDXRef-Package-utils CONTAINS SPDXRef-File-utils-randomC95test.go
+FileName: sqlnull.go
+SPDXID: SPDXRef-File-utils-sqlnull.go
+FileChecksum: SHA1: 192a981d55b0c986fe3a05ed2431f388de0a11f1
+FileChecksum: SHA256: 3ecc207d0139e3147859cfdec231800db17089dce862f98deb5900caa5208a49
+FileChecksum: SHA512: 60d636d793f649fc13dc0b9c7a94be344fa53f2c7f65c233d5686d0e982f631269168fddf8aadc0ddfb9e81706c54fe913e57400e5d9253b8287d3d60078ebcb
+FileType: SOURCE
+LicenseConcluded: NOASSERTION
+LicenseInfoInFile: NONE
+FileCopyrightText: NOASSERTION
+
+Relationship: SPDXRef-Package-utils CONTAINS SPDXRef-File-utils-sqlnull.go
+FileName: limiter_test.go
+SPDXID: SPDXRef-File-utils-limiterC95test.go
+FileChecksum: SHA1: 46a9d6981a4ffcb7abb6538b43f6b123c46e919e
+FileChecksum: SHA256: fe6ed9856e85e24319d10c3e2d9a8ad9df828b5e1cb5e55a5b57e1cea97b85f1
+FileChecksum: SHA512: 8262f048d3a2a8951283860f65574c6accef7981c7c5a34c93507927b678cf8d6f7b247762ed3540162f64719f90715cfe2bf761ead5b9bec1d4e444566cdc78
+FileType: SOURCE
+LicenseConcluded: NOASSERTION
+LicenseInfoInFile: NONE
+FileCopyrightText: NOASSERTION
+
+Relationship: SPDXRef-Package-utils CONTAINS SPDXRef-File-utils-limiterC95test.go
+FileName: limiter.go
+SPDXID: SPDXRef-File-utils-limiter.go
+FileChecksum: SHA1: 05e68bcf2643f2355c67728451d5376ae357c273
+FileChecksum: SHA256: a772b5913aaf0e6eac515f9c2ecbec2cf53e3ac0470031fbcc0900665693ad79
+FileChecksum: SHA512: 9858c90e632b45ca0721525b647026b2bc27cc3f40ca371e889d683a21faf8111ac8820f48743cd3e4ac0abbf70974932da30bd3cb81b6b4ca8e39c33a38e17f
+FileType: SOURCE
+LicenseConcluded: NOASSERTION
+LicenseInfoInFile: NONE
+FileCopyrightText: NOASSERTION
+
+Relationship: SPDXRef-Package-utils CONTAINS SPDXRef-File-utils-limiter.go
+FileName: test.json
+SPDXID: SPDXRef-File-utils-test.json
+FileChecksum: SHA1: bcc8c254f1b70dc14b8ba7498ba88a90dc2ea908
+FileChecksum: SHA256: 2715faa1cb1f76e0246b1f71095d163ba9a23afebfb51db8d52c2e0a50da6d1f
+FileChecksum: SHA512: a3480c08de9bee842495ccaa9a9e2f41979889a8520163ebe95e412cc4543a30dbd15a3dedf582d5ad38a55afc71c8225065c700f55eac1c34c7532b2ba624c8
+FileType: TEXT
+LicenseConcluded: NOASSERTION
+LicenseInfoInFile: NONE
+FileCopyrightText: NOASSERTION
+
+Relationship: SPDXRef-Package-utils CONTAINS SPDXRef-File-utils-test.json
+FileName: sqlnull_test.go
+SPDXID: SPDXRef-File-utils-sqlnullC95test.go
+FileChecksum: SHA1: 1a69d1d9cbdd6375659a7448edd74a06008a72e5
+FileChecksum: SHA256: 41b261dd7b11b0acde6f1138f9551c6192cc59c106fbdf2c6656d13f07dfbeee
+FileChecksum: SHA512: 38aac4abc9725d72a7dee3102fe079b77439f0f73947bdafc5d4d066d251159a124e7586a4c35ffa81b38791c53979c5b593a47d4f728152ad2042185feecdec
+FileType: SOURCE
+LicenseConcluded: NOASSERTION
+LicenseInfoInFile: NONE
+FileCopyrightText: NOASSERTION
+
+Relationship: SPDXRef-Package-utils CONTAINS SPDXRef-File-utils-sqlnullC95test.go
+FileName: url.go
+SPDXID: SPDXRef-File-utils-url.go
+FileChecksum: SHA1: cb1da08da3d4a10b4dc925a229c9a08bf44131ca
+FileChecksum: SHA256: 8b56d834c25ed5500742027ca522baf1b8ce41abc6c648d45580c43ba4f6bf27
+FileChecksum: SHA512: 1c99ef913f8e5bc3bc58965fa68c67c35cce5e09bd33e825b48bf6f86912962de3f380c9f4a480ab232582e7063a13c859b0c456180348f99152bd14649ee1cd
+FileType: SOURCE
+LicenseConcluded: NOASSERTION
+LicenseInfoInFile: NONE
+FileCopyrightText: NOASSERTION
+
+Relationship: SPDXRef-Package-utils CONTAINS SPDXRef-File-utils-url.go
+FileName: url_test.go
+SPDXID: SPDXRef-File-utils-urlC95test.go
+FileChecksum: SHA1: 3057c67b65efb59d8108be4870254a4154bcba0f
+FileChecksum: SHA256: ae9b0ce50b611ba5442697b7eb54e884795f684d6be279e9f31d26be943e5387
+FileChecksum: SHA512: 9b54d43874a8b3902ca03e27692697683fa297e76abe35eb43085353ff64676e70ac970c7eaf9a01b94e54641bbe4e0f80396a513ea508097b4e13d73880ece4
+FileType: SOURCE
+LicenseConcluded: NOASSERTION
+LicenseInfoInFile: NONE
+FileCopyrightText: NOASSERTION
+
+Relationship: SPDXRef-Package-utils CONTAINS SPDXRef-File-utils-urlC95test.go
+FileName: utils.png
+SPDXID: SPDXRef-File-utils-utils.png
+FileChecksum: SHA1: 668c6617889557aa6751241903793a03c0c9c888
+FileChecksum: SHA256: f5e10a51b9bf7008c67071df5104e08097c5170287d80c23fb151ad640519569
+FileChecksum: SHA512: f3728d917cc36b1f3885c736d469f83f4943226904e70fb8e839bb2476b7f2823bc819ea39dd229dcb31f84a77a37302e71d07a4488b41e5bb85813aa5fa85ec
+FileType: IMAGE
+LicenseConcluded: NOASSERTION
+LicenseInfoInFile: NONE
+FileCopyrightText: NOASSERTION
+
+Relationship: SPDXRef-Package-utils CONTAINS SPDXRef-File-utils-utils.png
+FileName: utils.spdx
+SPDXID: SPDXRef-File-utils-utils.spdx
+FileChecksum: SHA1: 321d371c4adddf014f52559bb718f4a3ef3a51d5
+FileChecksum: SHA256: a08bbf8750c7367cf32b2b3c394243cda433ac7fe0901e0de6d991ed2abe5ade
+FileChecksum: SHA512: 0f7ccaabbebbbbbc2ebe96c3ed3c011c4788b71508d3590c7eda8d0e97c890f9b3e7632e9a00b5817e3586d391c5a66725ceb0c481578494c7d68b9d2d5af7c8
+FileType: OTHER
+LicenseConcluded: BSD-3-Clause
+LicenseInfoInFile: BSD-3-Clause
+FileCopyrightText: NOASSERTION
+
+Relationship: SPDXRef-Package-utils CONTAINS SPDXRef-File-utils-utils.spdx
+##### Package: github.com/juju/ratelimit
+
+PackageName: github.com/juju/ratelimit
+SPDXID: SPDXRef-Package-gomod-github.com-juju-ratelimit-v1.0.2
+PackageDownloadLocation: https://proxy.golang.org/github.com/juju/ratelimit/@v/v1.0.2.zip
+FilesAnalyzed: false
+PackageLicenseConcluded: NOASSERTION
+PackageVersion: v1.0.2
+ExternalRef: PACKAGE-MANAGER purl pkg:golang/github.com/juju/ratelimit@v1.0.2
+PackageLicenseDeclared: NOASSERTION
+PackageCopyrightText: NOASSERTION
+
+
+Relationship: SPDXRef-Package-utils DEPENDS_ON SPDXRef-Package-gomod-github.com-juju-ratelimit-v1.0.2
+##### Package: golang.org/x/crypto
+
+PackageName: golang.org/x/crypto
+SPDXID: SPDXRef-Package-gomod-golang.org-x-crypto-v0.23.0
+PackageDownloadLocation: https://proxy.golang.org/golang.org/x/crypto/@v/v0.23.0.zip
+FilesAnalyzed: false
+PackageLicenseConcluded: BSD-3-Clause
+PackageVersion: v0.23.0
+ExternalRef: PACKAGE-MANAGER purl pkg:golang/golang.org/x/crypto@v0.23.0
+PackageLicenseDeclared: NOASSERTION
+PackageCopyrightText: <text>Copyright (c) 2009 The Go Authors. All rights reserved.
+
+Redistribution and use in source and binary forms, with or without
+modification, are permitted provided that the following conditions are
+met:
+
+   * Redistributions of source code must retain the above copyright
+notice, this list of conditions and the following disclaimer.
+   * Redistributions in binary form must reproduce the above
+copyright notice, this list of conditions and the following disclaimer
+in the documentation and/or other materials provided with the
+distribution.
+   * Neither the name of Google Inc. nor the names of its
+contributors may be used to endorse or promote products derived from
+this software without specific prior written permission.
+
+THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS
+"AS IS" AND ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT
+LIMITED TO, THE IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS FOR
+A PARTICULAR PURPOSE ARE DISCLAIMED. IN NO EVENT SHALL THE COPYRIGHT
+OWNER OR CONTRIBUTORS BE LIABLE FOR ANY DIRECT, INDIRECT, INCIDENTAL,
+SPECIAL, EXEMPLARY, OR CONSEQUENTIAL DAMAGES (INCLUDING, BUT NOT
+LIMITED TO, PROCUREMENT OF SUBSTITUTE GOODS OR SERVICES; LOSS OF USE,
+DATA, OR PROFITS; OR BUSINESS INTERRUPTION) HOWEVER CAUSED AND ON ANY
+THEORY OF LIABILITY, WHETHER IN CONTRACT, STRICT LIABILITY, OR TORT
+(INCLUDING NEGLIGENCE OR OTHERWISE) ARISING IN ANY WAY OUT OF THE USE
+OF THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
+
+</text>
+
+
+Relationship: SPDXRef-Package-utils DEPENDS_ON SPDXRef-Package-gomod-golang.org-x-crypto-v0.23.0
+
+Relationship: SPDXRef-DOCUMENT DESCRIBES SPDXRef-Package-utils
+

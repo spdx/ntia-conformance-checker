@@ -1,0 +1,609 @@
+SPDXVersion: SPDX-2.1
+DataLicense: CC0-1.0
+
+##-------------------------
+## Document Information
+##-------------------------
+
+DocumentNamespace: http://fossology.lfscanning.org/repo/SPDX2TV_acumos-java-client-2020-05-12.zip_1589310118.spdx
+DocumentName: /srv/fossology/repository/report
+SPDXID: SPDXRef-DOCUMENT
+
+##-------------------------
+## Creation Information
+##-------------------------
+
+Creator: Tool: spdx2
+Creator: Person: steve ()
+CreatorComment: <text>
+This document was created using license information and a generator from Fossology.
+</text>
+Created: 2020-05-12T19:01:58Z
+LicenseListVersion: 2.6
+
+##-------------------------
+## Package Information
+##-------------------------
+
+
+PackageName: acumos-java-client-2020-05-12.zip
+PackageFileName: acumos-java-client-2020-05-12.zip
+SPDXID: SPDXRef-upload2450
+PackageDownloadLocation: NOASSERTION
+PackageVerificationCode: e7b8a1ce6a2426c7d9e3a5bb4637d13271d8f1c9
+PackageChecksum: SHA1: 73ebdbe710388bd8729f08938c3507ec8eca284a
+PackageChecksum: MD5: 8efa9ab07a7eafcf06c85ddae4ae80fd
+PackageLicenseConcluded: NOASSERTION
+PackageLicenseDeclared: NOASSERTION
+PackageLicenseComments: <text> licenseInfoInFile determined by Scanners:
+ - nomos ("3.6.0-rc2-13-gfc1b3cef".fc1b3c)
+ - monk ("3.6.0-rc2-13-gfc1b3cef".fc1b3c) </text>
+PackageLicenseInfoFromFiles: NOASSERTION
+PackageCopyrightText: NOASSERTION
+
+Relationship: SPDXRef-DOCUMENT DESCRIBES SPDXRef-upload2450
+
+##--------------------------
+## File Information
+##--------------------------
+
+##File
+
+FileName: acumos-java-client/docs/tutorials/lesson1.rst
+SPDXID: SPDXRef-item9400499
+FileChecksum: SHA1: 1f4f7f262fde3c73bc7ec9f12ce5659ce50ed40c
+FileChecksum: MD5: f2733d704d6fbedcfcb667d64fb5e5eb
+LicenseConcluded: CC-BY-4.0
+LicenseInfoInFile: CC-BY-4.0
+FileCopyrightText: <text> Copyright (C) 2017-2018 AT&T Intellectual Property & Tech Mahindra. All rights reserved. </text>
+ 
+
+##File
+
+FileName: acumos-java-client/docs/tutorials/index.rst
+SPDXID: SPDXRef-item9400498
+FileChecksum: SHA1: d3addd41968be99b187e0ca873053756eb28c8bd
+FileChecksum: MD5: 778e3532c78d5aaa00257a32baf37dfd
+LicenseConcluded: CC-BY-4.0
+LicenseInfoInFile: CC-BY-4.0
+FileCopyrightText: <text> Copyright (C) 2017-2018 AT&T Intellectual Property & Tech Mahindra. All rights reserved. </text>
+ 
+
+##File
+
+FileName: acumos-java-client/docs/index.rst
+SPDXID: SPDXRef-item9400484
+FileChecksum: SHA1: 1be003a9aedaee2000d3281b2ed432cf9942c9ed
+FileChecksum: MD5: 055d0986ece784bc08debb7edd9c198c
+LicenseConcluded: CC-BY-4.0
+LicenseInfoInFile: CC-BY-4.0
+FileCopyrightText: <text> Copyright (C) 2017-2018 AT&T Intellectual Property & Tech Mahindra. All rights reserved. </text>
+ 
+
+##File
+
+FileName: acumos-java-client/README.md
+SPDXID: SPDXRef-item9400472
+FileChecksum: SHA1: 02df06186f68b7825a4abc6e80520d1511957664
+FileChecksum: MD5: 8157c5eed29acf15d4e7af4e21a7e003
+LicenseConcluded: CC-BY-4.0
+LicenseInfoInFile: CC-BY-4.0
+FileCopyrightText: <text> Copyright (C) 2017-2018 AT&T Intellectual Property & Tech Mahindra. All rights reserved. </text>
+ 
+
+##File
+
+FileName: acumos-java-client/docs/developer-guide.rst
+SPDXID: SPDXRef-item9400500
+FileChecksum: SHA1: a7d9b8a2c98697f3e45e74b1931fcae4d8313bbf
+FileChecksum: MD5: 4e0f5a1872d4377128ce67b99b5ae498
+LicenseConcluded: CC-BY-4.0
+LicenseInfoInFile: CC-BY-4.0
+FileCopyrightText: <text> Copyright (C) 2017-2018 AT&T Intellectual Property & Tech Mahindra. All rights reserved. </text>
+ 
+
+##File
+
+FileName: acumos-java-client/docs/release-notes.rst
+SPDXID: SPDXRef-item9400485
+FileChecksum: SHA1: 1d83f8acbbb1f7a89e86aee179d2c8ffd7953765
+FileChecksum: MD5: 7e8e7af98182e51db3427bb16f6c2334
+LicenseConcluded: CC-BY-4.0
+LicenseInfoInFile: CC-BY-4.0
+FileCopyrightText: <text> Copyright (C) 2017-2018 AT&T Intellectual Property & Tech Mahindra. All rights reserved. </text>
+ 
+
+##File
+
+FileName: acumos-java-client/docs/onboarding-java-guide.rst
+SPDXID: SPDXRef-item9400501
+FileChecksum: SHA1: 535738811b0b3bd9ddbabb659a125a0ff326815e
+FileChecksum: MD5: 99e2f97a656675885f3fb285b81513a6
+LicenseConcluded: CC-BY-4.0
+LicenseInfoInFile: CC-BY-4.0
+FileCopyrightText: <text> Copyright (C) 2017-2018 AT&T Intellectual Property & Tech Mahindra. All rights reserved. </text>
+ 
+
+##File
+
+FileName: acumos-java-client/LICENSE.txt
+SPDXID: SPDXRef-item9400475
+FileChecksum: SHA1: ff8150d30cf88e36830b621e18fe657acd0b34df
+FileChecksum: MD5: b236014cbcb9f7e1ed6861da6cfb2abd
+LicenseConcluded: Apache-2.0
+LicenseInfoInFile: Apache-2.0
+FileCopyrightText: NOASSERTION
+ 
+
+##File
+
+FileName: acumos-java-client/java_client/src/test/resources/default.proto
+SPDXID: SPDXRef-item9400443
+FileChecksum: SHA1: 821df39a7aee25122b7948abfd75ea1231c4fd66
+FileChecksum: MD5: 73f02b5aef269f9a0e883804d093ef50
+LicenseConcluded: Apache-2.0
+LicenseInfoInFile: Apache-2.0
+FileCopyrightText: <text> Copyright (C) 2017-2018 AT&T Intellectual Property & Tech Mahindra. All rights reserved. </text>
+ 
+
+##File
+
+FileName: acumos-java-client/java_client/src/test/resources/modelConfig.properties
+SPDXID: SPDXRef-item9400444
+FileChecksum: SHA1: afca7566e891980cec91a0eb19fb7d65d9014f44
+FileChecksum: MD5: 7f02b79b1c095f5ed6c89868639913bb
+LicenseConcluded: Apache-2.0
+LicenseInfoInFile: Apache-2.0
+FileCopyrightText: <text> Copyright (C) 2017-2018 AT&T Intellectual Property & Tech Mahindra. All rights reserved. </text>
+ 
+
+##File
+
+FileName: acumos-java-client/pom.xml
+SPDXID: SPDXRef-item9400503
+FileChecksum: SHA1: 53f5b69231490535d08e35084ea3e76c481ef668
+FileChecksum: MD5: 8fd28c9bc543c62c7071692f33bb5aae
+LicenseConcluded: Apache-2.0
+LicenseInfoInFile: Apache-2.0
+FileCopyrightText: <text> Copyright (C) 2017-2018 AT&T Intellectual Property & Tech Mahindra. All rights reserved. </text>
+ 
+
+##File
+
+FileName: acumos-java-client/java_client/LICENSE.txt
+SPDXID: SPDXRef-item9400468
+FileChecksum: SHA1: 811705c0065abf799d1fac627132415c5e4bdda8
+FileChecksum: MD5: ec5365ce99b1802c2f7f35086dd51f3f
+LicenseConcluded: Apache-2.0
+LicenseInfoInFile: Apache-2.0
+FileCopyrightText: <text> Copyright © 2017 AT&T Intellectual Property & Tech Mahindra. All rights reserved. </text>
+ 
+
+##File
+
+FileName: acumos-java-client/java_client/src/test/java/org/acumos/javah20client/CSVToProtoTest.java
+SPDXID: SPDXRef-item9400450
+FileChecksum: SHA1: d4bcd5d16fb38e5f72c6135e9e88c3ba7d31c536
+FileChecksum: MD5: dfaa3b54623da0a0bafebdffa12356f2
+LicenseConcluded: Apache-2.0
+LicenseInfoInFile: Apache-2.0
+FileCopyrightText: <text> Copyright (C) 2017-2018 AT&T Intellectual Property & Tech Mahindra. All rights reserved. </text>
+ 
+
+##File
+
+FileName: acumos-java-client/java_client/application.properties
+SPDXID: SPDXRef-item9400438
+FileChecksum: SHA1: 295a1b301b9ad1612a38baa1d1008ccd383c8a23
+FileChecksum: MD5: a9b8c5695f9d46747ad1c3e12d77aaa9
+LicenseConcluded: Apache-2.0
+LicenseInfoInFile: Apache-2.0
+FileCopyrightText: <text> Copyright (C) 2017 AT&T Intellectual Property & Tech Mahindra. All rights reserved. </text>
+ 
+
+##File
+
+FileName: acumos-java-client/java_client/modelConfig.properties
+SPDXID: SPDXRef-item9400471
+FileChecksum: SHA1: 8a98b2d963616f895aa39088475859970695fcbc
+FileChecksum: MD5: b9cf72e4b245b4fba4a73d5e48fea08c
+LicenseConcluded: Apache-2.0
+LicenseInfoInFile: Apache-2.0
+FileCopyrightText: <text> Copyright (C) 2017-2018 AT&T Intellectual Property & Tech Mahindra. All rights reserved. </text>
+ 
+
+##File
+
+FileName: acumos-java-client/java_client/src/main/java/org/acumos/javah20client/H2oCSVtoProto.java
+SPDXID: SPDXRef-item9400462
+FileChecksum: SHA1: 9f16c10b98cb022269eeec0a7a902a490d8b9a60
+FileChecksum: MD5: ac7918da52aef6957be90cce43963477
+LicenseConcluded: Apache-2.0
+LicenseInfoInFile: Apache-2.0
+FileCopyrightText: <text> Copyright (C) 2017 AT&T Intellectual Property & Tech Mahindra. All rights reserved. </text>
+ 
+
+##File
+
+FileName: acumos-java-client/java_client/src/main/java/org/acumos/javah20client/CSVToProto.java
+SPDXID: SPDXRef-item9400466
+FileChecksum: SHA1: 003a450e644c370215872e87f23837d64381436f
+FileChecksum: MD5: 24746012def4281ef0e8720206c4d3c1
+LicenseConcluded: Apache-2.0
+LicenseInfoInFile: Apache-2.0
+FileCopyrightText: <text> Copyright (C) 2017 AT&T Intellectual Property & Tech Mahindra. All rights reserved. </text>
+ 
+
+##File
+
+FileName: acumos-java-client/java_client/src/test/java/org/acumos/javah20client/H2oCSVtoProtoTest.java
+SPDXID: SPDXRef-item9400451
+FileChecksum: SHA1: 84f1791ec2f3a7b3619906103790f03b67c42caf
+FileChecksum: MD5: 6d5e8b93a9c33d0281be004a5d1639d2
+LicenseConcluded: Apache-2.0
+LicenseInfoInFile: Apache-2.0
+FileCopyrightText: <text> Copyright (C) 2017-2018 AT&T Intellectual Property & Tech Mahindra. All rights reserved. </text>
+ 
+
+##File
+
+FileName: acumos-java-client/java_client/src/main/java/org/acumos/javah20client/ClientController.java
+SPDXID: SPDXRef-item9400459
+FileChecksum: SHA1: f07694d8efd7f37084b140dee47b410ea0d4c67d
+FileChecksum: MD5: 9f0c41db0e6be413ee3a04f4b2777faa
+LicenseConcluded: Apache-2.0
+LicenseInfoInFile: Apache-2.0
+FileCopyrightText: <text> Copyright (C) 2017 AT&T Intellectual Property & Tech Mahindra. All rights reserved. </text>
+ 
+
+##File
+
+FileName: acumos-java-client/java_client/src/test/java/org/acumos/javah20client/ClientControllerTest.java
+SPDXID: SPDXRef-item9400449
+FileChecksum: SHA1: 70d7fde284cdc2a3dbce807f3f55907618482aa1
+FileChecksum: MD5: e436f5b99e7be52ecf2d2c379def1465
+LicenseConcluded: Apache-2.0
+LicenseInfoInFile: Apache-2.0
+FileCopyrightText: <text> Copyright (C) 2017 AT&T Intellectual Property & Tech Mahindra. All rights reserved. </text>
+ 
+
+##File
+
+FileName: acumos-java-client/docs/instalation-and-maintenance-guide.rst
+SPDXID: SPDXRef-item9400502
+FileChecksum: SHA1: 2faa3f0b7f24003c1a3955edc7894f960d92caa8
+FileChecksum: MD5: e8a77ddfcb5dee421230f7557b60a518
+LicenseConcluded: Apache-2.0 AND CC-BY-4.0
+LicenseInfoInFile: Apache-2.0
+LicenseInfoInFile: CC-BY-4.0
+LicenseInfoInFile: LicenseRef-Python
+FileCopyrightText: <text> Copyright (C) 2017-2018 AT&T Intellectual Property & Tech Mahindra. All rights reserved.
+Copyright (C) 2017 AT&T Intellectual Property & Tech Mahindra. All rights reserved. </text>
+ 
+
+##File
+
+FileName: acumos-java-client/java_client/pom.xml
+SPDXID: SPDXRef-item9400470
+FileChecksum: SHA1: 985d742d1e5d5b1e27df773dc5ad044f532ec637
+FileChecksum: MD5: bb603b3985fb2c9d4abf2ad3cd1cd620
+LicenseConcluded: Apache-2.0
+LicenseInfoInFile: Apache-2.0
+FileCopyrightText: <text> Copyright (C) 2017-2018 AT&T Intellectual Property & Tech Mahindra. All rights reserved. </text>
+ 
+
+##File
+
+FileName: acumos-java-client/java_client/IRIS3.csv
+SPDXID: SPDXRef-item9400439
+FileChecksum: SHA1: f5f90ee167b5f2fda71a2b8dd3de24e8c9510220
+FileChecksum: MD5: 820d2c6777578133da4a38468979b7cc
+LicenseConcluded: NOASSERTION
+LicenseInfoInFile: NOASSERTION
+FileCopyrightText: NOASSERTION
+ 
+
+##File
+
+FileName: acumos-java-client/java_client/src/main/resources/application.properties
+SPDXID: SPDXRef-item9400454
+FileChecksum: SHA1: 8631a6bfdf4912082f7547fb65dc68548cc7ee22
+FileChecksum: MD5: fa62b89d70f62eb08cdab2543d217a18
+LicenseConcluded: NOASSERTION
+LicenseInfoInFile: NOASSERTION
+FileCopyrightText: NOASSERTION
+ 
+
+##File
+
+FileName: acumos-java-client/java_client/src/main/java/org/acumos/javah20client/JavaSparkModelImpl.java
+SPDXID: SPDXRef-item9400460
+FileChecksum: SHA1: 391713d0a494b70272d20f5179a7184cdaba27bc
+FileChecksum: MD5: 6527164be32eb65eddc4a43f6e653abd
+LicenseConcluded: NOASSERTION
+LicenseInfoInFile: NOASSERTION
+FileCopyrightText: NOASSERTION
+ 
+
+##File
+
+FileName: acumos-java-client/java_client/src/main/java/org/acumos/javah20client/H2OModelImpl.java
+SPDXID: SPDXRef-item9400461
+FileChecksum: SHA1: 8a902e5020cc0362d438111293e740634945d35a
+FileChecksum: MD5: edf8986c775fe2a8f625c30d89203e3c
+LicenseConcluded: NOASSERTION
+LicenseInfoInFile: NOASSERTION
+FileCopyrightText: NOASSERTION
+ 
+
+##File
+
+FileName: acumos-java-client/java_client/src/main/java/org/acumos/javah20client/ClientControllerInterface.java
+SPDXID: SPDXRef-item9400463
+FileChecksum: SHA1: 8bc37f392f32f8686e548504ae41b4565dfa3797
+FileChecksum: MD5: 9bd69e07f019ede00a1108f90c5c977f
+LicenseConcluded: NOASSERTION
+LicenseInfoInFile: NOASSERTION
+FileCopyrightText: NOASSERTION
+ 
+
+##File
+
+FileName: acumos-java-client/java_client/src/main/java/org/acumos/javah20client/JavaGenericModelImpl.java
+SPDXID: SPDXRef-item9400464
+FileChecksum: SHA1: 79a2cff40c00f931ba38dcfff670d5bbda32e65a
+FileChecksum: MD5: 27035f611ac18bd07c8af1537b299ee5
+LicenseConcluded: NOASSERTION
+LicenseInfoInFile: NOASSERTION
+FileCopyrightText: NOASSERTION
+ 
+
+##File
+
+FileName: acumos-java-client/java_client/src/main/java/org/acumos/javah20client/AbstractClientController.java
+SPDXID: SPDXRef-item9400465
+FileChecksum: SHA1: a6c1859ee76e2bc0c36d909e8776a3d87c778c6a
+FileChecksum: MD5: a3d1fb018227114ece61ec27107d1ce7
+LicenseConcluded: NOASSERTION
+LicenseInfoInFile: NOASSERTION
+FileCopyrightText: NOASSERTION
+ 
+
+##File
+
+FileName: acumos-java-client/java_client/IRIS2.csv
+SPDXID: SPDXRef-item9400467
+FileChecksum: SHA1: f5f90ee167b5f2fda71a2b8dd3de24e8c9510220
+FileChecksum: MD5: 820d2c6777578133da4a38468979b7cc
+LicenseConcluded: NOASSERTION
+LicenseInfoInFile: NOASSERTION
+FileCopyrightText: NOASSERTION
+ 
+
+##File
+
+FileName: acumos-java-client/java_client/.gitignore
+SPDXID: SPDXRef-item9400469
+FileChecksum: SHA1: ce28108d36631364b364f59d747cbd3761824af0
+FileChecksum: MD5: 27ffe19c98a62573cbdd2c30f74902b2
+LicenseConcluded: NOASSERTION
+LicenseInfoInFile: NOASSERTION
+FileCopyrightText: NOASSERTION
+ 
+
+##File
+
+FileName: acumos-java-client/INFO.yaml
+SPDXID: SPDXRef-item9400473
+FileChecksum: SHA1: f3389a34da581e7d97ac778dd88cb0bb9664cad7
+FileChecksum: MD5: 1dfb3d7bad872059e8a899d6614f346e
+LicenseConcluded: NOASSERTION
+LicenseInfoInFile: NOASSERTION
+FileCopyrightText: NOASSERTION
+ 
+
+##File
+
+FileName: acumos-java-client/.gitreview
+SPDXID: SPDXRef-item9400474
+FileChecksum: SHA1: 1875e980650d080440c898dff1b707439c8a365d
+FileChecksum: MD5: 078cbba56e7e3546d0cccba4800c8169
+LicenseConcluded: NOASSERTION
+LicenseInfoInFile: NOASSERTION
+FileCopyrightText: NOASSERTION
+ 
+
+##File
+
+FileName: acumos-java-client/releases/release-4.1.0-maven-jar.yaml
+SPDXID: SPDXRef-item9400477
+FileChecksum: SHA1: a207cd66b250d8c1e97468c20b969b951e63477a
+FileChecksum: MD5: 808c4493e77d295e7f35bc20172c92b8
+LicenseConcluded: NOASSERTION
+LicenseInfoInFile: NOASSERTION
+FileCopyrightText: NOASSERTION
+ 
+
+##File
+
+FileName: acumos-java-client/releases/release-3.2.1-maven-jar.yaml
+SPDXID: SPDXRef-item9400478
+FileChecksum: SHA1: cdc02157606574d02b3e31b0f6d2a579f72a32da
+FileChecksum: MD5: 78aaa7d438e75bffa586cc48386a293b
+LicenseConcluded: NOASSERTION
+LicenseInfoInFile: NOASSERTION
+FileCopyrightText: NOASSERTION
+ 
+
+##File
+
+FileName: acumos-java-client/releases/release-3.3.0-maven-jar.yaml
+SPDXID: SPDXRef-item9400479
+FileChecksum: SHA1: 855a818ba16688c5bbd69cba0b177250589373f9
+FileChecksum: MD5: 2f95827044491a90a6fdcd8d8a086256
+LicenseConcluded: NOASSERTION
+LicenseInfoInFile: NOASSERTION
+FileCopyrightText: NOASSERTION
+ 
+
+##File
+
+FileName: acumos-java-client/releases/release-4.2.0-maven-jar.yaml
+SPDXID: SPDXRef-item9400480
+FileChecksum: SHA1: 7d5b23e6036cfcfae87c0451f962bc211ea14bdc
+FileChecksum: MD5: 7e74b281fa51881c1684cb3b4d7f8a67
+LicenseConcluded: NOASSERTION
+LicenseInfoInFile: NOASSERTION
+FileCopyrightText: NOASSERTION
+ 
+
+##File
+
+FileName: acumos-java-client/.gitattributes
+SPDXID: SPDXRef-item9400481
+FileChecksum: SHA1: f86c68f96adf05cdb04ec7b7d43f8d0ee19e94f1
+FileChecksum: MD5: 60d83d1ee637b07308c58923f255f54c
+LicenseConcluded: NOASSERTION
+LicenseInfoInFile: NOASSERTION
+FileCopyrightText: NOASSERTION
+ 
+
+##File
+
+FileName: acumos-java-client/.gitignore
+SPDXID: SPDXRef-item9400482
+FileChecksum: SHA1: 7f332ca23d5a2499825861d447ae14dbb41a7ce9
+FileChecksum: MD5: 8f07e7081282c5990e26826229ecdc61
+LicenseConcluded: NOASSERTION
+LicenseInfoInFile: NOASSERTION
+FileCopyrightText: NOASSERTION
+ 
+
+##File
+
+FileName: acumos-java-client/docs/images/1.png
+SPDXID: SPDXRef-item9400487
+FileChecksum: SHA1: faf11a46a8cac87e8f628630d6105f0f436839ae
+FileChecksum: MD5: 1a7895ae6666e33962c06ee65d71da32
+LicenseConcluded: NOASSERTION
+LicenseInfoInFile: NOASSERTION
+FileCopyrightText: NOASSERTION
+ 
+
+##File
+
+FileName: acumos-java-client/docs/images/running_the_java_client.PNG
+SPDXID: SPDXRef-item9400488
+FileChecksum: SHA1: 85947cb31bf8b6750213d9a369c4789cdbdff4bb
+FileChecksum: MD5: 4f128be293ce9ce72e8f3f467d57502e
+LicenseConcluded: NOASSERTION
+LicenseInfoInFile: NOASSERTION
+FileCopyrightText: NOASSERTION
+ 
+
+##File
+
+FileName: acumos-java-client/docs/images/4.png
+SPDXID: SPDXRef-item9400489
+FileChecksum: SHA1: 04a28ecd7462fd763c59b5f40dfb1c8b7b88c076
+FileChecksum: MD5: 30da1e1c44f0ef2d17d7a7f5b17f1897
+LicenseConcluded: NOASSERTION
+LicenseInfoInFile: NOASSERTION
+FileCopyrightText: NOASSERTION
+ 
+
+##File
+
+FileName: acumos-java-client/docs/images/Acumos_logo_white.png
+SPDXID: SPDXRef-item9400490
+FileChecksum: SHA1: e977805e3c1eb63a214432468dc3c678bd8a165c
+FileChecksum: MD5: 1d45095d04e415302115b287f52d8b2e
+LicenseConcluded: NOASSERTION
+LicenseInfoInFile: LicenseRef-GPL
+FileCopyrightText: NOASSERTION
+ 
+
+##File
+
+FileName: acumos-java-client/docs/images/3.png
+SPDXID: SPDXRef-item9400491
+FileChecksum: SHA1: 7f415252fa79ac49accb17ac4f15df6c6d4b18bd
+FileChecksum: MD5: 6f3ad081849c5f3c2faf276f5f32be33
+LicenseConcluded: NOASSERTION
+LicenseInfoInFile: NOASSERTION
+FileCopyrightText: NOASSERTION
+ 
+
+##File
+
+FileName: acumos-java-client/docs/images/before_running_javaclient.PNG
+SPDXID: SPDXRef-item9400492
+FileChecksum: SHA1: fffcc7b2df35347af480be1aae54c4c3becf53d2
+FileChecksum: MD5: 3745b55eebf4e1a70ade543c2a717d6d
+LicenseConcluded: NOASSERTION
+LicenseInfoInFile: NOASSERTION
+FileCopyrightText: NOASSERTION
+ 
+
+##File
+
+FileName: acumos-java-client/docs/images/2.png
+SPDXID: SPDXRef-item9400493
+FileChecksum: SHA1: db524ea126cfaf9119b79b099d80978673dbc599
+FileChecksum: MD5: 54d9c59ccc3a1fd17e54e2683db324ed
+LicenseConcluded: NOASSERTION
+LicenseInfoInFile: NOASSERTION
+FileCopyrightText: NOASSERTION
+ 
+
+##File
+
+FileName: acumos-java-client/docs/images/after_running_java_client.PNG
+SPDXID: SPDXRef-item9400494
+FileChecksum: SHA1: 436a69ecfee7f9a536a29bb88d6ccf95b2c296ff
+FileChecksum: MD5: 4882dbd695dea29d0107723a63c6dded
+LicenseConcluded: NOASSERTION
+LicenseInfoInFile: NOASSERTION
+FileCopyrightText: NOASSERTION
+ 
+
+##File
+
+FileName: acumos-java-client/docs/images/5.png
+SPDXID: SPDXRef-item9400495
+FileChecksum: SHA1: 7946876f601015a0973cde9181792b74af463d28
+FileChecksum: MD5: 94744426c3eddbec89f0511bb08adec2
+LicenseConcluded: NOASSERTION
+LicenseInfoInFile: NOASSERTION
+FileCopyrightText: NOASSERTION
+ 
+
+##File
+
+FileName: acumos-java-client/docs/images/supporting_folder.PNG
+SPDXID: SPDXRef-item9400496
+FileChecksum: SHA1: 6e57d39ed91b6ecd606bc0d9a3213c8f2758ba4f
+FileChecksum: MD5: 47d7560ae2c5507cb45deace3163e61f
+LicenseConcluded: NOASSERTION
+LicenseInfoInFile: NOASSERTION
+FileCopyrightText: NOASSERTION
+ 
+
+
+
+##-------------------------
+## License Information
+##-------------------------
+
+LicenseID: LicenseRef-No_license_found
+LicenseName: No_license_found
+ExtractedText: <text> Not find any license in the scanned file </text>
+
+LicenseID: LicenseRef-GPL
+LicenseName: GNU General Public License
+ExtractedText: <text> GPL is referenced without a version number. Please look up GPL in the License Admin to view the different versions. </text>
+
+LicenseID: LicenseRef-Python
+LicenseName: Python
+ExtractedText: <text> License by Nomos. </text>
+
