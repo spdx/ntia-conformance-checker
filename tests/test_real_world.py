@@ -1,4 +1,10 @@
-"""Tests for validating the checker against real-world SBOMs."""
+"""Tests for validating the checker against real-world SBOMs.
+
+The SBOM samples used in these tests are extracted from the "Wild SBOMs: 
+a Large-scale Dataset of Software Bills of Materials from Public Code" dataset.
+Source: https://zenodo.org/records/17397281 (arXiv:2503.15021)
+License: Released as open data.
+"""
 
 import os
 
