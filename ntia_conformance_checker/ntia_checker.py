@@ -2,7 +2,7 @@
 # SPDX-FileType: SOURCE
 # SPDX-License-Identifier: Apache-2.0
 
-"""NTIA Minimum Elements checking functionality."""
+"""2021 NTIA SBOM Minimum Elements checking functionality."""
 
 from __future__ import annotations
 
@@ -13,7 +13,7 @@ from .base_checker import BaseChecker
 
 class NTIAChecker(BaseChecker):
     """
-    NTIA Minimum Elements check.
+    2021 NTIA SBOM Minimum Elements checker.
 
     See:
         https://www.ntia.gov/report/2021/minimum-elements-software-bill-materials-sbom
@@ -29,7 +29,7 @@ class NTIAChecker(BaseChecker):
         sbom_spec: str = "spdx2",
     ):
         """
-        Initialize the NTIA Minimum Element Checker.
+        Initialize the checker.
 
         Args:
             file (str): The name of the file to be checked.
@@ -69,7 +69,7 @@ class NTIAChecker(BaseChecker):
         ]
 
     def check_compliance(self) -> bool:
-        """Check overall compliance with NTIA minimum elements."""
+        """Check overall compliance."""
         return all(
             [
                 self.doc_author,
@@ -84,7 +84,7 @@ class NTIAChecker(BaseChecker):
         )
 
     def check_ntia_minimum_elements_compliance(self) -> bool:
-        """Check overall compliance with NTIA minimum elements.
+        """Check overall compliance.
 
         This method is kept for backward compatibility.
         Please consider using check_compliance() instead."""
