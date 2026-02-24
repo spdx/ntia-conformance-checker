@@ -2,10 +2,37 @@
 # SPDX-FileType: SOURCE
 # SPDX-License-Identifier: Apache-2.0
 
-"""Report generation functionality."""
-from typing import List
+"""
+Report generation functionality.
 
-from spdx_tools.spdx.validation.validation_message import ValidationMessage
+Some of the code here was originally in the BaseChecker class.
+"""
+
+from __future__ import annotations
+
+from dataclasses import dataclass
+from typing import TYPE_CHECKING
+
+from .constants import (
+    SUPPORTED_COMPLIANCE_STANDARDS,
+    SUPPORTED_COMPLIANCE_STANDARDS_DESC,
+)
+
+if TYPE_CHECKING:
+    from spdx_tools.spdx.validation.validation_message import ValidationMessage
+
+
+@dataclass
+class ReportContext:
+    """Context for generating conformance reports."""
+
+    sbom_spec: str = ""
+    compliance_standard: str = ""
+    compliant: bool = False
+    requirement_results: list[tuple[str, bool]] | None = None
+    components_without_info: list[tuple[str, list[tuple[str, str]]]] | None = None
+    validation_messages: list[ValidationMessage] | None = None
+    parsing_error: list[str] | None = None
 
 
 def _safe_attr(obj: object, name: str) -> str:
@@ -14,45 +41,267 @@ def _safe_attr(obj: object, name: str) -> str:
 
 
 def print_validation_messages(
-    validation_messages: List[ValidationMessage], verbose: bool = False
+    validation_messages: list[ValidationMessage], verbose: bool = False
 ) -> None:
-    """Helper to print validation messages and optional context details."""
+    """Prints validation messages and optional context details.
+
+    Args:
+        validation_messages (list[ValidationMessage]): List of validation messages.
+        verbose (bool): If True, include detailed validation context.
+
+    Returns:
+        None
+    """
+    print(get_validation_messages_text(validation_messages, verbose))
+
+
+def get_validation_messages_text(
+    validation_messages: list[ValidationMessage], verbose: bool = False
+) -> str:
+    """Generates validation messages and optional context details.
+
+    Args:
+        validation_messages (list[ValidationMessage]): List of validation messages.
+        verbose (bool): If True, include detailed validation context.
+
+    Returns:
+        str: Plain-text representation of the validation messages.
+    """
+    report: list[str] = []
 
     for msg in validation_messages:
         if not msg.validation_message:
             continue
-        print(msg.validation_message)
+        report.append(msg.validation_message)
         if verbose and getattr(msg, "context", None):
             ctx = msg.context
-            print("- SPDX ID:", _safe_attr(ctx, "spdx_id"))
-            print("- Parent ID:", _safe_attr(ctx, "parent_id"))
-            print("- Element type:", _safe_attr(ctx, "element_type"))
-        print()
+            report.append(f"- SPDX ID: {_safe_attr(ctx, 'spdx_id')}")
+            report.append(f"- Parent ID: {_safe_attr(ctx, 'parent_id')}")
+            report.append(f"- Element type: {_safe_attr(ctx, 'element_type')}")
+        report.append("")
+
+    return "\n".join(report)
 
 
-def get_validation_messages_html(validation_messages: List[ValidationMessage]) -> str:
-    """Helper to generate HTML for validation messages and context details."""
+def get_validation_messages_html(
+    validation_messages: list[ValidationMessage], verbose: bool = False
+) -> str:
+    """Generates HTML for validation messages and context details.
+
+    Args:
+        validation_messages (list[ValidationMessage]): List of validation messages.
+        verbose (bool): If True, include detailed validation context.
+
+    Returns:
+        str: HTML representation of the validation messages.
+    """
     if not validation_messages:
         return ""
 
-    html = "<ul>\n"
+    html = "<ul class='conformance-val-list'>\n"
     for msg in validation_messages:
         if not getattr(msg, "validation_message", None):
             continue
         html += "<li>\n"
-        html += "<p><strong>Validation message:</strong></p>\n"
-        html += f"<p>{msg.validation_message}</p>\n"
-        ctx = getattr(msg, "context", None)
-        if ctx:
-            html += "<p><strong>Validation context:</strong></p>\n<ul>\n"
-            spdx_id = getattr(ctx, "spdx_id", "N/A")
-            parent_id = getattr(ctx, "parent_id", "N/A")
-            elem_type = getattr(ctx, "element_type", "N/A")
-            html += f"<li>SPDX ID: {spdx_id}</li>\n"
-            html += f"<li>Parent ID: {parent_id}</li>\n"
-            html += f"<li>Element type: {elem_type}</li>\n"
-            html += "</ul>\n"
+        html += "<p class='conformance-val-msg-label'>Validation message:</p>\n"
+        html += f"<p class='conformance-val-msg'>{msg.validation_message}</p>\n"
+        if verbose and getattr(msg, "context", None):
+            ctx = msg.context
+            if ctx:
+                html += "<p class='conformance-val-ctx-label'>Validation context:</p>\n"
+                html += "<ul class='conformance-val-ctx'>\n"
+                html += f"<li>SPDX ID: {_safe_attr(ctx, 'spdx_id')}</li>\n"
+                html += f"<li>Parent ID: {_safe_attr(ctx, 'parent_id')}</li>\n"
+                html += f"<li>Element type: {_safe_attr(ctx, 'element_type')}</li>\n"
+                html += "</ul>\n"
         html += "</li>\n"
     html += "</ul>"
 
     return html
+
+
+def get_validation_messages_json(
+    validation_messages: list[ValidationMessage],
+) -> list[dict[str, str]]:
+    """Generates JSON-serializable list for validation messages and context details.
+
+    Args:
+        validation_messages (list[ValidationMessage]): List of validation messages.
+
+    Returns:
+        list[dict[str, str]]: JSON-serializable representation of the validation messages.
+    """
+    json_output: list[dict[str, str]] = []
+
+    for msg in validation_messages:
+        if not getattr(msg, "validation_message", None):
+            continue
+        val_msg = {"message": msg.validation_message}
+        if getattr(msg, "context", None):
+            ctx = msg.context
+            val_msg["spdxId"] = str(getattr(ctx, "spdx_id", ""))
+            val_msg["parentId"] = str(getattr(ctx, "parent_id", ""))
+            val_msg["elementType"] = str(getattr(ctx, "element_type", ""))
+        json_output.append(val_msg)
+
+    return json_output
+
+
+def report_text(
+    rc: ReportContext,
+    verbose: bool = False,
+) -> str:
+    """Generates element-by-element result table in plain-text.
+
+    Args:
+        rc (ReportContext): Information for generating the report.
+        verbose (bool): If True, include detailed validation messages.
+
+    Returns:
+        str: Plain-text representation of the results.
+    """
+    report: list[str] = []
+
+    # Parsing error
+    if rc.parsing_error:
+        report.append("The document couldn't be parsed; check couldn't be performed.\n")
+        if rc.parsing_error:
+            report.append("The following parsing error(s) were raised:\n")
+            for error in rc.parsing_error:
+                report.append(error)
+        return "\n".join(report)
+
+    # Unsupported compliance standard
+    if rc.compliance_standard not in SUPPORTED_COMPLIANCE_STANDARDS:
+        report.append(f"Unsupported compliance standard {rc.compliance_standard!r}")
+        return "\n".join(report)
+
+    # Compliance results
+    report.append(
+        f"{SUPPORTED_COMPLIANCE_STANDARDS_DESC[rc.compliance_standard]}"
+        " Conformance Results\n"
+    )
+    report.append(f"Conformant: {rc.compliant}\n")
+    if rc.requirement_results:
+        report.append("Requirement                                    | Status")
+        report.append("-------------------------------------------------------")
+        for label, value in rc.requirement_results:
+            report.append(f"{label:<46} | {value}")
+        report.append("")
+
+    if rc.validation_messages:
+        report.append(
+            "The document is not valid according to the SBOM "
+            f'specification ("{rc.sbom_spec}"). '
+            "The following violations were found:\n"
+        )
+        report.append(get_validation_messages_text(rc.validation_messages, verbose))
+
+    return "\n".join(report)
+
+
+def report_html(
+    rc: ReportContext,
+    verbose: bool = False,
+) -> str:
+    """Generates element-by-element result table in HTML.
+
+    Args:
+        rc (ReportContext): Information for generating the report.
+        verbose (bool): If True, include detailed validation messages.
+
+    Returns:
+        str: HTML representation of the results.
+    """
+    report: list[str] = []
+
+    # Parsing error
+    if rc.parsing_error:
+        report.append("<div class='conformance-err'>")
+        report.append(
+            "<p class='conformance-err-label'>"
+            "The document couldn't be parsed; check couldn't be performed.<br />"
+            "The following parsing errors were raised:"
+            "</p>"
+        )
+        report.append("<ul class='conformance-err-list'>")
+        for err in rc.parsing_error:
+            report.append(f"<li>{err}</li>")
+        report.append("</ul>")
+        report.append("</div>")
+        return "\n".join(report)
+
+    # Unsupported compliance standard
+    if rc.compliance_standard not in SUPPORTED_COMPLIANCE_STANDARDS:
+        report.append(
+            "<div class='conformance-err'>"
+            "<p class='conformance-err-label'>"
+            f"Unsupported compliance standard {rc.compliance_standard!r}"
+            "</p>"
+            "</div>"
+        )
+        return "\n".join(report)
+
+    # Compliance results
+    report.append("<div class='conformance-res'>")
+    report.append(
+        "<h2 class='conformance-res-title'>"
+        f"{SUPPORTED_COMPLIANCE_STANDARDS_DESC[rc.compliance_standard]}"
+        " Conformance Results</h2>"
+    )
+    report.append(f"<h3 class='conformance-res-status'>Conformant: {rc.compliant}</h3>")
+
+    if rc.requirement_results:
+        report.append("<table class='conformance-res-tab'>")
+        report.append("<thead><tr><th>Requirement</th><th>Conformant</th></tr></thead>")
+        report.append("<tbody>")
+        for info_name, val in rc.requirement_results:
+            report.append(
+                "<tr>"
+                "<td class='conformance-res-tab-r'>"
+                f"{info_name}</td>"
+                "<td class='conformance-res-tab-v'>"
+                f"{val}</td>"
+                "</tr>"
+            )
+        report.append("</tbody>")
+        report.append("</table>")
+
+    report.append("</div>")  # End of conformance-res
+
+    # Components without required information
+    if rc.components_without_info:
+        report.append("<div class='conformance-mis'>")
+        report.append(
+            "<p class='conformance-mis-label'>"
+            "Missing required information in these components:"
+            "</p>"
+        )
+        report.append("<ul class='conformance-mis-list'>")
+        for info_name, components in rc.components_without_info:
+            component_names = [
+                name if name not in (None, "") else id for name, id in components
+            ]
+            report.append(
+                f"<li>{info_name} ({len(components)}): "
+                f"{', '.join(component_names)}</li>"
+            )
+        report.append("</ul>")
+        report.append("</div>")
+
+    # Validation messages
+    if rc.validation_messages:
+        report.append("<div class='conformance-val'>")
+        report.append(
+            "<p class='conformance-val-label'>"
+            "The document is not valid according to the SBOM specification"
+            f' ("{rc.sbom_spec}").<br />'
+            "The following violations were found:"
+            "</p>"
+        )
+        report.append(
+            get_validation_messages_html(rc.validation_messages, verbose=verbose)
+        )
+        report.append("</div>")
+
+    return "\n".join(report)

@@ -1,4 +1,4 @@
-# SPDX-FileCopyrightText: 2024 SPDX contributors
+# SPDX-FileCopyrightText: 2024-2025 SPDX contributors
 # SPDX-FileType: SOURCE
 # SPDX-License-Identifier: Apache-2.0
 
@@ -10,23 +10,22 @@ import json
 import logging
 import os
 from abc import ABC, abstractmethod
-from typing import Any, Dict, List, Optional, Set, Tuple, Union, cast
+from typing import TYPE_CHECKING, Any, cast
 
 from spdx_python_model import v3_0_1 as spdx3  # type: ignore # import-untyped
-from spdx_tools.spdx.model.document import Document
 from spdx_tools.spdx.model.relationship import RelationshipType
 from spdx_tools.spdx.model.spdx_no_assertion import SpdxNoAssertion
 from spdx_tools.spdx.parser import parse_anything
 from spdx_tools.spdx.parser.error import SPDXParsingError
 from spdx_tools.spdx.validation.document_validator import validate_full_spdx_document
-from spdx_tools.spdx.validation.validation_message import ValidationMessage
 
-from .constants import (
-    DEFAULT_SBOM_SPEC,
-    SUPPORTED_COMPLIANCE_STANDARDS,
-    SUPPORTED_COMPLIANCE_STANDARDS_DESC,
+from .constants import DEFAULT_SBOM_SPEC
+from .report import (
+    ReportContext,
+    get_validation_messages_json,
+    report_html,
+    report_text,
 )
-from .report import get_validation_messages_html, print_validation_messages
 from .spdx3_utils import (
     get_boms_from_spdx_document,
     get_packages_from_bom,
@@ -34,6 +33,10 @@ from .spdx3_utils import (
     iter_relationships_by_type,
     validate_spdx3_data,
 )
+
+if TYPE_CHECKING:
+    from spdx_tools.spdx.model.document import Document
+    from spdx_tools.spdx.validation.validation_message import ValidationMessage
 
 
 # pylint: disable=too-many-instance-attributes
@@ -47,7 +50,12 @@ class BaseChecker(ABC):
     such as `check_compliance` and `output_json`.
     """
 
-    _COMPONENTS_MISSING = {
+    # Minimum elements/baseline attributes required by a compliance standard
+    MIN_ELEMENTS: list[str] = []
+
+    # Mapping of components without information
+    # SBOM component name: (list containing components missing the info, label)
+    _COMPONENTS_WITHOUT_INFO = {
         "name": ("components_without_names", "Components missing a name"),
         "version": ("components_without_versions", "Components missing a version"),
         "identifier": (
@@ -74,20 +82,23 @@ class BaseChecker(ABC):
     file: str = ""
     # For SPDX 3, we have to use SHACLObjectSet instead of SpdxDocument,
     # because we need access to relationships and other elements that are not
-    # accesible from SpdxDocument.
-    doc: Union[Document, spdx3.SHACLObjectSet, None] = None
-    __spdx3_doc: Optional[spdx3.SpdxDocument] = None  # cached SPDX 3 document
+    # accessible from SpdxDocument.
 
-    parsing_error: List[str] = []
-    validation_messages: List[ValidationMessage] = []
+    doc: Document | spdx3.SHACLObjectSet | None = None
+    __spdx3_doc: spdx3.SpdxDocument | None = None  # cached SPDX 3 document
+
+    parsing_error: list[str] = []
+    validation_messages: list[ValidationMessage] = []
 
     sbom_name: str = ""
-    components_without_names: List[str] = []
-    components_without_versions: List[str] = []
-    components_without_suppliers: List[str] = []
-    components_without_identifiers: List[str] = []
-    components_without_concluded_licenses: List[str] = []
-    components_without_copyright_texts: List[str] = []
+    # Lists of components missing required information.
+    # Each item is a tuple of (component name, component SPDX ID).
+    components_without_names: list[tuple[str, str]] = []
+    components_without_versions: list[tuple[str, str]] = []
+    components_without_suppliers: list[tuple[str, str]] = []
+    components_without_identifiers: list[tuple[str, str]] = []
+    components_without_concluded_licenses: list[tuple[str, str]] = []
+    components_without_copyright_texts: list[tuple[str, str]] = []
 
     doc_version: bool = False  # Has SPDX document version?
     doc_author: bool = False  # Has SPDX document author?
@@ -131,25 +142,24 @@ class BaseChecker(ABC):
         self.parsing_error = []
         self.validation_messages = []
 
-        # SPDX 2
-        if sbom_spec == "spdx2":
-            self.doc = self.parse_file()
-        # SPDX 3
-        elif sbom_spec == "spdx3":
-            object_set = self.parse_spdx3_file()
-            if not object_set:
-                logging.error("Failed to parse the SPDX 3 file.")
-            else:
-                self.doc = object_set
-                _doc, _validation_messages = validate_spdx3_data(object_set)
-                if not _doc or _validation_messages:
-                    logging.error("SpdxDocument not found or invalid.")
-                self.__spdx3_doc = _doc  # cache the extracted SpdxDocument
-                self.validation_messages.extend(_validation_messages)
-        else:
-            # We can add a heuristic to detect the spec from the file content here,
-            # in case sbom_spec is not provided or invalid.
-            raise ValueError(f"Unsupported SBOM specification: {sbom_spec}")
+        match sbom_spec:
+            case "spdx2":
+                self.doc = self.parse_file()
+            case "spdx3":
+                object_set = self.parse_spdx3_file()
+                if not object_set:
+                    logging.error("Failed to parse the SPDX 3 file.")
+                else:
+                    self.doc = object_set
+                    _doc, _validation_messages = validate_spdx3_data(object_set)
+                    if not _doc or _validation_messages:
+                        logging.error("SpdxDocument not found or invalid.")
+                    self.__spdx3_doc = _doc  # cache the extracted SpdxDocument
+                    self.validation_messages.extend(_validation_messages)
+            case _:
+                # We can add a heuristic to detect the spec from the file content here,
+                # in case sbom_spec is not provided or invalid.
+                raise ValueError(f"Unsupported SBOM specification: {sbom_spec}")
 
         if self.doc:
             if validate:
@@ -167,21 +177,25 @@ class BaseChecker(ABC):
             self.dependency_relationships = self.check_dependency_relationships()
 
             self.components_without_names = self.get_components_without_names()
-            self.components_without_versions = cast(
-                "List[str]", self.get_components_without_versions()
-            )  # with return_tuples=False, always get List[str]
-            self.components_without_suppliers = cast(
-                "List[str]", self.get_components_without_suppliers()
-            )
+            self.components_without_versions = self.get_components_without_versions()
+            self.components_without_suppliers = self.get_components_without_suppliers()
             self.components_without_identifiers = (
                 self.get_components_without_identifiers()
             )
-            self.components_without_concluded_licenses = cast(
-                "List[str]", self.get_components_without_concluded_licenses()
+            self.components_without_concluded_licenses = (
+                self.get_components_without_concluded_licenses()
             )
-            self.components_without_copyright_texts = cast(
-                "List[str]", self.get_components_without_copyright_texts()
+            self.components_without_copyright_texts = (
+                self.get_components_without_copyright_texts()
             )
+
+            # List of (info_name, components) tuples,
+            # where components is a list of (component_name, spdx_id) tuples
+            self.all_components_without_info: list[
+                tuple[str, list[tuple[str, str]]]
+            ] = self._get_all_components_without_info()
+
+        self.table_elements: list[tuple[str, bool]] = []
 
     def check_doc_version(self) -> bool:
         """Check if the document's specification version exists."""
@@ -249,13 +263,13 @@ class BaseChecker(ABC):
         # SPDX 3
         if self.sbom_spec == "spdx3":
             # If a BOM/an SBOM's rootElement is a /Software/Package (or its subclass),
-            # it is considered to have a relationship.
+            # it is considered to have a dependency relationship.
             #
             # Note that if there is neither /Software/Package(s) nor /Core/Bom,
             # a DESCRIBES relationship is not needed; however, this method may still
             # return False, since it is factually considered as "no relationship".
 
-            # There is a BOM and an /Software/Package,
+            # There is a BOM/SBOM and an /Software/Package,
             # check if there is at least one package listed in any BOM/SBOM
             boms = get_boms_from_spdx_document(self.__spdx3_doc)
             if boms:
@@ -294,12 +308,12 @@ class BaseChecker(ABC):
 
         return False
 
-    def get_doc_spec_version(self) -> Optional[str]:
+    def get_doc_spec_version(self) -> str | None:
         """Retrieve the document's specification version."""
         if not self.doc:
             return None
 
-        doc_spec_version: Optional[str] = None
+        doc_spec_version: str | None = None
 
         # SPDX 2
         if self.sbom_spec == "spdx2":
@@ -340,22 +354,14 @@ class BaseChecker(ABC):
 
         return name
 
-    # pylint: disable=too-many-branches
-    # pylint: disable=too-many-return-statements
-    def get_components_without_concluded_licenses(
-        self, return_tuples: bool = False
-    ) -> Union[List[str], List[Tuple[str, str]]]:
+    def get_components_without_concluded_licenses(self) -> list[tuple[str, str]]:
         """
-        Retrieve names and/or SPDX IDs of components without concluded licenses.
-
-        Args:
-            return_tuples (bool): If True, return a list of tuples with
-                                  component names and SPDX IDs.
-                                  If False, return a list of component names.
+        Retrieve components missing a concluded license.
 
         Returns:
-            Union[List[str], List[Tuple[str, str]]]: A list of component names
-            or a list of tuples with component names and SPDX IDs.
+            list[tuple[str, str]]: A list of tuples of the form
+            (component_name, spdx_id). Consumers should extract the
+            preferred value (name or SPDX ID) as needed.
         """
         # Note: concluded license is mandatory in SPDX-2.2 and SPDX-2.3
         if not self.doc:
@@ -364,27 +370,12 @@ class BaseChecker(ABC):
         # SPDX 2
         if self.sbom_spec == "spdx2":
             self.doc = cast("Document", self.doc)
-            if not self.doc.packages:
-                return []
+            packages = getattr(self.doc, "packages", [])
 
-            if return_tuples:
-                components_name_id: List[Tuple[str, str]] = []
-                for package in self.doc.packages:
-                    no_license = (
-                        package.license_concluded is None
-                        or isinstance(package.license_concluded, SpdxNoAssertion)
-                        or (
-                            isinstance(package.license_concluded, str)
-                            and package.license_concluded.strip() == ""
-                        )
-                    )
-                    if no_license:
-                        components_name_id.append((package.name, package.spdx_id))
-                return components_name_id
-
-            components_name: List[str] = []
-            for package in self.doc.packages:
-                no_license = (
+            return [
+                (package.name or "", package.spdx_id or "")
+                for package in packages
+                if (
                     package.license_concluded is None
                     or isinstance(package.license_concluded, SpdxNoAssertion)
                     or (
@@ -392,15 +383,13 @@ class BaseChecker(ABC):
                         and package.license_concluded.strip() == ""
                     )
                 )
-                if no_license:
-                    components_name.append(package.name)
-            return components_name
+            ]
 
         # SPDX 3
         if self.sbom_spec == "spdx3":
             self.doc = cast("spdx3.SHACLObjectSet", self.doc)
 
-            has_concluded_license_ids: Set[str] = {
+            has_concluded_license_ids: set[str] = {
                 from_id
                 for from_id, to_id in iter_relationships_by_type(
                     self.doc, "hasConcludedLicense"
@@ -411,19 +400,8 @@ class BaseChecker(ABC):
                 ]
             }
 
-            if return_tuples:
-                return [
-                    (name, spdx_id)
-                    for name, spdx_id, _ in iter_objects_with_property(
-                        self.doc,
-                        spdx3.software_Package,
-                        "spdxId",
-                    )
-                    if spdx_id not in has_concluded_license_ids
-                ]
-
             return [
-                name
+                (name or "", spdx_id or "")
                 for name, spdx_id, _ in iter_objects_with_property(
                     self.doc,
                     spdx3.software_Package,
@@ -434,22 +412,14 @@ class BaseChecker(ABC):
 
         return []
 
-    # pylint: disable=too-many-branches
-    # pylint: disable=too-many-return-statements
-    def get_components_without_copyright_texts(
-        self, return_tuples: bool = False
-    ) -> Union[List[str], List[Tuple[str, str]]]:
+    def get_components_without_copyright_texts(self) -> list[tuple[str, str]]:
         """
-        Retrieve names and/or SPDX IDs of components without copyright texts.
-
-        Args:
-            return_tuples (bool): If True, return a list of tuples with
-                                  component names and SPDX IDs.
-                                  If False, return a list of component names.
+        Retrieve components missing a copyright text.
 
         Returns:
-            Union[List[str], List[Tuple[str, str]]]: A list of component names
-            or a list of tuples with component names and SPDX IDs.
+            list[tuple[str, str]]: A list of tuples of the form
+            (component_name, spdx_id). Consumers should extract the
+            preferred value (name or SPDX ID) as needed.
         """
         if not self.doc:
             return []
@@ -457,27 +427,12 @@ class BaseChecker(ABC):
         # SPDX 2
         if self.sbom_spec == "spdx2":
             self.doc = cast("Document", self.doc)
-            if not self.doc.packages:
-                return []
+            packages = getattr(self.doc, "packages", [])
 
-            if return_tuples:
-                components_name_id: List[Tuple[str, str]] = []
-                for package in self.doc.packages:
-                    no_license = (
-                        package.copyright_text is None
-                        or isinstance(package.copyright_text, SpdxNoAssertion)
-                        or (
-                            isinstance(package.copyright_text, str)
-                            and package.copyright_text.strip() == ""
-                        )
-                    )
-                    if no_license:
-                        components_name_id.append((package.name, package.spdx_id))
-                return components_name_id
-
-            components_name: List[str] = []
-            for package in self.doc.packages:
-                no_license = (
+            return [
+                (package.name or "", package.spdx_id or "")
+                for package in packages
+                if (
                     package.copyright_text is None
                     or isinstance(package.copyright_text, SpdxNoAssertion)
                     or (
@@ -485,32 +440,18 @@ class BaseChecker(ABC):
                         and package.copyright_text.strip() == ""
                     )
                 )
-                if no_license:
-                    components_name.append(package.name)
-            return components_name
+            ]
 
         # SPDX 3
         if self.sbom_spec == "spdx3":
             self.doc = cast("spdx3.SHACLObjectSet", self.doc)
 
-            if return_tuples:
-                return [
-                    (name, spdx_id)
-                    for name, spdx_id, copyright_text in iter_objects_with_property(
-                        self.doc,
-                        spdx3.software_Package,
-                        "software_copyrightText",
-                    )
-                    if not copyright_text
-                    or (
-                        isinstance(copyright_text, str) and copyright_text.strip() == ""
-                    )
-                ]
-
             return [
-                name
-                for name, _, copyright_text in iter_objects_with_property(
-                    self.doc, spdx3.software_Package, "software_copyrightText"
+                (name or "", spdx_id or "")
+                for name, spdx_id, copyright_text in iter_objects_with_property(
+                    self.doc,
+                    spdx3.software_Package,
+                    "software_copyrightText",
                 )
                 if not copyright_text
                 or (isinstance(copyright_text, str) and copyright_text.strip() == "")
@@ -518,17 +459,19 @@ class BaseChecker(ABC):
 
         return []
 
-    def get_components_without_identifiers(self) -> List[str]:
+    def get_components_without_identifiers(self) -> list[tuple[str, str]]:
         """
-        Retrieve name of components without identifiers.
+        Retrieve components missing unique identifiers (SPDX IDs).
 
         Note that SPDX 3 requires identifiers for all elements,
         so this should not happen in a valid SPDX 3 document.
-        spdx-python-model JSON deserializer will raise a ValueError
+        The spdx-python-model JSON deserializer will raise a ValueError
         if any element is missing an identifier.
 
         Returns:
-            List[str]: A list of component names.
+            list[tuple[str, str]]: A list of tuples of the form
+            (component_name, spdx_id). Consumers should extract the
+            preferred value (name or SPDX ID) as needed.
         """
         if not self.doc:
             return []
@@ -536,10 +479,18 @@ class BaseChecker(ABC):
         # SPDX 2
         if self.sbom_spec == "spdx2":
             self.doc = cast("Document", self.doc)
-            if not self.doc.packages:
-                return []
+            packages = getattr(self.doc, "packages", [])
+
             return [
-                package.name for package in self.doc.packages if not package.spdx_id
+                (package.name or "", package.spdx_id or "")
+                for package in packages
+                if (
+                    package.spdx_id is None
+                    or (
+                        isinstance(package.spdx_id, str)
+                        and package.spdx_id.strip() == ""
+                    )
+                )
             ]
 
         # SPDX 3
@@ -547,7 +498,7 @@ class BaseChecker(ABC):
             self.doc = cast("spdx3.SHACLObjectSet", self.doc)
 
             return [
-                name
+                (name or "", spdx_id or "")
                 for name, _, spdx_id in iter_objects_with_property(
                     self.doc, spdx3.Element, "spdxId"
                 )
@@ -556,12 +507,14 @@ class BaseChecker(ABC):
 
         return []
 
-    def get_components_without_names(self) -> List[str]:
+    def get_components_without_names(self) -> list[tuple[str, str]]:
         """
-        Retrieve SPDX ID of components without names.
+        Retrieve components missing a name.
 
         Returns:
-            List[str]: A list of component SPDX IDs.
+            list[tuple[str, str]]: A list of tuples of the form
+            (component_name, spdx_id). Consumers should extract the
+            preferred value (name or SPDX ID) as needed.
         """
         if not self.doc:
             return []
@@ -569,20 +522,23 @@ class BaseChecker(ABC):
         # SPDX 2
         if self.sbom_spec == "spdx2":
             self.doc = cast("Document", self.doc)
-            if not self.doc.packages:
-                return []
-            components_without_names: List[str] = []
-            for package in self.doc.packages:
-                if not package.name:
-                    components_without_names.append(package.spdx_id)
-            return components_without_names
+            packages = getattr(self.doc, "packages", [])
+
+            return [
+                (package.name or "", package.spdx_id or "")
+                for package in packages
+                if (
+                    package.name is None
+                    or (isinstance(package.name, str) and package.name.strip() == "")
+                )
+            ]
 
         # SPDX 3
         if self.sbom_spec == "spdx3":
             self.doc = cast("spdx3.SHACLObjectSet", self.doc)
 
             return [
-                spdx_id
+                (name or "", spdx_id or "")
                 for _, spdx_id, name in iter_objects_with_property(
                     self.doc, spdx3.software_Package, "name"
                 )
@@ -591,22 +547,14 @@ class BaseChecker(ABC):
 
         return []
 
-    # pylint: disable=too-many-branches
-    # pylint: disable=too-many-return-statements
-    def get_components_without_suppliers(
-        self, return_tuples: bool = False
-    ) -> Union[List[str], List[Tuple[str, str]]]:
+    def get_components_without_suppliers(self) -> list[tuple[str, str]]:
         """
-        Retrieve names and/or SPDX IDs of components without suppliers.
-
-        Args:
-            return_tuples (bool): If True, return a list of tuples with
-                                  component names and SPDX IDs.
-                                  If False, return a list of component names.
+        Retrieve components missing supplier information.
 
         Returns:
-            Union[List[str], List[Tuple[str, str]]]: A list of component names
-            or a list of tuples with component names and SPDX IDs.
+            list[tuple[str, str]]: A list of tuples of the form
+            (component_name, spdx_id). Consumers should extract the
+            preferred value (name or SPDX ID) as needed.
         """
         if not self.doc:
             return []
@@ -614,44 +562,28 @@ class BaseChecker(ABC):
         # SPDX 2
         if self.sbom_spec == "spdx2":
             self.doc = cast("Document", self.doc)
-            if not self.doc.packages:
-                return []
+            packages = getattr(self.doc, "packages", [])
 
-            if return_tuples:
-                components_name_id: List[Tuple[str, str]] = []
-                for package in self.doc.packages:
-                    no_supplier = package.supplier is None or isinstance(
-                        package.supplier, SpdxNoAssertion
+            return [
+                (package.name or "", package.spdx_id or "")
+                for package in packages
+                if (
+                    package.supplier is None
+                    or isinstance(package.supplier, SpdxNoAssertion)
+                    or (
+                        isinstance(package.supplier, str)
+                        and package.supplier.strip() == ""
                     )
-                    if no_supplier:
-                        components_name_id.append((package.name, package.spdx_id))
-                return components_name_id
-
-            components_name: List[str] = []
-            for package in self.doc.packages:
-                no_supplier = package.supplier is None or isinstance(
-                    package.supplier, SpdxNoAssertion
                 )
-                if no_supplier:
-                    components_name.append(package.name)
-            return components_name
+            ]
 
         # SPDX 3
         if self.sbom_spec == "spdx3":
             self.doc = cast("spdx3.SHACLObjectSet", self.doc)
 
-            if return_tuples:
-                return [
-                    (name, spdx_id)
-                    for name, spdx_id, supplier in iter_objects_with_property(
-                        self.doc, spdx3.software_Package, "suppliedBy"
-                    )
-                    if not supplier or not supplier.name or supplier.name.strip() == ""
-                ]
-
             return [
-                name
-                for name, _, supplier in iter_objects_with_property(
+                (name or "", spdx_id or "")
+                for name, spdx_id, supplier in iter_objects_with_property(
                     self.doc, spdx3.software_Package, "suppliedBy"
                 )
                 if not supplier or not supplier.name or supplier.name.strip() == ""
@@ -659,20 +591,14 @@ class BaseChecker(ABC):
 
         return []
 
-    def get_components_without_versions(
-        self, return_tuples: bool = False
-    ) -> Union[List[str], List[Tuple[str, str]]]:
+    def get_components_without_versions(self) -> list[tuple[str, str]]:
         """
-        Retrieve name and/or SPDX ID of components without versions.
-
-        Args:
-            return_tuples (bool): If True, return a list of tuples with
-                                  component names and SPDX IDs.
-                                  If False, return a list of component names.
+        Retrieve components missing version information.
 
         Returns:
-            Union[List[str], List[Tuple[str, str]]]: A list of component names
-            or a list of tuples with component names and SPDX IDs.
+            list[tuple[str, str]]: A list of tuples of the form
+            (component_name, spdx_id). Consumers should extract the
+            preferred value (name or SPDX ID) as needed.
         """
         if not self.doc:
             return []
@@ -680,44 +606,53 @@ class BaseChecker(ABC):
         # SPDX 2
         if self.sbom_spec == "spdx2":
             self.doc = cast("Document", self.doc)
-            if not self.doc.packages:
-                return []
+            packages = getattr(self.doc, "packages", [])
 
-            if return_tuples:
-                components_name_id: List[Tuple[str, str]] = []
-                for package in self.doc.packages:
-                    if not package.version:
-                        components_name_id.append((package.name, package.spdx_id))
-                return components_name_id
-
-            components_name: List[str] = []
-            for package in self.doc.packages:
-                if not package.version:
-                    components_name.append(package.name)
-            return components_name
+            return [
+                (package.name or "", package.spdx_id or "")
+                for package in packages
+                if (
+                    package.version is None
+                    or isinstance(package.version, SpdxNoAssertion)
+                    or (
+                        isinstance(package.version, str)
+                        and package.version.strip() == ""
+                    )
+                )
+            ]
 
         # SPDX 3
         if self.sbom_spec == "spdx3":
             self.doc = cast("spdx3.SHACLObjectSet", self.doc)
 
-            if return_tuples:
-                return [
-                    (name, spdx_id)
-                    for name, spdx_id, package_version in iter_objects_with_property(
-                        self.doc, spdx3.software_Package, "software_packageVersion"
-                    )
-                    if not package_version or package_version.strip() == ""
-                ]
-
             return [
-                name
-                for name, _, package_version in iter_objects_with_property(
+                (name or "", spdx_id or "")
+                for name, spdx_id, package_version in iter_objects_with_property(
                     self.doc, spdx3.software_Package, "software_packageVersion"
                 )
                 if not package_version or package_version.strip() == ""
             ]
 
         return []
+
+    def _get_all_components_without_info(
+        self,
+    ) -> list[tuple[str, list[tuple[str, str]]]]:
+        """Get a list of components missing information for each required info."""
+
+        # If all lists are empty, return an empty list
+        if all(
+            not getattr(self, list_name, [])
+            for list_name, _ in self._COMPONENTS_WITHOUT_INFO.values()
+        ):
+            return []
+
+        return [
+            (info_name, getattr(self, self._COMPONENTS_WITHOUT_INFO[info_name][0], []))
+            for info_name in self.MIN_ELEMENTS
+            if info_name in self._COMPONENTS_WITHOUT_INFO
+            and getattr(self, self._COMPONENTS_WITHOUT_INFO[info_name][0], [])
+        ]
 
     def get_total_number_components(self) -> int:
         """
@@ -739,18 +674,17 @@ class BaseChecker(ABC):
         # SPDX 3
         if self.sbom_spec == "spdx3":
             self.doc = cast("spdx3.SHACLObjectSet", self.doc)
-            objects: Set[spdx3.SHACLObject] = getattr(self.doc, "objects", set())
+            objects: set[spdx3.SHACLObject] = getattr(self.doc, "objects", set())
             return len(objects)
 
         return 0
 
-    def parse_file(self) -> Optional[Document]:
+    def parse_file(self) -> Document | None:
         """
         Parse SPDX 2 SBOM document.
 
         Returns:
-            Optional[Document]: An SPDX 2 SBOM document if successful,
-            otherwise None.
+            Document | None: An SPDX 2 SBOM document if successful, otherwise None.
         """
         if not self.file or str(self.file).strip() == "":
             logging.error("No file path provided.")
@@ -765,16 +699,26 @@ class BaseChecker(ABC):
         except SPDXParsingError as err:
             self.parsing_error.extend(err.get_messages())
             return None
+        except Exception as err:  # pylint: disable=broad-except
+            # Catch any other errors, including BeartypeCallHintParamViolation
+            # from the spdx-tools library when parsing invalid SPDX files.
+            # The spdx-tools library uses beartype for runtime type checking,
+            # which throws exceptions when encountering missing required fields
+            # (e.g., missing author, timestamp, or identifiers).
+            logging.debug("Error parsing file: %s", err)
+            self.parsing_error.append(
+                f"Error parsing file: {type(err).__name__}: {str(err)}"
+            )
+            return None
 
         return cast("Document", doc)
 
-    def parse_spdx3_file(self) -> Optional[spdx3.SHACLObjectSet]:
+    def parse_spdx3_file(self) -> spdx3.SHACLObjectSet | None:
         """
         Parse SPDX 3 SBOM document.
 
         Returns:
-            Optional[spdx3.SHACLObjectSet]: An SHACLObjectSet if successful,
-            otherwise None.
+            spdx3.SHACLObjectSet | None: An SHACLObjectSet if successful, otherwise None.
         """
         if not self.file or str(self.file).strip() == "":
             logging.error("No file path provided.")
@@ -795,19 +739,12 @@ class BaseChecker(ABC):
 
         return object_set
 
-    def print_components_missing_info(
-        self, attributes: Optional[List[str]] = None
-    ) -> None:
+    def print_components_missing_info(self) -> None:
         """
         Print information about components that are missing required details.
 
         What is considered "missing" is determined by a compliance standard.
         Subclasses may override this method to provide custom behavior.
-
-        Args:
-            attributes (Optional[List[str]]): A list of attributes to check for missing
-                                              information. If not specified, all
-                                              available attributes will be checked.
 
         Returns:
             None
@@ -816,160 +753,81 @@ class BaseChecker(ABC):
         if self.parsing_error:
             return
 
-        # If no specific info types are provided, check all
-        if not attributes:
-            attributes = list(self._COMPONENTS_MISSING.keys())
-
-        if all(
-            not getattr(self, components_without_info, None)
-            for components_without_info, _ in self._COMPONENTS_MISSING.values()
-        ):
-            print("No components with missing information.")
+        if not self.all_components_without_info:
             return
 
-        for info in attributes:
-            if info in self._COMPONENTS_MISSING:
-                components_without_infos, label = self._COMPONENTS_MISSING[info]
-                if components_without_infos:
-                    print(
-                        f"{label} ({len(components_without_infos)}): "
-                        f"{', '.join(components_without_infos)}"
-                    )
-            else:
-                print(f"Unknown attribute: {info!r}\n")
+        print("Missing required information in these components:")
+        for info_name, components in self.all_components_without_info:
+            print(
+                f"{info_name} ({len(components)}): "
+                f"{', '.join([name for name, _ in components])}"
+            )
 
-    def _get_table_title(self) -> str:
-        return (
-            f"{SUPPORTED_COMPLIANCE_STANDARDS_DESC[self.compliance_standard]}"
-            " Conformance Results"
-        )
-
-    def print_table_output(
-        self,
-        verbose: bool = False,
-        table_elements: Optional[List[Tuple[str, bool]]] = None,
-    ) -> None:
+    def print_table_output(self, verbose: bool = False) -> None:
         """
         Print element-by-element result table.
 
         Args:
             verbose (bool): If True, print detailed information.
-            table_elements (Optional[List[Tuple[str, bool]]]): A list of tuples
-                            where each tuple contains a label and a boolean
-                            value indicating the status of that element.
 
         Returns:
             None
         """
-        if not self.doc:
-            print("The document couldn't be parsed; check couldn't be performed.\n")
-            if self.parsing_error:
-                print("The following parsing error(s) were raised:\n")
-                for error in self.parsing_error:
-                    print(error)
-            return
+        report_context = ReportContext(
+            sbom_spec=getattr(self, "sbom_spec", ""),
+            compliance_standard=getattr(self, "compliance_standard", ""),
+            compliant=getattr(self, "compliant", False),
+            requirement_results=getattr(self, "table_elements", []),
+            components_without_info=getattr(self, "all_components_without_info", []),
+            validation_messages=getattr(self, "validation_messages", []),
+            parsing_error=getattr(self, "parsing_error", []),
+        )
 
-        if self.compliance_standard not in SUPPORTED_COMPLIANCE_STANDARDS:
-            print(f"Unsupported compliance standard {self.compliance_standard!r}")
-            return
+        print(report_text(report_context, verbose))
 
-        print(self._get_table_title())
-        print(f"Conformant: {self.compliant}\n")
-
-        if table_elements:
-            print("Individual elements                            | Status")
-            print("-------------------------------------------------------")
-            for label, value in table_elements:
-                print(f"{label:<46} | {value}")
-            print()
-
-        if self.validation_messages:
-            print(
-                "\nThe document is not valid according to the SBOM "
-                f'specification ("{self.sbom_spec}"). '
-                "The following errors were found:\n"
-            )
-            print_validation_messages(self.validation_messages, verbose)
-
-    def output_html(
-        self,
-        table_elements: Optional[List[Tuple[str, bool]]] = None,
-    ) -> str:
+    def output_html(self) -> str:
         """
         Create element-by-element result table in HTML.
-
-        Args:
-            table_elements (Optional[List[Tuple[str, bool]]]): A list of tuples
-                            where each tuple contains a label and a boolean
-                            value indicating the status of that element.
 
         Returns:
             str: The HTML representation of the results.
         """
-        html_parts: List[str] = []
+        report_context = ReportContext(
+            sbom_spec=getattr(self, "sbom_spec", ""),
+            compliance_standard=getattr(self, "compliance_standard", ""),
+            compliant=getattr(self, "compliant", False),
+            requirement_results=getattr(self, "table_elements", []),
+            components_without_info=getattr(self, "all_components_without_info", []),
+            validation_messages=getattr(self, "validation_messages", []),
+            parsing_error=getattr(self, "parsing_error", []),
+        )
 
-        if not self.doc:
-            html_parts.append(
-                "<p>The document couldn't be parsed; check couldn't be performed.</p>"
-            )
-            if self.parsing_error:
-                html_parts.append("<p>The following parsing error(s) were raised:</p>")
-                html_parts.append("<ul>")
-                for err in self.parsing_error:
-                    html_parts.append(f"<li>{err}</li>")
-                html_parts.append("</ul>")
-            return "\n".join(html_parts)
+        return report_html(report_context, verbose=True)
 
-        if self.compliance_standard not in SUPPORTED_COMPLIANCE_STANDARDS:
-            html_parts.append(
-                f"<p>Unsupported compliance standard {self.compliance_standard!r}</p>"
-            )
-            return "\n".join(html_parts)
-
-        html_parts.append(f"<h2>{self._get_table_title()}</h2>")
-        html_parts.append(f"<h3>Conformant: {self.compliant}</h3>")
-
-        if table_elements:
-            html_parts.append("<table>")
-            html_parts.append(
-                "<tr><th>Individual Elements</th><th>Conformant</th></tr>"
-            )
-            for label, val in table_elements:
-                html_parts.append(f"<tr><td>{label}</td><td>{val}</td></tr>")
-            html_parts.append("</table>")
-
-        if self.validation_messages:
-            html_parts.append(
-                "<p>The document is not valid according to the SBOM "
-                f'specification ("{self.sbom_spec}").</p>'
-            )
-            html_parts.append("<p>The following errors were found:</p>")
-            html_parts.append(get_validation_messages_html(self.validation_messages))
-
-        return "\n".join(html_parts)
-
-    def output_json(self) -> Dict[str, Any]:
+    def output_json(self) -> dict[str, Any]:
         """
         Create a JSON-serializable result dict.
 
         Subclasses may override to provide custom fields.
         """
-        result: Dict[str, Any] = {
-            "isConformant": self.compliant,
-            "isNtiaConformant": self.compliant,  # backward compatibility
-            "complianceStandard": self.compliance_standard,
-            "sbomSpec": self.sbom_spec,
-            "validationMessages": (
-                list(map(str, self.validation_messages))
-                if self.validation_messages
-                else []
+        result: dict[str, Any] = {
+            "isConformant": getattr(self, "compliant", False),
+            "isNtiaConformant": getattr(
+                self, "compliant", False
+            ),  # backward compatibility
+            "complianceStandard": getattr(self, "compliance_standard", ""),
+            "sbomSpec": getattr(self, "sbom_spec", ""),
+            "validationMessages": get_validation_messages_json(
+                getattr(self, "validation_messages", [])
             ),
-            "parsingError": self.parsing_error,
-            "sbomName": self.sbom_name,
-            "specVersionProvided": self.doc_version,
-            "authorNameProvided": self.doc_author,
-            "timestampProvided": self.doc_timestamp,
-            "dependencyRelationshipsProvided": self.dependency_relationships,
+            "parsingError": getattr(self, "parsing_error", []),
+            "sbomName": getattr(self, "sbom_name", ""),
+            "specVersionProvided": getattr(self, "doc_version", False),
+            "authorNameProvided": getattr(self, "doc_author", False),
+            "timestampProvided": getattr(self, "doc_timestamp", False),
+            "dependencyRelationshipsProvided": getattr(
+                self, "dependency_relationships", False
+            ),
             "totalNumberComponents": self.get_total_number_components(),
         }
 
@@ -983,10 +841,17 @@ class BaseChecker(ABC):
         }
 
         for key_, attr in _groups.items():
-            components_without_infos = getattr(self, attr, [])
+            components_without_info = getattr(self, attr, [])
+            # components_without_info is a list[tuple[name, spdx_id]];
+            # prefer the human-readable name and fall back to SPDX ID.
+            nonconformant = [
+                (name if name not in (None, "") else spdx_id)
+                for name, spdx_id in components_without_info
+            ]
+
             result[key_] = {
-                "nonconformantComponents": components_without_infos,
-                "allProvided": not bool(components_without_infos),
+                "nonconformantComponents": nonconformant,
+                "allProvided": not bool(nonconformant),
             }
 
         return result

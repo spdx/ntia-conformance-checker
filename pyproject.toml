@@ -1,14 +1,14 @@
-# SPDX-FileCopyrightText: 2024 SPDX contributors
+# SPDX-FileCopyrightText: 2024-2025 SPDX contributors
 # SPDX-FileType: SOURCE
 # SPDX-License-Identifier: Apache-2.0
 
 [build-system]
-requires = ["setuptools>=61.2", "setuptools_scm[toml]>=3.4.3"]
+requires = ["setuptools>=80.9.0", "setuptools-scm[toml]>=9.2.2"]
 build-backend = "setuptools.build_meta"
 
 [project]
 name = "ntia_conformance_checker"
-version = "4.0.0"
+version = "5.0.0"
 authors = [
     { name = "Josh Lin", email = "linynjosh@gmail.com" },
     { name = "John Speed Meyers", email = "johnmeyersster@gmail.com" },
@@ -27,17 +27,17 @@ readme = "README.md"
 classifiers = [
     "Intended Audience :: Developers",
     "Intended Audience :: System Administrators",
-    "Programming Language :: Python :: 3.9",
     "Programming Language :: Python :: 3.10",
     "Programming Language :: Python :: 3.11",
     "Programming Language :: Python :: 3.12",
     "Programming Language :: Python :: 3.13",
+    "Programming Language :: Python :: 3.14",
     "Topic :: Security",
     "Topic :: Software Development :: Libraries :: Python Modules",
     "Topic :: System :: Systems Administration",
 ]
 urls = { Homepage = "https://github.com/spdx/ntia-conformance-checker" }
-requires-python = ">=3.9"
+requires-python = ">=3.10"
 keywords = [
     "spdx",
     "sbom",
@@ -52,23 +52,20 @@ keywords = [
     "software component transparency",
     "supply chain security",
 ]
-dependencies = ["spdx-python-model==0.0.3", "spdx-tools==0.8.3"]
+dependencies = ["spdx-python-model==0.0.4", "spdx-tools==0.8.3"]
 
 [project.optional-dependencies]
 dev = [
-    "black>=25.1.0",
-    "mypy>=1.17.1",
-    "pylint>=3.3.8",
-    "pyrefly>=0.31.0",
-    "pyright>=1.1.405",
-    "pytype>=2024.9.13", # 2024.9.13 is the last version supporting Python 3.9
-    "ruff>=0.12.12",
+    "black>=25.12.0",
+    "mypy>=1.19.1",
+    "pylint>=4.0.4",
+    "pyrefly>=0.46.0",
+    "pyright>=1.1.407",
+    "pytype>=2024.10.11",
+    "ruff>=0.14.9",
 ]
-docs = [
-    "sphinx>=7.4.7", # 7.4.7 is the last version supporting Python 3.9
-    "sphinx-rtd-theme>=3.0.2",
-]
-test = ["beartype==0.21.0", "coverage==7.10.6", "pytest==8.4.2"]
+docs = ["Sphinx>=9.0.4"]
+test = ["coverage>=7.13.0", "pytest>=9.0.2"]
 
 [project.scripts]
 # Both "ntia-checker" and "sbomcheck" are identical.
@@ -78,10 +75,13 @@ test = ["beartype==0.21.0", "coverage==7.10.6", "pytest==8.4.2"]
 ntia-checker = "ntia_conformance_checker.main:main"
 sbomcheck = "ntia_conformance_checker.main:main"
 
+[tool.pylint.main]
+disable = "duplicate-code"
+
 [tool.ruff]
 line-length = 88 # Same as black
 indent-width = 4 # Same as black
-target-version = "py39"
+target-version = "py310"
 exclude = [
     "build",
     "dist",
@@ -106,3 +106,6 @@ fixable = ["ALL"]
 
 [tool.setuptools]
 packages = ["ntia_conformance_checker"]
+
+[tool.setuptools.package-data]
+ntia_conformance_checker = ["py.typed"] # Signal type hinting support

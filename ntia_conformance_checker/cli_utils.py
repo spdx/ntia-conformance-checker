@@ -7,11 +7,12 @@
 from __future__ import annotations
 
 import argparse
+import json
 import logging
 import re
 import sys
 from importlib.metadata import version
-from typing import Optional, Tuple
+from typing import TYPE_CHECKING, Any
 
 from spdx_tools.spdx.parser.error import SPDXParsingError
 from spdx_tools.spdx.parser.parse_anything import parse_file as parse_spdx2_file
@@ -23,7 +24,11 @@ from .constants import (
     SUPPORTED_COMPLIANCE_STANDARDS_DESC,
     SUPPORTED_SBOM_SPECS,
     SUPPORTED_SBOM_SPECS_DESC,
+    SUPPORTED_SPDX_VERSIONS,
 )
+
+if TYPE_CHECKING:
+    from .sbom_checker import BaseChecker
 
 _OUTPUT_CHOICES = {
     "print": "Print report to console",
@@ -145,19 +150,10 @@ def get_parsed_args() -> argparse.Namespace:
         parser.print_help()
         sys.exit(0)
 
-    logging.basicConfig(
-        level=(
-            logging.CRITICAL
-            if getattr(args, "quiet", "") == "quiet"
-            else (logging.INFO if getattr(args, "verbose", False) else logging.WARNING)
-        ),
-        format="%(levelname)s: %(message)s",
-    )
-
     return args
 
 
-def get_spdx_version(file: str, sbom_spec: str = "spdx2") -> Optional[Tuple[int, int]]:
+def get_spdx_version(file: str, sbom_spec: str = "spdx2") -> tuple[int, int] | None:
     """
     Detect the SPDX version of the SBOM file.
 
@@ -165,12 +161,16 @@ def get_spdx_version(file: str, sbom_spec: str = "spdx2") -> Optional[Tuple[int,
 
     Args:
         file (str): The name of the file to be checked.
+        sbom_spec (str): The SBOM specification hint, the function will try to
+                         use the appropriate parser first.
 
     Returns:
-        Tuple[int, int]: The SPDX major.minor version of the SBOM. E.g. (2, 3) for version 2.3.
+        Tuple[int, int] | None: The SPDX major.minor version of the SBOM.
+                                E.g. (2, 3) for version 2.3.
+                                Returns None if the version cannot be determined.
     """
     if file.lower().endswith(".xls") or file.lower().endswith(".xlsx"):
-        logging.warning("Excel file format is not supported")
+        logging.debug("Detect SPDX version: Excel file format is not supported")
         return None
 
     # Try parsing the file with spdx_tools first
@@ -179,10 +179,22 @@ def get_spdx_version(file: str, sbom_spec: str = "spdx2") -> Optional[Tuple[int,
         try:
             doc = parse_spdx2_file(file)
         except SPDXParsingError as exc:
-            logging.warning("spdx_tools parser failed: %s", exc)
+            logging.debug("Detect SPDX version: spdx_tools parser failed: %s", exc)
             doc = None
         except (ValueError, TypeError, OSError) as exc:
-            logging.warning("Unexpected error while parsing with spdx_tools: %s", exc)
+            logging.debug(
+                "Detect SPDX version: spdx_tools parser unexpected error: %s", exc
+            )
+            doc = None
+        except Exception as exc:  # pylint: disable=broad-except
+            # Catch any other errors, including BeartypeCallHintParamViolation
+            # from the spdx-tools library when parsing invalid SPDX files.
+            # The spdx-tools library uses beartype for runtime type checking,
+            # which throws exceptions when encountering missing required fields
+            # (e.g., missing author, timestamp, or identifiers).
+            logging.debug(
+                "Detect SPDX version: spdx_tools parser unexpected error: %s", exc
+            )
             doc = None
 
     # If parsing was successful, return the version tuple. e.g. (2, 3) for 2.3.
@@ -201,7 +213,7 @@ def get_spdx_version(file: str, sbom_spec: str = "spdx2") -> Optional[Tuple[int,
         with open(file, "r", encoding="utf-8") as f:
             content = f.read()
     except (OSError, UnicodeDecodeError) as exc:
-        logging.warning("Could not read file: %s", exc)
+        logging.debug("Detect SPDX version: Could not read file: %s", exc)
         return None
 
     # Match MAJOR.MINOR.PATCH version
@@ -232,3 +244,89 @@ def get_spdx_version(file: str, sbom_spec: str = "spdx2") -> Optional[Tuple[int,
             return (int(m.group(1)), int(m.group(2)))  # Returns (MAJOR, MINOR)
 
     return None
+
+
+def get_sbom_spec(file: str, sbom_spec: str) -> str:
+    """Detect SBOM specification from file content."""
+    detected_sbom_spec: str = ""
+
+    if sbom_spec not in SUPPORTED_SBOM_SPECS:
+        logging.error(
+            "Unsupported SBOM specification: %s. Supported: %s",
+            sbom_spec,
+            ", ".join(sorted(SUPPORTED_SBOM_SPECS)),
+        )
+        return ""
+
+    if sbom_spec.startswith("spdx"):
+        spdx_version: tuple[int, int] | None = get_spdx_version(
+            file, sbom_spec=sbom_spec
+        )
+        if not spdx_version:
+            logging.error("Could not determine SPDX version from SBOM.")
+            return ""
+        logging.debug("Detected SPDX version: %d.%d", spdx_version[0], spdx_version[1])
+
+        if spdx_version not in SUPPORTED_SPDX_VERSIONS:
+            logging.error(
+                "Unsupported SPDX version: %d.%d. Supported: %s",
+                spdx_version[0],
+                spdx_version[1],
+                ", ".join(
+                    f"{maj}.{min}" for maj, min in sorted(SUPPORTED_SPDX_VERSIONS)
+                ),
+            )
+            return ""
+
+        match spdx_version[0]:
+            case 3:
+                detected_sbom_spec = "spdx3"
+            case 2:
+                detected_sbom_spec = "spdx2"
+
+    return detected_sbom_spec
+
+
+def print_output(
+    sbom: BaseChecker, *, output_type: str, output_file: str, verbose: bool
+) -> None:
+    """Print or save the output report."""
+    match output_type:
+        case "print":
+            sbom.print_table_output(verbose=verbose)
+            if verbose:
+                sbom.print_components_missing_info()
+
+        case "json":
+            result_dict: dict[str, Any] = sbom.output_json()
+            if output_file:
+                with open(output_file, "w", encoding="utf-8") as outfile:
+                    json.dump(result_dict, outfile)
+            else:
+                print(json.dumps(result_dict, indent=2))
+
+        case "html":
+            html_output = sbom.output_html()
+            if output_file:
+                try:
+                    with open(output_file, "w", encoding="utf-8") as outfile:
+                        # Put a simple HTML wrapper around the HTML report snippet
+                        outfile.write(
+                            "<!DOCTYPE html>\n"
+                            "<html>\n"
+                            "<head>\n"
+                            "  <title>SBOM Conformance Report</title>\n"
+                            '  <meta charset="utf-8" />\n'
+                            "</head>\n"
+                            "<body>\n"
+                            "<h1>SBOM Conformance Report</h1>\n"
+                        )
+                        outfile.write(f"<p>Filename: {sbom.file}</p>\n")
+                        outfile.write(html_output)
+                        outfile.write("\n</body>\n</html>\n")
+                except OSError as exc:
+                    logging.error("Could not write HTML output file: %s", exc)
+            else:
+                print(html_output)
+
+    # do nothing if output_type is "quiet" or unrecognized

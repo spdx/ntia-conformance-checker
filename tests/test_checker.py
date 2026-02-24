@@ -1,4 +1,4 @@
-# SPDX-FileCopyrightText: 2024 SPDX contributors
+# SPDX-FileCopyrightText: 2024-2025 SPDX contributors
 # SPDX-FileType: SOURCE
 # SPDX-License-Identifier: Apache-2.0
 
@@ -11,12 +11,23 @@ from pathlib import Path
 from unittest import TestCase
 
 import pytest
-from beartype.roar import BeartypeCallHintParamViolation
 from spdx_python_model import v3_0_1 as spdx3  # type: ignore # import-untyped
 
 import ntia_conformance_checker.sbom_checker as sbom_checker
 from ntia_conformance_checker import FSCT3Checker, NTIAChecker
 from ntia_conformance_checker.base_checker import validate_spdx3_data
+
+
+def _component_names(tuples_list: list[tuple[str, str]]) -> list[str]:
+    """
+    Extract first element from list of tuples,
+    or second if first is None or empty.
+    """
+    return [
+        t[0] if t and t[0] not in (None, "") else (t[1] if t else "")
+        for t in tuples_list
+    ]
+
 
 ### Test no element missing
 
@@ -101,15 +112,10 @@ test_files_missing_author_name = [
 def test_sbomchecker_missing_author_name(test_file):
     """The parser from spdx-tools will raise an SPDXParsingError if
     the document does not contain a creator."""
-    try:
-        sbom_check = sbom_checker.SbomChecker(test_file)
+    sbom_check = sbom_checker.SbomChecker(test_file)
 
-        assert not sbom_check.ntia_minimum_elements_compliant
-        assert sbom_check.parsing_error
-    except BeartypeCallHintParamViolation:
-        pytest.xfail(
-            "Beartype type violation (assigning None) due to missing author field"
-        )
+    assert not sbom_check.ntia_minimum_elements_compliant
+    assert sbom_check.parsing_error
 
 
 ### Test missing timestamp
@@ -122,15 +128,10 @@ test_files_missing_timestamp = [os.path.join(dirname, fn) for fn in os.listdir(d
 def test_sbomchecker_missing_timestamp(test_file):
     """The parser from spdx-tools will raise an SPDXParsingError if
     the document does not contain a created date."""
-    try:
-        sbom_check = sbom_checker.SbomChecker(test_file)
+    sbom_check = sbom_checker.SbomChecker(test_file)
 
-        assert not sbom_check.ntia_minimum_elements_compliant
-        assert sbom_check.parsing_error
-    except BeartypeCallHintParamViolation:
-        pytest.xfail(
-            "Beartype type violation (assigning None) due to missing timestamp field"
-        )
+    assert not sbom_check.ntia_minimum_elements_compliant
+    assert sbom_check.parsing_error
 
 
 ### Test missing concluded licenses
@@ -192,7 +193,9 @@ def test_sbomchecker_missing_component_version(test_file):
     assert sbom.doc_timestamp
     assert sbom.dependency_relationships
     assert not sbom.components_without_names
-    TestCase().assertCountEqual(sbom.components_without_versions, ["glibc"])
+    TestCase().assertCountEqual(
+        _component_names(sbom.components_without_versions), ["glibc"]
+    )
     assert not sbom.components_without_suppliers
     assert not sbom.components_without_identifiers
     assert not sbom.compliant
@@ -216,7 +219,8 @@ def test_sbomchecker_missing_supplier_name(test_file):
     assert not sbom.components_without_names
     assert not sbom.components_without_versions
     TestCase().assertCountEqual(
-        sbom.components_without_suppliers, ["glibc", "Jena", "Saxon"]
+        _component_names(sbom.components_without_suppliers),
+        ["glibc", "Jena", "Saxon"],
     )
     assert not sbom.components_without_identifiers
     assert not sbom.compliant
@@ -235,16 +239,12 @@ test_files_missing_unique_identifiers = [
 def test_sbomchecker_missing_unique_identifiers(test_file):
     """The parser from spdx-tools will raise an SPDXParsingError if
     the document contains an element without SPDXID."""
-    try:
-        sbom_check = sbom_checker.SbomChecker(test_file)
 
-        assert not sbom_check.compliant
-        assert not sbom_check.ntia_minimum_elements_compliant
-        assert sbom_check.parsing_error
-    except BeartypeCallHintParamViolation:
-        pytest.xfail(
-            "Beartype type violation (assigning None) due to missing unique identifier field"
-        )
+    sbom_check = sbom_checker.SbomChecker(test_file)
+
+    assert not sbom_check.compliant
+    assert not sbom_check.ntia_minimum_elements_compliant
+    assert sbom_check.parsing_error
 
 
 ### Test SBOM example from various sources
@@ -257,7 +257,7 @@ def test_sbomchecker_tern_photon_example():
     )
     sbom = sbom_checker.SbomChecker(test_file)
     assert sbom.doc_author
-    assert sbom.components_without_versions == [
+    assert _component_names(sbom.components_without_versions) == [
         "5e94941e3961b26645fbfdc71a59d439537b98417546bfdab35fa074f121eb15",
         "bash",
     ]
@@ -275,7 +275,7 @@ def test_sbomchecker_bom_alpine_example():
     # currently checking only one component with a missing version
     assert (
         "sha256:850d4aa2c32a30db71a7e54dab7c605f74a4aeabf9418ccd9273b2480fcb6c04"
-        in sbom.components_without_versions
+        in _component_names(sbom.components_without_versions)
     )
 
 
@@ -361,6 +361,7 @@ def test_sbomchecker_fsct3_spdx3_no_elements_missing():
     assert sbom.doc is not None
     assert isinstance(sbom.doc, spdx3.SHACLObjectSet)
     assert sbom.compliant
+    assert len(sbom.validation_messages) == 0
 
 
 def test_sbomchecker_spdx3_missing_supplier_name():
@@ -370,6 +371,7 @@ def test_sbomchecker_spdx3_missing_supplier_name():
     assert sbom.doc is not None
     assert isinstance(sbom.doc, spdx3.SHACLObjectSet)
     assert len(sbom.components_without_suppliers) == 1
+    assert len(sbom.validation_messages) == 0
 
 
 def test_sbomchecker_spdx3_missing_version():
@@ -379,6 +381,7 @@ def test_sbomchecker_spdx3_missing_version():
     assert sbom.doc is not None
     assert isinstance(sbom.doc, spdx3.SHACLObjectSet)
     assert len(sbom.components_without_versions) == 1
+    assert len(sbom.validation_messages) == 0
 
 
 def test_sbomchecker_spdx3_missing_unique_identifiers():
@@ -403,6 +406,7 @@ def test_sbomchecker_output_json():
     assert got["sbomName"] == "xyz-0.1.0"
     assert not got["isNtiaConformant"]
     assert not got["isConformant"]
+    assert not got["validationMessages"]
     assert got["authorNameProvided"]
     assert got["timestampProvided"]
     assert got["dependencyRelationshipsProvided"]
@@ -421,6 +425,14 @@ def test_sbomchecker_output_json():
     assert got["totalNumberComponents"] == 3
 
 
+def test_sbomchecker_output_json_validation_messages():
+    test_file = Path(__file__).parent / "data" / "spdx3" / "has_no_sbom.json"
+    sbom = sbom_checker.SbomChecker(str(test_file), sbom_spec="spdx3")
+    got = sbom.output_json()
+    assert got["validationMessages"]
+    assert "root element" in got["validationMessages"][0]["message"]
+
+
 def test_sbomchecker_output_html():
     filepath = os.path.join(
         os.path.dirname(__file__), "data", "other_tests", "SPDXSBOMExample.spdx.yml"
@@ -429,18 +441,91 @@ def test_sbomchecker_output_html():
 
     got = sbom.output_html()
     expected = (
-        "<h2>2021 NTIA SBOM Minimum Elements Conformance Results</h2>\n"
-        "<h3>Conformant: False</h3>\n"
-        "<table>\n"
-        "<tr><th>Individual Elements</th><th>Conformant</th></tr>\n"
-        "<tr><td>All component names provided</td><td>True</td></tr>\n"
-        "<tr><td>All component versions provided</td><td>True</td></tr>\n"
-        "<tr><td>All component identifiers provided</td><td>True</td></tr>\n"
-        "<tr><td>All component suppliers provided</td><td>False</td></tr>\n"
-        "<tr><td>SBOM author name provided</td><td>True</td></tr>\n"
-        "<tr><td>SBOM creation timestamp provided</td><td>True</td></tr>\n"
-        "<tr><td>Dependency relationships provided</td><td>True</td></tr>\n"
-        "</table>"
+        "<div class='conformance-res'>\n"
+        "<h2 class='conformance-res-title'>"
+        "2021 NTIA SBOM Minimum Elements Conformance Results"
+        "</h2>\n"
+        "<h3 class='conformance-res-status'>Conformant: False</h3>\n"
+        "<table class='conformance-res-tab'>\n"
+        "<thead><tr><th>Requirement</th>"
+        "<th>Conformant</th></tr></thead>\n"
+        "<tbody>\n"
+        "<tr><td class='conformance-res-tab-r'>All component names provided?</td>"
+        "<td class='conformance-res-tab-v'>True</td></tr>\n"
+        "<tr><td class='conformance-res-tab-r'>All component versions provided?</td>"
+        "<td class='conformance-res-tab-v'>True</td></tr>\n"
+        "<tr><td class='conformance-res-tab-r'>All component identifiers provided?</td>"
+        "<td class='conformance-res-tab-v'>True</td></tr>\n"
+        "<tr><td class='conformance-res-tab-r'>All component suppliers provided?</td>"
+        "<td class='conformance-res-tab-v'>False</td></tr>\n"
+        "<tr><td class='conformance-res-tab-r'>SBOM author name provided?</td>"
+        "<td class='conformance-res-tab-v'>True</td></tr>\n"
+        "<tr><td class='conformance-res-tab-r'>SBOM creation timestamp provided?</td>"
+        "<td class='conformance-res-tab-v'>True</td></tr>\n"
+        "<tr><td class='conformance-res-tab-r'>Dependency relationships provided?</td>"
+        "<td class='conformance-res-tab-v'>True</td></tr>\n"
+        "</tbody>\n"
+        "</table>\n"
+        "</div>\n"
+        "<div class='conformance-mis'>\n"
+        "<p class='conformance-mis-label'>"
+        "Missing required information in these components:</p>\n"
+        "<ul class='conformance-mis-list'>\n"
+        "<li>supplier (3): xyz, curl, openssl</li>\n"
+        "</ul>\n"
+        "</div>"
+    )
+
+    assert got == expected
+
+
+def test_sbomchecker_fsct3_output_html():
+    filepath = os.path.join(
+        os.path.dirname(__file__), "data", "other_tests", "SPDXSBOMExample.spdx.yml"
+    )
+    sbom = sbom_checker.SbomChecker(filepath, compliance="fsct3-min")
+
+    got = sbom.output_html()
+    expected = (
+        "<div class='conformance-res'>\n"
+        "<h2 class='conformance-res-title'>"
+        "2024 CISA Framing Software Component Transparency"
+        " (minimum expectation) Conformance Results"
+        "</h2>\n"
+        "<h3 class='conformance-res-status'>Conformant: False</h3>\n"
+        "<table class='conformance-res-tab'>\n"
+        "<thead><tr><th>Requirement</th>"
+        "<th>Conformant</th></tr></thead>\n"
+        "<tbody>\n"
+        "<tr><td class='conformance-res-tab-r'>All component names provided?</td>"
+        "<td class='conformance-res-tab-v'>True</td></tr>\n"
+        "<tr><td class='conformance-res-tab-r'>All component versions provided?</td>"
+        "<td class='conformance-res-tab-v'>True</td></tr>\n"
+        "<tr><td class='conformance-res-tab-r'>All component identifiers provided?</td>"
+        "<td class='conformance-res-tab-v'>True</td></tr>\n"
+        "<tr><td class='conformance-res-tab-r'>All component suppliers provided?</td>"
+        "<td class='conformance-res-tab-v'>False</td></tr>\n"
+        "<tr><td class='conformance-res-tab-r'>All component concluded license provided?</td>"
+        "<td class='conformance-res-tab-v'>False</td></tr>\n"
+        "<tr><td class='conformance-res-tab-r'>All component copyright notice provided?</td>"
+        "<td class='conformance-res-tab-v'>True</td></tr>\n"
+        "<tr><td class='conformance-res-tab-r'>SBOM author name provided?</td>"
+        "<td class='conformance-res-tab-v'>True</td></tr>\n"
+        "<tr><td class='conformance-res-tab-r'>SBOM creation timestamp provided?</td>"
+        "<td class='conformance-res-tab-v'>True</td></tr>\n"
+        "<tr><td class='conformance-res-tab-r'>Dependency relationships provided?</td>"
+        "<td class='conformance-res-tab-v'>True</td></tr>\n"
+        "</tbody>\n"
+        "</table>\n"
+        "</div>\n"
+        "<div class='conformance-mis'>\n"
+        "<p class='conformance-mis-label'>"
+        "Missing required information in these components:</p>\n"
+        "<ul class='conformance-mis-list'>\n"
+        "<li>supplier (3): xyz, curl, openssl</li>\n"
+        "<li>concluded_license (3): xyz, curl, openssl</li>\n"
+        "</ul>\n"
+        "</div>"
     )
 
     assert got == expected
@@ -455,17 +540,13 @@ def test_components_without_functions():
     )
     sbom = sbom_checker.SbomChecker(filepath)
     components = sbom.get_components_without_names()
-    assert components == ["SPDXRef-Package1"]
+    assert components == [("", "SPDXRef-Package1")]
     components = sbom.get_components_without_versions()
-    assert components == ["glibc-no-version-1", "glibc-no-version-2"]
-    components = sbom.get_components_without_versions(return_tuples=True)
     assert components == [
         ("glibc-no-version-1", "SPDXRef-Package2"),
         ("glibc-no-version-2", "SPDXRef-Package3"),
     ]
     components = sbom.get_components_without_suppliers()
-    assert components == ["glibc-no-supplier"]
-    components = sbom.get_components_without_suppliers(return_tuples=True)
     assert components == [("glibc-no-supplier", "SPDXRef-Package4")]
     # Not sure how to test this.
     # If any package misses the SPDXID the whole file seems to be invalid.

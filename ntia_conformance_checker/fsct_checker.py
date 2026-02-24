@@ -1,4 +1,4 @@
-# SPDX-FileCopyrightText: 2024 SPDX contributors
+# SPDX-FileCopyrightText: 2024-2025 SPDX contributors
 # SPDX-FileType: SOURCE
 # SPDX-License-Identifier: Apache-2.0
 
@@ -26,6 +26,15 @@ class FSCT3Checker(BaseChecker):
         https://www.cisa.gov/resources-tools/resources/framing-software-component-transparency-2024
     """
 
+    MIN_ELEMENTS = [
+        "name",
+        "version",
+        "identifier",
+        "supplier",
+        "concluded_license",
+        "copyright_text",
+    ]
+
     def __init__(
         self,
         file: str,
@@ -51,9 +60,35 @@ class FSCT3Checker(BaseChecker):
 
         if self.doc:
             self.compliant = self.check_compliance()
-
             # for backward compatibility
             self.ntia_minimum_elements_compliant = self.compliant
+
+        self.table_elements = [
+            ("All component names provided?", not self.components_without_names),
+            (
+                "All component versions provided?",
+                not self.components_without_versions,
+            ),
+            (
+                "All component identifiers provided?",
+                not self.components_without_identifiers,
+            ),
+            (
+                "All component suppliers provided?",
+                not self.components_without_suppliers,
+            ),
+            (
+                "All component concluded license provided?",
+                not self.components_without_concluded_licenses,
+            ),
+            (
+                "All component copyright notice provided?",
+                not self.components_without_copyright_texts,
+            ),
+            ("SBOM author name provided?", self.doc_author),
+            ("SBOM creation timestamp provided?", self.doc_timestamp),
+            ("Dependency relationships provided?", self.dependency_relationships),
+        ]
 
     def check_compliance(self) -> bool:
         """Check overall compliance"""
@@ -70,80 +105,4 @@ class FSCT3Checker(BaseChecker):
                 not self.components_without_copyright_texts,
                 not self.validation_messages,
             ]
-        )
-
-    def print_components_missing_info(self, attributes=None) -> None:
-        """Print detailed info about which components have missing info."""
-        super().print_components_missing_info(
-            attributes=[
-                "name",
-                "version",
-                "identifier",
-                "supplier",
-                "concluded_license",
-                "copyright_text",
-            ]
-        )
-
-    def print_table_output(self, verbose: bool = False, table_elements=None) -> None:
-        """Print element-by-element result table."""
-        super().print_table_output(
-            verbose=verbose,
-            table_elements=[
-                ("All component names provided?", not self.components_without_names),
-                (
-                    "All component versions provided?",
-                    not self.components_without_versions,
-                ),
-                (
-                    "All component identifiers provided?",
-                    not self.components_without_identifiers,
-                ),
-                (
-                    "All component suppliers provided?",
-                    not self.components_without_suppliers,
-                ),
-                (
-                    "All component concluded license provided?",
-                    not self.components_without_concluded_licenses,
-                ),
-                (
-                    "All component copyright notice provided?",
-                    not self.components_without_copyright_texts,
-                ),
-                ("SBOM author name provided?", self.doc_author),
-                ("SBOM creation timestamp provided?", self.doc_timestamp),
-                ("Dependency relationships provided?", self.dependency_relationships),
-            ],
-        )
-
-    def output_html(self, table_elements=None) -> str:
-        """Create element-by-element result table in HTML."""
-        return super().output_html(
-            table_elements=[
-                ("All component names provided", not self.components_without_names),
-                (
-                    "All component versions provided",
-                    not self.components_without_versions,
-                ),
-                (
-                    "All component identifiers provided",
-                    not self.components_without_identifiers,
-                ),
-                (
-                    "All component suppliers provided",
-                    not self.components_without_suppliers,
-                ),
-                (
-                    "All component concluded license provided",
-                    not self.components_without_concluded_licenses,
-                ),
-                (
-                    "All component copyright notice provided",
-                    not self.components_without_copyright_texts,
-                ),
-                ("SBOM author name provided", self.doc_author),
-                ("SBOM creation timestamp provided", self.doc_timestamp),
-                ("Dependency relationships provided", self.dependency_relationships),
-            ],
         )
