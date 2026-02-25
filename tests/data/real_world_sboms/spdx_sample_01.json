@@ -1,0 +1,123 @@
+{
+    "spdxVersion": "SPDX-2.2",
+    "SPDXID": "SPDXRef-DOCUMENT",
+    "name": "target_with_licenses",
+    "documentNamespace": "some_namespace",
+    "creationInfo": {
+        "creators": [
+            "Tool: fuchsia_licenses_spdx"
+        ]
+    },
+    "dataLicense": "CC0-1.0",
+    "documentDescribes": [
+        "SPDXRef-Package-0",
+        "SPDXRef-Package-1",
+        "SPDXRef-Package-2",
+        "SPDXRef-Package-3",
+        "SPDXRef-Package-4",
+        "SPDXRef-Package-5"
+    ],
+    "packages": [
+        {
+            "SPDXID": "SPDXRef-Package-0",
+            "name": "target_with_licenses"
+        },
+        {
+            "SPDXID": "SPDXRef-Package-1",
+            "name": "license foo",
+            "licenseConcluded": "LicenseRef-9f6f610a28625e454a3ea1cd259c6ae6"
+        },
+        {
+            "SPDXID": "SPDXRef-Package-2",
+            "name": "license bar",
+            "licenseConcluded": "LicenseRef-0839dfb2a0be0df9ab64ee38eedfb053"
+        },
+        {
+            "SPDXID": "SPDXRef-Package-3",
+            "name": "license bar",
+            "licenseConcluded": "LicenseRef-ea07f3176348d446c17a1a8d2b831105"
+        },
+        {
+            "SPDXID": "SPDXRef-Package-4",
+            "name": "license foo",
+            "licenseConcluded": "LicenseRef-9f6f610a28625e454a3ea1cd259c6ae6"
+        },
+        {
+            "SPDXID": "SPDXRef-Package-5",
+            "name": "license foo",
+            "licenseConcluded": "LicenseRef-3e1e113f1c9d9686bd37c9e76d6f1c98"
+        }
+    ],
+    "relationships": [
+        {
+            "spdxElementId": "SPDXRef-Package-0",
+            "relatedSpdxElement": "SPDXRef-Package-1",
+            "relationshipType": "CONTAINS"
+        },
+        {
+            "spdxElementId": "SPDXRef-Package-0",
+            "relatedSpdxElement": "SPDXRef-Package-2",
+            "relationshipType": "CONTAINS"
+        },
+        {
+            "spdxElementId": "SPDXRef-Package-0",
+            "relatedSpdxElement": "SPDXRef-Package-3",
+            "relationshipType": "CONTAINS"
+        },
+        {
+            "spdxElementId": "SPDXRef-Package-0",
+            "relatedSpdxElement": "SPDXRef-Package-4",
+            "relationshipType": "CONTAINS"
+        },
+        {
+            "spdxElementId": "SPDXRef-Package-0",
+            "relatedSpdxElement": "SPDXRef-Package-5",
+            "relationshipType": "CONTAINS"
+        }
+    ],
+    "hasExtractedLicensingInfos": [
+        {
+            "name": "license foo",
+            "licenseId": "LicenseRef-9f6f610a28625e454a3ea1cd259c6ae6",
+            "extractedText": "I am test license 1",
+            "crossRefs": [
+                {
+                    "url": "https://fuchsia.googlesource.com/sdk-integration/tests/fuchsia/licenses/spdx_dedup/license_1.txt"
+                },
+                {
+                    "url": "https://fuchsia.googlesource.com/sdk-integration/tests/fuchsia/licenses/spdx_dedup/license_1_copy.txt"
+                }
+            ]
+        },
+        {
+            "name": "license bar",
+            "licenseId": "LicenseRef-0839dfb2a0be0df9ab64ee38eedfb053",
+            "extractedText": "I am test license 2",
+            "crossRefs": [
+                {
+                    "url": "https://fuchsia.googlesource.com/sdk-integration/tests/fuchsia/licenses/spdx_dedup/license_2.txt"
+                }
+            ]
+        },
+        {
+            "name": "license bar",
+            "licenseId": "LicenseRef-ea07f3176348d446c17a1a8d2b831105",
+            "extractedText": "I am test license 1",
+            "crossRefs": [
+                {
+                    "url": "https://fuchsia.googlesource.com/sdk-integration/tests/fuchsia/licenses/spdx_dedup/license_1_copy.txt"
+                }
+            ]
+        },
+        {
+            "name": "license foo",
+            "licenseId": "LicenseRef-3e1e113f1c9d9686bd37c9e76d6f1c98",
+            "extractedText": "I am test license 2",
+            "crossRefs": [
+                {
+                    "url": "https://fuchsia.googlesource.com/sdk-integration/tests/fuchsia/licenses/spdx_dedup/license_2.txt"
+                }
+            ]
+        }
+    ]
+}
