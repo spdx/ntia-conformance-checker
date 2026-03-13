@@ -119,11 +119,6 @@ class BaseChecker(ABC):
         return self.compliant
 
     @property
-    def validation_messages(self) -> list[ValidationMessage]:
-        """Validation messages from SPDX document validation."""
-        return self._validation_messages
-
-    @property
     def parsing_errors(self) -> list[str]:
         """Parsing errors encountered during file parsing."""
         return self._parsing_errors
@@ -137,6 +132,11 @@ class BaseChecker(ABC):
             stacklevel=2,
         )
         return self._parsing_errors
+
+    @property
+    def validation_messages(self) -> list[ValidationMessage]:
+        """Validation messages from SPDX document validation."""
+        return self._validation_messages
 
     @abstractmethod
     def check_compliance(self) -> bool:
