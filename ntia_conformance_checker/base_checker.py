@@ -89,7 +89,7 @@ class BaseChecker(ABC):
     __spdx3_doc: spdx3.SpdxDocument | None = None  # cached SPDX 3 document
 
     _parsing_errors: list[str] = []
-    validation_messages: list[ValidationMessage] = []
+    _validation_messages: list[ValidationMessage] = []
 
     sbom_name: str = ""
     # Lists of components missing required information.
@@ -117,6 +117,11 @@ class BaseChecker(ABC):
             stacklevel=2,
         )
         return self.compliant
+
+    @property
+    def validation_messages(self) -> list[ValidationMessage]:
+        """Validation messages from SPDX document validation."""
+        return self._validation_messages
 
     @property
     def parsing_errors(self) -> list[str]:
@@ -163,7 +168,7 @@ class BaseChecker(ABC):
         # Make sure the logs are instance variables and not class variables
         # to avoid shared state between instances.
         self._parsing_errors = []
-        self.validation_messages = []
+        self._validation_messages = []
 
         match sbom_spec:
             case "spdx2":
@@ -174,11 +179,11 @@ class BaseChecker(ABC):
                     logging.error("Failed to parse the SPDX 3 file.")
                 else:
                     self.doc = object_set
-                    _doc, _validation_messages = validate_spdx3_data(object_set)
-                    if not _doc or _validation_messages:
+                    _doc, _val_msgs = validate_spdx3_data(object_set)
+                    if not _doc or _val_msgs:
                         logging.error("SpdxDocument not found or invalid.")
                     self.__spdx3_doc = _doc  # cache the extracted SpdxDocument
-                    self.validation_messages.extend(_validation_messages)
+                    self._validation_messages.extend(_val_msgs)
             case _:
                 # We can add a heuristic to detect the spec from the file content here,
                 # in case sbom_spec is not provided or invalid.
@@ -188,7 +193,7 @@ class BaseChecker(ABC):
             if validate:
                 if sbom_spec == "spdx2":
                     self.doc = cast("Document", self.doc)
-                    self.validation_messages = validate_full_spdx_document(self.doc)
+                    self._validation_messages = validate_full_spdx_document(self.doc)
                 else:
                     pass
 
@@ -802,7 +807,7 @@ class BaseChecker(ABC):
             compliant=getattr(self, "compliant", False),
             requirement_results=getattr(self, "table_elements", []),
             components_without_info=getattr(self, "all_components_without_info", []),
-            validation_messages=getattr(self, "validation_messages", []),
+            validation_messages=self._validation_messages,
             parsing_errors=self._parsing_errors,
         )
 
@@ -821,7 +826,7 @@ class BaseChecker(ABC):
             compliant=getattr(self, "compliant", False),
             requirement_results=getattr(self, "table_elements", []),
             components_without_info=getattr(self, "all_components_without_info", []),
-            validation_messages=getattr(self, "validation_messages", []),
+            validation_messages=self._validation_messages,
             parsing_errors=self._parsing_errors,
         )
 
@@ -841,7 +846,7 @@ class BaseChecker(ABC):
             "complianceStandard": getattr(self, "compliance_standard", ""),
             "sbomSpec": getattr(self, "sbom_spec", ""),
             "validationMessages": get_validation_messages_json(
-                getattr(self, "validation_messages", [])
+                self._validation_messages
             ),
             "parsingError": self._parsing_errors,
             "sbomName": getattr(self, "sbom_name", ""),
