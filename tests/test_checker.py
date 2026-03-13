@@ -115,7 +115,7 @@ def test_sbomchecker_missing_author_name(test_file):
     sbom_check = sbom_checker.SbomChecker(test_file)
 
     assert not sbom_check.ntia_minimum_elements_compliant
-    assert sbom_check.parsing_error
+    assert sbom_check.parsing_errors
 
 
 ### Test missing timestamp
@@ -131,7 +131,7 @@ def test_sbomchecker_missing_timestamp(test_file):
     sbom_check = sbom_checker.SbomChecker(test_file)
 
     assert not sbom_check.ntia_minimum_elements_compliant
-    assert sbom_check.parsing_error
+    assert sbom_check.parsing_errors
 
 
 ### Test missing concluded licenses
@@ -244,7 +244,7 @@ def test_sbomchecker_missing_unique_identifiers(test_file):
 
     assert not sbom_check.compliant
     assert not sbom_check.ntia_minimum_elements_compliant
-    assert sbom_check.parsing_error
+    assert sbom_check.parsing_errors
 
 
 ### Test SBOM example from various sources
@@ -337,7 +337,7 @@ def test_sbomchecker_spdx3_no_elements_missing():
     assert sbom.doc is not None
     assert isinstance(sbom.doc, spdx3.SHACLObjectSet)
     print(sbom.sbom_name)
-    assert len(sbom.parsing_error) == 0
+    assert len(sbom.parsing_errors) == 0
     assert len(sbom.validation_messages) == 0
     assert sbom.sbom_name is not None
     assert len(sbom.components_without_names) == 0

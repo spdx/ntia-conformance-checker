@@ -9,6 +9,7 @@ from __future__ import annotations
 import json
 import logging
 import os
+import warnings
 from abc import ABC, abstractmethod
 from typing import TYPE_CHECKING, Any, cast
 
@@ -87,7 +88,7 @@ class BaseChecker(ABC):
     doc: Document | spdx3.SHACLObjectSet | None = None
     __spdx3_doc: spdx3.SpdxDocument | None = None  # cached SPDX 3 document
 
-    parsing_error: list[str] = []
+    _parsing_errors: list[str] = []
     validation_messages: list[ValidationMessage] = []
 
     sbom_name: str = ""
@@ -107,8 +108,30 @@ class BaseChecker(ABC):
 
     compliant: bool = False  # Is SBOM compliant with the chosen standard?
 
-    # An alias of "compliant", for backward compatibility
-    ntia_minimum_elements_compliant: bool = compliant
+    @property
+    def ntia_minimum_elements_compliant(self) -> bool:
+        """Deprecated: use ``compliant`` instead."""
+        warnings.warn(
+            "ntia_minimum_elements_compliant is deprecated; use compliant instead.",
+            DeprecationWarning,
+            stacklevel=2,
+        )
+        return self.compliant
+
+    @property
+    def parsing_errors(self) -> list[str]:
+        """Parsing errors encountered during file parsing."""
+        return self._parsing_errors
+
+    @property
+    def parsing_error(self) -> list[str]:
+        """Deprecated: use ``parsing_errors`` instead."""
+        warnings.warn(
+            "parsing_error is deprecated; use parsing_errors instead.",
+            DeprecationWarning,
+            stacklevel=2,
+        )
+        return self._parsing_errors
 
     @abstractmethod
     def check_compliance(self) -> bool:
@@ -139,7 +162,7 @@ class BaseChecker(ABC):
 
         # Make sure the logs are instance variables and not class variables
         # to avoid shared state between instances.
-        self.parsing_error = []
+        self._parsing_errors = []
         self.validation_messages = []
 
         match sbom_spec:
@@ -697,7 +720,7 @@ class BaseChecker(ABC):
         try:
             doc = parse_anything.parse_file(self.file)
         except SPDXParsingError as err:
-            self.parsing_error.extend(err.get_messages())
+            self._parsing_errors.extend(err.get_messages())
             return None
         except Exception as err:  # pylint: disable=broad-except
             # Catch any other errors, including BeartypeCallHintParamViolation
@@ -706,7 +729,7 @@ class BaseChecker(ABC):
             # which throws exceptions when encountering missing required fields
             # (e.g., missing author, timestamp, or identifiers).
             logging.debug("Error parsing file: %s", err)
-            self.parsing_error.append(
+            self._parsing_errors.append(
                 f"Error parsing file: {type(err).__name__}: {str(err)}"
             )
             return None
@@ -734,7 +757,7 @@ class BaseChecker(ABC):
                 spdx3.JSONLDDeserializer().read(f, object_set)
         except (OSError, json.JSONDecodeError) as err:
             logging.warning("SPDX3 deserialization failed: %s", err)
-            self.parsing_error.append(str(err))
+            self._parsing_errors.append(str(err))
             return None
 
         return object_set
@@ -750,7 +773,7 @@ class BaseChecker(ABC):
             None
         """
         # If parsing failed, skip
-        if self.parsing_error:
+        if self._parsing_errors:
             return
 
         if not self.all_components_without_info:
@@ -780,7 +803,7 @@ class BaseChecker(ABC):
             requirement_results=getattr(self, "table_elements", []),
             components_without_info=getattr(self, "all_components_without_info", []),
             validation_messages=getattr(self, "validation_messages", []),
-            parsing_error=getattr(self, "parsing_error", []),
+            parsing_errors=self._parsing_errors,
         )
 
         print(report_text(report_context, verbose))
@@ -799,7 +822,7 @@ class BaseChecker(ABC):
             requirement_results=getattr(self, "table_elements", []),
             components_without_info=getattr(self, "all_components_without_info", []),
             validation_messages=getattr(self, "validation_messages", []),
-            parsing_error=getattr(self, "parsing_error", []),
+            parsing_errors=self._parsing_errors,
         )
 
         return report_html(report_context, verbose=True)
@@ -820,7 +843,7 @@ class BaseChecker(ABC):
             "validationMessages": get_validation_messages_json(
                 getattr(self, "validation_messages", [])
             ),
-            "parsingError": getattr(self, "parsing_error", []),
+            "parsingError": self._parsing_errors,
             "sbomName": getattr(self, "sbom_name", ""),
             "specVersionProvided": getattr(self, "doc_version", False),
             "authorNameProvided": getattr(self, "doc_author", False),
