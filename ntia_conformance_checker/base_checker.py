@@ -40,7 +40,7 @@ if TYPE_CHECKING:
     from spdx_tools.spdx.validation.validation_message import ValidationMessage
 
 
-# pylint: disable=too-many-instance-attributes
+# pylint: disable=too-many-instance-attributes,too-many-public-methods
 class BaseChecker(ABC):
     """Base class for all compliance/conformance checkers.
 
