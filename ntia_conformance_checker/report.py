@@ -32,7 +32,7 @@ class ReportContext:
     requirement_results: list[tuple[str, bool]] | None = None
     components_without_info: list[tuple[str, list[tuple[str, str]]]] | None = None
     validation_messages: list[ValidationMessage] | None = None
-    parsing_error: list[str] | None = None
+    parsing_errors: list[str] | None = None
 
 
 def _safe_attr(obj: object, name: str) -> str:
@@ -163,11 +163,11 @@ def report_text(
     report: list[str] = []
 
     # Parsing error
-    if rc.parsing_error:
+    if rc.parsing_errors:
         report.append("The document couldn't be parsed; check couldn't be performed.\n")
-        if rc.parsing_error:
+        if rc.parsing_errors:
             report.append("The following parsing error(s) were raised:\n")
-            for error in rc.parsing_error:
+            for error in rc.parsing_errors:
                 report.append(error)
         return "\n".join(report)
 
@@ -216,7 +216,7 @@ def report_html(
     report: list[str] = []
 
     # Parsing error
-    if rc.parsing_error:
+    if rc.parsing_errors:
         report.append("<div class='conformance-err'>")
         report.append(
             "<p class='conformance-err-label'>"
@@ -225,7 +225,7 @@ def report_html(
             "</p>"
         )
         report.append("<ul class='conformance-err-list'>")
-        for err in rc.parsing_error:
+        for err in rc.parsing_errors:
             report.append(f"<li>{err}</li>")
         report.append("</ul>")
         report.append("</div>")

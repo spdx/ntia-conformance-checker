@@ -7,6 +7,7 @@
 # pylint: disable=missing-function-docstring,import-error,consider-using-from-import
 
 import os
+import warnings
 from pathlib import Path
 from unittest import TestCase
 
@@ -49,7 +50,6 @@ def test_sbomchecker_ntia_no_errors(test_file):
     assert not sbom.components_without_suppliers
     assert not sbom.components_without_identifiers
     assert sbom.compliant
-    assert sbom.ntia_minimum_elements_compliant
 
 
 @pytest.mark.parametrize("test_file", test_files)
@@ -81,7 +81,6 @@ def test_ntiachecker_no_errors(test_file):
     assert not sbom.components_without_suppliers
     assert not sbom.components_without_identifiers
     assert sbom.compliant
-    assert sbom.ntia_minimum_elements_compliant
 
 
 @pytest.mark.parametrize("test_file", test_files)
@@ -114,8 +113,8 @@ def test_sbomchecker_missing_author_name(test_file):
     the document does not contain a creator."""
     sbom_check = sbom_checker.SbomChecker(test_file)
 
-    assert not sbom_check.ntia_minimum_elements_compliant
-    assert sbom_check.parsing_error
+    assert not sbom_check.compliant
+    assert sbom_check.parsing_errors
 
 
 ### Test missing timestamp
@@ -130,8 +129,8 @@ def test_sbomchecker_missing_timestamp(test_file):
     the document does not contain a created date."""
     sbom_check = sbom_checker.SbomChecker(test_file)
 
-    assert not sbom_check.ntia_minimum_elements_compliant
-    assert sbom_check.parsing_error
+    assert not sbom_check.compliant
+    assert sbom_check.parsing_errors
 
 
 ### Test missing concluded licenses
@@ -173,7 +172,6 @@ def test_sbomchecker_missing_dependency_relationships(test_file):
     assert not sbom.components_without_suppliers
     assert not sbom.components_without_identifiers
     assert not sbom.compliant
-    assert not sbom.ntia_minimum_elements_compliant
 
 
 ### Test missing component version
@@ -199,7 +197,6 @@ def test_sbomchecker_missing_component_version(test_file):
     assert not sbom.components_without_suppliers
     assert not sbom.components_without_identifiers
     assert not sbom.compliant
-    assert not sbom.ntia_minimum_elements_compliant
 
 
 ### Test missing supplier name
@@ -224,7 +221,6 @@ def test_sbomchecker_missing_supplier_name(test_file):
     )
     assert not sbom.components_without_identifiers
     assert not sbom.compliant
-    assert not sbom.ntia_minimum_elements_compliant
 
 
 ### Test missing unique identifiers
@@ -243,8 +239,7 @@ def test_sbomchecker_missing_unique_identifiers(test_file):
     sbom_check = sbom_checker.SbomChecker(test_file)
 
     assert not sbom_check.compliant
-    assert not sbom_check.ntia_minimum_elements_compliant
-    assert sbom_check.parsing_error
+    assert sbom_check.parsing_errors
 
 
 ### Test SBOM example from various sources
@@ -289,7 +284,6 @@ def test_sbomchecker_chainguard_example():
     )
     sbom = sbom_checker.SbomChecker(test_file)
     assert sbom.compliant
-    assert sbom.ntia_minimum_elements_compliant
 
 
 def test_sbomchecker_alpine_no_package_supplier_name_example():
@@ -337,7 +331,7 @@ def test_sbomchecker_spdx3_no_elements_missing():
     assert sbom.doc is not None
     assert isinstance(sbom.doc, spdx3.SHACLObjectSet)
     print(sbom.sbom_name)
-    assert len(sbom.parsing_error) == 0
+    assert len(sbom.parsing_errors) == 0
     assert len(sbom.validation_messages) == 0
     assert sbom.sbom_name is not None
     assert len(sbom.components_without_names) == 0
@@ -552,3 +546,29 @@ def test_components_without_functions():
     # If any package misses the SPDXID the whole file seems to be invalid.
     # components = sbom.get_components_without_identifiers()
     # assert components == ["glibc-no-identifier"]
+
+
+def test_deprecation_ntia_minimum_elements_compliant():
+    """Test that accessing the deprecated property
+    `ntia_minimum_elements_compliant`
+    raises a DeprecationWarning."""
+    sbom = sbom_checker.SbomChecker(test_files[0])
+    with warnings.catch_warnings(record=True) as caught:
+        warnings.simplefilter("always")
+        _ = sbom.ntia_minimum_elements_compliant
+    assert len(caught) == 1
+    assert issubclass(caught[0].category, DeprecationWarning)
+    assert "ntia_minimum_elements_compliant" in str(caught[0].message)
+
+
+def test_deprecation_parsing_error():
+    """Test that accessing the deprecated property
+    `parsing_error`
+    raises a DeprecationWarning."""
+    sbom = sbom_checker.SbomChecker(test_files[0])
+    with warnings.catch_warnings(record=True) as caught:
+        warnings.simplefilter("always")
+        _ = sbom.parsing_error
+    assert len(caught) == 1
+    assert issubclass(caught[0].category, DeprecationWarning)
+    assert "parsing_error" in str(caught[0].message)

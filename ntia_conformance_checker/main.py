@@ -39,8 +39,8 @@ def main() -> None:
         sbom_spec=detected_sbom_spec,
     )
 
-    logging.debug("Parsing: %s", "OK" if not sbom.parsing_error else "Failed")
-    if not sbom.parsing_error:
+    logging.debug("Parsing: %s", "OK" if not sbom.parsing_errors else "Failed")
+    if not sbom.parsing_errors:
         if args.skip_validation:
             logging.debug("Validation: skipped")
         else:

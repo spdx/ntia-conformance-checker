@@ -46,8 +46,6 @@ class NTIAChecker(BaseChecker):
 
         if self.doc:
             self.compliant = self.check_compliance()
-            # for backward compatibility
-            self.ntia_minimum_elements_compliant = self.compliant
 
         self.table_elements = [
             ("All component names provided?", not self.components_without_names),
