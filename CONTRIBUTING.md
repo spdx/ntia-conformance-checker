@@ -167,6 +167,7 @@ Here's the process to make changes to the codebase:
    ```
 
    On Windows, `make` is not available. Run the formatters directly instead:
+
    ```powershell
    black ntia_conformance_checker/
    isort ntia_conformance_checker/
