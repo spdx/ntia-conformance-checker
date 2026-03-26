@@ -30,6 +30,30 @@ To install development dependencies, run:
 pip install -e ".[dev,docs,test]"
 ```
 
+**Windows users:** Before creating a virtual environment, ensure scripts
+can run in PowerShell:
+
+```powershell
+Set-ExecutionPolicy -ExecutionPolicy RemoteSigned -Scope CurrentUser
+```
+
+Create and activate your virtual environment:
+
+```powershell
+python -m venv venv
+venv\Scripts\activate
+```
+
+Then install dependencies:
+
+```powershell
+pip install -e ".[dev,docs,test]"
+pip install spdx-tools tzdata
+```
+
+Note: `pytype` does not support Windows and will fail during install —
+this is expected and can be ignored. All other tools will install correctly.
+
 Or, if you're on a Unix-like system, you can use `make`:
 
 ```sh
@@ -117,7 +141,14 @@ Here's the process to make changes to the codebase:
    make type
    ```
 
-   Or you can run each type checker individually.
+   On Windows, `make` is not available. Run each type checker individually:
+
+   ```powershell
+   mypy ntia_conformance_checker/
+   pyright ntia_conformance_checker/
+   ```
+
+   Note: `pytype` does not support Windows and can be skipped.
 
    If you are certain that a line is correct but the type checker is not able
    to verify it, you may choose to add a `# type: ignore` comment with
@@ -133,6 +164,13 @@ Here's the process to make changes to the codebase:
 
    ```sh
    make format
+   ```
+
+   On Windows, `make` is not available. Run the formatters directly instead:
+
+   ```powershell
+   black ntia_conformance_checker/
+   isort ntia_conformance_checker/
    ```
 
    [black]: https://github.com/psf/black
