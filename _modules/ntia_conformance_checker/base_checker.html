@@ -802,9 +802,14 @@
             <span class="k">return</span> <span class="kc">None</span>
 
         <span class="k">try</span><span class="p">:</span>
-            <span class="n">doc</span> <span class="o">=</span> <span class="n">parse_anything</span><span class="o">.</span><span class="n">parse_file</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">file</span><span class="p">)</span>
+            <span class="c1"># Annotate as `object` to avoid differences between local and CI</span>
+            <span class="c1"># mypy stubs for `parse_anything.parse_file`. Casting to</span>
+            <span class="c1"># `Document` below makes the return type explicit for callers.</span>
+            <span class="n">doc</span><span class="p">:</span> <span class="nb">object</span> <span class="o">=</span> <span class="n">parse_anything</span><span class="o">.</span><span class="n">parse_file</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">file</span><span class="p">)</span>
         <span class="k">except</span> <span class="n">SPDXParsingError</span> <span class="k">as</span> <span class="n">err</span><span class="p">:</span>
-            <span class="bp">self</span><span class="o">.</span><span class="n">_parsing_errors</span><span class="o">.</span><span class="n">extend</span><span class="p">(</span><span class="n">err</span><span class="o">.</span><span class="n">get_messages</span><span class="p">())</span>
+            <span class="c1"># err.get_messages() is untyped in spdx-tools; cast to Any to</span>
+            <span class="c1"># silence mypy&#39;s &quot;no-untyped-call&quot; check in typed contexts.</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">_parsing_errors</span><span class="o">.</span><span class="n">extend</span><span class="p">(</span><span class="n">cast</span><span class="p">(</span><span class="s2">&quot;Any&quot;</span><span class="p">,</span> <span class="n">err</span><span class="p">)</span><span class="o">.</span><span class="n">get_messages</span><span class="p">())</span>
             <span class="k">return</span> <span class="kc">None</span>
         <span class="k">except</span> <span class="ne">Exception</span> <span class="k">as</span> <span class="n">err</span><span class="p">:</span>  <span class="c1"># pylint: disable=broad-except</span>
             <span class="c1"># Catch any other errors, including BeartypeCallHintParamViolation</span>
