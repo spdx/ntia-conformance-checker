@@ -61,7 +61,7 @@
 <span class="p">)</span>
 
 <span class="k">if</span> <span class="n">TYPE_CHECKING</span><span class="p">:</span>
-    <span class="kn">from</span><span class="w"> </span><span class="nn">.sbom_checker</span><span class="w"> </span><span class="kn">import</span> <span class="n">BaseChecker</span>
+    <span class="kn">from</span><span class="w"> </span><span class="nn">.base_checker</span><span class="w"> </span><span class="kn">import</span> <span class="n">BaseChecker</span>
 
 <span class="n">_OUTPUT_CHOICES</span> <span class="o">=</span> <span class="p">{</span>
     <span class="s2">&quot;print&quot;</span><span class="p">:</span> <span class="s2">&quot;Print report to console&quot;</span><span class="p">,</span>
@@ -212,48 +212,32 @@
         <span class="k">return</span> <span class="kc">None</span>
 
     <span class="c1"># Try parsing the file with spdx_tools first</span>
-    <span class="n">doc</span> <span class="o">=</span> <span class="kc">None</span>
     <span class="k">if</span> <span class="n">sbom_spec</span> <span class="o">==</span> <span class="s2">&quot;spdx2&quot;</span><span class="p">:</span>
         <span class="k">try</span><span class="p">:</span>
             <span class="n">doc</span> <span class="o">=</span> <span class="n">parse_spdx2_file</span><span class="p">(</span><span class="n">file</span><span class="p">)</span>
-        <span class="k">except</span> <span class="n">SPDXParsingError</span> <span class="k">as</span> <span class="n">exc</span><span class="p">:</span>
+            <span class="n">ver</span> <span class="o">=</span> <span class="nb">getattr</span><span class="p">(</span><span class="n">doc</span><span class="o">.</span><span class="n">creation_info</span><span class="p">,</span> <span class="s2">&quot;spdx_version&quot;</span><span class="p">,</span> <span class="kc">None</span><span class="p">)</span>
+            <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">ver</span><span class="p">,</span> <span class="nb">str</span><span class="p">)</span> <span class="ow">and</span> <span class="p">(</span><span class="n">m</span> <span class="o">:=</span> <span class="n">re</span><span class="o">.</span><span class="n">search</span><span class="p">(</span><span class="sa">r</span><span class="s2">&quot;SPDX-(\d+)\.(\d+)&quot;</span><span class="p">,</span> <span class="n">ver</span><span class="p">)):</span>
+                <span class="k">return</span> <span class="nb">int</span><span class="p">(</span><span class="n">m</span><span class="o">.</span><span class="n">group</span><span class="p">(</span><span class="mi">1</span><span class="p">)),</span> <span class="nb">int</span><span class="p">(</span><span class="n">m</span><span class="o">.</span><span class="n">group</span><span class="p">(</span><span class="mi">2</span><span class="p">))</span>
+        <span class="k">except</span> <span class="p">(</span><span class="n">SPDXParsingError</span><span class="p">,</span> <span class="ne">ValueError</span><span class="p">,</span> <span class="ne">TypeError</span><span class="p">,</span> <span class="ne">OSError</span><span class="p">)</span> <span class="k">as</span> <span class="n">exc</span><span class="p">:</span>
             <span class="n">logging</span><span class="o">.</span><span class="n">debug</span><span class="p">(</span><span class="s2">&quot;Detect SPDX version: spdx_tools parser failed: </span><span class="si">%s</span><span class="s2">&quot;</span><span class="p">,</span> <span class="n">exc</span><span class="p">)</span>
-            <span class="n">doc</span> <span class="o">=</span> <span class="kc">None</span>
-        <span class="k">except</span> <span class="p">(</span><span class="ne">ValueError</span><span class="p">,</span> <span class="ne">TypeError</span><span class="p">,</span> <span class="ne">OSError</span><span class="p">)</span> <span class="k">as</span> <span class="n">exc</span><span class="p">:</span>
-            <span class="n">logging</span><span class="o">.</span><span class="n">debug</span><span class="p">(</span>
-                <span class="s2">&quot;Detect SPDX version: spdx_tools parser unexpected error: </span><span class="si">%s</span><span class="s2">&quot;</span><span class="p">,</span> <span class="n">exc</span>
-            <span class="p">)</span>
-            <span class="n">doc</span> <span class="o">=</span> <span class="kc">None</span>
         <span class="k">except</span> <span class="ne">Exception</span> <span class="k">as</span> <span class="n">exc</span><span class="p">:</span>  <span class="c1"># pylint: disable=broad-except</span>
-            <span class="c1"># Catch any other errors, including BeartypeCallHintParamViolation</span>
-            <span class="c1"># from the spdx-tools library when parsing invalid SPDX files.</span>
-            <span class="c1"># The spdx-tools library uses beartype for runtime type checking,</span>
-            <span class="c1"># which throws exceptions when encountering missing required fields</span>
-            <span class="c1"># (e.g., missing author, timestamp, or identifiers).</span>
             <span class="n">logging</span><span class="o">.</span><span class="n">debug</span><span class="p">(</span>
                 <span class="s2">&quot;Detect SPDX version: spdx_tools parser unexpected error: </span><span class="si">%s</span><span class="s2">&quot;</span><span class="p">,</span> <span class="n">exc</span>
             <span class="p">)</span>
-            <span class="n">doc</span> <span class="o">=</span> <span class="kc">None</span>
 
-    <span class="c1"># If parsing was successful, return the version tuple. e.g. (2, 3) for 2.3.</span>
-    <span class="k">if</span> <span class="n">doc</span><span class="p">:</span>
-        <span class="n">ver</span> <span class="o">=</span> <span class="nb">getattr</span><span class="p">(</span><span class="n">doc</span><span class="o">.</span><span class="n">creation_info</span><span class="p">,</span> <span class="s2">&quot;spdx_version&quot;</span><span class="p">,</span> <span class="kc">None</span><span class="p">)</span>
-        <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">ver</span><span class="p">,</span> <span class="nb">str</span><span class="p">):</span>
-            <span class="n">m</span> <span class="o">=</span> <span class="n">re</span><span class="o">.</span><span class="n">search</span><span class="p">(</span><span class="sa">r</span><span class="s2">&quot;SPDX-(\d+)\.(\d+)&quot;</span><span class="p">,</span> <span class="n">ver</span><span class="p">)</span>
-            <span class="k">if</span> <span class="n">m</span><span class="p">:</span>
-                <span class="k">return</span> <span class="p">(</span><span class="nb">int</span><span class="p">(</span><span class="n">m</span><span class="o">.</span><span class="n">group</span><span class="p">(</span><span class="mi">1</span><span class="p">)),</span> <span class="nb">int</span><span class="p">(</span><span class="n">m</span><span class="o">.</span><span class="n">group</span><span class="p">(</span><span class="mi">2</span><span class="p">)))</span>  <span class="c1"># Returns (MAJOR, MINOR)</span>
-
-    <span class="c1"># Fallback: inspect file content with regular expressions.</span>
-    <span class="c1"># There are cases of incomplete or invalid SPDX files that spdx_tools cannot parse.</span>
-    <span class="c1"># This will also cover SPDX 3 format.</span>
-    <span class="n">content</span> <span class="o">=</span> <span class="s2">&quot;&quot;</span>
+    <span class="c1"># Fallback to inspecting file content</span>
     <span class="k">try</span><span class="p">:</span>
         <span class="k">with</span> <span class="nb">open</span><span class="p">(</span><span class="n">file</span><span class="p">,</span> <span class="s2">&quot;r&quot;</span><span class="p">,</span> <span class="n">encoding</span><span class="o">=</span><span class="s2">&quot;utf-8&quot;</span><span class="p">)</span> <span class="k">as</span> <span class="n">f</span><span class="p">:</span>
             <span class="n">content</span> <span class="o">=</span> <span class="n">f</span><span class="o">.</span><span class="n">read</span><span class="p">()</span>
+            <span class="k">return</span> <span class="n">_parse_spdx_version_from_content</span><span class="p">(</span><span class="n">content</span><span class="p">)</span>
     <span class="k">except</span> <span class="p">(</span><span class="ne">OSError</span><span class="p">,</span> <span class="ne">UnicodeDecodeError</span><span class="p">)</span> <span class="k">as</span> <span class="n">exc</span><span class="p">:</span>
         <span class="n">logging</span><span class="o">.</span><span class="n">debug</span><span class="p">(</span><span class="s2">&quot;Detect SPDX version: Could not read file: </span><span class="si">%s</span><span class="s2">&quot;</span><span class="p">,</span> <span class="n">exc</span><span class="p">)</span>
-        <span class="k">return</span> <span class="kc">None</span>
+        <span class="k">return</span> <span class="kc">None</span></div>
 
+
+
+<span class="k">def</span><span class="w"> </span><span class="nf">_parse_spdx_version_from_content</span><span class="p">(</span><span class="n">content</span><span class="p">:</span> <span class="nb">str</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">tuple</span><span class="p">[</span><span class="nb">int</span><span class="p">,</span> <span class="nb">int</span><span class="p">]</span> <span class="o">|</span> <span class="kc">None</span><span class="p">:</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;Parse SPDX version from file content using regular expressions.&quot;&quot;&quot;</span>
     <span class="c1"># Match MAJOR.MINOR.PATCH version</span>
     <span class="n">patterns</span> <span class="o">=</span> <span class="p">[</span>
         <span class="n">re</span><span class="o">.</span><span class="n">compile</span><span class="p">(</span>
@@ -275,14 +259,10 @@
             <span class="sa">r</span><span class="s2">&quot;[\&#39;</span><span class="se">\&quot;</span><span class="s2">]@context[\&#39;</span><span class="se">\&quot;</span><span class="s2">]\s*:\s*[\&#39;</span><span class="se">\&quot;</span><span class="s2">]https?://spdx\.org/rdf/(\d+)\.(\d+)(\.(\d+))?/&quot;</span>
         <span class="p">),</span>  <span class="c1"># SPDX 3 JSON-LD # &quot;@context&quot;: &quot;https://spdx.org/rdf/3.0/spdx-context.jsonld&quot;</span>
     <span class="p">]</span>
-
     <span class="k">for</span> <span class="n">pat</span> <span class="ow">in</span> <span class="n">patterns</span><span class="p">:</span>
-        <span class="n">m</span> <span class="o">=</span> <span class="n">pat</span><span class="o">.</span><span class="n">search</span><span class="p">(</span><span class="n">content</span><span class="p">)</span>
-        <span class="k">if</span> <span class="n">m</span><span class="p">:</span>
-            <span class="k">return</span> <span class="p">(</span><span class="nb">int</span><span class="p">(</span><span class="n">m</span><span class="o">.</span><span class="n">group</span><span class="p">(</span><span class="mi">1</span><span class="p">)),</span> <span class="nb">int</span><span class="p">(</span><span class="n">m</span><span class="o">.</span><span class="n">group</span><span class="p">(</span><span class="mi">2</span><span class="p">)))</span>  <span class="c1"># Returns (MAJOR, MINOR)</span>
-
-    <span class="k">return</span> <span class="kc">None</span></div>
-
+        <span class="k">if</span> <span class="n">m</span> <span class="o">:=</span> <span class="n">pat</span><span class="o">.</span><span class="n">search</span><span class="p">(</span><span class="n">content</span><span class="p">):</span>
+            <span class="k">return</span> <span class="nb">int</span><span class="p">(</span><span class="n">m</span><span class="o">.</span><span class="n">group</span><span class="p">(</span><span class="mi">1</span><span class="p">)),</span> <span class="nb">int</span><span class="p">(</span><span class="n">m</span><span class="o">.</span><span class="n">group</span><span class="p">(</span><span class="mi">2</span><span class="p">))</span>  <span class="c1"># Returns (MAJOR, MINOR)</span>
+    <span class="k">return</span> <span class="kc">None</span>
 
 
 <div class="viewcode-block" id="get_sbom_spec">
