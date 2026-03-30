@@ -10,12 +10,12 @@ import os
 
 import pytest
 
-from ntia_conformance_checker.main import SbomChecker
+from ntia_conformance_checker import SbomChecker
 
 DATA_DIR = os.path.join(os.path.dirname(__file__), "data", "real_world_sboms")
 
 
-def get_sbom_files():
+def get_sbom_files() -> list[str]:
     """
     Returns a list of all files in tests/data/real_world
     so pytest can generate a test case for each one.
@@ -31,7 +31,7 @@ def get_sbom_files():
 
 
 @pytest.mark.parametrize("filename", get_sbom_files())
-def test_real_world_robustness(filename):
+def test_real_world_robustness(filename: str) -> None:
     """
     Test that the checker does not CRASH on real-world inputs.
     We do not expect these to be compliant; we just want no unhandled exceptions.

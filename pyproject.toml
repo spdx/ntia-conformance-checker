@@ -74,6 +74,29 @@ test = ["coverage>=7.13.5", "pytest>=9.0.2"]
 ntia-checker = "ntia_conformance_checker.main:main"
 sbomcheck = "ntia_conformance_checker.main:main"
 
+[tool.mypy]
+check_untyped_defs = true
+disallow_incomplete_defs = true
+disallow_subclassing_any = true
+disallow_untyped_decorators = true
+disallow_untyped_defs = true
+show_column_numbers = true
+show_error_code_links = true
+show_error_context = true
+pretty = true
+python_version = "3.10"
+strict = true
+strict_bytes = true
+strict_equality = true
+strict_equality_for_none = true
+strict_optional = true
+warn_no_return = true
+warn_redundant_casts = true
+warn_return_any = true
+warn_unreachable = true
+warn_unused_configs = true
+warn_unused_ignores = true
+
 [tool.pylint.main]
 disable = "duplicate-code"
 

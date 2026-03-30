@@ -169,7 +169,7 @@ def get_spdx_version(file: str, sbom_spec: str = "spdx2") -> tuple[int, int] | N
                                 E.g. (2, 3) for version 2.3.
                                 Returns None if the version cannot be determined.
     """
-    if file.lower().endswith(".xls") or file.lower().endswith(".xlsx"):
+    if file.lower().endswith((".xls", ".xlsx")):
         logging.debug("Detect SPDX version: Excel file format is not supported")
         return None
 

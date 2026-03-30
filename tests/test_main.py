@@ -30,7 +30,7 @@ detect_version_test: List[Tuple[Path, Tuple[int, ...]]] = [
 ]
 
 
-def test_detect_spdx_version():
+def test_detect_spdx_version() -> None:
     for file_path, expected_version in detect_version_test:
         version = get_spdx_version(str(file_path))
         assert (
@@ -52,7 +52,7 @@ detect_sbom_spec_test: List[Tuple[Path, str]] = [
 ]
 
 
-def test_detect_sbom_spec():
+def test_detect_sbom_spec() -> None:
     for file_path, expected_sbom_spec in detect_sbom_spec_test:
         sbom_spec = get_sbom_spec(str(file_path), sbom_spec=expected_sbom_spec)
         assert (
