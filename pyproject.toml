@@ -56,16 +56,15 @@ dependencies = ["spdx-python-model==0.0.4", "spdx-tools>=0.8.5"]
 
 [project.optional-dependencies]
 dev = [
-    "black>=25.12.0",
+    "black>=26.3.1",
     "mypy>=1.19.1",
-    "pylint>=4.0.4",
-    "pyrefly>=0.46.0",
-    "pyright>=1.1.407",
-    "pytype>=2024.10.11",
+    "pylint>=4.0.5",
+    "pyrefly>=0.58.0",
+    "pyright>=1.1.408",
     "ruff>=0.14.9",
 ]
 docs = ["Sphinx>=9.0.4"]
-test = ["coverage>=7.13.0", "pytest>=9.0.2"]
+test = ["coverage>=7.13.5", "pytest>=9.0.2"]
 
 [project.scripts]
 # Both "ntia-checker" and "sbomcheck" are identical.

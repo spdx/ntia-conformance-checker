@@ -51,9 +51,6 @@ pip install -e ".[dev,docs,test]"
 pip install spdx-tools tzdata
 ```
 
-Note: `pytype` does not support Windows and will fail during install —
-this is expected and can be ignored. All other tools will install correctly.
-
 Or, if you're on a Unix-like system, you can use `make`:
 
 ```sh
@@ -132,8 +129,7 @@ Here's the process to make changes to the codebase:
 
    Static type analysis is recommended to catch potential bugs and improve code
    quality. We use several type checkers ([`mypy`][mypy], [`pyrefly`][pyrefly],
-   [`pyright`][pyright], and [`pytype`][pytype]) to get different perspectives
-   on the code.
+   and [`pyright`][pyright]) to get different perspectives on the code.
 
    Run all type checkers:
 
@@ -148,16 +144,13 @@ Here's the process to make changes to the codebase:
    pyright ntia_conformance_checker/
    ```
 
-   Note: `pytype` does not support Windows and can be skipped.
-
-   If you are certain that a line is correct but the type checker is not able
+   If you are certain that a line is correct, but the type checker is not able
    to verify it, you may choose to add a `# type: ignore` comment with
    additional explanation at the end of the line to suppress the error.
 
    [mypy]: https://mypy-lang.org/
    [pyrefly]: https://pyrefly.org/
    [pyright]: https://github.com/microsoft/pyright
-   [pytype]: https://github.com/google/pytype
 
 8. Format your changes with [`black`][black] and sort import with
     [`isort`][isort]:

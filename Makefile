@@ -24,7 +24,6 @@ type:
 	mypy ntia_conformance_checker || true
 	pyrefly check ntia_conformance_checker
 	pyright ntia_conformance_checker
-	pytype ntia_conformance_checker
 
 # Unit tests
 test:

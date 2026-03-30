@@ -43,6 +43,3 @@ jobs:
       - name: pyright type check
         run: |
           pyright ntia_conformance_checker
-      - name: pytype type check
-        run: |
-          pytype ntia_conformance_checker
