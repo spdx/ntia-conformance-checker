@@ -28,7 +28,7 @@ from .constants import (
 )
 
 if TYPE_CHECKING:
-    from .sbom_checker import BaseChecker
+    from .base_checker import BaseChecker
 
 _OUTPUT_CHOICES = {
     "print": "Print report to console",
@@ -174,48 +174,31 @@ def get_spdx_version(file: str, sbom_spec: str = "spdx2") -> tuple[int, int] | N
         return None
 
     # Try parsing the file with spdx_tools first
-    doc = None
     if sbom_spec == "spdx2":
         try:
             doc = parse_spdx2_file(file)
-        except SPDXParsingError as exc:
+            ver = getattr(doc.creation_info, "spdx_version", None)
+            if isinstance(ver, str) and (m := re.search(r"SPDX-(\d+)\.(\d+)", ver)):
+                return int(m.group(1)), int(m.group(2))
+        except (SPDXParsingError, ValueError, TypeError, OSError) as exc:
             logging.debug("Detect SPDX version: spdx_tools parser failed: %s", exc)
-            doc = None
-        except (ValueError, TypeError, OSError) as exc:
-            logging.debug(
-                "Detect SPDX version: spdx_tools parser unexpected error: %s", exc
-            )
-            doc = None
         except Exception as exc:  # pylint: disable=broad-except
-            # Catch any other errors, including BeartypeCallHintParamViolation
-            # from the spdx-tools library when parsing invalid SPDX files.
-            # The spdx-tools library uses beartype for runtime type checking,
-            # which throws exceptions when encountering missing required fields
-            # (e.g., missing author, timestamp, or identifiers).
             logging.debug(
                 "Detect SPDX version: spdx_tools parser unexpected error: %s", exc
             )
-            doc = None
 
-    # If parsing was successful, return the version tuple. e.g. (2, 3) for 2.3.
-    if doc:
-        ver = getattr(doc.creation_info, "spdx_version", None)
-        if isinstance(ver, str):
-            m = re.search(r"SPDX-(\d+)\.(\d+)", ver)
-            if m:
-                return (int(m.group(1)), int(m.group(2)))  # Returns (MAJOR, MINOR)
-
-    # Fallback: inspect file content with regular expressions.
-    # There are cases of incomplete or invalid SPDX files that spdx_tools cannot parse.
-    # This will also cover SPDX 3 format.
-    content = ""
+    # Fallback to inspecting file content
     try:
         with open(file, "r", encoding="utf-8") as f:
             content = f.read()
+            return _parse_spdx_version_from_content(content)
     except (OSError, UnicodeDecodeError) as exc:
         logging.debug("Detect SPDX version: Could not read file: %s", exc)
         return None
 
+
+def _parse_spdx_version_from_content(content: str) -> tuple[int, int] | None:
+    """Parse SPDX version from file content using regular expressions."""
     # Match MAJOR.MINOR.PATCH version
     patterns = [
         re.compile(
@@ -237,12 +220,9 @@ def get_spdx_version(file: str, sbom_spec: str = "spdx2") -> tuple[int, int] | N
             r"[\'\"]@context[\'\"]\s*:\s*[\'\"]https?://spdx\.org/rdf/(\d+)\.(\d+)(\.(\d+))?/"
         ),  # SPDX 3 JSON-LD # "@context": "https://spdx.org/rdf/3.0/spdx-context.jsonld"
     ]
-
     for pat in patterns:
-        m = pat.search(content)
-        if m:
-            return (int(m.group(1)), int(m.group(2)))  # Returns (MAJOR, MINOR)
-
+        if m := pat.search(content):
+            return int(m.group(1)), int(m.group(2))  # Returns (MAJOR, MINOR)
     return None
 
 
