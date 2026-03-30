@@ -6,7 +6,7 @@
 
 from __future__ import annotations
 
-from typing import final
+from typing import Any, final
 
 from .base_checker import BaseChecker
 from .constants import SUPPORTED_SBOM_SPECS
@@ -44,7 +44,7 @@ class SbomChecker(BaseChecker):
         validate: bool = True,
         compliance: str = "ntia",
         sbom_spec: str = "spdx2",
-    ):
+    ) -> Any:
         """
         Returns an instance of a specific compliance checker.
 
@@ -74,7 +74,7 @@ class SbomChecker(BaseChecker):
 
         raise ValueError(f"Unknown compliance standard: {compliance}")
 
-    def __init_subclass__(cls, /):  # prevent subclassing
+    def __init_subclass__(cls, /) -> None:  # prevent subclassing
         raise TypeError(
             "SbomChecker is a factory/dispatcher and must not be subclassed. "
             "Please subclass BaseChecker to implement custom checkers."

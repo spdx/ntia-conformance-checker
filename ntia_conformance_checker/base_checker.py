@@ -725,7 +725,9 @@ class BaseChecker(ABC):
         try:
             doc = parse_anything.parse_file(self.file)
         except SPDXParsingError as err:
-            self._parsing_errors.extend(err.get_messages())
+            # err.get_messages() is untyped in spdx-tools; cast to Any to
+            # silence mypy's "no-untyped-call" check in typed contexts.
+            self._parsing_errors.extend(cast("Any", err).get_messages())
             return None
         except Exception as err:  # pylint: disable=broad-except
             # Catch any other errors, including BeartypeCallHintParamViolation
