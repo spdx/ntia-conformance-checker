@@ -723,7 +723,10 @@ class BaseChecker(ABC):
             return None
 
         try:
-            doc = parse_anything.parse_file(self.file)
+            # Annotate as `object` to avoid differences between local and CI
+            # mypy stubs for `parse_anything.parse_file`. Casting to
+            # `Document` below makes the return type explicit for callers.
+            doc: object = parse_anything.parse_file(self.file)
         except SPDXParsingError as err:
             # err.get_messages() is untyped in spdx-tools; cast to Any to
             # silence mypy's "no-untyped-call" check in typed contexts.
