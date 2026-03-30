@@ -3,6 +3,7 @@
 ## 1. Contribution workflow
 
 - Follow existing code style and repository conventions.
+- Complete docstring.
 - Add tests for new behavior and maintain existing tests.
 - Run linters and static analysis (`ruff`, `pylint`, `mypy`) and fix reported
   issues before committing.
@@ -18,6 +19,8 @@
   before committing.
 - Keep functions and modules short and readable; split large functions into
   smaller units.
+- Use "Sentence case" for headings in documentation.
+  Be strict on Markdown formatting.
 
 ## 3. Naming conventions
 
@@ -26,7 +29,7 @@
   vs. plural forms. Use singular names for classes representing a single entity
   and reserve plural names only for collections or utility modules.
 
-## 3. Typing & static analysis
+## 4. Typing & static analysis
 
 - Prefer complete type annotations for public APIs (functions, classes,
   module-level variables).
@@ -40,7 +43,7 @@ Recommended local checks to run during development:
 ruff check --fix . && mypy ntia_conformance_checker tests && pylint ntia_conformance_checker tests && pytest -q
 ```
 
-## 4. Tests & CI
+## 5. Tests & CI
 
 - Add unit tests for new code paths and edge cases; include type-focused tests
   when relevant.
@@ -49,14 +52,14 @@ ruff check --fix . && mypy ntia_conformance_checker tests && pylint ntia_conform
 - If a CI failure stems from differing dependency versions, prefer pinning
   the tool or adding an explanatory comment and raising a PR to align versions.
 
-## 5. Security & secrets
+## 6. Security & secrets
 
 - Never commit secrets, credentials, or tokens. Use environment variables or
   secrets stores in CI.
 - Validate and sanitize all external inputs. Avoid `eval()` and untrusted
   deserialization.
 
-## 6. APIs & backward compatibility
+## 7. APIs & backward compatibility
 
 - Design public API changes with backward compatibility in mind.
   Document breaking changes and bump versions accordingly.
@@ -64,24 +67,24 @@ ruff check --fix . && mypy ntia_conformance_checker tests && pylint ntia_conform
 - Follow Unix philosophy. Command-line output and error messages must be
   consistent, predictable and parseable.
 
-## 7. Git & commits
+## 8. Git & commits
 
 - Write clear commit messages that explain the why and what, following
   conventional commit style where appropriate.
 - Ask before making large cross-package refactors or adding heavy dependencies.
 
-## 8. File headers & licensing
+## 9. File headers & licensing
 
 - Include SPDX tags in source files where applicable (see repo examples).
 
-## 9. Boundaries (what to ask about)
+## 10. Boundaries (what to ask about)
 
 - Ask before: large cross-package refactors, adding heavyweight dependencies,
   or data migrations.
 - Never: commit secrets, edit generated files by hand when a generator exists,
   or perform destructive git operations without approval.
 
-## 10. Useful references
+## 11. Useful references
 
 - SPDX project code repository: <https://github.com/spdx/>
 - Packaging metadata guidelines: <https://packaging.python.org/>
