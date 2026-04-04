@@ -103,6 +103,7 @@ warn_unused_ignores = true
 
 [tool.pylint.main]
 disable = "duplicate-code"
+ignore = ["_version.py"]
 
 [tool.ruff]
 line-length = 88 # Same as black
