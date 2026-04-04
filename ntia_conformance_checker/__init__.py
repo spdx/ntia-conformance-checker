@@ -10,3 +10,8 @@ from .base_checker import BaseChecker
 from .fsct_checker import FSCT3Checker
 from .ntia_checker import NTIAChecker
 from .sbom_checker import SbomChecker
+
+try:
+    from ._version import version as __version__
+except ImportError:
+    __version__ = "unknown"
