@@ -78,6 +78,9 @@ test = ["coverage>=7.13.5", "pytest>=9.0.2"]
 ntia-checker = "ntia_conformance_checker.main:main"
 sbomcheck = "ntia_conformance_checker.main:main"
 
+[tool.black]
+extend-exclude = "_version.py"
+
 [tool.mypy]
 check_untyped_defs = true
 disallow_incomplete_defs = true
