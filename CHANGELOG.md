@@ -11,6 +11,34 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog][keepachangelog]
 and this project adheres to [Semantic Versioning][semver].
 
+## [5.0.1] - 2026-04-06
+
+This patch release improves type annotation accuracy for developers
+using the NTIA Conformance Checker as a library.
+It contains no new features or security updates.
+
+### Added
+
+- Windows setup instructions ([#359])
+- AI usage policy and AGENTS.md ([#366])
+
+### Removed
+
+- pytype from CI and Makefile ([#365])
+
+### Fixed
+
+- Typing issues as reported by mypy strict=true ([#363])
+- Set setuptools-scm to properly manage version ([#368])
+- Sphinx version to support Python 3.10 ([#369])
+
+[#359]: https://github.com/spdx/ntia-conformance-checker/pull/359
+[#363]: https://github.com/spdx/ntia-conformance-checker/pull/363
+[#365]: https://github.com/spdx/ntia-conformance-checker/pull/365
+[#366]: https://github.com/spdx/ntia-conformance-checker/pull/366
+[#368]: https://github.com/spdx/ntia-conformance-checker/pull/368
+[#369]: https://github.com/spdx/ntia-conformance-checker/pull/369
+
 ## [5.0.0] - 2026-03-14
 
 ntia-conformance-checker 5.0.0 requires Python 3.10 or newer.
@@ -305,6 +333,7 @@ Thanks to @goneall, @licquia, and @kestewart for mentoring @linynjosh.
 [#1]: https://github.com/spdx/ntia-conformance-checker/pull/1
 [keepachangelog]: https://keepachangelog.com/en/1.1.0/
 [semver]: https://semver.org/spec/v2.0.0.html
+[5.0.1]: https://github.com/spdx/ntia-conformance-checker/releases/tag/v5.0.1
 [5.0.0]: https://github.com/spdx/ntia-conformance-checker/releases/tag/v5.0.0
 [4.1.2]: https://github.com/spdx/ntia-conformance-checker/releases/tag/v4.1.2
 [4.1.1]: https://github.com/spdx/ntia-conformance-checker/releases/tag/v4.1.1
