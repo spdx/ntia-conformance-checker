@@ -30,12 +30,14 @@ It contains no new features or security updates.
 
 - Typing issues as reported by mypy strict=true ([#363])
 - Set setuptools-scm to properly manage version ([#368])
+- Sphinx version to support Python 3.10 ([#369])
 
 [#359]: https://github.com/spdx/ntia-conformance-checker/pull/359
 [#363]: https://github.com/spdx/ntia-conformance-checker/pull/363
 [#365]: https://github.com/spdx/ntia-conformance-checker/pull/365
 [#366]: https://github.com/spdx/ntia-conformance-checker/pull/366
 [#368]: https://github.com/spdx/ntia-conformance-checker/pull/368
+[#369]: https://github.com/spdx/ntia-conformance-checker/pull/369
 
 ## [5.0.0] - 2026-03-14
 
