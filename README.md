@@ -88,9 +88,10 @@ or create separate environments for testing with different Python versions.
 ```text
 usage: sbomcheck [OPTIONS] PATH
 
+positional arguments:
   PATH                  Filepath for SBOM input
 
-Options:
+options:
   -h, --help            show this help message and exit
   -s, --sbom-spec {spdx2,spdx3}
                         SBOM specification of the input file; see below for details [default: spdx2]
