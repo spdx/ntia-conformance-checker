@@ -165,7 +165,7 @@ def get_spdx_version(file: str, sbom_spec: str = "spdx2") -> tuple[int, int] | N
                          use the appropriate parser first.
 
     Returns:
-        Tuple[int, int] | None: The SPDX major.minor version of the SBOM.
+        tuple[int, int] | None: The SPDX major.minor version of the SBOM.
                                 E.g. (2, 3) for version 2.3.
                                 Returns None if the version cannot be determined.
     """
@@ -268,7 +268,7 @@ def get_sbom_spec(file: str, sbom_spec: str) -> str:
 
 
 def print_output(
-    sbom: BaseChecker, *, output_type: str, output_file: str, verbose: bool
+    sbom: BaseChecker, *, output_type: str, output_file: str | None, verbose: bool
 ) -> None:
     """Print or save the output report."""
     match output_type:

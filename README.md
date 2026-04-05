@@ -86,9 +86,9 @@ or create separate environments for testing with different Python versions.
 ## CLI usage
 
 ```text
-usage: sbomcheck [OPTIONS] FILE
+usage: sbomcheck [OPTIONS] PATH
 
-  FILE                  Filepath for SBOM input
+  PATH                  Filepath for SBOM input
 
 Options:
   -h, --help            show this help message and exit
@@ -98,9 +98,9 @@ Options:
                         Compliance standards to check against; see below for details [default: ntia]
   --skip-validation     Skip validation
   -r, --output {html,json,print,quiet}
-                        Type of compliance report output; see below for details [default: print]
+                        Report output type; see below for details [default: print]
   -o, --output-file PATH
-                        Filepath for compliance report output; if omitted, prints to console
+                        Filepath for report output; if omitted, prints to console
   -v, --verbose         Print more information (debug)
   -V, --version         Display version of sbomcheck
 
