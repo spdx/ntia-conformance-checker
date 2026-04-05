@@ -56,7 +56,9 @@ dependencies = ["spdx-python-model==0.0.4", "spdx-tools>=0.8.5"]
 
 [project.urls]
 Homepage = "https://github.com/spdx/ntia-conformance-checker"
+Repository = "https://github.com/spdx/ntia-conformance-checker.git"
 Issues = "https://github.com/spdx/ntia-conformance-checker/issues"
+Changelog = "https://github.com/spdx/ntia-conformance-checker/blob/main/CHANGELOG.md"
 
 [project.optional-dependencies]
 dev = [
