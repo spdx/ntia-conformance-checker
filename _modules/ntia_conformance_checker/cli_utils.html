@@ -203,7 +203,7 @@
 <span class="sd">                         use the appropriate parser first.</span>
 
 <span class="sd">    Returns:</span>
-<span class="sd">        Tuple[int, int] | None: The SPDX major.minor version of the SBOM.</span>
+<span class="sd">        tuple[int, int] | None: The SPDX major.minor version of the SBOM.</span>
 <span class="sd">                                E.g. (2, 3) for version 2.3.</span>
 <span class="sd">                                Returns None if the version cannot be determined.</span>
 <span class="sd">    &quot;&quot;&quot;</span>
@@ -312,7 +312,7 @@
 <div class="viewcode-block" id="print_output">
 <a class="viewcode-back" href="../../ntia_conformance_checker.html#ntia_conformance_checker.cli_utils.print_output">[docs]</a>
 <span class="k">def</span><span class="w"> </span><span class="nf">print_output</span><span class="p">(</span>
-    <span class="n">sbom</span><span class="p">:</span> <span class="n">BaseChecker</span><span class="p">,</span> <span class="o">*</span><span class="p">,</span> <span class="n">output_type</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span> <span class="n">output_file</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span> <span class="n">verbose</span><span class="p">:</span> <span class="nb">bool</span>
+    <span class="n">sbom</span><span class="p">:</span> <span class="n">BaseChecker</span><span class="p">,</span> <span class="o">*</span><span class="p">,</span> <span class="n">output_type</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span> <span class="n">output_file</span><span class="p">:</span> <span class="nb">str</span> <span class="o">|</span> <span class="kc">None</span><span class="p">,</span> <span class="n">verbose</span><span class="p">:</span> <span class="nb">bool</span>
 <span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
 <span class="w">    </span><span class="sd">&quot;&quot;&quot;Print or save the output report.&quot;&quot;&quot;</span>
     <span class="k">match</span> <span class="n">output_type</span><span class="p">:</span>
