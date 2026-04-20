@@ -52,7 +52,7 @@ keywords = [
     "software component transparency",
     "supply chain security",
 ]
-dependencies = ["spdx-python-model==0.0.4", "spdx-tools>=0.8.5"]
+dependencies = ["spdx-python-model==0.0.5", "spdx-tools>=0.8.5"]
 
 [project.urls]
 Homepage = "https://github.com/spdx/ntia-conformance-checker"
