@@ -530,7 +530,7 @@ class BaseChecker(ABC):
                 for name, _, spdx_id in iter_objects_with_property(
                     self.doc, spdx3.Element, "spdxId"
                 )
-                if not spdx_id or spdx_id.strip() == ""
+                if not spdx_id or (isinstance(spdx_id, str) and spdx_id.strip() == "")
             ]
 
         return []
@@ -570,7 +570,7 @@ class BaseChecker(ABC):
                 for _, spdx_id, name in iter_objects_with_property(
                     self.doc, spdx3.software_Package, "name"
                 )
-                if not name or name.strip() == ""
+                if not name or (isinstance(name, str) and name.strip() == "")
             ]
 
         return []
@@ -614,7 +614,11 @@ class BaseChecker(ABC):
                 for name, spdx_id, supplier in iter_objects_with_property(
                     self.doc, spdx3.software_Package, "suppliedBy"
                 )
-                if not supplier or not supplier.name or supplier.name.strip() == ""
+                if not supplier
+                or (
+                    supplier.name if hasattr(supplier, "name") else supplier or ""
+                ).strip()
+                == ""
             ]
 
         return []
@@ -658,7 +662,8 @@ class BaseChecker(ABC):
                 for name, spdx_id, package_version in iter_objects_with_property(
                     self.doc, spdx3.software_Package, "software_packageVersion"
                 )
-                if not package_version or package_version.strip() == ""
+                if not package_version
+                or (isinstance(package_version, str) and package_version.strip() == "")
             ]
 
         return []
