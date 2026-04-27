@@ -594,7 +594,7 @@
                 <span class="k">for</span> <span class="n">name</span><span class="p">,</span> <span class="n">_</span><span class="p">,</span> <span class="n">spdx_id</span> <span class="ow">in</span> <span class="n">iter_objects_with_property</span><span class="p">(</span>
                     <span class="bp">self</span><span class="o">.</span><span class="n">doc</span><span class="p">,</span> <span class="n">spdx3</span><span class="o">.</span><span class="n">Element</span><span class="p">,</span> <span class="s2">&quot;spdxId&quot;</span>
                 <span class="p">)</span>
-                <span class="k">if</span> <span class="ow">not</span> <span class="n">spdx_id</span> <span class="ow">or</span> <span class="n">spdx_id</span><span class="o">.</span><span class="n">strip</span><span class="p">()</span> <span class="o">==</span> <span class="s2">&quot;&quot;</span>
+                <span class="k">if</span> <span class="ow">not</span> <span class="n">spdx_id</span> <span class="ow">or</span> <span class="p">(</span><span class="nb">isinstance</span><span class="p">(</span><span class="n">spdx_id</span><span class="p">,</span> <span class="nb">str</span><span class="p">)</span> <span class="ow">and</span> <span class="n">spdx_id</span><span class="o">.</span><span class="n">strip</span><span class="p">()</span> <span class="o">==</span> <span class="s2">&quot;&quot;</span><span class="p">)</span>
             <span class="p">]</span>
 
         <span class="k">return</span> <span class="p">[]</span></div>
@@ -637,7 +637,7 @@
                 <span class="k">for</span> <span class="n">_</span><span class="p">,</span> <span class="n">spdx_id</span><span class="p">,</span> <span class="n">name</span> <span class="ow">in</span> <span class="n">iter_objects_with_property</span><span class="p">(</span>
                     <span class="bp">self</span><span class="o">.</span><span class="n">doc</span><span class="p">,</span> <span class="n">spdx3</span><span class="o">.</span><span class="n">software_Package</span><span class="p">,</span> <span class="s2">&quot;name&quot;</span>
                 <span class="p">)</span>
-                <span class="k">if</span> <span class="ow">not</span> <span class="n">name</span> <span class="ow">or</span> <span class="n">name</span><span class="o">.</span><span class="n">strip</span><span class="p">()</span> <span class="o">==</span> <span class="s2">&quot;&quot;</span>
+                <span class="k">if</span> <span class="ow">not</span> <span class="n">name</span> <span class="ow">or</span> <span class="p">(</span><span class="nb">isinstance</span><span class="p">(</span><span class="n">name</span><span class="p">,</span> <span class="nb">str</span><span class="p">)</span> <span class="ow">and</span> <span class="n">name</span><span class="o">.</span><span class="n">strip</span><span class="p">()</span> <span class="o">==</span> <span class="s2">&quot;&quot;</span><span class="p">)</span>
             <span class="p">]</span>
 
         <span class="k">return</span> <span class="p">[]</span></div>
@@ -684,7 +684,11 @@
                 <span class="k">for</span> <span class="n">name</span><span class="p">,</span> <span class="n">spdx_id</span><span class="p">,</span> <span class="n">supplier</span> <span class="ow">in</span> <span class="n">iter_objects_with_property</span><span class="p">(</span>
                     <span class="bp">self</span><span class="o">.</span><span class="n">doc</span><span class="p">,</span> <span class="n">spdx3</span><span class="o">.</span><span class="n">software_Package</span><span class="p">,</span> <span class="s2">&quot;suppliedBy&quot;</span>
                 <span class="p">)</span>
-                <span class="k">if</span> <span class="ow">not</span> <span class="n">supplier</span> <span class="ow">or</span> <span class="ow">not</span> <span class="n">supplier</span><span class="o">.</span><span class="n">name</span> <span class="ow">or</span> <span class="n">supplier</span><span class="o">.</span><span class="n">name</span><span class="o">.</span><span class="n">strip</span><span class="p">()</span> <span class="o">==</span> <span class="s2">&quot;&quot;</span>
+                <span class="k">if</span> <span class="ow">not</span> <span class="n">supplier</span>
+                <span class="ow">or</span> <span class="p">(</span>
+                    <span class="n">supplier</span><span class="o">.</span><span class="n">name</span> <span class="k">if</span> <span class="nb">hasattr</span><span class="p">(</span><span class="n">supplier</span><span class="p">,</span> <span class="s2">&quot;name&quot;</span><span class="p">)</span> <span class="k">else</span> <span class="n">supplier</span> <span class="ow">or</span> <span class="s2">&quot;&quot;</span>
+                <span class="p">)</span><span class="o">.</span><span class="n">strip</span><span class="p">()</span>
+                <span class="o">==</span> <span class="s2">&quot;&quot;</span>
             <span class="p">]</span>
 
         <span class="k">return</span> <span class="p">[]</span></div>
@@ -731,7 +735,8 @@
                 <span class="k">for</span> <span class="n">name</span><span class="p">,</span> <span class="n">spdx_id</span><span class="p">,</span> <span class="n">package_version</span> <span class="ow">in</span> <span class="n">iter_objects_with_property</span><span class="p">(</span>
                     <span class="bp">self</span><span class="o">.</span><span class="n">doc</span><span class="p">,</span> <span class="n">spdx3</span><span class="o">.</span><span class="n">software_Package</span><span class="p">,</span> <span class="s2">&quot;software_packageVersion&quot;</span>
                 <span class="p">)</span>
-                <span class="k">if</span> <span class="ow">not</span> <span class="n">package_version</span> <span class="ow">or</span> <span class="n">package_version</span><span class="o">.</span><span class="n">strip</span><span class="p">()</span> <span class="o">==</span> <span class="s2">&quot;&quot;</span>
+                <span class="k">if</span> <span class="ow">not</span> <span class="n">package_version</span>
+                <span class="ow">or</span> <span class="p">(</span><span class="nb">isinstance</span><span class="p">(</span><span class="n">package_version</span><span class="p">,</span> <span class="nb">str</span><span class="p">)</span> <span class="ow">and</span> <span class="n">package_version</span><span class="o">.</span><span class="n">strip</span><span class="p">()</span> <span class="o">==</span> <span class="s2">&quot;&quot;</span><span class="p">)</span>
             <span class="p">]</span>
 
         <span class="k">return</span> <span class="p">[]</span></div>
