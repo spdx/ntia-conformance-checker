@@ -11,6 +11,18 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog][keepachangelog]
 and this project adheres to [Semantic Versioning][semver].
 
+## [5.0.2] - 2026-04-29
+
+This patch release improves validation for SPDX 3 Elements to prevent
+`AttributeError` when expected properties are missing.
+It contains no new features or security updates.
+
+### Fixed
+
+- Guard from AttributeError ([#378])
+
+[#378]: https://github.com/spdx/ntia-conformance-checker/pull/378
+
 ## [5.0.1] - 2026-04-06
 
 This patch release improves type annotation accuracy for developers
@@ -328,11 +340,12 @@ Thanks to @goneall, @licquia, and @kestewart for mentoring @linynjosh.
 
 ### Added
 
-- Initial commit from Google Summer of Code 2022 ([#1][]).
+- Initial commit from Google Summer of Code 2022 ([#1]).
 
 [#1]: https://github.com/spdx/ntia-conformance-checker/pull/1
 [keepachangelog]: https://keepachangelog.com/en/1.1.0/
 [semver]: https://semver.org/spec/v2.0.0.html
+[5.0.2]: https://github.com/spdx/ntia-conformance-checker/releases/tag/v5.0.2
 [5.0.1]: https://github.com/spdx/ntia-conformance-checker/releases/tag/v5.0.1
 [5.0.0]: https://github.com/spdx/ntia-conformance-checker/releases/tag/v5.0.0
 [4.1.2]: https://github.com/spdx/ntia-conformance-checker/releases/tag/v4.1.2
