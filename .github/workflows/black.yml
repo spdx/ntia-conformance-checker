@@ -25,4 +25,4 @@ jobs:
       - name: Checkout repository
         uses: actions/checkout@de0fac2e4500dabe0009e67214ff5f5447ce83dd  # v6.0.2
       - name: Black Python code formatter
-        uses: psf/black@c6755bb741b6481d6b3d3bb563c83fa060db96c9  # v26.3.1
+        uses: psf/black@87928e6d6761a4a6d22250e1fee5601b3998086e  # v26.5.1
