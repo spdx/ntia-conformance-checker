@@ -77,9 +77,6 @@ class BaseChecker(ABC):
     compliance_standard: str = ""  # fsct3-min, ntia
     sbom_spec: str = ""  # spdx2, spdx3
 
-    # These are detectable by spdx-tools, so not needed for now.
-    # file_format: str = ""  # json, rdf-xml, tag-value, yaml, xml
-
     file: str = ""
     # For SPDX 3, we have to use SHACLObjectSet instead of SpdxDocument,
     # because we need access to relationships and other elements that are not
@@ -104,7 +101,7 @@ class BaseChecker(ABC):
     doc_version: bool = False  # Has SPDX document version?
     doc_author: bool = False  # Has SPDX document author?
     doc_timestamp: bool = False  # Has SPDX document creation timestamp?
-    dependency_relationships: bool = False  # Has DESCRIBES relationship?
+    dependency_relationships: bool = False  # Has package dependency relationship?
 
     compliant: bool = False  # Is SBOM compliant with the chosen standard?
 
@@ -161,7 +158,6 @@ class BaseChecker(ABC):
         """
         self.compliance_standard = compliance
         self.sbom_spec = sbom_spec
-        # self.file_format = ""
 
         self.file = file
 
@@ -190,12 +186,9 @@ class BaseChecker(ABC):
                 raise ValueError(f"Unsupported SBOM specification: {sbom_spec}")
 
         if self.doc:
-            if validate:
-                if sbom_spec == "spdx2":
-                    self.doc = cast("Document", self.doc)
-                    self._validation_messages = validate_full_spdx_document(self.doc)
-                else:
-                    pass
+            if validate and sbom_spec == "spdx2":
+                self.doc = cast("Document", self.doc)
+                self._validation_messages = validate_full_spdx_document(self.doc)
 
             self.sbom_name = self.get_sbom_name()
 
@@ -261,7 +254,12 @@ class BaseChecker(ABC):
         return False
 
     def check_dependency_relationships(self) -> bool:
-        """Check if the SPDX document DESCRIBES at least one package."""
+        """Check if the SBOM document describes at least one package.
+
+        For SPDX 2 this checks for a DESCRIBES relationship; for SPDX 3 it
+        checks that a BOM/SBOM element lists at least one package in its
+        ``rootElement``.
+        """
         if not self.doc:
             return False
 
@@ -290,12 +288,17 @@ class BaseChecker(ABC):
 
         # SPDX 3
         if self.sbom_spec == "spdx3":
-            # If a BOM/an SBOM's rootElement is a /Software/Package (or its subclass),
+            # We will assume here that the SpdxDocument's rootElement is
+            # BOM/SBOM. If it's not, it should fail the validation step.
+            #
+            # If a BOM/an SBOM's rootElement is a /Software/Package
+            # (or its subclass),
             # it is considered to have a dependency relationship.
             #
             # Note that if there is neither /Software/Package(s) nor /Core/Bom,
-            # a DESCRIBES relationship is not needed; however, this method may still
-            # return False, since it is factually considered as "no relationship".
+            # a DESCRIBES relationship is not needed;
+            # however, this method may still return False,
+            # since it is factually considered as "no relationship".
 
             # There is a BOM/SBOM and an /Software/Package,
             # check if there is at least one package listed in any BOM/SBOM

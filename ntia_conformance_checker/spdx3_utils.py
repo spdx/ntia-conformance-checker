@@ -63,7 +63,11 @@ def validate_spdx3_data(
         return (doc, validation_messages)
 
     if len(spdx_documents) != 1:
-        error_msg = "Multiple SpdxDocument objects found. Allows exactly one."
+        error_msg = (
+            "Multiple SpdxDocument objects found in the SPDX 3 JSON file. "
+            "Allows exactly one. "
+            "Ref: https://spdx.github.io/spdx-spec/v3.0/model/Core/Classes/SpdxDocument/"
+        )
         validation_messages.append(ValidationMessage(error_msg, ValidationContext()))
         return (doc, validation_messages)
 
@@ -71,6 +75,12 @@ def validate_spdx3_data(
     doc_id = getattr(doc, "spdxId", None)
     root_element = getattr(doc, "rootElement", None)
 
+    # ElementCollection (superclass of SpdxDocument) constraints:
+    # - If the ElementCollection has at least 1 element,
+    #   it shall also have at least 1 rootElement.
+    # - The element shall not be of type SpdxDocument.
+    # - The rootElement shall not be of type SpdxDocument.
+    # Ref: https://spdx.github.io/spdx-spec/v3.0.1/model/Core/Classes/ElementCollection/
     if not root_element:
         error_msg = "No rootElement found in the SpdxDocument. Expected exactly one."
         context = ValidationContext(parent_id=doc_id)
@@ -81,6 +91,9 @@ def validate_spdx3_data(
         validation_messages.append(ValidationMessage(error_msg, context))
     else:
         root_element = root_element[0]
+        # This is not SPDX 3 spec.
+        # But NTIA Minimum Elements requires an SBOM type and
+        # SBOM type is only available in software_Sbom.
         if not isinstance(root_element, (spdx3.Bom, spdx3.software_Sbom)):
             error_msg = (
                 "The root element must be of type Bom or software_Sbom. "
