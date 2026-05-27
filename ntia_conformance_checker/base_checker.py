@@ -77,6 +77,9 @@ class BaseChecker(ABC):
     compliance_standard: str = ""  # fsct3-min, ntia
     sbom_spec: str = ""  # spdx2, spdx3
 
+    # These are detectable by spdx-tools, so not needed for now.
+    # file_format: str = ""  # json, rdf-xml, tag-value, yaml, xml
+
     file: str = ""
     # For SPDX 3, we have to use SHACLObjectSet instead of SpdxDocument,
     # because we need access to relationships and other elements that are not
@@ -158,6 +161,7 @@ class BaseChecker(ABC):
         """
         self.compliance_standard = compliance
         self.sbom_spec = sbom_spec
+        # self.file_format = ""
 
         self.file = file
 
