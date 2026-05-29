@@ -14,6 +14,12 @@ This tool determines whether a [SPDX](https://spdx.dev/) software bill of
 materials (SBOM) document contains informational items as required by a
 certain specification.
 
+It supports SPDX specification versions 2.2, 2.3, and 3.0.
+
+> Note that while the SPDX 3.0 specification allows for multiple SBOMs
+within a single SPDX document, this tool currently limits support
+to one SBOM per document.
+
 A web-based version of the tool is available (no installation needed) at:
 <https://tools.spdx.org/app/ntia_checker/>
 
