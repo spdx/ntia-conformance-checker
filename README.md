@@ -6,7 +6,7 @@
 [![Pylint Score](https://img.shields.io/badge/pylint-10/10-green)](https://github.com/spdx/ntia-conformance-checker)
 [![OpenSSF Scorecard](https://api.scorecard.dev/projects/github.com/spdx/ntia-conformance-checker/badge)](https://scorecard.dev/viewer/?uri=github.com/spdx/ntia-conformance-checker)
 [![OpenSSF Best Practices](https://www.bestpractices.dev/projects/10727/badge)](https://www.bestpractices.dev/projects/10727)
-[![DOI](https://zenodo.org/badge/DOI/10.5281/zenodo.17068669.svg)](https://doi.org/10.5281/zenodo.17068669)
+[![DOI](https://img.shields.io/badge/doi-10.5281%2Fzenodo.17068669-blue)](https://doi.org/10.5281/zenodo.17068669)
 
 Validate the SPDX SBOM against NTIA, CISA, and other minimum element requirements.
 
@@ -17,8 +17,8 @@ certain specification.
 It supports SPDX specification versions 2.2, 2.3, and 3.0.
 
 > Note that while the SPDX 3.0 specification allows for multiple SBOMs
-within a single SPDX document, this tool currently limits support
-to one SBOM per document.
+> within a single SPDX document, this tool currently limits support
+> to one SBOM per document.
 
 A web-based version of the tool is available (no installation needed) at:
 <https://tools.spdx.org/app/ntia_checker/>
