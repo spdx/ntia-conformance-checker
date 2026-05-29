@@ -108,7 +108,9 @@ class BaseChecker(ABC):
     doc_version: bool = False  # Has SPDX document version?
     doc_author: bool = False  # Has SPDX document author?
     doc_timestamp: bool = False  # Has SPDX document creation timestamp?
-    dependency_relationships: bool = False  # Has package dependency relationship?
+    dependency_relationships: bool = False  # Has DESCRIBE relationship?
+    # See https://github.com/spdx/ntia-conformance-checker/issues/392
+    # for discussion on dependency relationships and DESCRIBES.
 
     compliant: bool = False  # Is SBOM compliant with the chosen standard?
 
@@ -270,7 +272,7 @@ class BaseChecker(ABC):
         """Check if the SBOM document describes at least one package.
 
         For SPDX 2 this checks for a DESCRIBES relationship; for SPDX 3 it
-        checks that a BOM/SBOM element lists at least one package in its
+        checks that a /Software/Sbom element lists at least one package in its
         ``rootElement``.
         """
         if not self.doc:
@@ -302,16 +304,19 @@ class BaseChecker(ABC):
         # SPDX 3
         if self.sbom_spec == "spdx3":
             # We will assume here that the SpdxDocument's rootElement is
-            # BOM/SBOM. If it's not, it should fail the validation step.
+            # either /Core/Bom or /Software/Sbom.
             #
-            # If a BOM/an SBOM's rootElement is a /Software/Package
+            # If the's rootElement is a /Software/Package
             # (or its subclass),
-            # it is considered to have a dependency relationship.
+            # it is considered to have a DESCRIBES relationship.
             #
             # Note that if there is neither /Software/Package(s) nor /Core/Bom,
             # a DESCRIBES relationship is not needed;
             # however, this method may still return False,
             # since it is factually considered as "no relationship".
+            #
+            # See https://github.com/spdx/ntia-conformance-checker/issues/392
+            # for discussion on dependency relationships and DESCRIBES.
 
             # There is a BOM/SBOM and an /Software/Package,
             # check if there is at least one package listed in any BOM/SBOM
