@@ -108,7 +108,7 @@ class BaseChecker(ABC):
     doc_version: bool = False  # Has SPDX document version?
     doc_author: bool = False  # Has SPDX document author?
     doc_timestamp: bool = False  # Has SPDX document creation timestamp?
-    dependency_relationships: bool = False  # Has DESCRIBE relationship?
+    dependency_relationships: bool = False  # Has DESCRIBES relationship?
     # See https://github.com/spdx/ntia-conformance-checker/issues/392
     # for discussion on dependency relationships and DESCRIBES.
 
