@@ -180,6 +180,7 @@ class BaseChecker(ABC):
         # to avoid shared state between instances.
         self._parsing_errors = []
         self._validation_messages = []
+        self._conformance_messages = []
 
         match sbom_spec:
             case "spdx2":

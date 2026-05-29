@@ -84,6 +84,7 @@ class FSCT3Checker(BaseChecker):
             ),
             ("SBOM author name provided?", self.doc_author),
             ("SBOM creation timestamp provided?", self.doc_timestamp),
+            ("SBOM type provided?", bool(self.sbom_types)),
             ("Dependency relationships provided?", self.dependency_relationships),
         ]
 
@@ -94,6 +95,7 @@ class FSCT3Checker(BaseChecker):
                 self.doc_author,
                 self.doc_timestamp,
                 self.dependency_relationships,
+                bool(self.sbom_types),
                 not self.components_without_names,
                 not self.components_without_versions,
                 not self.components_without_identifiers,

@@ -65,7 +65,9 @@ def test_sbomchecker_fsct3_no_errors(test_file: str) -> None:
     assert not sbom.components_without_suppliers
     assert not sbom.components_without_identifiers
     assert not sbom.components_without_concluded_licenses
-    assert sbom.compliant
+    assert not sbom.compliant
+    # sbom.compliant will always be False because SPDX 2 do not have SBOM type,
+    # which is one of FSCTv3 baseline attributes.
 
 
 @pytest.mark.parametrize("test_file", test_files)
@@ -96,7 +98,9 @@ def test_fsct3checker_no_errors(test_file: str) -> None:
     assert not sbom.components_without_suppliers
     assert not sbom.components_without_identifiers
     assert not sbom.components_without_concluded_licenses
-    assert sbom.compliant
+    assert not sbom.compliant
+    # sbom.compliant will always be False because SPDX 2 do not have SBOM type,
+    # which is one of FSCTv3 baseline attributes.
 
 
 ### Test missing author name
@@ -507,6 +511,8 @@ def test_sbomchecker_fsct3_output_html() -> None:
         "<td class='conformance-res-tab-v'>True</td></tr>\n"
         "<tr><td class='conformance-res-tab-r'>SBOM creation timestamp provided?</td>"
         "<td class='conformance-res-tab-v'>True</td></tr>\n"
+        "<tr><td class='conformance-res-tab-r'>SBOM type provided?</td>"
+        "<td class='conformance-res-tab-v'>False</td></tr>\n"
         "<tr><td class='conformance-res-tab-r'>Dependency relationships provided?</td>"
         "<td class='conformance-res-tab-v'>True</td></tr>\n"
         "</tbody>\n"
