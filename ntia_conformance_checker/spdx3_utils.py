@@ -79,7 +79,7 @@ def validate_spdx3_data(
 
     # ElementCollection constraint: if there is at least one element,
     # there shall also be at least one rootElement.
-    # Ref: https://spdx.github.io/spdx-spec/v3.0.1/model/Core/Classes/ElementCollection/
+    # Ref: https://spdx.github.io/spdx-spec/latest/model/Core/Classes/ElementCollection/
     if elements and not root_elements:
         error_msg = (
             "The SpdxDocument has elements but no rootElement. "
@@ -92,7 +92,7 @@ def validate_spdx3_data(
         )
 
     # ElementCollection constraint: element items shall not be of type SpdxDocument.
-    # Ref: https://spdx.github.io/spdx-spec/v3.0.1/model/Core/Classes/ElementCollection/
+    # Ref: https://spdx.github.io/spdx-spec/latest/model/Core/Classes/ElementCollection/
     for elem in elements:
         if isinstance(elem, spdx3.SpdxDocument):
             elem_id = getattr(elem, "spdxId", None)
