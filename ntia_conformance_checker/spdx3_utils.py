@@ -25,14 +25,9 @@ def validate_spdx3_data(
     Validate an SHACLObjectSet if it contains a valid SpdxDocument.
 
     The SPDX 3.0 specification states that "Any instance of serialization of
-    SPDX data MUST NOT contain more than one SpdxDocument element definition."
+    SPDX data shall not contain more than one SpdxDocument element definition."
 
-    See: https://spdx.github.io/spdx-spec/v3.0/model/Core/Classes/SpdxDocument/
-
-    For the purpose of BOM/SBOM application, it also requires that the
-    SpdxDocument should have a Bom or Software/Sbom as its rootElement.
-
-    See: https://github.com/spdx/ntia-conformance-checker/issues/268
+    See: https://spdx.github.io/spdx-spec/latest/model/Core/Classes/SpdxDocument/
 
     Args:
         object_set (spdx3.SHACLObjectSet): The SHACLObjectSet containing
@@ -54,6 +49,9 @@ def validate_spdx3_data(
         for obj in object_set.foreach_type("SpdxDocument")
     ]
 
+    # == SPDX 3 JSON serialization constraint =====
+
+    # Collections of SPDX 3 Elements shall be inside SpdxDocument
     if not spdx_documents:
         error_msg = (
             "No SpdxDocument object found in the SPDX 3 JSON file. "
@@ -65,42 +63,56 @@ def validate_spdx3_data(
     if len(spdx_documents) != 1:
         error_msg = (
             "Multiple SpdxDocument objects found in the SPDX 3 JSON file. "
-            "Allows exactly one. "
-            "Ref: https://spdx.github.io/spdx-spec/v3.0/model/Core/Classes/SpdxDocument/"
+            "Allows no more than one. "
+            "Ref: https://spdx.github.io/spdx-spec/latest/model/Core/Classes/SpdxDocument/"
         )
         validation_messages.append(ValidationMessage(error_msg, ValidationContext()))
         return (doc, validation_messages)
 
+    # == ElementCollection constraint =====
+    # SpdxDocument is an ElementCollection.
+
     doc = spdx_documents[0]
     doc_id = getattr(doc, "spdxId", None)
-    root_element = getattr(doc, "rootElement", None)
+    elements: list[Any] = getattr(doc, "element", []) or []
+    root_elements: list[Any] = getattr(doc, "rootElement", []) or []
 
-    # ElementCollection (superclass of SpdxDocument) constraints:
-    # - If the ElementCollection has at least 1 element,
-    #   it shall also have at least 1 rootElement.
-    # - The element shall not be of type SpdxDocument.
-    # - The rootElement shall not be of type SpdxDocument.
+    # ElementCollection constraint: if there is at least one element,
+    # there shall also be at least one rootElement.
     # Ref: https://spdx.github.io/spdx-spec/v3.0.1/model/Core/Classes/ElementCollection/
-    if not root_element:
-        error_msg = "No rootElement found in the SpdxDocument. Expected exactly one."
-        context = ValidationContext(parent_id=doc_id)
-        validation_messages.append(ValidationMessage(error_msg, context))
-    elif len(root_element) != 1:
-        error_msg = "Multiple root elements found in SpdxDocument. Allows exactly one."
-        context = ValidationContext(parent_id=doc_id)
-        validation_messages.append(ValidationMessage(error_msg, context))
-    else:
-        root_element = root_element[0]
-        # This is not SPDX 3 spec.
-        # But NTIA Minimum Elements requires an SBOM type and
-        # SBOM type is only available in software_Sbom.
-        if not isinstance(root_element, (spdx3.Bom, spdx3.software_Sbom)):
+    if elements and not root_elements:
+        error_msg = (
+            "The SpdxDocument has elements but no rootElement. "
+            "An SpdxDocument with at least one element shall also have "
+            "at least one rootElement. "
+            "Ref: https://spdx.github.io/spdx-spec/latest/model/Core/Classes/ElementCollection/"
+        )
+        validation_messages.append(
+            ValidationMessage(error_msg, ValidationContext(parent_id=doc_id))
+        )
+
+    # ElementCollection constraint: element items shall not be of type SpdxDocument.
+    # Ref: https://spdx.github.io/spdx-spec/v3.0.1/model/Core/Classes/ElementCollection/
+    for elem in elements:
+        if isinstance(elem, spdx3.SpdxDocument):
+            elem_id = getattr(elem, "spdxId", None)
             error_msg = (
-                "The root element must be of type Bom or software_Sbom. "
-                f"Found: {type(root_element)!r}"
+                "An SpdxDocument element shall not be of type SpdxDocument. "
+                "Ref: https://spdx.github.io/spdx-spec/latest/model/Core/Classes/ElementCollection/"
             )
-            root_element_id = getattr(root_element, "spdxId", None)
-            context = ValidationContext(parent_id=doc_id, spdx_id=root_element_id)
+            context = ValidationContext(parent_id=doc_id, spdx_id=elem_id)
+            validation_messages.append(ValidationMessage(error_msg, context))
+
+    # ElementCollection constraint: rootElement items shall not be of type SpdxDocument.
+    # Ref: https://spdx.github.io/spdx-spec/latest/model/Core/Classes/ElementCollection/
+    for root_elem in root_elements:
+        if isinstance(root_elem, spdx3.SpdxDocument):
+            root_elem_id = getattr(root_elem, "spdxId", None)
+            error_msg = (
+                "An SpdxDocument rootElement shall not be of type SpdxDocument. "
+                "Ref: https://spdx.github.io/spdx-spec/latest/model/Core/Classes/ElementCollection/"
+            )
+            context = ValidationContext(parent_id=doc_id, spdx_id=root_elem_id)
             validation_messages.append(ValidationMessage(error_msg, context))
 
     return (doc, validation_messages)
