@@ -201,6 +201,7 @@ def build_sarif(checker: "BaseChecker") -> dict[str, Any]:
     parsing_errors = getattr(checker, "_parsing_errors", [])
 
     run: dict[str, Any] = {
+        "automationDetails": {"id": f"{TOOL_NAME}/{spec.standard_short_id}/"},
         "tool": {
             "driver": {
                 "name": TOOL_NAME,
