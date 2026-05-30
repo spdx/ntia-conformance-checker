@@ -22,6 +22,7 @@ if TYPE_CHECKING:
     from spdx_tools.spdx.validation.validation_message import ValidationMessage
 
 
+# pylint: disable=too-many-instance-attributes
 @dataclass
 class ReportContext:
     """Context for generating conformance reports."""
