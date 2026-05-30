@@ -882,6 +882,7 @@ class BaseChecker(ABC):
             requirement_results=getattr(self, "table_elements", []),
             components_without_info=getattr(self, "all_components_without_info", []),
             validation_messages=self._validation_messages,
+            conformance_messages=self._conformance_messages,
             parsing_errors=self._parsing_errors,
         )
 
@@ -901,6 +902,7 @@ class BaseChecker(ABC):
             requirement_results=getattr(self, "table_elements", []),
             components_without_info=getattr(self, "all_components_without_info", []),
             validation_messages=self._validation_messages,
+            conformance_messages=self._conformance_messages,
             parsing_errors=self._parsing_errors,
         )
 
