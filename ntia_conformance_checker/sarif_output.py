@@ -70,9 +70,9 @@ def _emit_rule(spec: "Spec", rule: "SpecRule") -> dict[str, Any]:
         "relationships": [
             {
                 "target": {
-                    "id": taxon.taxon_id
-                    if (taxon := spec.taxon_for_rule(rule))
-                    else "",
+                    "id": (
+                        taxon.taxon_id if (taxon := spec.taxon_for_rule(rule)) else ""
+                    ),
                     "toolComponent": {"name": spec.standard_id},
                 },
                 "kinds": ["superset"],
