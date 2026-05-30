@@ -67,6 +67,16 @@ def _emit_rule(spec: "Spec", rule: "SpecRule") -> dict[str, Any]:
         },
         "defaultConfiguration": {"level": "error"},
         "helpUri": spec.rule_help_uri(rule),
+        "help": {
+            "text": (
+                f"{rule.element_name.capitalize()} is required.  "
+                f"See {spec.rule_help_uri(rule)}"
+            ),
+            "markdown": (
+                f"**{rule.element_name.capitalize()}** is required.  "
+                f"See <{spec.rule_help_uri(rule)}>"
+            ),
+        },
         "relationships": [
             {
                 "target": {
@@ -194,6 +204,7 @@ def build_sarif(checker: "BaseChecker") -> dict[str, Any]:
         "tool": {
             "driver": {
                 "name": TOOL_NAME,
+                "fullName": "NTIA Minimum Elements SBOM Conformance Checker",
                 "version": TOOL_VERSION,
                 "informationUri": TOOL_URI,
                 "rules": rules_emitted,
