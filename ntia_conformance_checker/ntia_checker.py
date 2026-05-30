@@ -17,7 +17,16 @@ NTIA_HELP_URI = (
     "https://www.ntia.gov/report/2021/minimum-elements-software-bill-materials-sbom"
 )
 
-# Document-level rules shared with FSCT3.
+# Document-level rules
+# We need a uniform naming convention for rule ids.
+# ---
+# From https://sarifweb.azurewebsites.net/Validation
+# SARIF2009: Adopt uniform naming conventions for rule ids.
+# Many tools follow a conventional format for the 'reportingDescriptor.id'
+# property: a short string identifying the tool concatenated with a numeric
+# rule number, for example, 'CS2001' for a diagnostic from the Roslyn C#
+# compiler. For uniformity of experience across tools, we recommend this
+# format.
 NTIA_DOCUMENT_RULES: tuple[SpecRule, ...] = (
     SpecRule(
         element_id="doc_author",
