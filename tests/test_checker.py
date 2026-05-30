@@ -44,6 +44,7 @@ def test_sbomchecker_ntia_no_errors(test_file: str) -> None:
     assert sbom.doc_version
     assert sbom.doc_author
     assert sbom.doc_timestamp
+    assert not sbom.sbom_gen_context  # SPDX 2 does not have SBOM type
     assert sbom.dependency_relationships
     assert not sbom.components_without_names
     assert not sbom.components_without_versions
@@ -59,15 +60,13 @@ def test_sbomchecker_fsct3_no_errors(test_file: str) -> None:
     assert sbom.doc_version
     assert sbom.doc_author
     assert sbom.doc_timestamp
+    assert not sbom.sbom_gen_context  # SPDX 2 does not have SBOM type
     assert sbom.dependency_relationships
     assert not sbom.components_without_names
     assert not sbom.components_without_versions
     assert not sbom.components_without_suppliers
     assert not sbom.components_without_identifiers
     assert not sbom.components_without_concluded_licenses
-    assert not sbom.compliant
-    # sbom.compliant will always be False because SPDX 2 do not have SBOM type,
-    # which is one of FSCTv3 baseline attributes.
 
 
 @pytest.mark.parametrize("test_file", test_files)
@@ -92,15 +91,13 @@ def test_fsct3checker_no_errors(test_file: str) -> None:
     assert sbom.doc_version
     assert sbom.doc_author
     assert sbom.doc_timestamp
+    assert not sbom.sbom_gen_context  # SPDX 2 does not have SBOM type
     assert sbom.dependency_relationships
     assert not sbom.components_without_names
     assert not sbom.components_without_versions
     assert not sbom.components_without_suppliers
     assert not sbom.components_without_identifiers
     assert not sbom.components_without_concluded_licenses
-    assert not sbom.compliant
-    # sbom.compliant will always be False because SPDX 2 do not have SBOM type,
-    # which is one of FSCTv3 baseline attributes.
 
 
 ### Test missing author name
@@ -312,6 +309,7 @@ def test_sbomchecker_spdx3_general() -> None:
     assert sbom.doc is not None
     assert isinstance(sbom.doc, spdx3.SHACLObjectSet)
     assert sbom.sbom_name == "hello"
+    assert not sbom.sbom_gen_context  # No SBOM -> No SBOM generation context
     spdx3_spdx_document, validation_messages = validate_spdx3_data(sbom.doc)
     # The file is spec-valid SPDX 3; no SPDX 3 spec errors expected.
     assert len(validation_messages) == 0
@@ -348,6 +346,7 @@ def test_sbomchecker_spdx3_no_elements_missing() -> None:
     assert sbom.doc_version
     assert sbom.doc_author
     assert sbom.doc_timestamp
+    assert sbom.sbom_gen_context
     assert sbom.compliant
 
 
