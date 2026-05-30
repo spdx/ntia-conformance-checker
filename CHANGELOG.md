@@ -11,6 +11,12 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog][keepachangelog]
 and this project adheres to [Semantic Versioning][semver].
 
+## [UNRELEASED]
+
+### Added
+
+- Output in SARIF format
+
 ## [5.0.2] - 2026-04-29
 
 This patch release improves validation for SPDX 3 Elements to prevent

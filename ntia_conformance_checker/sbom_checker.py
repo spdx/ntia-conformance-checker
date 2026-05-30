@@ -1,4 +1,4 @@
-# SPDX-FileCopyrightText: 2024 SPDX contributors
+# SPDX-FileCopyrightText: 2024-present SPDX contributors
 # SPDX-FileType: SOURCE
 # SPDX-License-Identifier: Apache-2.0
 
@@ -6,10 +6,13 @@
 
 from __future__ import annotations
 
-from typing import Any, final
+from typing import TYPE_CHECKING, Any, final
 
 from .base_checker import BaseChecker
 from .constants import SUPPORTED_SBOM_SPECS
+
+if TYPE_CHECKING:
+    from .spec import Spec
 
 
 @final
@@ -82,3 +85,7 @@ class SbomChecker(BaseChecker):
 
     def check_compliance(self) -> bool:
         raise NotImplementedError("This method is not implemented by SbomChecker.")
+
+    @property
+    def spec(self) -> "Spec":
+        raise NotImplementedError("This property is not implemented by SbomChecker.")

@@ -1,8 +1,18 @@
-# SPDX-FileCopyrightText: 2025 SPDX contributors
+# SPDX-FileCopyrightText: 2025-present SPDX contributors
 # SPDX-FileType: SOURCE
 # SPDX-License-Identifier: Apache-2.0
 
 """Constants."""
+
+TOOL_NAME = "ntia-conformance-checker"
+TOOL_URI = "https://github.com/spdx/ntia-conformance-checker"
+
+try:
+    from ._version import version as _v
+
+    TOOL_VERSION: str = _v
+except ImportError:
+    TOOL_VERSION = "unknown"
 
 SUPPORTED_SBOM_SPECS_DESC = {
     "spdx2": "Software Package Data Exchange (SPDX) 2.x",
@@ -14,7 +24,7 @@ SUPPORTED_SBOM_SPECS = set(SUPPORTED_SBOM_SPECS_DESC.keys())
 SUPPORTED_COMPLIANCE_STANDARDS_DESC = {
     # "cisasbom2025": "2025 CISA SBOM Minimum Elements",
     # https://www.cisa.gov/resources-tools/resources/2025-minimum-elements-software-bill-materials-sbom
-    "fsct3-min": "2024 CISA Framing Software Component Transparency (minimum expectation)",
+    "fsct3-min": "2024 CISA Framing Software Component Transparency (Minimum Expected)",
     "ntia": "2021 NTIA SBOM Minimum Elements",
 }
 DEFAULT_COMPLIANCE_STANDARD = "ntia"

@@ -1,4 +1,4 @@
-# SPDX-FileCopyrightText: 2025 SPDX contributors
+# SPDX-FileCopyrightText: 2025-present SPDX contributors
 # SPDX-FileType: SOURCE
 # SPDX-License-Identifier: Apache-2.0
 
@@ -33,6 +33,7 @@ if TYPE_CHECKING:
 _OUTPUT_CHOICES = {
     "print": "Print report to console",
     "json": "Report in JSON format",
+    "sarif": "Report in SARIF format",
     "html": "Report in HTML format",
     "quiet": "No output unless there are errors",
 }
@@ -284,6 +285,14 @@ def print_output(
                     json.dump(result_dict, outfile)
             else:
                 print(json.dumps(result_dict, indent=2))
+
+        case "sarif":
+            sarif_dict: dict[str, Any] = sbom.output_sarif()
+            if output_file:
+                with open(output_file, "w", encoding="utf-8") as outfile:
+                    json.dump(sarif_dict, outfile, indent=2)
+            else:
+                print(json.dumps(sarif_dict, indent=2))
 
         case "html":
             html_output = sbom.output_html()

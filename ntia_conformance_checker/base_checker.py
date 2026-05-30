@@ -1,4 +1,4 @@
-# SPDX-FileCopyrightText: 2024-2025 SPDX contributors
+# SPDX-FileCopyrightText: 2024-present SPDX contributors
 # SPDX-FileType: SOURCE
 # SPDX-License-Identifier: Apache-2.0
 
@@ -39,6 +39,8 @@ if TYPE_CHECKING:
     from spdx_tools.spdx.model.document import Document
     from spdx_tools.spdx.validation.validation_message import ValidationMessage
 
+    from .spec import Spec
+
 
 # pylint: disable=too-many-instance-attributes,too-many-public-methods
 class BaseChecker(ABC):
@@ -53,26 +55,6 @@ class BaseChecker(ABC):
 
     # Minimum elements/baseline attributes required by a compliance standard
     MIN_ELEMENTS: list[str] = []
-
-    # Mapping of components without information
-    # SBOM component name: (list containing components missing the info, label)
-    _COMPONENTS_WITHOUT_INFO = {
-        "name": ("components_without_names", "Components missing a name"),
-        "version": ("components_without_versions", "Components missing a version"),
-        "identifier": (
-            "components_without_identifiers",
-            "Components missing an identifier",
-        ),
-        "supplier": ("components_without_suppliers", "Components missing a supplier"),
-        "concluded_license": (
-            "components_without_concluded_licenses",
-            "Components missing a concluded license",
-        ),
-        "copyright_text": (
-            "components_without_copyright_texts",
-            "Components missing a copyright text",
-        ),
-    }
 
     compliance_standard: str = ""  # fsct3-min, ntia
     sbom_spec: str = ""  # spdx2, spdx3
@@ -137,6 +119,11 @@ class BaseChecker(ABC):
     def validation_messages(self) -> list[ValidationMessage]:
         """Validation messages from SPDX document validation."""
         return self._validation_messages
+
+    @property
+    @abstractmethod
+    def spec(self) -> "Spec":
+        """The compliance specification for this checker."""
 
     @abstractmethod
     def check_compliance(self) -> bool:
@@ -671,20 +658,20 @@ class BaseChecker(ABC):
     def _get_all_components_without_info(
         self,
     ) -> list[tuple[str, list[tuple[str, str]]]]:
-        """Get a list of components missing information for each required info."""
+        """Get a list of components missing information for each required element."""
+        list_rules = [
+            r
+            for r in self.spec.rules
+            if r.kind == "list" and r.element_id in self.MIN_ELEMENTS
+        ]
 
-        # If all lists are empty, return an empty list
-        if all(
-            not getattr(self, list_name, [])
-            for list_name, _ in self._COMPONENTS_WITHOUT_INFO.values()
-        ):
+        if all(not getattr(self, r.attr, []) for r in list_rules):
             return []
 
         return [
-            (info_name, getattr(self, self._COMPONENTS_WITHOUT_INFO[info_name][0], []))
-            for info_name in self.MIN_ELEMENTS
-            if info_name in self._COMPONENTS_WITHOUT_INFO
-            and getattr(self, self._COMPONENTS_WITHOUT_INFO[info_name][0], [])
+            (rule.element_id, getattr(self, rule.attr, []))
+            for rule in list_rules
+            if getattr(self, rule.attr, [])
         ]
 
     def get_total_number_components(self) -> int:
@@ -861,35 +848,43 @@ class BaseChecker(ABC):
             "parsingError": self._parsing_errors,
             "sbomName": getattr(self, "sbom_name", ""),
             "specVersionProvided": getattr(self, "doc_version", False),
-            "authorNameProvided": getattr(self, "doc_author", False),
-            "timestampProvided": getattr(self, "doc_timestamp", False),
-            "dependencyRelationshipsProvided": getattr(
-                self, "dependency_relationships", False
-            ),
             "totalNumberComponents": self.get_total_number_components(),
         }
 
-        _groups = {
-            "componentNames": "components_without_names",
-            "componentVersions": "components_without_versions",
-            "componentIdentifiers": "components_without_identifiers",
-            "componentSuppliers": "components_without_suppliers",
-            "componentConcludedLicenses": "components_without_concluded_licenses",
-            "componentCopyrightTexts": "components_without_copyright_texts",
-        }
-
-        for key_, attr in _groups.items():
-            components_without_info = getattr(self, attr, [])
-            # components_without_info is a list[tuple[name, spdx_id]];
-            # prefer the human-readable name and fall back to SPDX ID.
-            nonconformant = [
-                (name if name not in (None, "") else spdx_id)
-                for name, spdx_id in components_without_info
-            ]
-
-            result[key_] = {
-                "nonconformantComponents": nonconformant,
-                "allProvided": not bool(nonconformant),
-            }
+        for rule in self.spec.rules:
+            if not rule.json_key:
+                continue
+            if rule.kind == "bool":
+                result[rule.json_key] = bool(getattr(self, rule.attr, False))
+            else:
+                components_without_info: list[tuple[str, str]] = getattr(
+                    self, rule.attr, []
+                )
+                # prefer the human-readable name; fall back to SPDX ID.
+                nonconformant = [
+                    (name if name not in (None, "") else spdx_id)
+                    for name, spdx_id in components_without_info
+                ]
+                result[rule.json_key] = {
+                    "nonconformantComponents": nonconformant,
+                    "allProvided": not bool(nonconformant),
+                }
 
         return result
+
+    def output_sarif(self) -> dict[str, Any]:
+        """
+        Create a SARIF result log.
+
+        The output uses lowercase kebab-case rule and taxon ids so the
+        same identifiers can be reused by a future OSCAL exporter as
+        ``control`` / ``group`` ids without remapping.
+
+        Subclasses may override to provide custom fields.
+        """
+        # Imported lazily so that the SARIF module isn't loaded for
+        # tools that only call output_text / output_json.
+        # pylint: disable=import-outside-toplevel
+        from .sarif_output import build_sarif
+
+        return build_sarif(self)

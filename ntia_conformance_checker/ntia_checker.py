@@ -1,4 +1,4 @@
-# SPDX-FileCopyrightText: 2024-2025 SPDX contributors
+# SPDX-FileCopyrightText: 2024-present SPDX contributors
 # SPDX-FileType: SOURCE
 # SPDX-License-Identifier: Apache-2.0
 
@@ -9,6 +9,98 @@ from __future__ import annotations
 import warnings
 
 from .base_checker import BaseChecker
+from .spec import Spec, SpecRule, SpecTaxon
+
+# URL for the NTIA Minimum Elements standard.
+# Used as the fallback help URL for every rule in the NTIA catalogue.
+NTIA_HELP_URI = (
+    "https://www.ntia.gov/report/2021/minimum-elements-software-bill-materials-sbom"
+)
+
+# Document-level rules shared with FSCT3.
+NTIA_DOCUMENT_RULES: tuple[SpecRule, ...] = (
+    SpecRule(
+        element_id="doc_author",
+        element_name="SBOM author",
+        report_label="SBOM author name provided?",
+        kind="bool",
+        attr="doc_author",
+        getter="check_author",
+        json_key="authorNameProvided",
+        sarif_rule_id="ntia.document.author",
+        sarif_rule_name="DocumentAuthorMissing",
+    ),
+    SpecRule(
+        element_id="doc_timestamp",
+        element_name="SBOM creation timestamp",
+        report_label="SBOM creation timestamp provided?",
+        kind="bool",
+        attr="doc_timestamp",
+        getter="check_timestamp",
+        json_key="timestampProvided",
+        sarif_rule_id="ntia.document.timestamp",
+        sarif_rule_name="DocumentTimestampMissing",
+    ),
+    SpecRule(
+        element_id="dependency_relationships",
+        element_name="dependency relationships",
+        report_label="Dependency relationships provided?",
+        kind="bool",
+        attr="dependency_relationships",
+        getter="check_dependency_relationships",
+        json_key="dependencyRelationshipsProvided",
+        sarif_rule_id="ntia.document.dependency-relationships",
+        sarif_rule_name="DocumentDependencyRelationshipsMissing",
+    ),
+)
+
+# Component-level rules
+NTIA_COMPONENT_RULES: tuple[SpecRule, ...] = (
+    SpecRule(
+        element_id="name",
+        element_name="component name",
+        report_label="All component names provided?",
+        kind="list",
+        attr="components_without_names",
+        getter="get_components_without_names",
+        json_key="componentNames",
+        sarif_rule_id="ntia.component.name",
+        sarif_rule_name="ComponentNameMissing",
+    ),
+    SpecRule(
+        element_id="version",
+        element_name="component version",
+        report_label="All component versions provided?",
+        kind="list",
+        attr="components_without_versions",
+        getter="get_components_without_versions",
+        json_key="componentVersions",
+        sarif_rule_id="ntia.component.version",
+        sarif_rule_name="ComponentVersionMissing",
+    ),
+    SpecRule(
+        element_id="identifier",
+        element_name="component identifier",
+        report_label="All component identifiers provided?",
+        kind="list",
+        attr="components_without_identifiers",
+        getter="get_components_without_identifiers",
+        json_key="componentIdentifiers",
+        sarif_rule_id="ntia.component.identifier",
+        sarif_rule_name="ComponentIdentifierMissing",
+    ),
+    SpecRule(
+        element_id="supplier",
+        element_name="component supplier",
+        report_label="All component suppliers provided?",
+        kind="list",
+        attr="components_without_suppliers",
+        getter="get_components_without_suppliers",
+        json_key="componentSuppliers",
+        sarif_rule_id="ntia.component.supplier",
+        sarif_rule_name="ComponentSupplierMissing",
+    ),
+)
 
 
 class NTIAChecker(BaseChecker):
@@ -20,6 +112,25 @@ class NTIAChecker(BaseChecker):
     """
 
     MIN_ELEMENTS = ["name", "version", "identifier", "supplier"]
+
+    _SPEC: Spec = Spec(
+        standard_short_id="ntia",
+        standard_id="2021-ntia-sbom-minimum-elements",
+        standard_name="2021 NTIA SBOM Minimum Elements",
+        rules=NTIA_DOCUMENT_RULES + NTIA_COMPONENT_RULES,
+        help_uri=NTIA_HELP_URI,
+        taxa=(
+            SpecTaxon(
+                taxon_id="minimum-elements",
+                taxon_name="Minimum Elements",
+            ),
+        ),
+    )
+
+    @property
+    def spec(self) -> Spec:
+        """The NTIA compliance specification for this checker."""
+        return self._SPEC
 
     def __init__(
         self,

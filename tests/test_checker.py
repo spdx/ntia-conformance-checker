@@ -479,7 +479,7 @@ def test_sbomchecker_fsct3_output_html() -> None:
         "<div class='conformance-res'>\n"
         "<h2 class='conformance-res-title'>"
         "2024 CISA Framing Software Component Transparency"
-        " (minimum expectation) Conformance Results"
+        " (Minimum Expected) Conformance Results"
         "</h2>\n"
         "<h3 class='conformance-res-status'>Conformant: False</h3>\n"
         "<table class='conformance-res-tab'>\n"

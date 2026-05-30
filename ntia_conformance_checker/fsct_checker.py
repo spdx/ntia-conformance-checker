@@ -1,4 +1,4 @@
-# SPDX-FileCopyrightText: 2024-2025 SPDX contributors
+# SPDX-FileCopyrightText: 2024-present SPDX contributors
 # SPDX-FileType: SOURCE
 # SPDX-License-Identifier: Apache-2.0
 
@@ -6,7 +6,54 @@
 
 from __future__ import annotations
 
+from dataclasses import replace
+
 from .base_checker import BaseChecker
+from .ntia_checker import NTIA_COMPONENT_RULES, NTIA_DOCUMENT_RULES
+from .spec import Spec, SpecRule, SpecTaxon
+
+# URL for the FSCTv3 baseline attributes standard.
+FSCT3_HELP_URI = (
+    "https://www.cisa.gov/resources-tools/resources/"
+    "framing-software-component-transparency-2024"
+)
+
+# Component-level rules added by FSCT3 on top of the NTIA baseline.
+# These are Component Attributes (section 2.2.2) so they carry that cluster.
+FSCT3_EXTRA_COMPONENT_RULES: tuple[SpecRule, ...] = (
+    SpecRule(
+        element_id="concluded_license",
+        element_name="component concluded license",
+        report_label="All component concluded license provided?",
+        kind="list",
+        cluster="component-attributes",
+        attr="components_without_concluded_licenses",
+        getter="get_components_without_concluded_licenses",
+        json_key="componentConcludedLicenses",
+        sarif_rule_id="fsct3.component.concluded-license",
+        sarif_rule_name="ComponentConcludedLicenseMissing",
+    ),
+    SpecRule(
+        element_id="copyright_text",
+        element_name="component copyright text",
+        report_label="All component copyright notice provided?",
+        kind="list",
+        cluster="component-attributes",
+        attr="components_without_copyright_texts",
+        getter="get_components_without_copyright_texts",
+        json_key="componentCopyrightTexts",
+        sarif_rule_id="fsct3.component.copyright-text",
+        sarif_rule_name="ComponentCopyrightTextMissing",
+    ),
+)
+
+# FSCT3-specific copies of the shared NTIA rules, tagged with their section cluster.
+_FSCT3_COMPONENT_RULES: tuple[SpecRule, ...] = tuple(
+    replace(r, cluster="component-attributes") for r in NTIA_COMPONENT_RULES
+)
+_FSCT3_DOCUMENT_RULES: tuple[SpecRule, ...] = tuple(
+    replace(r, cluster="sbom-meta-information") for r in NTIA_DOCUMENT_RULES
+)
 
 
 class FSCT3Checker(BaseChecker):
@@ -33,6 +80,33 @@ class FSCT3Checker(BaseChecker):
         "concluded_license",
         "copyright_text",
     ]
+
+    _SPEC: Spec = Spec(
+        standard_short_id="fsct3-min",
+        standard_id="2024-cisa-baseline-attributes-minimum-expected",
+        standard_name=(
+            "2024 CISA Framing Software Component Transparency (Minimum Expected)"
+        ),
+        rules=_FSCT3_DOCUMENT_RULES
+        + _FSCT3_COMPONENT_RULES
+        + FSCT3_EXTRA_COMPONENT_RULES,
+        help_uri=FSCT3_HELP_URI,
+        taxa=(
+            SpecTaxon(
+                taxon_id="sbom-meta-information",
+                taxon_name="SBOM Meta-Information",
+            ),
+            SpecTaxon(
+                taxon_id="component-attributes",
+                taxon_name="Component Attributes",
+            ),
+        ),
+    )
+
+    @property
+    def spec(self) -> Spec:
+        """The FSCT3 compliance specification for this checker."""
+        return self._SPEC
 
     def __init__(
         self,

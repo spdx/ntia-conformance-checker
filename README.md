@@ -104,7 +104,7 @@ options:
   -c, --comply {fsct3-min,ntia}
                         Compliance standards to check against; see below for details [default: ntia]
   --skip-validation     Skip validation
-  -r, --output {html,json,print,quiet}
+  -r, --output {html,json,print,quiet,sarif}
                         Report output type; see below for details [default: print]
   -o, --output-file PATH
                         Filepath for report output; if omitted, prints to console
@@ -117,7 +117,7 @@ choices:
     spdx3       System Package Data Exchange (SPDX) 3.x
 
   Compliance standards (for --comply):
-    fsct3-min   2024 CISA Framing Software Component Transparency (minimum expectation)
+    fsct3-min   2024 CISA Framing Software Component Transparency (Minimum Expected)
     ntia        2021 NTIA SBOM Minimum Elements
 
   Report output types (for --output):
@@ -125,6 +125,7 @@ choices:
     json        Report in JSON format
     print       Print report to console
     quiet       No output unless there are errors
+    sarif       Report in SARIF 2.1.0 format
 
 Examples:
   sbomcheck sbom.spdx
@@ -142,6 +143,13 @@ To generate the output in machine-readable JSON, run:
 
 ```bash
 sbomcheck sbom.spdx --output json
+```
+
+To generate the output in [SARIF][sarif] format, run:
+
+```bash
+sbomcheck sbom.spdx --output sarif
+sbomcheck sbom.spdx --output sarif --output-file report.sarif
 ```
 
 To analyze an SPDX 3 JSON file, run:
@@ -243,3 +251,4 @@ Check out the [frequently asked questions](./FAQ.md) document.
 [fsct3]: https://www.cisa.gov/resources-tools/resources/framing-software-component-transparency-2024
 [sbom-reqs]: https://drive.google.com/file/d/14HZGYD7pSSWEmtaHZzWrzPhxCXaCnloJ/view
 [pypi]: https://pypi.org/project/ntia-conformance-checker/
+[sarif]: https://docs.oasis-open.org/sarif/sarif/v2.1.0/sarif-v2.1.0.html
