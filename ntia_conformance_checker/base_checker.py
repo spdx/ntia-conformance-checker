@@ -206,7 +206,7 @@ class BaseChecker(ABC):
                 self._validation_messages = validate_full_spdx_document(self.doc)
 
             self.sbom_name = self.get_sbom_name()
-            self.sbom_types = self.get_sbom_types()
+            self.sbom_gen_context = self.get_sbom_types()
 
             self.doc_version = self.check_doc_version()
             self.doc_author = self.check_author()
@@ -431,9 +431,9 @@ class BaseChecker(ABC):
             doc_id = getattr(self.__spdx3_doc, "spdxId", None)
             root_elem_id = getattr(root_elem, "spdxId", None)
             error_msg = (
-                "The rootElement of the SpdxDocument must be of "
-                "type /Software/Sbom. CISA baseline attributes require "
-                "an SBOM type field, available only in /Software/Sbom. "
+                "To have SBOM type (SBOM generation context) information, "
+                "the rootElement of the SpdxDocument shall be of type "
+                "/Software/Sbom."
                 f"Found: {type(root_elem).__name__!r}"
             )
             context = ValidationContext(parent_id=doc_id, spdx_id=root_elem_id)
