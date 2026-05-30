@@ -18,6 +18,24 @@ from ntia_conformance_checker import FSCT3Checker, NTIAChecker, sbom_checker
 
 _HERE = os.path.dirname(__file__)
 
+# NTIA rule ids per RULES.md (lowercase kebab category = data-fields).
+NTIA_DF_COMPONENT_NAME = "NTIA-DF-02"
+NTIA_DF_COMPONENT_VERSION = "NTIA-DF-03"
+NTIA_DF_COMPONENT_IDENTIFIER = "NTIA-DF-04"
+NTIA_DF_COMPONENT_SUPPLIER = "NTIA-DF-01"
+NTIA_DF_DEPENDENCY = "NTIA-DF-05"
+NTIA_DF_AUTHOR = "NTIA-DF-06"
+NTIA_DF_TIMESTAMP = "NTIA-DF-07"
+
+# FSCT rule ids per RULES.md.
+FSCT_COMP_CONCLUDED_LICENSE = "FSCT-COMP-07"
+FSCT_COMP_COPYRIGHT_NOTICE = "FSCT-COMP-08"
+
+NTIA_TAXONOMY_NAME = "ntia-minimum-elements"
+NTIA_CLAUSE_TAXONOMY_NAME = "ntia-clauses"
+FSCT_TAXONOMY_NAME = "fsct-baseline-attributes"
+FSCT_CLAUSE_TAXONOMY_NAME = "fsct-clauses"
+
 
 def _fixtures(subdir: str) -> list[str]:
     d = os.path.join(_HERE, "data", subdir)
@@ -44,7 +62,7 @@ def _logical_names(run: dict[str, Any], rule_id: str) -> list[str]:
     ]
 
 
-# ---- Conformant fixtures -> zero results ----------
+# ---- Conformant fixtures -> zero results --------------------------------
 
 
 @pytest.mark.parametrize("test_file", _fixtures("no_elements_missing"))
@@ -55,26 +73,45 @@ def test_sarif_no_elements_missing_ntia(test_file: str) -> None:
     assert run["invocations"][0]["executionSuccessful"] is True
     assert run["properties"]["complianceStandard"] == "ntia"
     assert run["tool"]["driver"]["name"] == "ntia-conformance-checker"
-    # All NTIA rules present in catalogue regardless of findings.
+
+    # All NTIA-DF rules present in the catalogue regardless of findings.
     rule_ids = {r["id"] for r in run["tool"]["driver"]["rules"]}
     assert {
-        "ntia.component.name",
-        "ntia.component.version",
-        "ntia.component.identifier",
-        "ntia.component.supplier",
-        "ntia.document.author",
-        "ntia.document.timestamp",
-        "ntia.document.dependency-relationships",
+        NTIA_DF_COMPONENT_SUPPLIER,
+        NTIA_DF_COMPONENT_NAME,
+        NTIA_DF_COMPONENT_VERSION,
+        NTIA_DF_COMPONENT_IDENTIFIER,
+        NTIA_DF_DEPENDENCY,
+        NTIA_DF_AUTHOR,
+        NTIA_DF_TIMESTAMP,
     } <= rule_ids
-    # Taxonomy emitted with single taxon.
-    assert run["taxonomies"][0]["name"] == "2021-ntia-sbom-minimum-elements"
-    taxa = run["taxonomies"][0]["taxa"]
-    assert len(taxa) == 1 and taxa[0]["id"] == "minimum-elements"
-    # Every rule references the taxon.
+
+    # Two taxonomies emitted: categories + clauses.
+    tax_names = [t["name"] for t in run["taxonomies"]]
+    assert NTIA_TAXONOMY_NAME in tax_names
+    assert NTIA_CLAUSE_TAXONOMY_NAME in tax_names
+
+    # Category taxonomy carries every defined NTIA category.
+    category_tax = next(t for t in run["taxonomies"] if t["name"] == NTIA_TAXONOMY_NAME)
+    cat_ids = {t["id"] for t in category_tax["taxa"]}
+    assert {"data-fields", "automation-support", "practices-and-processes"} <= cat_ids
+
+    # Every emitted rule has at least the category-relationship.
     for rule in run["tool"]["driver"]["rules"]:
-        rel = rule["relationships"][0]["target"]
-        assert rel["id"] == "minimum-elements"
-        assert rel["toolComponent"]["name"] == "2021-ntia-sbom-minimum-elements"
+        kinds_to_targets = {
+            tuple(rel["kinds"]): rel["target"] for rel in rule["relationships"]
+        }
+        # category relationship is mandatory
+        assert ("superset",) in kinds_to_targets
+        cat_target = kinds_to_targets[("superset",)]
+        assert cat_target["toolComponent"]["name"] == NTIA_TAXONOMY_NAME
+        assert cat_target["id"] in cat_ids
+        # clause relationship is present when the rule has a ref_section
+        if rule["properties"]["refSection"]:
+            assert ("equal",) in kinds_to_targets
+            clause_target = kinds_to_targets[("equal",)]
+            assert clause_target["toolComponent"]["name"] == NTIA_CLAUSE_TAXONOMY_NAME
+            assert clause_target["id"] == rule["properties"]["refSection"]
 
 
 @pytest.mark.parametrize("test_file", _fixtures("no_elements_missing"))
@@ -83,19 +120,32 @@ def test_sarif_no_elements_missing_fsct3(test_file: str) -> None:
     run = _run(sarif)
     assert not run["results"]
     assert run["properties"]["complianceStandard"] == "fsct3-min"
-    assert (
-        run["taxonomies"][0]["name"] == "2024-cisa-baseline-attributes-minimum-expected"
-    )
-    # Two taxa: one per FSCT3 section.
-    taxa_ids = {t["id"] for t in run["taxonomies"][0]["taxa"]}
-    assert taxa_ids == {"sbom-meta-information", "component-attributes"}
+
+    tax_names = [t["name"] for t in run["taxonomies"]]
+    assert FSCT_TAXONOMY_NAME in tax_names
+    assert FSCT_CLAUSE_TAXONOMY_NAME in tax_names
+
+    category_tax = next(t for t in run["taxonomies"] if t["name"] == FSCT_TAXONOMY_NAME)
+    cat_ids = {t["id"] for t in category_tax["taxa"]}
+    assert {"sbom-meta-information", "component-attributes"} <= cat_ids
+
     rule_ids = {r["id"] for r in run["tool"]["driver"]["rules"]}
-    # FSCT3 catalogue extends NTIA with concluded-license and copyright-text.
-    assert "fsct3.component.concluded-license" in rule_ids
-    assert "fsct3.component.copyright-text" in rule_ids
+    # FSCT3 active rules.
+    assert FSCT_COMP_CONCLUDED_LICENSE in rule_ids
+    assert FSCT_COMP_COPYRIGHT_NOTICE in rule_ids
+    # Catalogue-only rules also appear in the catalogue.
+    assert "FSCT-META-04" in rule_ids  # Primary Component
+    assert "FSCT-COMP-05" in rule_ids  # Cryptographic Hash
+
+    # Clause taxon ids match the §2.2.x section numbers.
+    clause_tax = next(
+        t for t in run["taxonomies"] if t["name"] == FSCT_CLAUSE_TAXONOMY_NAME
+    )
+    clause_ids = {t["id"] for t in clause_tax["taxa"]}
+    assert {"2.2.1.1", "2.2.2.7", "2.2.2.8"} <= clause_ids
 
 
-# ---- Missing-supplier fixtures -> one result per component --------
+# ---- Missing-supplier fixtures -> one result per component --------------
 
 
 @pytest.mark.parametrize("test_file", _fixtures("missing_supplier_name"))
@@ -107,7 +157,7 @@ def test_sarif_missing_supplier_one_result_per_component(test_file: str) -> None
     sarif = checker.output_sarif()
     run = _run(sarif)
     supplier_results = [
-        r for r in run["results"] if r["ruleId"] == "ntia.component.supplier"
+        r for r in run["results"] if r["ruleId"] == NTIA_DF_COMPONENT_SUPPLIER
     ]
     assert len(supplier_results) == len(expected_ids)
     emitted_ids = {
@@ -123,7 +173,7 @@ def test_sarif_missing_supplier_one_result_per_component(test_file: str) -> None
     assert len(run["results"]) > 0
 
 
-# ---- Missing-concluded-license fixtures (FSCT3 only) ----------
+# ---- Missing-concluded-license fixtures (FSCT3 only) --------------------
 
 
 @pytest.mark.parametrize("test_file", _fixtures("missing_concluded_license"))
@@ -132,7 +182,7 @@ def test_sarif_missing_concluded_license_fsct3(test_file: str) -> None:
     sarif = checker.output_sarif()
     run = _run(sarif)
     license_results = [
-        r for r in run["results"] if r["ruleId"] == "fsct3.component.concluded-license"
+        r for r in run["results"] if r["ruleId"] == FSCT_COMP_CONCLUDED_LICENSE
     ]
     expected = {spdx_id for _, spdx_id in checker.components_without_concluded_licenses}
     emitted = {
@@ -142,7 +192,7 @@ def test_sarif_missing_concluded_license_fsct3(test_file: str) -> None:
     assert emitted == expected
 
 
-# ---- Doc-level: missing dependency relationships --------------
+# ---- Doc-level: missing dependency relationships ------------------------
 
 
 @pytest.mark.parametrize("test_file", _fixtures("missing_dependency_relationships"))
@@ -152,18 +202,84 @@ def test_sarif_missing_dependency_relationships(test_file: str) -> None:
         pytest.skip("fixture does declare dependency relationships")
     sarif = checker.output_sarif()
     run = _run(sarif)
-    doc_results = [
-        r
-        for r in run["results"]
-        if r["ruleId"] == "ntia.document.dependency-relationships"
-    ]
+    doc_results = [r for r in run["results"] if r["ruleId"] == NTIA_DF_DEPENDENCY]
     assert len(doc_results) == 1
     loc = doc_results[0]["locations"][0]["logicalLocations"][0]
     assert loc["name"] == "document"
     assert loc["kind"] == "module"
 
 
-# ---- Round-trip: result is JSON-serialisable --------------
+# ---- Catalogue-only rules never produce results -------------------------
+
+
+def test_sarif_catalogue_only_rules_emit_no_results() -> None:
+    """Catalogue-only rules appear in tool.driver.rules but never as findings."""
+    fixture = _fixtures("no_elements_missing")[0]
+    sarif = FSCT3Checker(fixture).output_sarif()
+    run = _run(sarif)
+    catalogue_only_ids = {
+        r["id"]
+        for r in run["tool"]["driver"]["rules"]
+        if r["properties"]["status"] == "catalogue-only"
+    }
+    assert catalogue_only_ids, "fixture must produce at least one catalogue-only rule"
+    emitted_rule_ids = {r["ruleId"] for r in run["results"]}
+    assert emitted_rule_ids.isdisjoint(catalogue_only_ids)
+
+
+# ---- Embed SBOM (--embed-sbom) ------------------------------------------
+
+
+def test_sarif_embed_sbom_off_by_default() -> None:
+    """Default output links the artifact by URI only; no contents embedded."""
+    fixture = _fixtures("no_elements_missing")[0]
+    sarif = NTIAChecker(fixture).output_sarif()
+    run = _run(sarif)
+    artifacts = run.get("artifacts") or []
+    assert artifacts, "artifact entry should always be emitted when input file known"
+    assert "contents" not in artifacts[0]
+    assert "mimeType" not in artifacts[0]
+
+
+def test_sarif_embed_sbom_inlines_file_contents() -> None:
+    """``embed_sbom=True`` writes the source file into artifacts[0].contents."""
+    fixture = next(p for p in _fixtures("no_elements_missing") if p.endswith(".json"))
+    sarif = NTIAChecker(fixture).output_sarif(embed_sbom=True)
+    run = _run(sarif)
+    artifact = run["artifacts"][0]
+    # SPDX 2 JSON has its own registered MIME type.
+    assert artifact["mimeType"] == "application/spdx+json"
+    contents = artifact["contents"]
+    assert "text" in contents
+    # Round-trip: embedded text must equal the file on disk.
+    with open(fixture, encoding="utf-8") as fh:
+        assert contents["text"] == fh.read()
+
+
+def test_sarif_mime_type_picker() -> None:
+    """Direct unit test for the MIME-type picker; covers SPDX 2 vs SPDX 3 split."""
+    # pylint: disable=import-outside-toplevel
+    from ntia_conformance_checker.sarif_output import _sbom_mime_type
+
+    # SPDX 2 JSON -- registered.
+    assert _sbom_mime_type("foo.spdx.json", "spdx2") == "application/spdx+json"
+    # SPDX 3 JSON-LD -- application/spdx3+json not yet IANA-registered,
+    # so we fall back to the registered generic JSON-LD type.
+    assert _sbom_mime_type("foo.spdx.json", "spdx3") == "application/ld+json"
+    # Compound .rdf.xml must be detected as RDF/XML, not bare XML.
+    assert _sbom_mime_type("foo.spdx.rdf.xml") == "application/rdf+xml"
+    # SPDX 2 XML is *not* RDF -- generic application/xml.
+    assert _sbom_mime_type("foo.spdx.xml") == "application/xml"
+    # Tag-value -- plain text is the closest registered type.
+    assert _sbom_mime_type("foo.spdx") == "text/plain"
+    # YAML -- generic registered type (no SPDX-specific MIME).
+    assert _sbom_mime_type("foo.spdx.yaml") == "application/yaml"
+    assert _sbom_mime_type("foo.spdx.yml") == "application/yaml"
+    # Unknown -> octet-stream.
+    assert _sbom_mime_type("foo.weird") == "application/octet-stream"
+
+
+# ---- Round-trip: result is JSON-serialisable ----------------------------
 
 
 def test_sarif_round_trip_json_serializable() -> None:

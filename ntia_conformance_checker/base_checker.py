@@ -120,10 +120,18 @@ class BaseChecker(ABC):
         """Validation messages from SPDX document validation."""
         return self._validation_messages
 
+    _SPEC: "Spec"
+    """Subclass-defined class attribute holding the standard's Spec instance."""
+
     @property
-    @abstractmethod
     def spec(self) -> "Spec":
-        """The compliance specification for this checker."""
+        """The compliance specification for this checker.
+
+        Defaults to reading the subclass's ``_SPEC`` class attribute.
+        Subclasses that need dynamic spec resolution may override this
+        property instead of defining ``_SPEC``.
+        """
+        return self._SPEC
 
     @abstractmethod
     def check_compliance(self) -> bool:
@@ -872,13 +880,21 @@ class BaseChecker(ABC):
 
         return result
 
-    def output_sarif(self) -> dict[str, Any]:
+    def output_sarif(self, *, embed_sbom: bool = False) -> dict[str, Any]:
         """
         Create a SARIF result log.
 
-        The output uses lowercase kebab-case rule and taxon ids so the
-        same identifiers can be reused by a future OSCAL exporter as
-        ``control`` / ``group`` ids without remapping.
+        The output uses ``[SPEC]-[CATEGORY]-[NN]`` rule ids (see
+        :file:`RULES.md`).  Identifiers are chosen so the same strings can be
+        reused by a future OSCAL exporter as ``control`` / ``group`` ids
+        without remapping.
+
+        Args:
+            embed_sbom: When ``True``, embed the source SBOM file content in
+                ``runs[0].artifacts[0].contents`` so downstream SARIF viewers
+                can render the artifact alongside results from a single log
+                file.  Default is ``False`` (link by URI only) -- embedding
+                significantly increases the log size.
 
         Subclasses may override to provide custom fields.
         """
@@ -887,4 +903,4 @@ class BaseChecker(ABC):
         # pylint: disable=import-outside-toplevel
         from .sarif_output import build_sarif
 
-        return build_sarif(self)
+        return build_sarif(self, embed_sbom=embed_sbom)

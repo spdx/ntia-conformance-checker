@@ -122,6 +122,18 @@ def get_parsed_args() -> argparse.Namespace:
         help="Filepath for report output; if omitted, prints to console",
     )
     parser.add_argument(
+        "--embed-sbom",
+        action="store_true",
+        default=False,
+        help=(
+            "Embed the input SBOM contents in the SARIF output "
+            "(runs[0].artifacts[0].contents).  Silences SARIF2013 and lets "
+            "downstream SARIF viewers render the source artifact from a "
+            "single log file.  Only meaningful with --output sarif.  "
+            "Significantly increases output size.  [default: off]"
+        ),
+    )
+    parser.add_argument(
         "--output_path",  # for backward compatibility
         dest="output_file",
         help=argparse.SUPPRESS,  # hide from help
@@ -269,7 +281,12 @@ def get_sbom_spec(file: str, sbom_spec: str) -> str:
 
 
 def print_output(
-    sbom: BaseChecker, *, output_type: str, output_file: str | None, verbose: bool
+    sbom: BaseChecker,
+    *,
+    output_type: str,
+    output_file: str | None,
+    verbose: bool,
+    embed_sbom: bool = False,
 ) -> None:
     """Print or save the output report."""
     match output_type:
@@ -287,7 +304,7 @@ def print_output(
                 print(json.dumps(result_dict, indent=2))
 
         case "sarif":
-            sarif_dict: dict[str, Any] = sbom.output_sarif()
+            sarif_dict: dict[str, Any] = sbom.output_sarif(embed_sbom=embed_sbom)
             if output_file:
                 with open(output_file, "w", encoding="utf-8") as outfile:
                     json.dump(sarif_dict, outfile, indent=2)

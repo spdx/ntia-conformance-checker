@@ -54,6 +54,7 @@ def main() -> None:
         output_type=args.output,
         output_file=args.output_file,
         verbose=args.verbose,
+        embed_sbom=getattr(args, "embed_sbom", False),
     )
 
     sys.exit(0 if sbom.compliant else 1)  # 0 indicates success

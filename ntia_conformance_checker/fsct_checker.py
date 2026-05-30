@@ -1,4 +1,4 @@
-# SPDX-FileCopyrightText: 2024-present SPDX contributors
+# SPDX-FileCopyrightText: 2024-2025 SPDX contributors
 # SPDX-FileType: SOURCE
 # SPDX-License-Identifier: Apache-2.0
 
@@ -6,54 +6,242 @@
 
 from __future__ import annotations
 
-from dataclasses import replace
-
 from .base_checker import BaseChecker
-from .ntia_checker import NTIA_COMPONENT_RULES, NTIA_DOCUMENT_RULES
-from .spec import Spec, SpecRule, SpecTaxon
+from .spec import Spec, SpecCategory, SpecRule
 
-# URL for the FSCTv3 baseline attributes standard.
+# General URL for the FSCTv3 Common BOM standard.
 FSCT3_HELP_URI = (
     "https://www.cisa.gov/resources-tools/resources/"
     "framing-software-component-transparency-2024"
 )
 
-# Component-level rules added by FSCT3 on top of the NTIA baseline.
-# These are Component Attributes (section 2.2.2) so they carry that cluster.
-FSCT3_EXTRA_COMPONENT_RULES: tuple[SpecRule, ...] = (
-    SpecRule(
-        element_id="concluded_license",
-        element_name="component concluded license",
-        report_label="All component concluded license provided?",
-        kind="list",
-        cluster="component-attributes",
-        attr="components_without_concluded_licenses",
-        getter="get_components_without_concluded_licenses",
-        json_key="componentConcludedLicenses",
-        sarif_rule_id="fsct3.component.concluded-license",
-        sarif_rule_name="ComponentConcludedLicenseMissing",
+# Categories defined by FSCT §2.2 / §2.3.  See RULES.md for the namespace
+# plan; ``sbom-meta-information`` and ``component-attributes`` carry active
+# rules; ``undeclared-sbom-data`` is reserved for future checks.
+FSCT_CATEGORIES: tuple[SpecCategory, ...] = (
+    SpecCategory(
+        id="sbom-meta-information",
+        code="META",
+        title="SBOM Meta-Information",
+        description="Meta-information about the SBOM itself (§2.2.1).",
     ),
-    SpecRule(
-        element_id="copyright_text",
-        element_name="component copyright text",
-        report_label="All component copyright notice provided?",
-        kind="list",
-        cluster="component-attributes",
-        attr="components_without_copyright_texts",
-        getter="get_components_without_copyright_texts",
-        json_key="componentCopyrightTexts",
-        sarif_rule_id="fsct3.component.copyright-text",
-        sarif_rule_name="ComponentCopyrightTextMissing",
+    SpecCategory(
+        id="component-attributes",
+        code="COMP",
+        title="Component Attributes",
+        description="Per-component baseline attributes (§2.2.2).",
+    ),
+    SpecCategory(
+        id="undeclared-sbom-data",
+        code="UNDEC",
+        title="Undeclared SBOM Data",
+        description="Handling of unknown / redacted / missing data (§2.3).",
     ),
 )
 
-# FSCT3-specific copies of the shared NTIA rules, tagged with their section cluster.
-_FSCT3_COMPONENT_RULES: tuple[SpecRule, ...] = tuple(
-    replace(r, cluster="component-attributes") for r in NTIA_COMPONENT_RULES
+# Meta-information rules (FSCT-META-01..04, §2.2.1).
+_FSCT_META_RULES: tuple[SpecRule, ...] = (
+    SpecRule(
+        category="sbom-meta-information",
+        number=1,
+        slug="fsct-author-name",
+        element_id="author",
+        sarif_rule_name="FsctAuthorNameMissing",
+        attr="doc_author",
+        label="SBOM author name provided?",
+        kind="bool",
+        description="SBOM author",
+        warning="An SBOM should have an author name.",
+        ref_section="2.2.1.1",
+        ref_title="Author Name",
+        ref_url=FSCT3_HELP_URI,
+        json_key="authorNameProvided",
+    ),
+    SpecRule(
+        category="sbom-meta-information",
+        number=2,
+        slug="fsct-timestamp",
+        element_id="timestamp",
+        sarif_rule_name="FsctTimestampMissing",
+        attr="doc_timestamp",
+        label="SBOM creation timestamp provided?",
+        kind="bool",
+        description="SBOM creation timestamp",
+        warning="An SBOM should have a creation timestamp.",
+        ref_section="2.2.1.2",
+        ref_title="Timestamp",
+        ref_url=FSCT3_HELP_URI,
+        json_key="timestampProvided",
+    ),
+    SpecRule(
+        category="sbom-meta-information",
+        number=3,
+        slug="fsct-sbom-type",
+        element_id="type",
+        sarif_rule_name="FsctSbomTypeMissing",
+        attr="_fsct_sbom_type",  # not implemented; catalogue-only
+        label="SBOM Type provided?",
+        kind="bool",
+        description="SBOM type",
+        warning="An SBOM should declare its type.",
+        ref_section="2.2.1.3",
+        ref_title="Type",
+        ref_url=FSCT3_HELP_URI,
+        maturity="aspirational",
+        status="catalogue-only",
+    ),
+    SpecRule(
+        category="sbom-meta-information",
+        number=4,
+        slug="fsct-primary-component",
+        element_id="primary_component",
+        sarif_rule_name="FsctPrimaryComponentMissing",
+        attr="_fsct_primary_component",  # not implemented; catalogue-only
+        label="Primary Component (root of dependencies) provided?",
+        kind="bool",
+        description="primary component (root of dependencies)",
+        warning="An SBOM should identify a primary component.",
+        ref_section="2.2.1.4",
+        ref_title="Primary Component (or Root of Dependencies)",
+        ref_url=FSCT3_HELP_URI,
+        status="catalogue-only",
+    ),
 )
-_FSCT3_DOCUMENT_RULES: tuple[SpecRule, ...] = tuple(
-    replace(r, cluster="sbom-meta-information") for r in NTIA_DOCUMENT_RULES
+
+# Component-attribute rules (FSCT-COMP-01..08, §2.2.2).
+_FSCT_COMP_RULES: tuple[SpecRule, ...] = (
+    SpecRule(
+        category="component-attributes",
+        number=1,
+        slug="fsct-component-name",
+        element_id="name",
+        sarif_rule_name="FsctComponentNameMissing",
+        attr="components_without_names",
+        label="All component names provided?",
+        kind="list",
+        description="component name",
+        warning="An SBOM component should have a name.",
+        ref_section="2.2.2.1",
+        ref_title="Component Name",
+        ref_url=FSCT3_HELP_URI,
+        json_key="componentNames",
+    ),
+    SpecRule(
+        category="component-attributes",
+        number=2,
+        slug="fsct-component-version",
+        element_id="version",
+        sarif_rule_name="FsctComponentVersionMissing",
+        attr="components_without_versions",
+        label="All component versions provided?",
+        kind="list",
+        description="component version",
+        warning="An SBOM component should have a version.",
+        ref_section="2.2.2.2",
+        ref_title="Version",
+        ref_url=FSCT3_HELP_URI,
+        json_key="componentVersions",
+    ),
+    SpecRule(
+        category="component-attributes",
+        number=3,
+        slug="fsct-supplier-name",
+        element_id="supplier",
+        sarif_rule_name="FsctSupplierNameMissing",
+        attr="components_without_suppliers",
+        label="All component suppliers provided?",
+        kind="list",
+        description="component supplier",
+        warning="An SBOM component should have a supplier name.",
+        ref_section="2.2.2.3",
+        ref_title="Supplier Name",
+        ref_url=FSCT3_HELP_URI,
+        json_key="componentSuppliers",
+    ),
+    SpecRule(
+        category="component-attributes",
+        number=4,
+        slug="fsct-unique-identifier",
+        element_id="identifier",
+        sarif_rule_name="FsctUniqueIdentifierMissing",
+        attr="components_without_identifiers",
+        label="All component identifiers provided?",
+        kind="list",
+        description="component identifier",
+        warning="An SBOM component should have a unique identifier.",
+        ref_section="2.2.2.4",
+        ref_title="Unique Identifier",
+        ref_url=FSCT3_HELP_URI,
+        json_key="componentIdentifiers",
+    ),
+    SpecRule(
+        category="component-attributes",
+        number=5,
+        slug="fsct-cryptographic-hash",
+        element_id="cryptographic_hash",
+        sarif_rule_name="FsctCryptographicHashMissing",
+        attr="_fsct_components_without_hashes",  # not implemented; catalogue-only
+        label="All component cryptographic hashes provided?",
+        kind="list",
+        description="component cryptographic hash",
+        warning="An SBOM component should have a cryptographic hash.",
+        ref_section="2.2.2.5",
+        ref_title="Cryptographic Hash",
+        ref_url=FSCT3_HELP_URI,
+        status="catalogue-only",
+    ),
+    SpecRule(
+        category="component-attributes",
+        number=6,
+        slug="fsct-relationship",
+        element_id="relationship",
+        sarif_rule_name="FsctRelationshipMissing",
+        attr="_fsct_components_without_relationships",  # not implemented
+        label="All component relationships provided?",
+        kind="list",
+        description="component relationship and completeness",
+        warning="An SBOM component should declare its relationship and completeness.",
+        ref_section="2.2.2.6",
+        ref_title="Relationship",
+        ref_url=FSCT3_HELP_URI,
+        status="catalogue-only",
+    ),
+    SpecRule(
+        category="component-attributes",
+        number=7,
+        slug="fsct-concluded-license",
+        element_id="concluded_license",
+        sarif_rule_name="FsctConcludedLicenseMissing",
+        attr="components_without_concluded_licenses",
+        label="All component concluded license provided?",
+        kind="list",
+        description="component concluded license",
+        warning="An SBOM component should have a concluded license.",
+        ref_section="2.2.2.7",
+        ref_title="License",
+        ref_url=FSCT3_HELP_URI,
+        json_key="componentConcludedLicenses",
+    ),
+    SpecRule(
+        category="component-attributes",
+        number=8,
+        slug="fsct-copyright-notice",
+        element_id="copyright_text",
+        sarif_rule_name="FsctCopyrightNoticeMissing",
+        attr="components_without_copyright_texts",
+        label="All component copyright notice provided?",
+        kind="list",
+        description="component copyright text",
+        warning="An SBOM component should have a copyright notice.",
+        ref_section="2.2.2.8",
+        ref_title="Copyright Notice",
+        ref_url=FSCT3_HELP_URI,
+        json_key="componentCopyrightNotices",
+    ),
 )
+
+# Full FSCT3 rule catalogue.
+FSCT_RULES: tuple[SpecRule, ...] = _FSCT_META_RULES + _FSCT_COMP_RULES
 
 
 class FSCT3Checker(BaseChecker):
@@ -82,31 +270,15 @@ class FSCT3Checker(BaseChecker):
     ]
 
     _SPEC: Spec = Spec(
-        standard_short_id="fsct3-min",
-        standard_id="2024-cisa-baseline-attributes-minimum-expected",
-        standard_name=(
-            "2024 CISA Framing Software Component Transparency (Minimum Expected)"
-        ),
-        rules=_FSCT3_DOCUMENT_RULES
-        + _FSCT3_COMPONENT_RULES
-        + FSCT3_EXTRA_COMPONENT_RULES,
+        standard_id="fsct3-min",
+        spec_code="FSCT",
+        title="FSCTv3 Common BOM (Minimum Expected)",
         help_uri=FSCT3_HELP_URI,
-        taxa=(
-            SpecTaxon(
-                taxon_id="sbom-meta-information",
-                taxon_name="SBOM Meta-Information",
-            ),
-            SpecTaxon(
-                taxon_id="component-attributes",
-                taxon_name="Component Attributes",
-            ),
-        ),
+        sarif_taxonomy_name="fsct-baseline-attributes",
+        sarif_clause_taxonomy_name="fsct-clauses",
+        categories=FSCT_CATEGORIES,
+        rules=FSCT_RULES,
     )
-
-    @property
-    def spec(self) -> Spec:
-        """The FSCT3 compliance specification for this checker."""
-        return self._SPEC
 
     def __init__(
         self,

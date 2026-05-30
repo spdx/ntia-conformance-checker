@@ -1,4 +1,4 @@
-# SPDX-FileCopyrightText: 2024-present SPDX contributors
+# SPDX-FileCopyrightText: 2024-2025 SPDX contributors
 # SPDX-FileType: SOURCE
 # SPDX-License-Identifier: Apache-2.0
 
@@ -9,105 +9,154 @@ from __future__ import annotations
 import warnings
 
 from .base_checker import BaseChecker
-from .spec import Spec, SpecRule, SpecTaxon
+from .spec import Spec, SpecCategory, SpecRule
 
-# URL for the NTIA Minimum Elements standard.
-# Used as the fallback help URL for every rule in the NTIA catalogue.
+# General URL for the NTIA Minimum Elements standard.  Used as the fallback
+# help URL for every rule in the NTIA catalogue.
 NTIA_HELP_URI = (
     "https://www.ntia.gov/report/2021/minimum-elements-software-bill-materials-sbom"
 )
 
-# Document-level rules
-# We need a uniform naming convention for rule ids.
-# ---
-# From https://sarifweb.azurewebsites.net/Validation
-# SARIF2009: Adopt uniform naming conventions for rule ids.
-# Many tools follow a conventional format for the 'reportingDescriptor.id'
-# property: a short string identifying the tool concatenated with a numeric
-# rule number, for example, 'CS2001' for a diagnostic from the Roslyn C#
-# compiler. For uniformity of experience across tools, we recommend this
-# format.
-NTIA_DOCUMENT_RULES: tuple[SpecRule, ...] = (
-    SpecRule(
-        element_id="doc_author",
-        element_name="SBOM author",
-        report_label="SBOM author name provided?",
-        kind="bool",
-        attr="doc_author",
-        getter="check_author",
-        json_key="authorNameProvided",
-        sarif_rule_id="ntia.document.author",
-        sarif_rule_name="DocumentAuthorMissing",
+# Categories defined by NTIA §IV.  See RULES.md for the namespace plan;
+# only ``data-fields`` has active rules today.
+NTIA_CATEGORIES: tuple[SpecCategory, ...] = (
+    SpecCategory(
+        id="data-fields",
+        code="DF",
+        title="Data Fields",
+        description="Baseline information about each component that should be tracked.",
     ),
-    SpecRule(
-        element_id="doc_timestamp",
-        element_name="SBOM creation timestamp",
-        report_label="SBOM creation timestamp provided?",
-        kind="bool",
-        attr="doc_timestamp",
-        getter="check_timestamp",
-        json_key="timestampProvided",
-        sarif_rule_id="ntia.document.timestamp",
-        sarif_rule_name="DocumentTimestampMissing",
+    SpecCategory(
+        id="automation-support",
+        code="AS",
+        title="Automation Support",
+        description="Support for automation including machine-readable formats.",
     ),
-    SpecRule(
-        element_id="dependency_relationships",
-        element_name="dependency relationships",
-        report_label="Dependency relationships provided?",
-        kind="bool",
-        attr="dependency_relationships",
-        getter="check_dependency_relationships",
-        json_key="dependencyRelationshipsProvided",
-        sarif_rule_id="ntia.document.dependency-relationships",
-        sarif_rule_name="DocumentDependencyRelationshipsMissing",
+    SpecCategory(
+        id="practices-and-processes",
+        code="PP",
+        title="Practices and Processes",
+        description="Operational practices for SBOM creation, exchange, and consumption.",
     ),
 )
 
-# Component-level rules
+# Component-level Data Fields rules (NTIA-DF-01..04).
 NTIA_COMPONENT_RULES: tuple[SpecRule, ...] = (
     SpecRule(
-        element_id="name",
-        element_name="component name",
-        report_label="All component names provided?",
-        kind="list",
-        attr="components_without_names",
-        getter="get_components_without_names",
-        json_key="componentNames",
-        sarif_rule_id="ntia.component.name",
-        sarif_rule_name="ComponentNameMissing",
-    ),
-    SpecRule(
-        element_id="version",
-        element_name="component version",
-        report_label="All component versions provided?",
-        kind="list",
-        attr="components_without_versions",
-        getter="get_components_without_versions",
-        json_key="componentVersions",
-        sarif_rule_id="ntia.component.version",
-        sarif_rule_name="ComponentVersionMissing",
-    ),
-    SpecRule(
-        element_id="identifier",
-        element_name="component identifier",
-        report_label="All component identifiers provided?",
-        kind="list",
-        attr="components_without_identifiers",
-        getter="get_components_without_identifiers",
-        json_key="componentIdentifiers",
-        sarif_rule_id="ntia.component.identifier",
-        sarif_rule_name="ComponentIdentifierMissing",
-    ),
-    SpecRule(
+        category="data-fields",
+        number=1,
+        slug="ntia-supplier-name",
         element_id="supplier",
-        element_name="component supplier",
-        report_label="All component suppliers provided?",
-        kind="list",
+        sarif_rule_name="NtiaComponentSupplierMissing",
         attr="components_without_suppliers",
-        getter="get_components_without_suppliers",
+        label="All component suppliers provided?",
+        kind="list",
+        description="component supplier",
+        warning="An SBOM component should have a supplier name.",
+        ref_section="IV",
+        ref_title="Data Fields -- Supplier Name",
+        ref_url=NTIA_HELP_URI,
         json_key="componentSuppliers",
-        sarif_rule_id="ntia.component.supplier",
-        sarif_rule_name="ComponentSupplierMissing",
+    ),
+    SpecRule(
+        category="data-fields",
+        number=2,
+        slug="ntia-component-name",
+        element_id="name",
+        sarif_rule_name="NtiaComponentNameMissing",
+        attr="components_without_names",
+        label="All component names provided?",
+        kind="list",
+        description="component name",
+        warning="An SBOM component should have a name.",
+        ref_section="IV",
+        ref_title="Data Fields -- Component Name",
+        ref_url=NTIA_HELP_URI,
+        json_key="componentNames",
+    ),
+    SpecRule(
+        category="data-fields",
+        number=3,
+        slug="ntia-component-version",
+        element_id="version",
+        sarif_rule_name="NtiaComponentVersionMissing",
+        attr="components_without_versions",
+        label="All component versions provided?",
+        kind="list",
+        description="component version",
+        warning="An SBOM component should have a version.",
+        ref_section="IV",
+        ref_title="Data Fields -- Version of the Component",
+        ref_url=NTIA_HELP_URI,
+        json_key="componentVersions",
+    ),
+    SpecRule(
+        category="data-fields",
+        number=4,
+        slug="ntia-unique-identifier",
+        element_id="identifier",
+        sarif_rule_name="NtiaComponentIdentifierMissing",
+        attr="components_without_identifiers",
+        label="All component identifiers provided?",
+        kind="list",
+        description="component identifier",
+        warning="An SBOM component should have a unique identifier.",
+        ref_section="IV",
+        ref_title="Data Fields -- Other Unique Identifiers",
+        ref_url=NTIA_HELP_URI,
+        json_key="componentIdentifiers",
+    ),
+)
+
+# Document-level Data Fields rules (NTIA-DF-05..07).
+NTIA_DOCUMENT_RULES: tuple[SpecRule, ...] = (
+    SpecRule(
+        category="data-fields",
+        number=5,
+        slug="ntia-dependency-relationship",
+        element_id="dependency_relationship",
+        sarif_rule_name="NtiaDependencyRelationshipsMissing",
+        attr="dependency_relationships",
+        label="Dependency relationships provided?",
+        kind="bool",
+        description="dependency relationships",
+        warning="An SBOM should declare dependency relationships.",
+        ref_section="IV",
+        ref_title="Data Fields -- Dependency Relationship",
+        ref_url=NTIA_HELP_URI,
+        json_key="dependencyRelationshipsProvided",
+    ),
+    SpecRule(
+        category="data-fields",
+        number=6,
+        slug="ntia-sbom-author",
+        element_id="author",
+        sarif_rule_name="NtiaSbomAuthorMissing",
+        attr="doc_author",
+        label="SBOM author name provided?",
+        kind="bool",
+        description="SBOM author",
+        warning="An SBOM should have an author name.",
+        ref_section="IV",
+        ref_title="Data Fields -- Author of SBOM Data",
+        ref_url=NTIA_HELP_URI,
+        json_key="authorNameProvided",
+    ),
+    SpecRule(
+        category="data-fields",
+        number=7,
+        slug="ntia-sbom-timestamp",
+        element_id="timestamp",
+        sarif_rule_name="NtiaSbomTimestampMissing",
+        attr="doc_timestamp",
+        label="SBOM creation timestamp provided?",
+        kind="bool",
+        description="SBOM creation timestamp",
+        warning="An SBOM should have a creation timestamp.",
+        ref_section="IV",
+        ref_title="Data Fields -- Timestamp",
+        ref_url=NTIA_HELP_URI,
+        json_key="timestampProvided",
     ),
 )
 
@@ -123,23 +172,15 @@ class NTIAChecker(BaseChecker):
     MIN_ELEMENTS = ["name", "version", "identifier", "supplier"]
 
     _SPEC: Spec = Spec(
-        standard_short_id="ntia",
-        standard_id="2021-ntia-sbom-minimum-elements",
-        standard_name="2021 NTIA SBOM Minimum Elements",
-        rules=NTIA_DOCUMENT_RULES + NTIA_COMPONENT_RULES,
+        standard_id="ntia",
+        spec_code="NTIA",
+        title="NTIA Minimum Elements",
         help_uri=NTIA_HELP_URI,
-        taxa=(
-            SpecTaxon(
-                taxon_id="minimum-elements",
-                taxon_name="Minimum Elements",
-            ),
-        ),
+        sarif_taxonomy_name="ntia-minimum-elements",
+        sarif_clause_taxonomy_name="ntia-clauses",
+        categories=NTIA_CATEGORIES,
+        rules=NTIA_COMPONENT_RULES + NTIA_DOCUMENT_RULES,
     )
-
-    @property
-    def spec(self) -> Spec:
-        """The NTIA compliance specification for this checker."""
-        return self._SPEC
 
     def __init__(
         self,

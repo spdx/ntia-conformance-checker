@@ -1,44 +1,123 @@
-# SPDX-FileCopyrightText: 2026-present SPDX contributors
+# SPDX-FileCopyrightText: 2026 SPDX contributors
 # SPDX-FileType: SOURCE
 # SPDX-License-Identifier: Apache-2.0
 
-"""SARIF output builder for BaseChecker results.
+"""SARIF 2.1.0 output builder for BaseChecker results.
 
-The Static Analysis Results Interchange Format (SARIF) is a standardized,
-JSON-based data format used to share and aggregate the outputs of static
-analysis tools (like security scanners and linters).
-https://docs.oasis-open.org/sarif/sarif/v2.1.0/sarif-v2.1.0.html
-
-Reads the checker's ``_SPEC`` (:class:`Spec` of :class:`SpecRule` entries)
+Reads the checker's ``_SPEC`` (a :class:`Spec` of :class:`SpecRule` entries)
 as the single source of truth for the rule catalogue.
 
-Rule ids and taxon ids are chosen so they can double as OSCAL
-``control`` / ``group`` ids in a future ``output_oscal()`` exporter
-without remapping.
+The emitted log contains two taxonomies:
+
+1. **Category taxonomy** -- ``ToolComponent`` whose name is
+   :attr:`Spec.sarif_taxonomy_name` (e.g. ``ntia-minimum-elements``).  One
+   taxon per :class:`SpecCategory`.  Each rule has a ``relationships`` entry
+   with ``kinds: ["superset"]`` pointing at its category taxon.
+
+2. **Clause taxonomy** -- ``ToolComponent`` whose name is
+   :attr:`Spec.sarif_clause_taxonomy_name` (e.g. ``fsct-clauses``).  One
+   taxon per distinct :attr:`SpecRule.ref_section` value.  Each rule has a
+   second ``relationships`` entry with ``kinds: ["equal"]`` pointing at its
+   clause taxon.  Disabled if the spec leaves the clause taxonomy name empty.
+
+Rule and taxon ids are OSCAL-control-id-shaped (see ``RULES.md``) so a future
+``output_oscal()`` exporter can reuse them as ``catalog`` / ``group`` /
+``control`` ids without remapping.
 """
 
 from __future__ import annotations
 
+import base64
 import os
+from importlib.metadata import PackageNotFoundError, version
 from typing import TYPE_CHECKING, Any
-
-from .constants import TOOL_NAME, TOOL_URI, TOOL_VERSION
 
 if TYPE_CHECKING:
     from .base_checker import BaseChecker
-    from .spec import Spec, SpecRule
+    from .spec import Spec, SpecCategory, SpecRule
+
 
 SARIF_VERSION = "2.1.0"
 SARIF_SCHEMA = "https://json.schemastore.org/sarif-2.1.0.json"
+TOOL_NAME = "ntia-conformance-checker"
+TOOL_URI = "https://github.com/spdx/ntia-conformance-checker"
+
+
+# Fallback MIME type when nothing more specific applies.
+_DEFAULT_MIME_TYPE = "application/octet-stream"
 
 
 # ---- Helpers --------------------------------------------------------------
+
+
+def _tool_version() -> str:
+    try:
+        return version("ntia-conformance-checker")
+    except PackageNotFoundError:
+        return "0.0.0"
 
 
 def _artifact_uri(checker: "BaseChecker") -> str:
     """Use the input file's basename as the artifact URI."""
     path = getattr(checker, "file", "") or ""
     return os.path.basename(path) if path else ""
+
+
+def _sbom_mime_type(path: str, sbom_spec: str = "") -> str:
+    """Return a best-guess MIME type for an SBOM file.
+
+    Uses the file extension and -- when ambiguous -- the ``sbom_spec`` hint
+    (``"spdx2"`` or ``"spdx3"``).  The registry situation is uneven:
+
+    * ``application/spdx+json`` is registered with IANA, but **only covers
+      SPDX 2.x**.  An ``application/spdx3+json`` registration has been
+      submitted but not yet approved, so SPDX 3 JSON-LD falls back to the
+      registered generic ``application/ld+json``.
+    * SPDX 2 XML (a bespoke XML schema, not RDF) has no registered MIME
+      type; ``application/xml`` is the safest accurate value.
+    * SPDX 2 RDF/XML (often suffixed ``.rdf.xml``) uses the registered
+      ``application/rdf+xml``.
+    * Tag-value (``.spdx``) has no registered MIME type; ``text/plain``
+      is closest.
+    * CycloneDX uses ``application/vnd.cyclonedx+json`` (registered) for
+      JSON; unimplemented here since this tool currently only emits SPDX.
+    """
+    lower = path.lower()
+    if lower.endswith(".rdf.xml") or lower.endswith(".rdf"):
+        return "application/rdf+xml"
+    if lower.endswith(".xml"):
+        # SPDX 2 XML serialisation; no registered SPDX-specific MIME type.
+        return "application/xml"
+    if lower.endswith(".json"):
+        # SPDX 3 is JSON-LD; SPDX 2 has its own registered JSON MIME type.
+        if sbom_spec == "spdx3":
+            return "application/ld+json"
+        return "application/spdx+json"
+    if lower.endswith((".yaml", ".yml")):
+        return "application/yaml"
+    if lower.endswith(".spdx"):
+        # SPDX 2 tag-value -- closest registered type is plain text.
+        return "text/plain"
+    return _DEFAULT_MIME_TYPE
+
+
+def _artifact_contents(path: str) -> dict[str, Any] | None:
+    """Read ``path`` and return a SARIF ``artifact.contents`` object.
+
+    Tries UTF-8 first (every SPDX serialisation in active use today is text).
+    Falls back to base64 binary for anything that does not decode cleanly so
+    the embed flag still works for unusual inputs.  Returns ``None`` if the
+    file cannot be opened.
+    """
+    try:
+        with open(path, "rb") as handle:
+            data = handle.read()
+    except OSError:
+        return None
+    try:
+        return {"text": data.decode("utf-8")}
+    except UnicodeDecodeError:
+        return {"binary": base64.b64encode(data).decode("ascii")}
 
 
 def _logical_location_for_component(name: str, spdx_id: str) -> dict[str, Any]:
@@ -52,64 +131,158 @@ def _logical_location_for_component(name: str, spdx_id: str) -> dict[str, Any]:
 # ---- Rule emission --------------------------------------------------------
 
 
+def _rule_relationships(spec: "Spec", rule: "SpecRule") -> list[dict[str, Any]]:
+    """Build the ``relationships`` list for a rule.
+
+    Always includes a ``superset`` relationship pointing at the rule's
+    category taxon.  If the spec defines a clause taxonomy *and* the rule has
+    a ``ref_section``, also includes an ``equal`` relationship pointing at
+    the clause taxon.
+    """
+    rels: list[dict[str, Any]] = [
+        {
+            "target": {
+                "id": rule.category,
+                "toolComponent": {"name": spec.sarif_taxonomy_name},
+            },
+            "kinds": ["superset"],
+        }
+    ]
+    if spec.sarif_clause_taxonomy_name and rule.ref_section:
+        rels.append(
+            {
+                "target": {
+                    "id": rule.ref_section,
+                    "toolComponent": {"name": spec.sarif_clause_taxonomy_name},
+                },
+                "kinds": ["equal"],
+            }
+        )
+    return rels
+
+
 def _emit_rule(spec: "Spec", rule: "SpecRule") -> dict[str, Any]:
     """Build a SARIF ``reportingDescriptor`` for ``rule``."""
+    rule_id = spec.rule_id(rule)
+    short_text = rule.warning or f"{rule.description.capitalize()} is missing."
     descriptor: dict[str, Any] = {
-        "id": rule.sarif_rule_id,
+        "id": rule_id,
         "name": rule.sarif_rule_name,
-        "shortDescription": {"text": f"{rule.element_name.capitalize()} is missing."},
+        "shortDescription": {"text": short_text},
         "fullDescription": {
             "text": (
-                f"The SBOM must provide {rule.element_name}.  "
+                f"The SBOM must provide {rule.description}.  "
                 "A result is emitted for every component (or once at the "
                 "document level) where this element is absent."
             )
         },
-        "defaultConfiguration": {"level": "error"},
+        "defaultConfiguration": {"level": spec.sarif_level(rule)},
         "helpUri": spec.rule_help_uri(rule),
-        "help": {
-            "text": (
-                f"{rule.element_name.capitalize()} is required.  "
-                f"See {spec.rule_help_uri(rule)}"
-            ),
-            "markdown": (
-                f"**{rule.element_name.capitalize()}** is required.  "
-                f"See <{spec.rule_help_uri(rule)}>"
-            ),
+        "relationships": _rule_relationships(spec, rule),
+        "properties": {
+            "slug": rule.slug,
+            "elementId": rule.element_id,
+            "category": rule.category,
+            "maturity": rule.maturity,
+            "status": rule.status,
+            "refSection": rule.ref_section,
+            "refTitle": rule.ref_title,
+            "oscalControlId": spec.oscal_control_id(rule),
         },
-        "relationships": [
-            {
-                "target": {
-                    "id": (
-                        taxon.taxon_id if (taxon := spec.taxon_for_rule(rule)) else ""
-                    ),
-                    "toolComponent": {"name": spec.standard_id},
-                },
-                "kinds": ["superset"],
-            }
-        ],
     }
     return descriptor
+
+
+# ---- Taxonomy emission ----------------------------------------------------
+
+
+def _category_taxon(category: "SpecCategory", spec_title: str) -> dict[str, Any]:
+    """Build a SARIF taxon for a :class:`SpecCategory`."""
+    short = category.description or f"{category.title} category of {spec_title}."
+    return {
+        "id": category.id,
+        "name": category.title,
+        "shortDescription": {"text": short},
+    }
+
+
+def _clause_taxa(spec: "Spec") -> list[dict[str, Any]]:
+    """Build one taxon per distinct ref_section in the spec's emitted rules.
+
+    Order follows the first occurrence of each ref_section in
+    :meth:`Spec.emitted_rules`.
+    """
+    seen: dict[str, dict[str, Any]] = {}
+    for rule in spec.emitted_rules():
+        if not rule.ref_section or rule.ref_section in seen:
+            continue
+        seen[rule.ref_section] = {
+            "id": rule.ref_section,
+            "name": rule.ref_title or rule.ref_section,
+            "shortDescription": {
+                "text": (
+                    f"{spec.title} clause {rule.ref_section}"
+                    + (f": {rule.ref_title}." if rule.ref_title else ".")
+                )
+            },
+        }
+    return list(seen.values())
+
+
+def _taxonomies(spec: "Spec") -> list[dict[str, Any]]:
+    """Build the ``taxonomies`` array (category + optional clause)."""
+    category_taxonomy: dict[str, Any] = {
+        "name": spec.sarif_taxonomy_name,
+        "informationUri": spec.help_uri or TOOL_URI,
+        "shortDescription": {
+            "text": (
+                f"The set of {spec.title} categories (clusters / groups) "
+                "this checker emits rules for."
+            )
+        },
+        "taxa": [_category_taxon(c, spec.title) for c in spec.categories],
+    }
+    taxonomies: list[dict[str, Any]] = [category_taxonomy]
+
+    if spec.sarif_clause_taxonomy_name:
+        clause_taxa = _clause_taxa(spec)
+        if clause_taxa:
+            taxonomies.append(
+                {
+                    "name": spec.sarif_clause_taxonomy_name,
+                    "informationUri": spec.help_uri or TOOL_URI,
+                    "shortDescription": {
+                        "text": (
+                            f"Individual clauses of {spec.title}; each taxon id "
+                            "is a literal spec section number."
+                        )
+                    },
+                    "taxa": clause_taxa,
+                }
+            )
+    return taxonomies
 
 
 # ---- Result emission ------------------------------------------------------
 
 
 def _component_result(
+    rule_id: str,
     rule: "SpecRule",
+    level: str,
     name: str,
     spdx_id: str,
     artifact_uri: str,
 ) -> dict[str, Any]:
     label = name if name else spdx_id
     message_text = (
-        f"Component '{label}' ({spdx_id}) is missing a {rule.element_name}."
+        f"Component '{label}' ({spdx_id}) is missing a {rule.description}."
         if spdx_id and name
-        else f"Component '{label}' is missing a {rule.element_name}."
+        else f"Component '{label}' is missing a {rule.description}."
     )
     return {
-        "ruleId": rule.sarif_rule_id,
-        "level": "error",
+        "ruleId": rule_id,
+        "level": level,
         "message": {"text": message_text},
         "locations": [
             {
@@ -122,11 +295,13 @@ def _component_result(
     }
 
 
-def _document_result(rule: "SpecRule", artifact_uri: str) -> dict[str, Any]:
+def _document_result(
+    rule_id: str, rule: "SpecRule", level: str, artifact_uri: str
+) -> dict[str, Any]:
     return {
-        "ruleId": rule.sarif_rule_id,
-        "level": "error",
-        "message": {"text": f"SBOM document is missing {rule.element_name}."},
+        "ruleId": rule_id,
+        "level": level,
+        "message": {"text": f"SBOM document is missing {rule.description}."},
         "locations": [
             {
                 "logicalLocations": [{"name": "document", "kind": "module"}],
@@ -139,20 +314,31 @@ def _document_result(rule: "SpecRule", artifact_uri: str) -> dict[str, Any]:
 
 
 def _results_for_rule(
-    checker: "BaseChecker", rule: "SpecRule", artifact_uri: str
+    checker: "BaseChecker", spec: "Spec", rule: "SpecRule", artifact_uri: str
 ) -> list[dict[str, Any]]:
-    """Emit zero or more SARIF results for one rule."""
+    """Emit zero or more SARIF results for one rule.
+
+    Catalogue-only and TBD rules never emit results.
+    """
+    if rule.status != "active":
+        return []
+
+    rule_id = spec.rule_id(rule)
+    level = spec.sarif_level(rule)
+
     if rule.kind == "list":
         missing: list[tuple[str, str]] = getattr(checker, rule.attr, []) or []
         return [
-            _component_result(rule, comp_name or "", comp_id or "", artifact_uri)
+            _component_result(
+                rule_id, rule, level, comp_name or "", comp_id or "", artifact_uri
+            )
             for comp_name, comp_id in missing
         ]
 
     # kind == "bool"
     if bool(getattr(checker, rule.attr, False)):
         return []
-    return [_document_result(rule, artifact_uri)]
+    return [_document_result(rule_id, rule, level, artifact_uri)]
 
 
 # ---- Notifications --------------------------------------------------------
@@ -182,55 +368,56 @@ def _notifications(checker: "BaseChecker") -> list[dict[str, Any]]:
 # ---- Top-level builder ----------------------------------------------------
 
 
-def build_sarif(checker: "BaseChecker") -> dict[str, Any]:
-    """Build a SARIF log dict for *checker*.
+def build_sarif(checker: "BaseChecker", *, embed_sbom: bool = False) -> dict[str, Any]:
+    """Build a SARIF 2.1.0 log dict for *checker*.
 
-    Walks ``checker.spec.rules`` to emit the rule catalogue (always, even
-    if zero findings), then one result per (rule, failing component) pair
-    and one per failing document-level rule.
+    Walks ``checker._SPEC.emitted_rules()`` to emit the rule catalogue (every
+    non-TBD rule, even if zero findings), then one result per
+    (active rule, failing component) pair and one per failing document-level
+    rule.  Catalogue-only rules appear in the catalogue but never as results.
+
+    Args:
+        checker: Checker instance whose ``_SPEC`` and missing-element
+            attributes provide the data.
+        embed_sbom: When ``True``, read the input SBOM file and place its
+            contents in ``runs[0].artifacts[0].contents`` (SARIF §3.24.7).
+            This silences SARIF2013 ("This run does not provide embedded
+            file content") and lets downstream viewers render the source
+            artifact alongside results, at the cost of a larger log file.
+            Default is ``False`` (link by URI only).
     """
-    spec = checker.spec
+    spec: Spec | None = getattr(checker, "_SPEC", None)
+    if spec is None:  # pragma: no cover -- subclasses must define _SPEC.
+        raise ValueError(
+            f"Checker {type(checker).__name__} has no _SPEC; "
+            "SARIF output requires a Spec instance."
+        )
 
     artifact_uri = _artifact_uri(checker)
-    rules_emitted = [_emit_rule(spec, rule) for rule in spec.rules]
+    emitted = spec.emitted_rules()
+    rules_emitted = [_emit_rule(spec, rule) for rule in emitted]
     results = [
         result
-        for rule in spec.rules
-        for result in _results_for_rule(checker, rule, artifact_uri)
+        for rule in emitted
+        for result in _results_for_rule(checker, spec, rule, artifact_uri)
     ]
     parsing_errors = getattr(checker, "_parsing_errors", [])
 
+    supported_taxonomies = [{"name": spec.sarif_taxonomy_name}]
+    if spec.sarif_clause_taxonomy_name:
+        supported_taxonomies.append({"name": spec.sarif_clause_taxonomy_name})
+
     run: dict[str, Any] = {
-        "automationDetails": {"id": f"{TOOL_NAME}/{spec.standard_short_id}/"},
         "tool": {
             "driver": {
                 "name": TOOL_NAME,
-                "fullName": "NTIA Minimum Elements SBOM Conformance Checker",
-                "version": TOOL_VERSION,
+                "version": _tool_version(),
                 "informationUri": TOOL_URI,
                 "rules": rules_emitted,
-                "supportedTaxonomies": [{"name": spec.standard_id}],
+                "supportedTaxonomies": supported_taxonomies,
             }
         },
-        "taxonomies": [
-            {
-                "name": spec.standard_id,
-                "informationUri": spec.help_uri or TOOL_URI,
-                "taxa": [
-                    {
-                        "id": taxon.taxon_id,
-                        "name": taxon.taxon_name,
-                        "shortDescription": {
-                            "text": (
-                                f"The set of required minimum elements for "
-                                f"{spec.standard_name} conformance."
-                            )
-                        },
-                    }
-                    for taxon in spec.taxa
-                ],
-            }
-        ],
+        "taxonomies": _taxonomies(spec),
         "results": results,
         "invocations": [
             {
@@ -241,12 +428,20 @@ def build_sarif(checker: "BaseChecker") -> dict[str, Any]:
         "properties": {
             "sbomSpec": getattr(checker, "sbom_spec", "") or "",
             "sbomName": getattr(checker, "sbom_name", "") or "",
-            "complianceStandard": spec.standard_short_id,
+            "complianceStandard": spec.standard_id,
         },
     }
 
     if artifact_uri:
-        run["artifacts"] = [{"location": {"uri": artifact_uri}}]
+        artifact: dict[str, Any] = {"location": {"uri": artifact_uri}}
+        source_path = getattr(checker, "file", "") or ""
+        if embed_sbom and source_path:
+            contents = _artifact_contents(source_path)
+            if contents is not None:
+                sbom_spec_hint = str(getattr(checker, "sbom_spec", "") or "")
+                artifact["mimeType"] = _sbom_mime_type(source_path, sbom_spec_hint)
+                artifact["contents"] = contents
+        run["artifacts"] = [artifact]
 
     return {
         "version": SARIF_VERSION,
