@@ -511,7 +511,7 @@ def test_sbomchecker_fsct3_output_html() -> None:
         "<td class='conformance-res-tab-v'>True</td></tr>\n"
         "<tr><td class='conformance-res-tab-r'>SBOM creation timestamp provided?</td>"
         "<td class='conformance-res-tab-v'>True</td></tr>\n"
-        "<tr><td class='conformance-res-tab-r'>SBOM type provided?</td>"
+        "<tr><td class='conformance-res-tab-r'>SBOM generation context (SBOM type) provided?</td>"
         "<td class='conformance-res-tab-v'>False</td></tr>\n"
         "<tr><td class='conformance-res-tab-r'>Dependency relationships provided?</td>"
         "<td class='conformance-res-tab-v'>True</td></tr>\n"
