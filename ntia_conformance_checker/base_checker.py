@@ -938,6 +938,6 @@ class BaseChecker(DeprecatedCheckerMixin, ABC):
         # Imported lazily so that the SARIF module isn't loaded for
         # tools that only call output_text / output_json.
         # pylint: disable=import-outside-toplevel
-        from .sarif_output import build_sarif
+        from .report_sarif import build_sarif
 
         return build_sarif(self, embed_sbom=embed_sbom)

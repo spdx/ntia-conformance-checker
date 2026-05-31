@@ -1,10 +1,11 @@
-# SPDX-FileCopyrightText: 2026 SPDX contributors
+# SPDX-FileCopyrightText: 2026-present SPDX contributors
 # SPDX-FileType: SOURCE
 # SPDX-License-Identifier: Apache-2.0
 #
-# NTIA Minimum Elements for an SBOM (2021).
+# Rules derived from
+# The Minimum Elements For a Software Bill of Materials (SBOM),
+# National Telecommunications and Information Administration, 2021.
 # Source: https://www.ntia.gov/report/2021/minimum-elements-software-bill-materials-sbom
-# Local copy: refs/2021-ntia-sbom-minimum-elements.pdf
 #
 # Rule ids follow [SPEC]-[CATEGORY]-[NN].  See RULES.md.
 

@@ -1,10 +1,12 @@
-# SPDX-FileCopyrightText: 2026 SPDX contributors
+# SPDX-FileCopyrightText: 2026-present SPDX contributors
 # SPDX-FileType: SOURCE
 # SPDX-License-Identifier: Apache-2.0
 #
-# CISA 2024 Framing Software Component Transparency: Common SBOM, 3rd Edition.
+# Rules derived from
+# Framing Software Component Transparency: Establishing a Common Software Bill
+# of Materials (SBOM), Third Edition,
+# Cybersecurity and Infrastructure Security Agency, 2024.
 # Source: https://www.cisa.gov/resources-tools/resources/framing-software-component-transparency-2024
-# Local copy: refs/2024-cisa-baseline-attributes.pdf
 #
 # Rule ids follow [SPEC]-[CATEGORY]-[NN].  See RULES.md.
 

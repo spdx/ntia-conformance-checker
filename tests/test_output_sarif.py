@@ -263,7 +263,7 @@ def test_sarif_embed_sbom_inlines_file_contents() -> None:
 def test_sarif_mime_type_picker() -> None:
     """Direct unit test for the MIME-type picker; covers SPDX 2 vs SPDX 3 split."""
     # pylint: disable=import-outside-toplevel
-    from ntia_conformance_checker.sarif_output import _sbom_mime_type
+    from ntia_conformance_checker.report_sarif import _sbom_mime_type
 
     # SPDX 2 JSON -- registered.
     assert _sbom_mime_type("foo.spdx.json", "spdx2") == "application/spdx+json"

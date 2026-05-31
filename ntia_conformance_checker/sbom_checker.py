@@ -26,20 +26,13 @@ class SbomChecker(BaseChecker):
     a subclass of BaseChecker based on the given "compliance" argument
     during instantiation.
 
-    Currently there are two compliance standards available:
+    Currently supported compliance standards:
 
-    - **"ntia" (default)**, returns an instance of NTIAChecker
-      - NTIAChecker has the same behavior as the original SbomChecker
-    - **"fsct3-min"**, returns an instance of FSCT3Checker
-      - FSCT3Checker is a checker for FSCT 3rd Edition Baseline Attributes
+    - **"ntia" (default)**: 2021 NTIA SBOM Minimum Elements
+    - **"fsct3-min"**: 2024 CISA SBOM Baseline Attributes (Minimum Expected)
 
     If "compliance" is not recognized, SbomChecker raises a ValueError.
     """
-
-    # Note that all NTIA-specific functionalities are moved to
-    # .ntia_checker.NTIAChecker, and common functionalities that can be shared
-    # among checkers of different compliance standards are moved to
-    # .base_checker.BaseChecker.
 
     def __new__(
         cls,
@@ -49,16 +42,22 @@ class SbomChecker(BaseChecker):
         sbom_spec: str = "spdx2",
     ) -> Any:
         """
-        Returns an instance of a specific compliance checker.
+        Return an instance of a specific compliance checker.
 
         Args:
-            file (str): The name of the file to be checked.
-            validate (bool): Whether to validate the file.
-            compliance (str): The compliance standard to be used. Defaults to "ntia".
-            sbom_spec (str): The SBOM specification to be used. Defaults to "spdx2".
+            file (str): The path to the SBOM file to be checked.
+            validate (bool): Whether to validate the file before checking.
+                Defaults to True.
+            compliance (str): The compliance standard to use. Defaults to "ntia".
+            sbom_spec (str): The SBOM specification format. Defaults to "spdx2".
 
         Returns:
-            BaseChecker: An instance of a specific compliance checker.
+            BaseChecker: An instance of the compliance checker configured for
+                the requested compliance standard.
+
+        Raises:
+            ValueError: If ``sbom_spec`` is not supported or ``compliance`` is
+                not recognized.
         """
         if sbom_spec not in SUPPORTED_SBOM_SPECS:
             raise ValueError(f"Unsupported SBOM specification: {sbom_spec}")

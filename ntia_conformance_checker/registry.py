@@ -19,13 +19,13 @@ hardcoded id list to update.  (A named convenience subclass such as
 ``NTIAChecker`` is optional and only kept for backwards-compatible
 imports.)
 
-**Convention:** name each file after its ``standard_id`` (e.g.
-``rules/ntia.yaml`` -> ``standard_id: ntia``;
-``rules/fsct3-min.yaml`` -> ``standard_id: fsct3-min``).  Discovery keys
-on the in-file ``standard_id``, not the filename, so a mismatch is not a
-hard error -- but matching them keeps the directory navigable and
-pre-shapes future siblings (e.g. ``fsct3-rec.yaml``, ``fsct3-asp.yaml``
-for additional FSCTv3 maturity levels).
+**Convention:** name each file after its ``standard_id``
+(e.g. ``rules/ntia.yaml`` -> ``standard_id: ntia``;
+``rules/fsct3-min.yaml`` -> ``standard_id: fsct3-min``).
+Discovery keys on the in-file ``standard_id``, not the filename,
+so a mismatch is not a hard error -- but matching them keeps the
+directory navigable and pre-shapes future siblings
+(e.g. ``fsct3-rec.yaml`` for additional FSCTv3 maturity levels).
 """
 
 from __future__ import annotations
@@ -33,7 +33,7 @@ from __future__ import annotations
 from pathlib import Path
 from typing import TYPE_CHECKING
 
-from .loader import load_spec
+from .spec_loader import load_spec
 
 if TYPE_CHECKING:
     from .spec import Spec

@@ -84,7 +84,6 @@ warning text is emitted as the rule's `shortDescription.text`.
 Source: *The Minimum Elements For a Software Bill of Materials (SBOM)*,
 US Department of Commerce / NTIA, July 12 2021.
 [NTIA report](https://www.ntia.gov/report/2021/minimum-elements-software-bill-materials-sbom)
-· local copy `refs/2021-ntia-sbom-minimum-elements.pdf`.
 
 ### Data Fields (§IV)
 
@@ -132,7 +131,6 @@ Source: *Framing Software Component Transparency: Establishing a Common
 Software Bill of Materials (SBOM) Third Edition*, CISA Tooling and
 Implementation Working Group, September 3 2024.
 [CISA page](https://www.cisa.gov/resources-tools/resources/framing-software-component-transparency-2024)
-· local copy `refs/2024-cisa-baseline-attributes.pdf`.
 
 Rule numbering matches the §2.2.x attribute order in the spec.  The third
 "clause" segment of the spec section (the leaf number) is recorded
