@@ -34,7 +34,7 @@ class NTIAChecker(RuleBasedChecker):
         https://www.ntia.gov/report/2021/minimum-elements-software-bill-materials-sbom
     """
 
-    _SPEC: Spec = _NTIA_SPEC
+    _SPEC: "Spec | None" = _NTIA_SPEC
 
     def __init__(
         self,

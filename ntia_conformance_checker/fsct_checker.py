@@ -38,7 +38,7 @@ class FSCT3Checker(RuleBasedChecker):
         https://www.cisa.gov/resources-tools/resources/framing-software-component-transparency-2024
     """
 
-    _SPEC: Spec = _FSCT_SPEC
+    _SPEC: "Spec | None" = _FSCT_SPEC
 
     def __init__(
         self,
