@@ -12,8 +12,7 @@ DEFAULT_SBOM_SPEC = "spdx2"
 SUPPORTED_SBOM_SPECS = set(SUPPORTED_SBOM_SPECS_DESC.keys())
 
 SUPPORTED_COMPLIANCE_STANDARDS_DESC = {
-    # "cisasbom2025": "2025 CISA SBOM Minimum Elements",
-    # https://www.cisa.gov/resources-tools/resources/2025-minimum-elements-software-bill-materials-sbom
+    "cisa2025": "2025 CISA SBOM Minimum Elements",
     "fsct3-min": "2024 CISA Framing Software Component Transparency (minimum expectation)",
     "ntia": "2021 NTIA SBOM Minimum Elements",
 }
