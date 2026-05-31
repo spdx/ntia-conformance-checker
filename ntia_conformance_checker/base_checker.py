@@ -110,11 +110,10 @@ class BaseChecker(DeprecatedCheckerMixin, ABC):
         return self._SPEC
 
     def components_without(self, element_id: str) -> list[tuple[str, str]]:
-        """Components that do **not** declare ``element_id``.
+        """Components that do not declare ``element_id``.
 
-        Presence-oriented, *neutral* fact accessor used by probes: it only
-        reports which components lack the element, not whether that lack
-        violates any spec (that judgment lives in the rules / probes).
+        Accessor used by probes: reports which components lack the element.
+
         Returns a list of ``(component_name, spdx_id)`` tuples.  Dispatches
         to ``get_components_without_<element_id>`` on the checker; results
         are cached per element_id so repeat calls cost one full SBOM scan
@@ -128,7 +127,9 @@ class BaseChecker(DeprecatedCheckerMixin, ABC):
         method = getattr(self, f"get_components_without_{element_id}", None)
         if not callable(method):
             return []
-        result: list[tuple[str, str]] = list(method() or [])  # pylint: disable=not-callable
+        # pylint: disable=not-callable
+        raw = cast("list[tuple[str, str]]", method())
+        result: list[tuple[str, str]] = list(raw) if raw else []
         cache[element_id] = result
         return list(result)
 
