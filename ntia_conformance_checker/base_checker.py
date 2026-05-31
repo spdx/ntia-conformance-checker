@@ -9,7 +9,6 @@ from __future__ import annotations
 import json
 import logging
 import os
-import warnings
 from abc import ABC, abstractmethod
 from typing import TYPE_CHECKING, Any, cast
 
@@ -20,6 +19,7 @@ from spdx_tools.spdx.parser import parse_anything
 from spdx_tools.spdx.parser.error import SPDXParsingError
 from spdx_tools.spdx.validation.document_validator import validate_full_spdx_document
 
+from ._deprecated import DeprecatedCheckerMixin
 from .constants import DEFAULT_SBOM_SPEC
 from .report import (
     ReportContext,
@@ -39,11 +39,12 @@ if TYPE_CHECKING:
     from spdx_tools.spdx.model.document import Document
     from spdx_tools.spdx.validation.validation_message import ValidationMessage
 
+    from .model import Finding
     from .spec import Spec
 
 
 # pylint: disable=too-many-instance-attributes,too-many-public-methods
-class BaseChecker(ABC):
+class BaseChecker(DeprecatedCheckerMixin, ABC):
     """Base class for all compliance/conformance checkers.
 
     This base class contains methods for common tasks like file parsing
@@ -52,9 +53,6 @@ class BaseChecker(ABC):
     Any class inheriting from BaseChecker must implement its abstract methods,
     such as `check_compliance` and `output_json`.
     """
-
-    # Minimum elements/baseline attributes required by a compliance standard
-    MIN_ELEMENTS: list[str] = []
 
     compliance_standard: str = ""  # fsct3-min, ntia
     sbom_spec: str = ""  # spdx2, spdx3
@@ -74,45 +72,23 @@ class BaseChecker(ABC):
     _validation_messages: list[ValidationMessage] = []
 
     sbom_name: str = ""
-    # Lists of components missing required information.
-    # Each item is a tuple of (component name, component SPDX ID).
-    components_without_names: list[tuple[str, str]] = []
-    components_without_versions: list[tuple[str, str]] = []
-    components_without_suppliers: list[tuple[str, str]] = []
-    components_without_identifiers: list[tuple[str, str]] = []
-    components_without_concluded_licenses: list[tuple[str, str]] = []
-    components_without_copyright_texts: list[tuple[str, str]] = []
 
-    doc_version: bool = False  # Has SPDX document version?
-    doc_author: bool = False  # Has SPDX document author?
-    doc_timestamp: bool = False  # Has SPDX document creation timestamp?
-    dependency_relationships: bool = False  # Has DESCRIBES relationship?
+    # Document-level values are no longer eagerly stored as instance
+    # attributes.  Callers read them via :meth:`document_value` (raw
+    # value, cached) or :meth:`document_has` (presence bool).  Each
+    # ``get_doc_<element_id>`` extractor is the single source of truth
+    # for one element; the cache lives in ``_cache_doc_value``.
 
     compliant: bool = False  # Is SBOM compliant with the chosen standard?
 
-    @property
-    def ntia_minimum_elements_compliant(self) -> bool:
-        """Deprecated: use ``compliant`` instead."""
-        warnings.warn(
-            "ntia_minimum_elements_compliant is deprecated; use compliant instead.",
-            DeprecationWarning,
-            stacklevel=2,
-        )
-        return self.compliant
+    findings: dict[str, "list[Finding]"]
+    """Findings keyed by SARIF rule id, populated by :meth:`run_probes`.
+    Empty list = the rule passed; list of :class:`Finding` = failures.
+    Initialised to ``{}`` per instance in :meth:`__init__`."""
 
     @property
     def parsing_errors(self) -> list[str]:
         """Parsing errors encountered during file parsing."""
-        return self._parsing_errors
-
-    @property
-    def parsing_error(self) -> list[str]:
-        """Deprecated: use ``parsing_errors`` instead."""
-        warnings.warn(
-            "parsing_error is deprecated; use parsing_errors instead.",
-            DeprecationWarning,
-            stacklevel=2,
-        )
         return self._parsing_errors
 
     @property
@@ -132,6 +108,109 @@ class BaseChecker(ABC):
         property instead of defining ``_SPEC``.
         """
         return self._SPEC
+
+    def components_without(self, element_id: str) -> list[tuple[str, str]]:
+        """Components that do **not** declare ``element_id``.
+
+        Presence-oriented, *neutral* fact accessor used by probes: it only
+        reports which components lack the element, not whether that lack
+        violates any spec (that judgment lives in the rules / probes).
+        Returns a list of ``(component_name, spdx_id)`` tuples.  Dispatches
+        to ``get_components_without_<element_id>`` on the checker; results
+        are cached per element_id so repeat calls cost one full SBOM scan
+        per element.  Returns an empty list for unknown ``element_id``
+        values so a rule referencing an element this checker doesn't know
+        about degrades to a no-op.
+        """
+        cache = self._cache_components_without
+        if element_id in cache:
+            return list(cache[element_id])
+        method = getattr(self, f"get_components_without_{element_id}", None)
+        if not callable(method):
+            return []
+        result: list[tuple[str, str]] = list(method() or [])  # pylint: disable=not-callable
+        cache[element_id] = result
+        return list(result)
+
+    def document_value(self, element_id: str) -> object:
+        """Raw value of the document-level element, or ``None`` if unknown.
+
+        Lazily dispatches to ``get_doc_<element_id>()`` on the checker;
+        results are cached in ``_cache_doc_value`` so repeat reads cost
+        nothing.  Probes that need the actual value (e.g. timestamp
+        format validation) call this; probes that only care about
+        presence call :meth:`document_has`.
+        """
+        cache = self._cache_doc_value
+        if element_id in cache:
+            return cache[element_id]
+        method = getattr(self, f"get_doc_{element_id}", None)
+        if not callable(method):
+            cache[element_id] = None
+            return None
+        value = method()  # pylint: disable=not-callable
+        cache[element_id] = value
+        return value
+
+    def document_has(self, element_id: str) -> bool:
+        """True iff the SBOM document declares ``element_id``.
+
+        Truthiness of :meth:`document_value` -- empty string / empty list /
+        ``None`` / ``False`` all mean "absent".
+        """
+        return bool(self.document_value(element_id))
+
+    @property
+    def all_components_without_info(
+        self,
+    ) -> list[tuple[str, list[tuple[str, str]]]]:
+        """Component-level findings grouped by element_id.
+
+        Derived on demand from :attr:`findings` (runs probes if needed).
+        Used by the text / HTML reporters to render the missing-info
+        block ("Missing required information in these components: ...").
+        """
+        if not self.findings:
+            self.run_probes()
+        out: list[tuple[str, list[tuple[str, str]]]] = []
+        for rule in self.spec.active_rules():
+            probe = rule.probe
+            if probe is None or probe.name != "require_component_attribute":
+                continue
+            findings = self.findings.get(self.spec.rule_id(rule), [])
+            if not findings:
+                continue
+            out.append(
+                (
+                    rule.element_id,
+                    [(f.component_name, f.component_id) for f in findings],
+                )
+            )
+        return out
+
+    def run_probes(self) -> dict[str, list["Finding"]]:
+        """Run every active rule's probe and return findings keyed by rule id.
+
+        Catalogue-only and TBD rules are skipped (their ``probe`` is
+        ``None``).  The result is also stashed on ``self.findings`` so
+        repeat calls and downstream emitters don't re-execute probes.
+        """
+        # Importing lazily so BaseChecker stays cheap to import for
+        # callers that only want the SBOM-parsing behaviour.
+        # pylint: disable=import-outside-toplevel
+        from .probes import lookup
+
+        findings: dict[str, list[Finding]] = {}
+        for rule in self.spec.active_rules():
+            if rule.probe is None:
+                findings[self.spec.rule_id(rule)] = []
+                continue
+            probe_fn = lookup(rule.probe.name)
+            findings[self.spec.rule_id(rule)] = list(
+                probe_fn(self, **rule.probe.params)
+            )
+        self.findings = findings
+        return findings
 
     @abstractmethod
     def check_compliance(self) -> bool:
@@ -164,6 +243,9 @@ class BaseChecker(ABC):
         # to avoid shared state between instances.
         self._parsing_errors = []
         self._validation_messages = []
+        self.findings = {}
+        self._cache_components_without: dict[str, list[tuple[str, str]]] = {}
+        self._cache_doc_value: dict[str, object] = {}
 
         match sbom_spec:
             case "spdx2":
@@ -194,166 +276,137 @@ class BaseChecker(ABC):
 
             self.sbom_name = self.get_sbom_name()
 
-            self.doc_version = self.check_doc_version()
-            self.doc_author = self.check_author()
-            self.doc_timestamp = self.check_timestamp()
-            self.dependency_relationships = self.check_dependency_relationships()
+            # Document-level extractors are *not* called eagerly here.
+            # :meth:`document_value` runs them on first read and caches
+            # the result in ``_doc_value_cache``; probes / SARIF / JSON
+            # all go through that one path.
 
-            self.components_without_names = self.get_components_without_names()
-            self.components_without_versions = self.get_components_without_versions()
-            self.components_without_suppliers = self.get_components_without_suppliers()
-            self.components_without_identifiers = (
-                self.get_components_without_identifiers()
-            )
-            self.components_without_concluded_licenses = (
-                self.get_components_without_concluded_licenses()
-            )
-            self.components_without_copyright_texts = (
-                self.get_components_without_copyright_texts()
-            )
-
-            # List of (info_name, components) tuples,
-            # where components is a list of (component_name, spdx_id) tuples
-            self.all_components_without_info: list[
-                tuple[str, list[tuple[str, str]]]
-            ] = self._get_all_components_without_info()
+            # Component-level presence checks are *not* eagerly computed
+            # here.  They are evaluated lazily by :meth:`components_without`
+            # (cached per element_id) the first time a probe / report /
+            # output emitter asks for them.
 
         self.table_elements: list[tuple[str, bool]] = []
 
-    def check_doc_version(self) -> bool:
-        """Check if the document's specification version exists."""
-        if self.get_doc_spec_version():
-            return True
-        return False
+    # ---- Document-level value extractors --------------------------------
+    #
+    # Naming convention: ``get_doc_<element_id>()`` returns the *value* of
+    # the document-level element, typed naturally for the element (str,
+    # list, etc.).  An empty string / empty list is treated as "absent" by
+    # :meth:`document_has`.  Each value is cached on ``self.doc_<element_id>``
+    # in :meth:`__init__` so probes / SARIF / JSON emitters read the field
+    # directly without re-parsing the SBOM.
 
-    def check_author(self) -> bool:
-        """Check if the author of SBOM data exists."""
+    def get_doc_author(self) -> str:
+        """Return the SBOM author identifier, or ``""`` if none recorded.
+
+        SPDX 2 may have multiple creators; we join them with ``"; "``.
+        SPDX 3 returns the first ``createdBy`` identifier.
+        """
         if not self.doc:
-            return False
+            return ""
 
-        # SPDX 2
         if self.sbom_spec == "spdx2":
-            # Note that the spdx-tools's parser will raise an SPDXParsingError
-            # anyway, if the document does not contain a creator.
-            # So in practice, this section should always return True
             self.doc = cast("Document", self.doc)
-            doc_creation_info = getattr(self.doc, "creation_info", None)
-            if doc_creation_info:
-                doc_creators = getattr(doc_creation_info, "creators", [])
-                if doc_creators:
-                    return True
-            return False
+            ci = getattr(self.doc, "creation_info", None)
+            if ci is None:
+                return ""
+            creators = getattr(ci, "creators", []) or []
+            return "; ".join(str(c) for c in creators)
 
-        # SPDX 3
         if self.sbom_spec == "spdx3" and self.__spdx3_doc is not None:
-            doc_creation_info = getattr(self.__spdx3_doc, "creationInfo", None)
-            if doc_creation_info:
-                doc_creators = getattr(doc_creation_info, "createdBy", [])
-                if doc_creators:
-                    return True
-            return False
+            ci = getattr(self.__spdx3_doc, "creationInfo", None)
+            if ci is None:
+                return ""
+            created_by = getattr(ci, "createdBy", []) or []
+            return str(created_by[0]) if created_by else ""
 
-        return False
+        return ""
 
-    def check_dependency_relationships(self) -> bool:
-        """Check if the SPDX document DESCRIBES at least one package."""
+    def get_doc_timestamp(self) -> str:
+        """Return the SBOM creation / most-recent-update timestamp string.
+
+        Per the 2025 CISA spec, the Timestamp records "the date and time
+        of the most recent update to the SBOM data".  In SPDX 2 / 3 this
+        is the ``created`` field on ``creationInfo``.  Returns ``""`` if
+        absent.
+        """
         if not self.doc:
-            return False
+            return ""
 
-        # SPDX 2
         if self.sbom_spec == "spdx2":
             self.doc = cast("Document", self.doc)
-            if not self.doc.relationships:
-                return False
+            ci = getattr(self.doc, "creation_info", None)
+            if ci is None:
+                return ""
+            created = getattr(ci, "created", None)
+            return str(created) if created else ""
 
-            describes_relationships = [
-                rel
-                for rel in self.doc.relationships
-                if rel.relationship_type == RelationshipType.DESCRIBES
-            ]
-
-            # A set of all package spdx_ids for quick lookup
-            spdx_id_set = {package.spdx_id for package in self.doc.packages}
-
-            # Check if any of the "DESCRIBES" relationships describe a Package
-            describes_package = any(
-                rel.related_spdx_element_id in spdx_id_set
-                for rel in describes_relationships
-            )
-
-            return describes_package
-
-        # SPDX 3
-        if self.sbom_spec == "spdx3":
-            # If a BOM/an SBOM's rootElement is a /Software/Package (or its subclass),
-            # it is considered to have a dependency relationship.
-            #
-            # Note that if there is neither /Software/Package(s) nor /Core/Bom,
-            # a DESCRIBES relationship is not needed; however, this method may still
-            # return False, since it is factually considered as "no relationship".
-
-            # There is a BOM/SBOM and an /Software/Package,
-            # check if there is at least one package listed in any BOM/SBOM
-            boms = get_boms_from_spdx_document(self.__spdx3_doc)
-            if boms:
-                for bom in boms:
-                    packages = get_packages_from_bom(bom)
-                    if packages:
-                        return True
-
-        return False
-
-    def check_timestamp(self) -> bool:
-        """Check if the SBOM creation timestamp exists."""
-        if not self.doc:
-            return False
-
-        # SPDX 2
-        if self.sbom_spec == "spdx2":
-            # Note that the spdx-tools's parser will raise an SPDXParsingError,
-            # if the document does not contain a timestamp.
-            # So in practice, this section should always return True.
-            self.doc = cast("Document", self.doc)
-            doc_creation_info = getattr(self.doc, "creation_info", None)
-            if doc_creation_info:
-                doc_created = getattr(doc_creation_info, "created", None)
-                if doc_created:
-                    return True
-            return False
-
-        # SPDX 3
         if self.sbom_spec == "spdx3" and self.__spdx3_doc is not None:
-            doc_creation_info = getattr(self.__spdx3_doc, "creationInfo", None)
-            if doc_creation_info:
-                doc_created = getattr(doc_creation_info, "created", None)
-                if doc_created:
-                    return True
+            ci = getattr(self.__spdx3_doc, "creationInfo", None)
+            if ci is None:
+                return ""
+            created = getattr(ci, "created", None)
+            return str(created) if created else ""
 
-        return False
+        return ""
 
-    def get_doc_spec_version(self) -> str | None:
-        """Retrieve the document's specification version."""
+    def get_doc_spec_version(self) -> str:
+        """Return the SBOM specification version string (e.g. ``"SPDX-2.3"``),
+        or ``""`` if absent."""
         if not self.doc:
-            return None
+            return ""
 
-        doc_spec_version: str | None = None
-
-        # SPDX 2
         if self.sbom_spec == "spdx2":
             self.doc = cast("Document", self.doc)
-            doc_creation_info = getattr(self.doc, "creation_info", None)
-            if doc_creation_info:
-                doc_spec_version = getattr(doc_creation_info, "spdx_version", None)
+            ci = getattr(self.doc, "creation_info", None)
+            if ci is None:
+                return ""
+            return str(getattr(ci, "spdx_version", "") or "")
 
-        # SPDX 3
         if self.sbom_spec == "spdx3" and isinstance(
             self.__spdx3_doc, spdx3.SpdxDocument
         ):
-            doc_creation_info = getattr(self.__spdx3_doc, "creationInfo", None)
-            if doc_creation_info:
-                doc_spec_version = getattr(doc_creation_info, "specVersion", None)
+            ci = getattr(self.__spdx3_doc, "creationInfo", None)
+            if ci is None:
+                return ""
+            return str(getattr(ci, "specVersion", "") or "")
 
-        return doc_spec_version
+        return ""
+
+    def get_doc_dependency_relationship(self) -> list[object]:
+        """Return the list of DESCRIBES-style dependency relationships.
+
+        Empty list = no relationships declared (rule fails).  The list
+        carries opaque relationship objects so future probes can inspect
+        types, completeness, etc.; current probes only check truthiness.
+        """
+        if not self.doc:
+            return []
+
+        if self.sbom_spec == "spdx2":
+            self.doc = cast("Document", self.doc)
+            rels = self.doc.relationships or []
+            describes = [
+                rel
+                for rel in rels
+                if rel.relationship_type == RelationshipType.DESCRIBES
+            ]
+            if not describes:
+                return []
+            spdx_id_set = {p.spdx_id for p in self.doc.packages}
+            return [
+                rel for rel in describes if rel.related_spdx_element_id in spdx_id_set
+            ]
+
+        if self.sbom_spec == "spdx3":
+            boms = get_boms_from_spdx_document(self.__spdx3_doc)
+            out: list[object] = []
+            for bom in boms or []:
+                out.extend(get_packages_from_bom(bom) or [])
+            return out
+
+        return []
 
     def get_sbom_name(self) -> str:
         """Retrieve the name of the SBOM."""
@@ -377,7 +430,7 @@ class BaseChecker(ABC):
 
         return name
 
-    def get_components_without_concluded_licenses(self) -> list[tuple[str, str]]:
+    def get_components_without_concluded_license(self) -> list[tuple[str, str]]:
         """
         Retrieve components missing a concluded license.
 
@@ -435,7 +488,7 @@ class BaseChecker(ABC):
 
         return []
 
-    def get_components_without_copyright_texts(self) -> list[tuple[str, str]]:
+    def get_components_without_copyright_notice(self) -> list[tuple[str, str]]:
         """
         Retrieve components missing a copyright text.
 
@@ -482,7 +535,7 @@ class BaseChecker(ABC):
 
         return []
 
-    def get_components_without_identifiers(self) -> list[tuple[str, str]]:
+    def get_components_without_unique_identifier(self) -> list[tuple[str, str]]:
         """
         Retrieve components missing unique identifiers (SPDX IDs).
 
@@ -530,7 +583,7 @@ class BaseChecker(ABC):
 
         return []
 
-    def get_components_without_names(self) -> list[tuple[str, str]]:
+    def get_components_without_name(self) -> list[tuple[str, str]]:
         """
         Retrieve components missing a name.
 
@@ -570,7 +623,7 @@ class BaseChecker(ABC):
 
         return []
 
-    def get_components_without_suppliers(self) -> list[tuple[str, str]]:
+    def get_components_without_supplier(self) -> list[tuple[str, str]]:
         """
         Retrieve components missing supplier information.
 
@@ -618,7 +671,7 @@ class BaseChecker(ABC):
 
         return []
 
-    def get_components_without_versions(self) -> list[tuple[str, str]]:
+    def get_components_without_version(self) -> list[tuple[str, str]]:
         """
         Retrieve components missing version information.
 
@@ -662,25 +715,6 @@ class BaseChecker(ABC):
             ]
 
         return []
-
-    def _get_all_components_without_info(
-        self,
-    ) -> list[tuple[str, list[tuple[str, str]]]]:
-        """Get a list of components missing information for each required element."""
-        list_rules = [
-            r
-            for r in self.spec.rules
-            if r.kind == "list" and r.element_id in self.MIN_ELEMENTS
-        ]
-
-        if all(not getattr(self, r.attr, []) for r in list_rules):
-            return []
-
-        return [
-            (rule.element_id, getattr(self, rule.attr, []))
-            for rule in list_rules
-            if getattr(self, rule.attr, [])
-        ]
 
     def get_total_number_components(self) -> int:
         """
@@ -859,20 +893,22 @@ class BaseChecker(ABC):
             "totalNumberComponents": self.get_total_number_components(),
         }
 
+        # Ensure probes have run before emitting per-rule JSON.
+        if not self.findings:
+            self.run_probes()
+
         for rule in self.spec.rules:
-            if not rule.json_key:
+            if not rule.json_key or rule.probe is None:
                 continue
-            if rule.kind == "bool":
-                result[rule.json_key] = bool(getattr(self, rule.attr, False))
+            rule_id = self.spec.rule_id(rule)
+            findings = self.findings.get(rule_id, [])
+            if rule.probe.name == "require_document_attribute":
+                # Doc-level: presence bool.  Absent = one Finding emitted.
+                result[rule.json_key] = not findings
             else:
-                components_without_info: list[tuple[str, str]] = getattr(
-                    self, rule.attr, []
-                )
-                # prefer the human-readable name; fall back to SPDX ID.
-                nonconformant = [
-                    (name if name not in (None, "") else spdx_id)
-                    for name, spdx_id in components_without_info
-                ]
+                # Component-level: list of non-conformant components.
+                # Prefer human-readable name; fall back to SPDX ID.
+                nonconformant = [(f.component_name or f.component_id) for f in findings]
                 result[rule.json_key] = {
                     "nonconformantComponents": nonconformant,
                     "allProvided": not bool(nonconformant),

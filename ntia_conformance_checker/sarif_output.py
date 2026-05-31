@@ -1,4 +1,4 @@
-# SPDX-FileCopyrightText: 2026 SPDX contributors
+# SPDX-FileCopyrightText: 2026-present SPDX contributors
 # SPDX-FileType: SOURCE
 # SPDX-License-Identifier: Apache-2.0
 
@@ -46,6 +46,16 @@ TOOL_URI = "https://github.com/spdx/ntia-conformance-checker"
 # Fallback MIME type when nothing more specific applies.
 _DEFAULT_MIME_TYPE = "application/octet-stream"
 
+# Extension-to-MIME mapping for non-ambiguous SBOM serialisation formats.
+# Each entry is (tuple-of-suffixes, mime-type); checked in order so that
+# double-extensions like ".rdf.xml" are tested before the shorter ".xml".
+_SBOM_EXT_MIME: tuple[tuple[tuple[str, ...], str], ...] = (
+    ((".rdf.xml", ".rdf"), "application/rdf+xml"),
+    ((".xml",), "application/xml"),
+    ((".yaml", ".yml"), "application/yaml"),
+    ((".spdx",), "text/plain"),
+)
+
 
 # ---- Helpers --------------------------------------------------------------
 
@@ -83,21 +93,14 @@ def _sbom_mime_type(path: str, sbom_spec: str = "") -> str:
       JSON; unimplemented here since this tool currently only emits SPDX.
     """
     lower = path.lower()
-    if lower.endswith(".rdf.xml") or lower.endswith(".rdf"):
-        return "application/rdf+xml"
-    if lower.endswith(".xml"):
-        # SPDX 2 XML serialisation; no registered SPDX-specific MIME type.
-        return "application/xml"
+    for exts, mime in _SBOM_EXT_MIME:
+        if any(lower.endswith(e) for e in exts):
+            return mime
     if lower.endswith(".json"):
         # SPDX 3 is JSON-LD; SPDX 2 has its own registered JSON MIME type.
-        if sbom_spec == "spdx3":
-            return "application/ld+json"
-        return "application/spdx+json"
-    if lower.endswith((".yaml", ".yml")):
-        return "application/yaml"
-    if lower.endswith(".spdx"):
-        # SPDX 2 tag-value -- closest registered type is plain text.
-        return "text/plain"
+        return (
+            "application/ld+json" if sbom_spec == "spdx3" else "application/spdx+json"
+        )
     return _DEFAULT_MIME_TYPE
 
 
@@ -266,6 +269,7 @@ def _taxonomies(spec: "Spec") -> list[dict[str, Any]]:
 # ---- Result emission ------------------------------------------------------
 
 
+# pylint: disable=too-many-arguments,too-many-positional-arguments
 def _component_result(
     rule_id: str,
     rule: "SpecRule",
@@ -318,27 +322,35 @@ def _results_for_rule(
 ) -> list[dict[str, Any]]:
     """Emit zero or more SARIF results for one rule.
 
-    Catalogue-only and TBD rules never emit results.
+    Reads ``checker.findings[rule_id]`` (populated by
+    :meth:`BaseChecker.run_probes`) so the SARIF output reflects exactly
+    what the rule's probe produced.  Catalogue-only and TBD rules never
+    emit results -- :meth:`BaseChecker.run_probes` skips them, and any
+    accidental entry in ``findings`` for them is ignored here too.
     """
     if rule.status != "active":
         return []
 
     rule_id = spec.rule_id(rule)
     level = spec.sarif_level(rule)
+    findings = getattr(checker, "findings", {}).get(rule_id, []) or []
 
-    if rule.kind == "list":
-        missing: list[tuple[str, str]] = getattr(checker, rule.attr, []) or []
-        return [
-            _component_result(
-                rule_id, rule, level, comp_name or "", comp_id or "", artifact_uri
+    results: list[dict[str, Any]] = []
+    for finding in findings:
+        if finding.is_document_level:
+            results.append(_document_result(rule_id, rule, level, artifact_uri))
+        else:
+            results.append(
+                _component_result(
+                    rule_id,
+                    rule,
+                    level,
+                    finding.component_name or "",
+                    finding.component_id or "",
+                    artifact_uri,
+                )
             )
-            for comp_name, comp_id in missing
-        ]
-
-    # kind == "bool"
-    if bool(getattr(checker, rule.attr, False)):
-        return []
-    return [_document_result(rule_id, rule, level, artifact_uri)]
+    return results
 
 
 # ---- Notifications --------------------------------------------------------
@@ -386,12 +398,17 @@ def build_sarif(checker: "BaseChecker", *, embed_sbom: bool = False) -> dict[str
             artifact alongside results, at the cost of a larger log file.
             Default is ``False`` (link by URI only).
     """
-    spec: Spec | None = getattr(checker, "_SPEC", None)
-    if spec is None:  # pragma: no cover -- subclasses must define _SPEC.
+    spec: Spec | None = getattr(checker, "spec", None)
+    if spec is None:  # pragma: no cover -- checkers must expose a spec.
         raise ValueError(
-            f"Checker {type(checker).__name__} has no _SPEC; "
+            f"Checker {type(checker).__name__} has no spec; "
             "SARIF output requires a Spec instance."
         )
+
+    # Ensure findings are populated; idempotent if subclasses already
+    # called run_probes() in __init__.
+    if not getattr(checker, "findings", None):
+        checker.run_probes()
 
     artifact_uri = _artifact_uri(checker)
     emitted = spec.emitted_rules()

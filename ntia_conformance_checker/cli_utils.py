@@ -126,10 +126,7 @@ def get_parsed_args() -> argparse.Namespace:
         action="store_true",
         default=False,
         help=(
-            "Embed the input SBOM contents in the SARIF output "
-            "(runs[0].artifacts[0].contents).  Silences SARIF2013 and lets "
-            "downstream SARIF viewers render the source artifact from a "
-            "single log file.  Only meaningful with --output sarif.  "
+            "Embed the input SBOM contents in the SARIF output. "
             "Significantly increases output size.  [default: off]"
         ),
     )

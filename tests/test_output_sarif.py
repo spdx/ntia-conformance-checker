@@ -151,7 +151,9 @@ def test_sarif_no_elements_missing_fsct3(test_file: str) -> None:
 @pytest.mark.parametrize("test_file", _fixtures("missing_supplier_name"))
 def test_sarif_missing_supplier_one_result_per_component(test_file: str) -> None:
     checker = NTIAChecker(test_file)
-    expected_ids = {spdx_id for _name, spdx_id in checker.components_without_suppliers}
+    expected_ids = {
+        spdx_id for _name, spdx_id in checker.components_without("supplier")
+    }
     assert expected_ids, "fixture must have at least one missing supplier"
 
     sarif = checker.output_sarif()
@@ -184,7 +186,9 @@ def test_sarif_missing_concluded_license_fsct3(test_file: str) -> None:
     license_results = [
         r for r in run["results"] if r["ruleId"] == FSCT_COMP_CONCLUDED_LICENSE
     ]
-    expected = {spdx_id for _, spdx_id in checker.components_without_concluded_licenses}
+    expected = {
+        spdx_id for _, spdx_id in checker.components_without("concluded_license")
+    }
     emitted = {
         r["locations"][0]["logicalLocations"][0]["fullyQualifiedName"]
         for r in license_results
@@ -198,7 +202,7 @@ def test_sarif_missing_concluded_license_fsct3(test_file: str) -> None:
 @pytest.mark.parametrize("test_file", _fixtures("missing_dependency_relationships"))
 def test_sarif_missing_dependency_relationships(test_file: str) -> None:
     checker = NTIAChecker(test_file)
-    if checker.dependency_relationships:
+    if checker.document_value("dependency_relationship"):
         pytest.skip("fixture does declare dependency relationships")
     sarif = checker.output_sarif()
     run = _run(sarif)

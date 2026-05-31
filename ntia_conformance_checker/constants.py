@@ -4,6 +4,8 @@
 
 """Constants."""
 
+from .registry import descriptions as _descriptions
+
 TOOL_NAME = "ntia-conformance-checker"
 TOOL_URI = "https://github.com/spdx/ntia-conformance-checker"
 
@@ -21,12 +23,11 @@ SUPPORTED_SBOM_SPECS_DESC = {
 DEFAULT_SBOM_SPEC = "spdx2"
 SUPPORTED_SBOM_SPECS = set(SUPPORTED_SBOM_SPECS_DESC.keys())
 
-SUPPORTED_COMPLIANCE_STANDARDS_DESC = {
-    # "cisasbom2025": "2025 CISA SBOM Minimum Elements",
-    # https://www.cisa.gov/resources-tools/resources/2025-minimum-elements-software-bill-materials-sbom
-    "fsct3-min": "2024 CISA Framing Software Component Transparency (Minimum Expected)",
-    "ntia": "2021 NTIA SBOM Minimum Elements",
-}
+# Supported compliance standards are discovered from the packaged
+# ``rules/*.yaml`` files by the registry -- each spec's ``standard_id`` is
+# the compliance id and its ``title`` is the human description.  Adding a
+# new YAML is all that is needed to extend these; no edit here.
+SUPPORTED_COMPLIANCE_STANDARDS_DESC = _descriptions()
 DEFAULT_COMPLIANCE_STANDARD = "ntia"
 SUPPORTED_COMPLIANCE_STANDARDS = set(SUPPORTED_COMPLIANCE_STANDARDS_DESC.keys())
 

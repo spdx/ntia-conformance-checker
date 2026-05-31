@@ -7,7 +7,6 @@
 # pylint: disable=missing-function-docstring,import-error,consider-using-from-import
 
 import os
-import warnings
 from pathlib import Path
 from unittest import TestCase
 
@@ -41,14 +40,14 @@ def test_sbomchecker_ntia_no_errors(test_file: str) -> None:
     # No compliance argument is given to SbomChecker; Default is "ntia"
     sbom = sbom_checker.SbomChecker(test_file)
     assert sbom.file == test_file
-    assert sbom.doc_version
-    assert sbom.doc_author
-    assert sbom.doc_timestamp
-    assert sbom.dependency_relationships
-    assert not sbom.components_without_names
-    assert not sbom.components_without_versions
-    assert not sbom.components_without_suppliers
-    assert not sbom.components_without_identifiers
+    assert sbom.document_value("spec_version")
+    assert sbom.document_value("author")
+    assert sbom.document_value("timestamp")
+    assert sbom.document_value("dependency_relationship")
+    assert not sbom.components_without("name")
+    assert not sbom.components_without("version")
+    assert not sbom.components_without("supplier")
+    assert not sbom.components_without("unique_identifier")
     assert sbom.compliant
 
 
@@ -56,15 +55,15 @@ def test_sbomchecker_ntia_no_errors(test_file: str) -> None:
 def test_sbomchecker_fsct3_no_errors(test_file: str) -> None:
     sbom = sbom_checker.SbomChecker(test_file, compliance="fsct3-min")
     assert sbom.file == test_file
-    assert sbom.doc_version
-    assert sbom.doc_author
-    assert sbom.doc_timestamp
-    assert sbom.dependency_relationships
-    assert not sbom.components_without_names
-    assert not sbom.components_without_versions
-    assert not sbom.components_without_suppliers
-    assert not sbom.components_without_identifiers
-    assert not sbom.components_without_concluded_licenses
+    assert sbom.document_value("spec_version")
+    assert sbom.document_value("author")
+    assert sbom.document_value("timestamp")
+    assert sbom.document_value("dependency_relationship")
+    assert not sbom.components_without("name")
+    assert not sbom.components_without("version")
+    assert not sbom.components_without("supplier")
+    assert not sbom.components_without("unique_identifier")
+    assert not sbom.components_without("concluded_license")
     assert sbom.compliant
 
 
@@ -72,14 +71,14 @@ def test_sbomchecker_fsct3_no_errors(test_file: str) -> None:
 def test_ntiachecker_no_errors(test_file: str) -> None:
     sbom = NTIAChecker(test_file)
     assert sbom.file == test_file
-    assert sbom.doc_version
-    assert sbom.doc_author
-    assert sbom.doc_timestamp
-    assert sbom.dependency_relationships
-    assert not sbom.components_without_names
-    assert not sbom.components_without_versions
-    assert not sbom.components_without_suppliers
-    assert not sbom.components_without_identifiers
+    assert sbom.document_value("spec_version")
+    assert sbom.document_value("author")
+    assert sbom.document_value("timestamp")
+    assert sbom.document_value("dependency_relationship")
+    assert not sbom.components_without("name")
+    assert not sbom.components_without("version")
+    assert not sbom.components_without("supplier")
+    assert not sbom.components_without("unique_identifier")
     assert sbom.compliant
 
 
@@ -87,15 +86,15 @@ def test_ntiachecker_no_errors(test_file: str) -> None:
 def test_fsct3checker_no_errors(test_file: str) -> None:
     sbom = FSCT3Checker(test_file)
     assert sbom.file == test_file
-    assert sbom.doc_version
-    assert sbom.doc_author
-    assert sbom.doc_timestamp
-    assert sbom.dependency_relationships
-    assert not sbom.components_without_names
-    assert not sbom.components_without_versions
-    assert not sbom.components_without_suppliers
-    assert not sbom.components_without_identifiers
-    assert not sbom.components_without_concluded_licenses
+    assert sbom.document_value("spec_version")
+    assert sbom.document_value("author")
+    assert sbom.document_value("timestamp")
+    assert sbom.document_value("dependency_relationship")
+    assert not sbom.components_without("name")
+    assert not sbom.components_without("version")
+    assert not sbom.components_without("supplier")
+    assert not sbom.components_without("unique_identifier")
+    assert not sbom.components_without("concluded_license")
     assert sbom.compliant
 
 
@@ -145,7 +144,7 @@ test_files_missing_concluded_license = [
 def test_sbomchecker_missing_concluded_license(test_file: str) -> None:
     sbom_check = FSCT3Checker(test_file)
 
-    assert sbom_check.components_without_concluded_licenses
+    assert sbom_check.components_without("concluded_license")
     assert not sbom_check.compliant
 
 
@@ -163,14 +162,14 @@ test_files_missing_dependency_relationships = [
 def test_sbomchecker_missing_dependency_relationships(test_file: str) -> None:
     sbom = sbom_checker.SbomChecker(test_file)
     assert sbom.file == test_file
-    assert sbom.doc_version
-    assert sbom.doc_author
-    assert sbom.doc_timestamp
-    assert not sbom.dependency_relationships
-    assert not sbom.components_without_names
-    assert not sbom.components_without_versions
-    assert not sbom.components_without_suppliers
-    assert not sbom.components_without_identifiers
+    assert sbom.document_value("spec_version")
+    assert sbom.document_value("author")
+    assert sbom.document_value("timestamp")
+    assert not sbom.document_value("dependency_relationship")
+    assert not sbom.components_without("name")
+    assert not sbom.components_without("version")
+    assert not sbom.components_without("supplier")
+    assert not sbom.components_without("unique_identifier")
     assert not sbom.compliant
 
 
@@ -186,16 +185,16 @@ test_files_missing_component_version = [
 def test_sbomchecker_missing_component_version(test_file: str) -> None:
     sbom = sbom_checker.SbomChecker(test_file)
     assert sbom.file == test_file
-    assert sbom.doc_version
-    assert sbom.doc_author
-    assert sbom.doc_timestamp
-    assert sbom.dependency_relationships
-    assert not sbom.components_without_names
+    assert sbom.document_value("spec_version")
+    assert sbom.document_value("author")
+    assert sbom.document_value("timestamp")
+    assert sbom.document_value("dependency_relationship")
+    assert not sbom.components_without("name")
     TestCase().assertCountEqual(
-        _component_names(sbom.components_without_versions), ["glibc"]
+        _component_names(sbom.components_without("version")), ["glibc"]
     )
-    assert not sbom.components_without_suppliers
-    assert not sbom.components_without_identifiers
+    assert not sbom.components_without("supplier")
+    assert not sbom.components_without("unique_identifier")
     assert not sbom.compliant
 
 
@@ -209,17 +208,17 @@ files = [os.path.join(dirname, fn) for fn in os.listdir(dirname)]
 def test_sbomchecker_missing_supplier_name(test_file: str) -> None:
     sbom = sbom_checker.SbomChecker(test_file)
     assert sbom.file == test_file
-    assert sbom.doc_version
-    assert sbom.doc_author
-    assert sbom.doc_timestamp
-    assert sbom.dependency_relationships
-    assert not sbom.components_without_names
-    assert not sbom.components_without_versions
+    assert sbom.document_value("spec_version")
+    assert sbom.document_value("author")
+    assert sbom.document_value("timestamp")
+    assert sbom.document_value("dependency_relationship")
+    assert not sbom.components_without("name")
+    assert not sbom.components_without("version")
     TestCase().assertCountEqual(
-        _component_names(sbom.components_without_suppliers),
+        _component_names(sbom.components_without("supplier")),
         ["glibc", "Jena", "Saxon"],
     )
-    assert not sbom.components_without_identifiers
+    assert not sbom.components_without("unique_identifier")
     assert not sbom.compliant
 
 
@@ -251,8 +250,8 @@ def test_sbomchecker_tern_photon_example() -> None:
         os.path.dirname(__file__), "data", "SPDXSBOMExampleTests", "photon.spdx.tag"
     )
     sbom = sbom_checker.SbomChecker(test_file)
-    assert sbom.doc_author
-    assert _component_names(sbom.components_without_versions) == [
+    assert sbom.document_value("author")
+    assert _component_names(sbom.components_without("version")) == [
         "5e94941e3961b26645fbfdc71a59d439537b98417546bfdab35fa074f121eb15",
         "bash",
     ]
@@ -270,7 +269,7 @@ def test_sbomchecker_bom_alpine_example() -> None:
     # currently checking only one component with a missing version
     assert (
         "sha256:850d4aa2c32a30db71a7e54dab7c605f74a4aeabf9418ccd9273b2480fcb6c04"
-        in _component_names(sbom.components_without_versions)
+        in _component_names(sbom.components_without("version"))
     )
 
 
@@ -332,15 +331,15 @@ def test_sbomchecker_spdx3_no_elements_missing() -> None:
     assert len(sbom.parsing_errors) == 0
     assert len(sbom.validation_messages) == 0
     assert sbom.sbom_name
-    assert len(sbom.components_without_names) == 0
-    assert len(sbom.components_without_versions) == 0
-    assert len(sbom.components_without_identifiers) == 0
-    assert len(sbom.components_without_suppliers) == 0
-    assert len(sbom.components_without_concluded_licenses) == 0
-    assert len(sbom.components_without_copyright_texts) == 0
-    assert sbom.doc_version
-    assert sbom.doc_author
-    assert sbom.doc_timestamp
+    assert len(sbom.components_without("name")) == 0
+    assert len(sbom.components_without("version")) == 0
+    assert len(sbom.components_without("unique_identifier")) == 0
+    assert len(sbom.components_without("supplier")) == 0
+    assert len(sbom.components_without("concluded_license")) == 0
+    assert len(sbom.components_without("copyright_notice")) == 0
+    assert sbom.document_value("spec_version")
+    assert sbom.document_value("author")
+    assert sbom.document_value("timestamp")
     assert sbom.compliant
 
 
@@ -360,7 +359,7 @@ def test_sbomchecker_spdx3_missing_supplier_name() -> None:
     sbom = sbom_checker.SbomChecker(str(test_file), sbom_spec="spdx3")
     assert sbom.doc is not None
     assert isinstance(sbom.doc, spdx3.SHACLObjectSet)
-    assert len(sbom.components_without_suppliers) == 1
+    assert len(sbom.components_without("supplier")) == 1
     assert len(sbom.validation_messages) == 0
 
 
@@ -369,7 +368,7 @@ def test_sbomchecker_spdx3_missing_version() -> None:
     sbom = sbom_checker.SbomChecker(str(test_file), sbom_spec="spdx3")
     assert sbom.doc is not None
     assert isinstance(sbom.doc, spdx3.SHACLObjectSet)
-    assert len(sbom.components_without_versions) == 1
+    assert len(sbom.components_without("version")) == 1
     assert len(sbom.validation_messages) == 0
 
 
@@ -439,19 +438,19 @@ def test_sbomchecker_output_html() -> None:
         "<thead><tr><th>Requirement</th>"
         "<th>Conformant</th></tr></thead>\n"
         "<tbody>\n"
+        "<tr><td class='conformance-res-tab-r'>All component suppliers provided?</td>"
+        "<td class='conformance-res-tab-v'>False</td></tr>\n"
         "<tr><td class='conformance-res-tab-r'>All component names provided?</td>"
         "<td class='conformance-res-tab-v'>True</td></tr>\n"
         "<tr><td class='conformance-res-tab-r'>All component versions provided?</td>"
         "<td class='conformance-res-tab-v'>True</td></tr>\n"
         "<tr><td class='conformance-res-tab-r'>All component identifiers provided?</td>"
         "<td class='conformance-res-tab-v'>True</td></tr>\n"
-        "<tr><td class='conformance-res-tab-r'>All component suppliers provided?</td>"
-        "<td class='conformance-res-tab-v'>False</td></tr>\n"
+        "<tr><td class='conformance-res-tab-r'>Dependency relationships provided?</td>"
+        "<td class='conformance-res-tab-v'>True</td></tr>\n"
         "<tr><td class='conformance-res-tab-r'>SBOM author name provided?</td>"
         "<td class='conformance-res-tab-v'>True</td></tr>\n"
         "<tr><td class='conformance-res-tab-r'>SBOM creation timestamp provided?</td>"
-        "<td class='conformance-res-tab-v'>True</td></tr>\n"
-        "<tr><td class='conformance-res-tab-r'>Dependency relationships provided?</td>"
         "<td class='conformance-res-tab-v'>True</td></tr>\n"
         "</tbody>\n"
         "</table>\n"
@@ -478,7 +477,7 @@ def test_sbomchecker_fsct3_output_html() -> None:
     expected = (
         "<div class='conformance-res'>\n"
         "<h2 class='conformance-res-title'>"
-        "2024 CISA Framing Software Component Transparency"
+        "2024 CISA SBOM Baseline Attributes"
         " (Minimum Expected) Conformance Results"
         "</h2>\n"
         "<h3 class='conformance-res-status'>Conformant: False</h3>\n"
@@ -486,23 +485,23 @@ def test_sbomchecker_fsct3_output_html() -> None:
         "<thead><tr><th>Requirement</th>"
         "<th>Conformant</th></tr></thead>\n"
         "<tbody>\n"
-        "<tr><td class='conformance-res-tab-r'>All component names provided?</td>"
-        "<td class='conformance-res-tab-v'>True</td></tr>\n"
-        "<tr><td class='conformance-res-tab-r'>All component versions provided?</td>"
-        "<td class='conformance-res-tab-v'>True</td></tr>\n"
-        "<tr><td class='conformance-res-tab-r'>All component identifiers provided?</td>"
-        "<td class='conformance-res-tab-v'>True</td></tr>\n"
-        "<tr><td class='conformance-res-tab-r'>All component suppliers provided?</td>"
-        "<td class='conformance-res-tab-v'>False</td></tr>\n"
-        "<tr><td class='conformance-res-tab-r'>All component concluded license provided?</td>"
-        "<td class='conformance-res-tab-v'>False</td></tr>\n"
-        "<tr><td class='conformance-res-tab-r'>All component copyright notice provided?</td>"
-        "<td class='conformance-res-tab-v'>True</td></tr>\n"
         "<tr><td class='conformance-res-tab-r'>SBOM author name provided?</td>"
         "<td class='conformance-res-tab-v'>True</td></tr>\n"
         "<tr><td class='conformance-res-tab-r'>SBOM creation timestamp provided?</td>"
         "<td class='conformance-res-tab-v'>True</td></tr>\n"
         "<tr><td class='conformance-res-tab-r'>Dependency relationships provided?</td>"
+        "<td class='conformance-res-tab-v'>True</td></tr>\n"
+        "<tr><td class='conformance-res-tab-r'>All component names provided?</td>"
+        "<td class='conformance-res-tab-v'>True</td></tr>\n"
+        "<tr><td class='conformance-res-tab-r'>All component versions provided?</td>"
+        "<td class='conformance-res-tab-v'>True</td></tr>\n"
+        "<tr><td class='conformance-res-tab-r'>All component suppliers provided?</td>"
+        "<td class='conformance-res-tab-v'>False</td></tr>\n"
+        "<tr><td class='conformance-res-tab-r'>All component identifiers provided?</td>"
+        "<td class='conformance-res-tab-v'>True</td></tr>\n"
+        "<tr><td class='conformance-res-tab-r'>All component concluded license provided?</td>"
+        "<td class='conformance-res-tab-v'>False</td></tr>\n"
+        "<tr><td class='conformance-res-tab-r'>All component copyright notice provided?</td>"
         "<td class='conformance-res-tab-v'>True</td></tr>\n"
         "</tbody>\n"
         "</table>\n"
@@ -543,27 +542,11 @@ def test_components_without_functions() -> None:
     # assert components == ["glibc-no-identifier"]
 
 
-def test_deprecation_ntia_minimum_elements_compliant() -> None:
-    """Test that accessing the deprecated property
-    `ntia_minimum_elements_compliant`
-    raises a DeprecationWarning."""
+def test_removed_legacy_properties_raise_attribute_error() -> None:
+    """In v6 the deprecated ``ntia_minimum_elements_compliant`` and
+    ``parsing_error`` properties were removed.  Confirm they no longer
+    resolve so callers get a clear AttributeError, not a silent fallback."""
     sbom = sbom_checker.SbomChecker(test_files[0])
-    with warnings.catch_warnings(record=True) as caught:
-        warnings.simplefilter("always")
-        _ = sbom.ntia_minimum_elements_compliant
-    assert len(caught) == 1
-    assert issubclass(caught[0].category, DeprecationWarning)
-    assert "ntia_minimum_elements_compliant" in str(caught[0].message)
-
-
-def test_deprecation_parsing_error() -> None:
-    """Test that accessing the deprecated property
-    `parsing_error`
-    raises a DeprecationWarning."""
-    sbom = sbom_checker.SbomChecker(test_files[0])
-    with warnings.catch_warnings(record=True) as caught:
-        warnings.simplefilter("always")
-        _ = sbom.parsing_error
-    assert len(caught) == 1
-    assert issubclass(caught[0].category, DeprecationWarning)
-    assert "parsing_error" in str(caught[0].message)
+    for attr in ("ntia_minimum_elements_compliant", "parsing_error"):
+        with pytest.raises(AttributeError):
+            getattr(sbom, attr)

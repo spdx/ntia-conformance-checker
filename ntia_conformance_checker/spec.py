@@ -1,4 +1,4 @@
-# SPDX-FileCopyrightText: 2026 SPDX contributors
+# SPDX-FileCopyrightText: 2026-present SPDX contributors
 # SPDX-FileType: SOURCE
 # SPDX-License-Identifier: Apache-2.0
 
@@ -33,7 +33,7 @@ iterates clusters simply skips entries whose ``cluster`` does not match.
 from __future__ import annotations
 
 from dataclasses import dataclass, field
-from typing import Literal
+from typing import Any, Literal
 
 Maturity = Literal["minimum-expected", "recommended", "aspirational"]
 """Three maturity levels per FSCT §2.2 / NTIA implicit equivalents."""
@@ -50,6 +50,23 @@ Status = Literal["active", "catalogue-only", "tbd"]
   *not* added to the catalogue; it exists so that wiring up the check later
   does not require renumbering existing rules.
 """
+
+
+@dataclass(frozen=True, kw_only=True)
+class ProbeRef:
+    """Reference to a registered probe, with bound parameters.
+
+    Loaded from the ``probe:`` block of a YAML rule.  The engine resolves
+    ``name`` against :mod:`ntia_conformance_checker.probes._registry` and
+    calls the probe with ``params`` as keyword arguments.
+    """
+
+    name: str
+    """Probe name as registered with :func:`probes.probe`."""
+
+    params: dict[str, Any] = field(default_factory=dict)
+    """Keyword arguments passed to the probe.  Probe functions declare
+    every accepted parameter explicitly so typos in YAML fail loudly."""
 
 
 @dataclass(frozen=True, kw_only=True)
@@ -98,27 +115,20 @@ class SpecRule:
     ``"ntia-component-name"``, ``"fsct-component-name"``."""
 
     element_id: str = ""
-    """Unprefixed element id used by the ``BaseChecker`` aggregator
-    (e.g. ``"name"``, ``"supplier"``).  For component-level rules this
-    should match an entry in the subclass's ``MIN_ELEMENTS`` list so the
-    rule is picked up by :meth:`BaseChecker._get_all_components_without_info`.
-    Document-level rules may use any unique string (e.g. ``"timestamp"``)."""
+    """Canonical element id from
+    :data:`ntia_conformance_checker.model.ELEMENT_IDS` (e.g. ``"name"``,
+    ``"supplier"``, ``"creation_timestamp"``).  Carries the semantic key
+    that survives across specs -- different specs may give the same
+    underlying concept different names (e.g. "Type" vs "Generation
+    Context"), but the ``element_id`` matches as long as the probe
+    queries the same SBOM-model field."""
 
     sarif_rule_name: str
     """SARIF ``reportingDescriptor.name`` (PascalCase short name,
     e.g. ``NtiaComponentNameMissing``)."""
 
-    # -- Checker wiring ---------------------------------------------------
-
-    attr: str
-    """Instance attribute on the checker that holds the result."""
-
     label: str
     """Exact table label used in text/HTML reports."""
-
-    kind: Literal["list", "bool"]
-    """``"list"``: attribute is a list of missing items (passes if empty).
-    ``"bool"``: attribute is a boolean flag (passes if truthy)."""
 
     description: str = ""
     """Short noun phrase naming the missing element (e.g. ``"component
@@ -186,9 +196,11 @@ class SpecRule:
     """JSON output key within ``json_group``.  ``None`` means the rule is
     not emitted in JSON output."""
 
-    getter: str | None = None
-    """Method name to call from the checker's ``__init__`` to populate
-    ``attr``.  ``None`` if the base class already sets the attribute."""
+    # -- Rule-based engine ------------------------------------------------
+
+    probe: ProbeRef | None = None
+    """Probe to run for this rule.  ``None`` for catalogue-only and TBD
+    rules (they appear in the catalogue but no probe is invoked)."""
 
 
 _MATURITY_TO_SARIF_LEVEL: dict[Maturity, str] = {

@@ -108,6 +108,8 @@ options:
                         Report output type; see below for details [default: print]
   -o, --output-file PATH
                         Filepath for report output; if omitted, prints to console
+  --embed-sbom          Embed the input SBOM contents in the SARIF output. Significantly
+                        increases output size. [default: off]
   -v, --verbose         Print more information (debug)
   -V, --version         Display version of sbomcheck
 
@@ -117,7 +119,7 @@ choices:
     spdx3       System Package Data Exchange (SPDX) 3.x
 
   Compliance standards (for --comply):
-    fsct3-min   2024 CISA Framing Software Component Transparency (Minimum Expected)
+    fsct3-min   2024 CISA SBOM Baseline Attributes (Minimum Expected)
     ntia        2021 NTIA SBOM Minimum Elements
 
   Report output types (for --output):
@@ -125,7 +127,7 @@ choices:
     json        Report in JSON format
     print       Print report to console
     quiet       No output unless there are errors
-    sarif       Report in SARIF 2.1.0 format
+    sarif       Report in SARIF format
 
 Examples:
   sbomcheck sbom.spdx
@@ -150,7 +152,10 @@ To generate the output in [SARIF][sarif] format, run:
 ```bash
 sbomcheck sbom.spdx --output sarif
 sbomcheck sbom.spdx --output sarif --output-file report.sarif
+sbomcheck sbom.spdx --output sarif --embed-sbom
 ```
+
+The `--embed-sbom` option will embed input SBOM contents in the SARIF output.
 
 To analyze an SPDX 3 JSON file, run:
 

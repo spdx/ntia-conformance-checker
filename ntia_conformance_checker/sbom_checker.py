@@ -63,19 +63,23 @@ class SbomChecker(BaseChecker):
         if sbom_spec not in SUPPORTED_SBOM_SPECS:
             raise ValueError(f"Unsupported SBOM specification: {sbom_spec}")
 
-        if compliance == "ntia":
-            # pylint: disable=import-outside-toplevel
-            from .ntia_checker import NTIAChecker
+        # The registry is the single source of truth for which compliance
+        # standards exist; ``get_spec`` raises ValueError for unknown ids.
+        # Dispatch is spec-driven -- no per-standard branch here, so adding
+        # a new ``rules/<id>.yaml`` is all that is needed to support a new
+        # ``--comply`` value.
+        # pylint: disable=import-outside-toplevel
+        from .registry import get_spec
+        from .rule_based_checker import RuleBasedChecker
 
-            return NTIAChecker(file, validate, sbom_spec=sbom_spec)
-
-        if compliance.startswith("fsct3"):
-            # pylint: disable=import-outside-toplevel
-            from .fsct_checker import FSCT3Checker
-
-            return FSCT3Checker(file, validate, sbom_spec=sbom_spec)
-
-        raise ValueError(f"Unknown compliance standard: {compliance}")
+        spec = get_spec(compliance)
+        return RuleBasedChecker(
+            file,
+            validate,
+            compliance=compliance,
+            sbom_spec=sbom_spec,
+            spec=spec,
+        )
 
     def __init_subclass__(cls, /) -> None:  # prevent subclassing
         raise TypeError(
