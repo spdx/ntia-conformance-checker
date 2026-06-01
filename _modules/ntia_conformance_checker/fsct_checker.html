@@ -119,6 +119,10 @@
             <span class="p">),</span>
             <span class="p">(</span><span class="s2">&quot;SBOM author name provided?&quot;</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">doc_author</span><span class="p">),</span>
             <span class="p">(</span><span class="s2">&quot;SBOM creation timestamp provided?&quot;</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">doc_timestamp</span><span class="p">),</span>
+            <span class="p">(</span>
+                <span class="s2">&quot;SBOM generation context (SBOM type) provided?&quot;</span><span class="p">,</span>
+                <span class="nb">bool</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">sbom_gen_context</span><span class="p">),</span>
+            <span class="p">),</span>
             <span class="p">(</span><span class="s2">&quot;Dependency relationships provided?&quot;</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">dependency_relationships</span><span class="p">),</span>
         <span class="p">]</span>
 
@@ -131,6 +135,7 @@
                 <span class="bp">self</span><span class="o">.</span><span class="n">doc_author</span><span class="p">,</span>
                 <span class="bp">self</span><span class="o">.</span><span class="n">doc_timestamp</span><span class="p">,</span>
                 <span class="bp">self</span><span class="o">.</span><span class="n">dependency_relationships</span><span class="p">,</span>
+                <span class="nb">bool</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">sbom_gen_context</span><span class="p">),</span>
                 <span class="ow">not</span> <span class="bp">self</span><span class="o">.</span><span class="n">components_without_names</span><span class="p">,</span>
                 <span class="ow">not</span> <span class="bp">self</span><span class="o">.</span><span class="n">components_without_versions</span><span class="p">,</span>
                 <span class="ow">not</span> <span class="bp">self</span><span class="o">.</span><span class="n">components_without_identifiers</span><span class="p">,</span>

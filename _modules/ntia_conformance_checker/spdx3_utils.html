@@ -60,14 +60,9 @@
 <span class="sd">    Validate an SHACLObjectSet if it contains a valid SpdxDocument.</span>
 
 <span class="sd">    The SPDX 3.0 specification states that &quot;Any instance of serialization of</span>
-<span class="sd">    SPDX data MUST NOT contain more than one SpdxDocument element definition.&quot;</span>
+<span class="sd">    SPDX data shall not contain more than one SpdxDocument element definition.&quot;</span>
 
-<span class="sd">    See: https://spdx.github.io/spdx-spec/v3.0/model/Core/Classes/SpdxDocument/</span>
-
-<span class="sd">    For the purpose of BOM/SBOM application, it also requires that the</span>
-<span class="sd">    SpdxDocument should have a Bom or Software/Sbom as its rootElement.</span>
-
-<span class="sd">    See: https://github.com/spdx/ntia-conformance-checker/issues/268</span>
+<span class="sd">    See: https://spdx.github.io/spdx-spec/latest/model/Core/Classes/SpdxDocument/</span>
 
 <span class="sd">    Args:</span>
 <span class="sd">        object_set (spdx3.SHACLObjectSet): The SHACLObjectSet containing</span>
@@ -89,6 +84,9 @@
         <span class="k">for</span> <span class="n">obj</span> <span class="ow">in</span> <span class="n">object_set</span><span class="o">.</span><span class="n">foreach_type</span><span class="p">(</span><span class="s2">&quot;SpdxDocument&quot;</span><span class="p">)</span>
     <span class="p">]</span>
 
+    <span class="c1"># == SPDX 3 JSON serialization constraint =====</span>
+
+    <span class="c1"># Collections of SPDX 3 Elements shall be inside SpdxDocument</span>
     <span class="k">if</span> <span class="ow">not</span> <span class="n">spdx_documents</span><span class="p">:</span>
         <span class="n">error_msg</span> <span class="o">=</span> <span class="p">(</span>
             <span class="s2">&quot;No SpdxDocument object found in the SPDX 3 JSON file. &quot;</span>
@@ -98,31 +96,58 @@
         <span class="k">return</span> <span class="p">(</span><span class="n">doc</span><span class="p">,</span> <span class="n">validation_messages</span><span class="p">)</span>
 
     <span class="k">if</span> <span class="nb">len</span><span class="p">(</span><span class="n">spdx_documents</span><span class="p">)</span> <span class="o">!=</span> <span class="mi">1</span><span class="p">:</span>
-        <span class="n">error_msg</span> <span class="o">=</span> <span class="s2">&quot;Multiple SpdxDocument objects found. Allows exactly one.&quot;</span>
+        <span class="n">error_msg</span> <span class="o">=</span> <span class="p">(</span>
+            <span class="s2">&quot;Multiple SpdxDocument objects found in the SPDX 3 JSON file. &quot;</span>
+            <span class="s2">&quot;Allows no more than one. &quot;</span>
+            <span class="s2">&quot;Ref: https://spdx.github.io/spdx-spec/latest/model/Core/Classes/SpdxDocument/&quot;</span>
+        <span class="p">)</span>
         <span class="n">validation_messages</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">ValidationMessage</span><span class="p">(</span><span class="n">error_msg</span><span class="p">,</span> <span class="n">ValidationContext</span><span class="p">()))</span>
         <span class="k">return</span> <span class="p">(</span><span class="n">doc</span><span class="p">,</span> <span class="n">validation_messages</span><span class="p">)</span>
 
+    <span class="c1"># == ElementCollection constraint =====</span>
+    <span class="c1"># SpdxDocument is an ElementCollection.</span>
+
     <span class="n">doc</span> <span class="o">=</span> <span class="n">spdx_documents</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span>
     <span class="n">doc_id</span> <span class="o">=</span> <span class="nb">getattr</span><span class="p">(</span><span class="n">doc</span><span class="p">,</span> <span class="s2">&quot;spdxId&quot;</span><span class="p">,</span> <span class="kc">None</span><span class="p">)</span>
-    <span class="n">root_element</span> <span class="o">=</span> <span class="nb">getattr</span><span class="p">(</span><span class="n">doc</span><span class="p">,</span> <span class="s2">&quot;rootElement&quot;</span><span class="p">,</span> <span class="kc">None</span><span class="p">)</span>
+    <span class="n">elements</span><span class="p">:</span> <span class="nb">list</span><span class="p">[</span><span class="n">Any</span><span class="p">]</span> <span class="o">=</span> <span class="nb">getattr</span><span class="p">(</span><span class="n">doc</span><span class="p">,</span> <span class="s2">&quot;element&quot;</span><span class="p">,</span> <span class="p">[])</span> <span class="ow">or</span> <span class="p">[]</span>
+    <span class="n">root_elements</span><span class="p">:</span> <span class="nb">list</span><span class="p">[</span><span class="n">Any</span><span class="p">]</span> <span class="o">=</span> <span class="nb">getattr</span><span class="p">(</span><span class="n">doc</span><span class="p">,</span> <span class="s2">&quot;rootElement&quot;</span><span class="p">,</span> <span class="p">[])</span> <span class="ow">or</span> <span class="p">[]</span>
 
-    <span class="k">if</span> <span class="ow">not</span> <span class="n">root_element</span><span class="p">:</span>
-        <span class="n">error_msg</span> <span class="o">=</span> <span class="s2">&quot;No rootElement found in the SpdxDocument. Expected exactly one.&quot;</span>
-        <span class="n">context</span> <span class="o">=</span> <span class="n">ValidationContext</span><span class="p">(</span><span class="n">parent_id</span><span class="o">=</span><span class="n">doc_id</span><span class="p">)</span>
-        <span class="n">validation_messages</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">ValidationMessage</span><span class="p">(</span><span class="n">error_msg</span><span class="p">,</span> <span class="n">context</span><span class="p">))</span>
-    <span class="k">elif</span> <span class="nb">len</span><span class="p">(</span><span class="n">root_element</span><span class="p">)</span> <span class="o">!=</span> <span class="mi">1</span><span class="p">:</span>
-        <span class="n">error_msg</span> <span class="o">=</span> <span class="s2">&quot;Multiple root elements found in SpdxDocument. Allows exactly one.&quot;</span>
-        <span class="n">context</span> <span class="o">=</span> <span class="n">ValidationContext</span><span class="p">(</span><span class="n">parent_id</span><span class="o">=</span><span class="n">doc_id</span><span class="p">)</span>
-        <span class="n">validation_messages</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">ValidationMessage</span><span class="p">(</span><span class="n">error_msg</span><span class="p">,</span> <span class="n">context</span><span class="p">))</span>
-    <span class="k">else</span><span class="p">:</span>
-        <span class="n">root_element</span> <span class="o">=</span> <span class="n">root_element</span><span class="p">[</span><span class="mi">0</span><span class="p">]</span>
-        <span class="k">if</span> <span class="ow">not</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">root_element</span><span class="p">,</span> <span class="p">(</span><span class="n">spdx3</span><span class="o">.</span><span class="n">Bom</span><span class="p">,</span> <span class="n">spdx3</span><span class="o">.</span><span class="n">software_Sbom</span><span class="p">)):</span>
+    <span class="c1"># ElementCollection constraint: if there is at least one element,</span>
+    <span class="c1"># there shall also be at least one rootElement.</span>
+    <span class="c1"># Ref: https://spdx.github.io/spdx-spec/latest/model/Core/Classes/ElementCollection/</span>
+    <span class="k">if</span> <span class="n">elements</span> <span class="ow">and</span> <span class="ow">not</span> <span class="n">root_elements</span><span class="p">:</span>
+        <span class="n">error_msg</span> <span class="o">=</span> <span class="p">(</span>
+            <span class="s2">&quot;The SpdxDocument has elements but no rootElement. &quot;</span>
+            <span class="s2">&quot;An SpdxDocument with at least one element shall also have &quot;</span>
+            <span class="s2">&quot;at least one rootElement. &quot;</span>
+            <span class="s2">&quot;Ref: https://spdx.github.io/spdx-spec/latest/model/Core/Classes/ElementCollection/&quot;</span>
+        <span class="p">)</span>
+        <span class="n">validation_messages</span><span class="o">.</span><span class="n">append</span><span class="p">(</span>
+            <span class="n">ValidationMessage</span><span class="p">(</span><span class="n">error_msg</span><span class="p">,</span> <span class="n">ValidationContext</span><span class="p">(</span><span class="n">parent_id</span><span class="o">=</span><span class="n">doc_id</span><span class="p">))</span>
+        <span class="p">)</span>
+
+    <span class="c1"># ElementCollection constraint: element items shall not be of type SpdxDocument.</span>
+    <span class="c1"># Ref: https://spdx.github.io/spdx-spec/latest/model/Core/Classes/ElementCollection/</span>
+    <span class="k">for</span> <span class="n">elem</span> <span class="ow">in</span> <span class="n">elements</span><span class="p">:</span>
+        <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">elem</span><span class="p">,</span> <span class="n">spdx3</span><span class="o">.</span><span class="n">SpdxDocument</span><span class="p">):</span>
+            <span class="n">elem_id</span> <span class="o">=</span> <span class="nb">getattr</span><span class="p">(</span><span class="n">elem</span><span class="p">,</span> <span class="s2">&quot;spdxId&quot;</span><span class="p">,</span> <span class="kc">None</span><span class="p">)</span>
             <span class="n">error_msg</span> <span class="o">=</span> <span class="p">(</span>
-                <span class="s2">&quot;The root element must be of type Bom or software_Sbom. &quot;</span>
-                <span class="sa">f</span><span class="s2">&quot;Found: </span><span class="si">{</span><span class="nb">type</span><span class="p">(</span><span class="n">root_element</span><span class="p">)</span><span class="si">!r}</span><span class="s2">&quot;</span>
+                <span class="s2">&quot;An SpdxDocument element shall not be of type SpdxDocument. &quot;</span>
+                <span class="s2">&quot;Ref: https://spdx.github.io/spdx-spec/latest/model/Core/Classes/ElementCollection/&quot;</span>
             <span class="p">)</span>
-            <span class="n">root_element_id</span> <span class="o">=</span> <span class="nb">getattr</span><span class="p">(</span><span class="n">root_element</span><span class="p">,</span> <span class="s2">&quot;spdxId&quot;</span><span class="p">,</span> <span class="kc">None</span><span class="p">)</span>
-            <span class="n">context</span> <span class="o">=</span> <span class="n">ValidationContext</span><span class="p">(</span><span class="n">parent_id</span><span class="o">=</span><span class="n">doc_id</span><span class="p">,</span> <span class="n">spdx_id</span><span class="o">=</span><span class="n">root_element_id</span><span class="p">)</span>
+            <span class="n">context</span> <span class="o">=</span> <span class="n">ValidationContext</span><span class="p">(</span><span class="n">parent_id</span><span class="o">=</span><span class="n">doc_id</span><span class="p">,</span> <span class="n">spdx_id</span><span class="o">=</span><span class="n">elem_id</span><span class="p">)</span>
+            <span class="n">validation_messages</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">ValidationMessage</span><span class="p">(</span><span class="n">error_msg</span><span class="p">,</span> <span class="n">context</span><span class="p">))</span>
+
+    <span class="c1"># ElementCollection constraint: rootElement items shall not be of type SpdxDocument.</span>
+    <span class="c1"># Ref: https://spdx.github.io/spdx-spec/latest/model/Core/Classes/ElementCollection/</span>
+    <span class="k">for</span> <span class="n">root_elem</span> <span class="ow">in</span> <span class="n">root_elements</span><span class="p">:</span>
+        <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">root_elem</span><span class="p">,</span> <span class="n">spdx3</span><span class="o">.</span><span class="n">SpdxDocument</span><span class="p">):</span>
+            <span class="n">root_elem_id</span> <span class="o">=</span> <span class="nb">getattr</span><span class="p">(</span><span class="n">root_elem</span><span class="p">,</span> <span class="s2">&quot;spdxId&quot;</span><span class="p">,</span> <span class="kc">None</span><span class="p">)</span>
+            <span class="n">error_msg</span> <span class="o">=</span> <span class="p">(</span>
+                <span class="s2">&quot;An SpdxDocument rootElement shall not be of type SpdxDocument. &quot;</span>
+                <span class="s2">&quot;Ref: https://spdx.github.io/spdx-spec/latest/model/Core/Classes/ElementCollection/&quot;</span>
+            <span class="p">)</span>
+            <span class="n">context</span> <span class="o">=</span> <span class="n">ValidationContext</span><span class="p">(</span><span class="n">parent_id</span><span class="o">=</span><span class="n">doc_id</span><span class="p">,</span> <span class="n">spdx_id</span><span class="o">=</span><span class="n">root_elem_id</span><span class="p">)</span>
             <span class="n">validation_messages</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">ValidationMessage</span><span class="p">(</span><span class="n">error_msg</span><span class="p">,</span> <span class="n">context</span><span class="p">))</span>
 
     <span class="k">return</span> <span class="p">(</span><span class="n">doc</span><span class="p">,</span> <span class="n">validation_messages</span><span class="p">)</span></div>
