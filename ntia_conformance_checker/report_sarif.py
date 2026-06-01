@@ -168,9 +168,7 @@ def _rule_relationships(spec: "Spec", rule: "SpecRule") -> list[dict[str, Any]]:
 def _emit_rule(spec: "Spec", rule: "SpecRule") -> dict[str, Any]:
     """Build a SARIF ``reportingDescriptor`` for ``rule``."""
     rule_id = spec.rule_id(rule)
-    short_text = (
-        rule.warning or f"{rule.element_description.capitalize()} is missing."
-    )
+    short_text = rule.warning or f"{rule.element_description.capitalize()} is missing."
     descriptor: dict[str, Any] = {
         "id": rule_id,
         "name": rule.sarif_name,
