@@ -19,6 +19,10 @@ from spdx_tools.spdx.model.spdx_no_assertion import SpdxNoAssertion
 from spdx_tools.spdx.parser import parse_anything
 from spdx_tools.spdx.parser.error import SPDXParsingError
 from spdx_tools.spdx.validation.document_validator import validate_full_spdx_document
+from spdx_tools.spdx.validation.validation_message import (
+    ValidationContext,
+    ValidationMessage,
+)
 
 from .constants import DEFAULT_SBOM_SPEC
 from .report import (
@@ -37,7 +41,6 @@ from .spdx3_utils import (
 
 if TYPE_CHECKING:
     from spdx_tools.spdx.model.document import Document
-    from spdx_tools.spdx.validation.validation_message import ValidationMessage
 
 
 # pylint: disable=too-many-instance-attributes,too-many-public-methods
@@ -81,15 +84,16 @@ class BaseChecker(ABC):
     # file_format: str = ""  # json, rdf-xml, tag-value, yaml, xml
 
     file: str = ""
+
     # For SPDX 3, we have to use SHACLObjectSet instead of SpdxDocument,
     # because we need access to relationships and other elements that are not
     # accessible from SpdxDocument.
-
     doc: Document | spdx3.SHACLObjectSet | None = None
     __spdx3_doc: spdx3.SpdxDocument | None = None  # cached SPDX 3 document
 
     _parsing_errors: list[str] = []
     _validation_messages: list[ValidationMessage] = []
+    _conformance_messages: list[ValidationMessage] = []
 
     sbom_name: str = ""
     # Lists of components missing required information.
@@ -105,6 +109,8 @@ class BaseChecker(ABC):
     doc_author: bool = False  # Has SPDX document author?
     doc_timestamp: bool = False  # Has SPDX document creation timestamp?
     dependency_relationships: bool = False  # Has DESCRIBES relationship?
+    # See https://github.com/spdx/ntia-conformance-checker/issues/392
+    # for discussion on dependency relationships and DESCRIBES.
 
     compliant: bool = False  # Is SBOM compliant with the chosen standard?
 
@@ -138,6 +144,11 @@ class BaseChecker(ABC):
         """Validation messages from SPDX document validation."""
         return self._validation_messages
 
+    @property
+    def conformance_messages(self) -> list[ValidationMessage]:
+        """Conformance messages from compliance/conformance checks."""
+        return self._conformance_messages
+
     @abstractmethod
     def check_compliance(self) -> bool:
         """Abstract method to check compliance/conformance."""
@@ -169,6 +180,7 @@ class BaseChecker(ABC):
         # to avoid shared state between instances.
         self._parsing_errors = []
         self._validation_messages = []
+        self._conformance_messages = []
 
         match sbom_spec:
             case "spdx2":
@@ -179,10 +191,9 @@ class BaseChecker(ABC):
                     logging.error("Failed to parse the SPDX 3 file.")
                 else:
                     self.doc = object_set
-                    _doc, _val_msgs = validate_spdx3_data(object_set)
-                    if not _doc or _val_msgs:
+                    self.__spdx3_doc, _val_msgs = validate_spdx3_data(object_set)
+                    if not self.__spdx3_doc or _val_msgs:
                         logging.error("SpdxDocument not found or invalid.")
-                    self.__spdx3_doc = _doc  # cache the extracted SpdxDocument
                     self._validation_messages.extend(_val_msgs)
             case _:
                 # We can add a heuristic to detect the spec from the file content here,
@@ -190,14 +201,12 @@ class BaseChecker(ABC):
                 raise ValueError(f"Unsupported SBOM specification: {sbom_spec}")
 
         if self.doc:
-            if validate:
-                if sbom_spec == "spdx2":
-                    self.doc = cast("Document", self.doc)
-                    self._validation_messages = validate_full_spdx_document(self.doc)
-                else:
-                    pass
+            if validate and sbom_spec == "spdx2":
+                self.doc = cast("Document", self.doc)
+                self._validation_messages = validate_full_spdx_document(self.doc)
 
             self.sbom_name = self.get_sbom_name()
+            self.sbom_gen_context = self.get_sbom_types()
 
             self.doc_version = self.check_doc_version()
             self.doc_author = self.check_author()
@@ -261,7 +270,12 @@ class BaseChecker(ABC):
         return False
 
     def check_dependency_relationships(self) -> bool:
-        """Check if the SPDX document DESCRIBES at least one package."""
+        """Check if the SBOM document describes at least one package.
+
+        For SPDX 2 this checks for a DESCRIBES relationship; for SPDX 3 it
+        checks that a /Software/Sbom element lists at least one package in its
+        ``rootElement``.
+        """
         if not self.doc:
             return False
 
@@ -290,12 +304,20 @@ class BaseChecker(ABC):
 
         # SPDX 3
         if self.sbom_spec == "spdx3":
-            # If a BOM/an SBOM's rootElement is a /Software/Package (or its subclass),
-            # it is considered to have a dependency relationship.
+            # We will assume here that the SpdxDocument's rootElement is
+            # either /Core/Bom or /Software/Sbom.
+            #
+            # If the's rootElement is a /Software/Package
+            # (or its subclass),
+            # it is considered to have a DESCRIBES relationship.
             #
             # Note that if there is neither /Software/Package(s) nor /Core/Bom,
-            # a DESCRIBES relationship is not needed; however, this method may still
-            # return False, since it is factually considered as "no relationship".
+            # a DESCRIBES relationship is not needed;
+            # however, this method may still return False,
+            # since it is factually considered as "no relationship".
+            #
+            # See https://github.com/spdx/ntia-conformance-checker/issues/392
+            # for discussion on dependency relationships and DESCRIBES.
 
             # There is a BOM/SBOM and an /Software/Package,
             # check if there is at least one package listed in any BOM/SBOM
@@ -381,6 +403,48 @@ class BaseChecker(ABC):
             name = getattr(self.__spdx3_doc, "name", "")
 
         return name
+
+    def get_sbom_types(self) -> list[str]:
+        """Get SBOM types from the rootElement of the SpdxDocument.
+
+        CISA Framing Software Component Transparency (2024) listed
+        "SBOM type" as one of baseline attributes, see Table 1 (p. 22) in:
+        https://www.cisa.gov/resources-tools/resources/framing-software-component-transparency-2024
+
+        In SPDX 3, SBOM type is only available in /Software/Sbom class.
+        """
+        # SBOM type is only available in SPDX 3
+        if not self.doc or self.sbom_spec != "spdx3":
+            return []
+
+        root_elements: list[spdx3.SHACLObject] = getattr(
+            self.__spdx3_doc, "rootElement", []
+        )
+        if not root_elements:
+            return []
+
+        sbom_types: list[str] = []
+
+        # Assuming only one rootElement per document
+        root_elem = root_elements[0]
+        if not isinstance(root_elem, spdx3.software_Sbom):
+            doc_id = getattr(self.__spdx3_doc, "spdxId", None)
+            root_elem_id = getattr(root_elem, "spdxId", None)
+            error_msg = (
+                "To have SBOM type (SBOM generation context) information, "
+                "the rootElement of the SpdxDocument shall be of type "
+                "/Software/Sbom."
+                f"Found: {type(root_elem).__name__!r}"
+            )
+            context = ValidationContext(parent_id=doc_id, spdx_id=root_elem_id)
+            self._conformance_messages.append(ValidationMessage(error_msg, context))
+            return []
+
+        sbom_types = [
+            type_.strip() for type_ in getattr(root_elem, "software_sbomType", [])
+        ]
+
+        return sbom_types
 
     def get_components_without_concluded_licenses(self) -> list[tuple[str, str]]:
         """
@@ -818,6 +882,7 @@ class BaseChecker(ABC):
             requirement_results=getattr(self, "table_elements", []),
             components_without_info=getattr(self, "all_components_without_info", []),
             validation_messages=self._validation_messages,
+            conformance_messages=self._conformance_messages,
             parsing_errors=self._parsing_errors,
         )
 
@@ -837,6 +902,7 @@ class BaseChecker(ABC):
             requirement_results=getattr(self, "table_elements", []),
             components_without_info=getattr(self, "all_components_without_info", []),
             validation_messages=self._validation_messages,
+            conformance_messages=self._conformance_messages,
             parsing_errors=self._parsing_errors,
         )
 
@@ -857,6 +923,9 @@ class BaseChecker(ABC):
             "sbomSpec": getattr(self, "sbom_spec", ""),
             "validationMessages": get_validation_messages_json(
                 self._validation_messages
+            ),
+            "conformanceMessages": get_validation_messages_json(
+                self._conformance_messages
             ),
             "parsingError": self._parsing_errors,
             "sbomName": getattr(self, "sbom_name", ""),
