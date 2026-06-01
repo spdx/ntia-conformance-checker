@@ -29,7 +29,7 @@ class SbomChecker(BaseChecker):
     Currently supported compliance standards:
 
     - **"ntia" (default)**: 2021 NTIA SBOM Minimum Elements
-    - **"fsct3-min"**: 2024 CISA SBOM Baseline Attributes (Minimum Expected)
+    - **"fsct3"**: 2024 CISA SBOM Baseline Attributes (Minimum Expected)
 
     If "compliance" is not recognized, SbomChecker raises a ValueError.
     """

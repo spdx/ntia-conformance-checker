@@ -18,6 +18,10 @@ from spdx_tools.spdx.model.spdx_no_assertion import SpdxNoAssertion
 from spdx_tools.spdx.parser import parse_anything
 from spdx_tools.spdx.parser.error import SPDXParsingError
 from spdx_tools.spdx.validation.document_validator import validate_full_spdx_document
+from spdx_tools.spdx.validation.validation_message import (
+    ValidationContext,
+    ValidationMessage,
+)
 
 from ._deprecated import DeprecatedCheckerMixin
 from .constants import DEFAULT_SBOM_SPEC
@@ -37,7 +41,6 @@ from .spdx3_utils import (
 
 if TYPE_CHECKING:
     from spdx_tools.spdx.model.document import Document
-    from spdx_tools.spdx.validation.validation_message import ValidationMessage
 
     from .model import Finding
     from .spec import Spec
@@ -54,22 +57,23 @@ class BaseChecker(DeprecatedCheckerMixin, ABC):
     such as `check_compliance` and `output_json`.
     """
 
-    compliance_standard: str = ""  # fsct3-min, ntia
+    compliance_standard: str = ""  # fsct3, ntia
     sbom_spec: str = ""  # spdx2, spdx3
 
     # These are detectable by spdx-tools, so not needed for now.
     # file_format: str = ""  # json, rdf-xml, tag-value, yaml, xml
 
     file: str = ""
+
     # For SPDX 3, we have to use SHACLObjectSet instead of SpdxDocument,
     # because we need access to relationships and other elements that are not
     # accessible from SpdxDocument.
-
     doc: Document | spdx3.SHACLObjectSet | None = None
     __spdx3_doc: spdx3.SpdxDocument | None = None  # cached SPDX 3 document
 
     _parsing_errors: list[str] = []
     _validation_messages: list[ValidationMessage] = []
+    _conformance_messages: list[ValidationMessage] = []
 
     sbom_name: str = ""
 
@@ -98,6 +102,11 @@ class BaseChecker(DeprecatedCheckerMixin, ABC):
 
     _SPEC: "Spec"
     """Subclass-defined class attribute holding the standard's Spec instance."""
+
+    @property
+    def conformance_messages(self) -> list[ValidationMessage]:
+        """Conformance messages from compliance/conformance checks."""
+        return self._conformance_messages
 
     @property
     def spec(self) -> "Spec":
@@ -244,6 +253,7 @@ class BaseChecker(DeprecatedCheckerMixin, ABC):
         # to avoid shared state between instances.
         self._parsing_errors = []
         self._validation_messages = []
+        self._conformance_messages = []
         self.findings = {}
         self._cache_components_without: dict[str, list[tuple[str, str]]] = {}
         self._cache_doc_value: dict[str, object] = {}
@@ -257,10 +267,9 @@ class BaseChecker(DeprecatedCheckerMixin, ABC):
                     logging.error("Failed to parse the SPDX 3 file.")
                 else:
                     self.doc = object_set
-                    _doc, _val_msgs = validate_spdx3_data(object_set)
-                    if not _doc or _val_msgs:
+                    self.__spdx3_doc, _val_msgs = validate_spdx3_data(object_set)
+                    if not self.__spdx3_doc or _val_msgs:
                         logging.error("SpdxDocument not found or invalid.")
-                    self.__spdx3_doc = _doc  # cache the extracted SpdxDocument
                     self._validation_messages.extend(_val_msgs)
             case _:
                 # We can add a heuristic to detect the spec from the file content here,
@@ -268,14 +277,12 @@ class BaseChecker(DeprecatedCheckerMixin, ABC):
                 raise ValueError(f"Unsupported SBOM specification: {sbom_spec}")
 
         if self.doc:
-            if validate:
-                if sbom_spec == "spdx2":
-                    self.doc = cast("Document", self.doc)
-                    self._validation_messages = validate_full_spdx_document(self.doc)
-                else:
-                    pass
+            if validate and sbom_spec == "spdx2":
+                self.doc = cast("Document", self.doc)
+                self._validation_messages = validate_full_spdx_document(self.doc)
 
             self.sbom_name = self.get_sbom_name()
+            self.sbom_gen_context = self.get_sbom_types()
 
             # Document-level extractors are *not* called eagerly here.
             # :meth:`document_value` runs them on first read and caches
@@ -430,6 +437,48 @@ class BaseChecker(DeprecatedCheckerMixin, ABC):
             name = getattr(self.__spdx3_doc, "name", "")
 
         return name
+
+    def get_sbom_types(self) -> list[str]:
+        """Get SBOM types from the rootElement of the SpdxDocument.
+
+        CISA Framing Software Component Transparency (2024) listed
+        "SBOM type" as one of baseline attributes, see Table 1 (p. 22) in:
+        https://www.cisa.gov/resources-tools/resources/framing-software-component-transparency-2024
+
+        In SPDX 3, SBOM type is only available in /Software/Sbom class.
+        """
+        # SBOM type is only available in SPDX 3
+        if not self.doc or self.sbom_spec != "spdx3":
+            return []
+
+        root_elements: list[spdx3.SHACLObject] = getattr(
+            self.__spdx3_doc, "rootElement", []
+        )
+        if not root_elements:
+            return []
+
+        sbom_types: list[str] = []
+
+        # Assuming only one rootElement per document
+        root_elem = root_elements[0]
+        if not isinstance(root_elem, spdx3.software_Sbom):
+            doc_id = getattr(self.__spdx3_doc, "spdxId", None)
+            root_elem_id = getattr(root_elem, "spdxId", None)
+            error_msg = (
+                "To have SBOM type (SBOM generation context) information, "
+                "the rootElement of the SpdxDocument shall be of type "
+                "/Software/Sbom."
+                f"Found: {type(root_elem).__name__!r}"
+            )
+            context = ValidationContext(parent_id=doc_id, spdx_id=root_elem_id)
+            self._conformance_messages.append(ValidationMessage(error_msg, context))
+            return []
+
+        sbom_types = [
+            type_.strip() for type_ in getattr(root_elem, "software_sbomType", [])
+        ]
+
+        return sbom_types
 
     def get_components_without_concluded_license(self) -> list[tuple[str, str]]:
         """
@@ -848,6 +897,7 @@ class BaseChecker(DeprecatedCheckerMixin, ABC):
             requirement_results=getattr(self, "table_elements", []),
             components_without_info=getattr(self, "all_components_without_info", []),
             validation_messages=self._validation_messages,
+            conformance_messages=self._conformance_messages,
             parsing_errors=self._parsing_errors,
         )
 
@@ -867,6 +917,7 @@ class BaseChecker(DeprecatedCheckerMixin, ABC):
             requirement_results=getattr(self, "table_elements", []),
             components_without_info=getattr(self, "all_components_without_info", []),
             validation_messages=self._validation_messages,
+            conformance_messages=self._conformance_messages,
             parsing_errors=self._parsing_errors,
         )
 
@@ -887,6 +938,9 @@ class BaseChecker(DeprecatedCheckerMixin, ABC):
             "sbomSpec": getattr(self, "sbom_spec", ""),
             "validationMessages": get_validation_messages_json(
                 self._validation_messages
+            ),
+            "conformanceMessages": get_validation_messages_json(
+                self._conformance_messages
             ),
             "parsingError": self._parsing_errors,
             "sbomName": getattr(self, "sbom_name", ""),
@@ -921,7 +975,7 @@ class BaseChecker(DeprecatedCheckerMixin, ABC):
         """
         Create a SARIF result log.
 
-        The output uses ``[SPEC]-[CATEGORY]-[NN]`` rule ids (see
+        The output uses ``SBOM-[SPEC]-[CATEGORY]-[NNN]`` rule ids (see
         :file:`RULES.md`).  Identifiers are chosen so the same strings can be
         reused by a future OSCAL exporter as ``control`` / ``group`` ids
         without remapping.
@@ -936,7 +990,7 @@ class BaseChecker(DeprecatedCheckerMixin, ABC):
         Subclasses may override to provide custom fields.
         """
         # Imported lazily so that the SARIF module isn't loaded for
-        # tools that only call output_text / output_json.
+        # tools that only call output_json.
         # pylint: disable=import-outside-toplevel
         from .report_sarif import build_sarif
 

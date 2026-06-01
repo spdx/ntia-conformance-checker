@@ -19,8 +19,8 @@ from .rule_based_checker import RuleBasedChecker
 if TYPE_CHECKING:
     from .spec import Spec
 
-# Spec is loaded once by the registry (from rules/fsct3-min.yaml) and shared.
-_FSCT_SPEC: Spec = get_spec("fsct3-min")
+# Spec is loaded once by the registry (from rules/fsct3.yaml) and shared.
+_FSCT_SPEC: Spec = get_spec("fsct3")
 
 
 class FSCT3Checker(RuleBasedChecker):
@@ -32,7 +32,7 @@ class FSCT3Checker(RuleBasedChecker):
 
     Three maturity levels (Minimum Expected, Recommended Practice,
     Aspirational Goal) describe the evolving content of Attribute entries.
-    This checker only validates the Minimum Expected level.
+    This checker currently only validates the Minimum Expected level.
 
     See:
         https://www.cisa.gov/resources-tools/resources/framing-software-component-transparency-2024
@@ -44,7 +44,7 @@ class FSCT3Checker(RuleBasedChecker):
         self,
         file: str,
         validate: bool = True,
-        compliance: str = "fsct3-min",
+        compliance: str = "fsct3",
         sbom_spec: str = "spdx2",
     ) -> None:
         super().__init__(

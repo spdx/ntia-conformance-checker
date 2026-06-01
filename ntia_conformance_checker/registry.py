@@ -5,12 +5,12 @@
 """Spec registry: the single source of truth for available standards.
 
 Every ``rules/*.yaml`` file packaged with this library is discovered and
-loaded once at import time, indexed by its ``standard_id``.  This makes a
-spec's ``standard_id`` the authoritative compliance identifier:
+loaded once at import time, indexed by its ``spec_id``.  This makes a
+spec's ``spec_id`` the authoritative compliance identifier:
 
 * it is the string the user passes to ``--comply`` / ``compliance=``,
 * it keys the dispatch in :class:`SbomChecker`,
-* its :attr:`Spec.title` is the human-readable description shown in CLI
+* its :attr:`Spec.spec_title` is the human-readable description shown in CLI
   help and report headers.
 
 Adding a new standard is therefore *just dropping a YAML file* into the
@@ -19,10 +19,10 @@ hardcoded id list to update.  (A named convenience subclass such as
 ``NTIAChecker`` is optional and only kept for backwards-compatible
 imports.)
 
-**Convention:** name each file after its ``standard_id``
-(e.g. ``rules/ntia.yaml`` -> ``standard_id: ntia``;
-``rules/fsct3-min.yaml`` -> ``standard_id: fsct3-min``).
-Discovery keys on the in-file ``standard_id``, not the filename,
+**Convention:** name each file after its ``spec_id``
+(e.g. ``rules/ntia.yaml`` -> ``spec_id: ntia``;
+``rules/fsct3.yaml`` -> ``spec_id: fsct3``).
+Discovery keys on the in-file ``spec_id``, not the filename,
 so a mismatch is not a hard error -- but matching them keeps the
 directory navigable and pre-shapes future siblings
 (e.g. ``fsct3-rec.yaml`` for additional FSCTv3 maturity levels).
@@ -46,16 +46,16 @@ def _discover() -> dict[str, Spec]:
     registry: dict[str, Spec] = {}
     for yaml_path in sorted(_RULES_DIR.glob("*.yaml")):
         spec = load_spec(yaml_path)
-        if spec.standard_id in registry:
+        if spec.spec_id in registry:
             raise ValueError(
-                f"Duplicate standard_id {spec.standard_id!r}: "
+                f"Duplicate spec_id {spec.spec_id!r}: "
                 f"{yaml_path.name} collides with an already-loaded spec."
             )
-        registry[spec.standard_id] = spec
+        registry[spec.spec_id] = spec
     return registry
 
 
-# Loaded once at import.  Keyed by standard_id (e.g. "ntia", "fsct3-min").
+# Loaded once at import.  Keyed by spec_id (e.g. "ntia", "fsct3").
 _REGISTRY: dict[str, Spec] = _discover()
 
 
@@ -82,4 +82,4 @@ def standard_ids() -> tuple[str, ...]:
 
 def descriptions() -> dict[str, str]:
     """Map each standard id to its human-readable :attr:`Spec.title`."""
-    return {sid: spec.title for sid, spec in _REGISTRY.items()}
+    return {sid: spec.spec_title for sid, spec in _REGISTRY.items()}

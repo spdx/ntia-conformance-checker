@@ -1,0 +1,240 @@
+# SPDX-FileCopyrightText: 2026-present SPDX contributors
+# SPDX-FileType: SOURCE
+# SPDX-License-Identifier: Apache-2.0
+#
+# Rules derived from
+# Framing Software Component Transparency: Establishing a Common Software Bill
+# of Materials (SBOM), Third Edition,
+# Cybersecurity and Infrastructure Security Agency, 2024.
+# Source: https://www.cisa.gov/resources-tools/resources/framing-software-component-transparency-2024
+#
+# Rule ids follow SBOM-[SPEC]-[CATEGORY]-[NNN].  See RULES.md.
+
+spec:
+  spec_id: fsct3
+  spec_title: 2024 CISA SBOM Baseline Attributes (Minimum Expected)
+  spec_uri: https://www.cisa.gov/resources-tools/resources/framing-software-component-transparency-2024
+  sarif_category_taxonomy_name: fsct-baseline-attributes
+  sarif_clause_taxonomy_name: fsct-clauses
+
+categories:
+  - id: sbom-meta-information
+    code: META
+    title: SBOM Meta-Information
+    description: Meta-information about the SBOM itself (§2.2.1).
+  - id: component-attributes
+    code: COMP
+    title: Component Attributes
+    description: Per-component baseline attributes (§2.2.2).
+  - id: undeclared-sbom-data
+    code: UNDEC
+    title: Undeclared SBOM Data
+    description: Handling of unknown / redacted / missing data (§2.3).
+
+rules:
+  # ---- SBOM Meta-Information (§2.2.1) ----------------------------------
+
+  - number: 1
+    slug: fsct-author-name
+    spec_category: sbom-meta-information
+    spec_clause_number: "2.2.1.1"
+    spec_clause_name: Author Name
+    spec_clause_url: https://www.cisa.gov/resources-tools/resources/framing-software-component-transparency-2024
+    element_id: author
+    element_description: SBOM author
+    competency_question: SBOM author name provided?
+    warning: An SBOM should have an author name.
+    probe:
+      name: require_document_attribute
+      params: { attribute: author }
+    sarif_name: FsctAuthorNameMissing
+    json_key: authorNameProvided
+
+  - number: 2
+    slug: fsct-timestamp
+    spec_category: sbom-meta-information
+    spec_clause_number: "2.2.1.2"
+    spec_clause_name: Timestamp
+    spec_clause_url: https://www.cisa.gov/resources-tools/resources/framing-software-component-transparency-2024
+    element_id: timestamp
+    element_description: SBOM creation timestamp
+    competency_question: SBOM creation timestamp provided?
+    warning: An SBOM should have a creation timestamp.
+    probe:
+      name: require_document_attribute
+      params: { attribute: timestamp }
+    sarif_name: FsctTimestampMissing
+    json_key: timestampProvided
+
+  - number: 3
+    slug: fsct-sbom-type
+    spec_category: sbom-meta-information
+    spec_clause_number: "2.2.1.3"
+    spec_clause_name: Type
+    spec_clause_url: https://www.cisa.gov/resources-tools/resources/framing-software-component-transparency-2024
+    element_id: sbom_type
+    element_description: SBOM type
+    competency_question: SBOM Type provided?
+    warning: An SBOM should declare its type.
+    sarif_name: FsctSbomTypeMissing
+    maturity: aspirational
+    status: catalogue-only
+
+  - number: 4
+    slug: fsct-primary-component
+    spec_category: sbom-meta-information
+    spec_clause_number: "2.2.1.4"
+    spec_clause_name: Primary Component (or Root of Dependencies)
+    spec_clause_url: https://www.cisa.gov/resources-tools/resources/framing-software-component-transparency-2024
+    element_id: primary_component
+    element_description: primary component (root of dependencies)
+    competency_question: Primary Component (root of dependencies) provided?
+    warning: An SBOM should identify a primary component.
+    sarif_name: FsctPrimaryComponentMissing
+    status: catalogue-only
+
+  # FSCT-META-05 is a stop-gap: FSCT §2.2.2.6 ("Relationship") wants a
+  # per-component relationship + completeness assertion, which we treat
+  # as catalogue-only (FSCT-COMP-06).  Until that lands, we fall back to
+  # the NTIA-inherited document-level check "the SBOM declares at least
+  # one dependency relationship".  When FSCT-COMP-06 becomes active,
+  # this META-05 rule should be retired.
+  - number: 5
+    slug: fsct-dependency-relationship
+    spec_category: sbom-meta-information
+    spec_clause_number: "2.2.2.6"
+    spec_clause_name: Relationship (NTIA-inherited document-level check)
+    spec_clause_url: https://www.cisa.gov/resources-tools/resources/framing-software-component-transparency-2024
+    element_id: dependency_relationship
+    element_description: dependency relationships
+    competency_question: Dependency relationships provided?
+    warning: An SBOM should declare dependency relationships.
+    probe:
+      name: require_document_attribute
+      params: { attribute: dependency_relationship }
+    sarif_name: FsctDependencyRelationshipsMissing
+    json_key: dependencyRelationshipsProvided
+
+  # ---- Component Attributes (§2.2.2) -----------------------------------
+
+  - number: 1
+    slug: fsct-component-name
+    spec_category: component-attributes
+    spec_clause_number: "2.2.2.1"
+    spec_clause_name: Component Name
+    spec_clause_url: https://www.cisa.gov/resources-tools/resources/framing-software-component-transparency-2024
+    element_id: name
+    element_description: component name
+    competency_question: All component names provided?
+    warning: An SBOM component should have a name.
+    probe:
+      name: require_component_attribute
+      params: { attribute: name }
+    sarif_name: FsctComponentNameMissing
+    json_key: componentNames
+
+  - number: 2
+    slug: fsct-component-version
+    spec_category: component-attributes
+    spec_clause_number: "2.2.2.2"
+    spec_clause_name: Version
+    spec_clause_url: https://www.cisa.gov/resources-tools/resources/framing-software-component-transparency-2024
+    element_id: version
+    element_description: component version
+    competency_question: All component versions provided?
+    warning: An SBOM component should have a version.
+    probe:
+      name: require_component_attribute
+      params: { attribute: version }
+    sarif_name: FsctComponentVersionMissing
+    json_key: componentVersions
+
+  - number: 3
+    slug: fsct-supplier-name
+    spec_category: component-attributes
+    spec_clause_number: "2.2.2.3"
+    spec_clause_name: Supplier Name
+    spec_clause_url: https://www.cisa.gov/resources-tools/resources/framing-software-component-transparency-2024
+    element_id: supplier
+    element_description: component supplier
+    competency_question: All component suppliers provided?
+    warning: An SBOM component should have a supplier name.
+    probe:
+      name: require_component_attribute
+      params: { attribute: supplier }
+    sarif_name: FsctSupplierNameMissing
+    json_key: componentSuppliers
+
+  - number: 4
+    slug: fsct-unique-identifier
+    spec_category: component-attributes
+    spec_clause_number: "2.2.2.4"
+    spec_clause_name: Unique Identifier
+    spec_clause_url: https://www.cisa.gov/resources-tools/resources/framing-software-component-transparency-2024
+    element_id: unique_identifier
+    element_description: component identifier
+    competency_question: All component identifiers provided?
+    warning: An SBOM component should have a unique identifier.
+    probe:
+      name: require_component_attribute
+      params: { attribute: unique_identifier }
+    sarif_name: FsctUniqueIdentifierMissing
+    json_key: componentIdentifiers
+
+  - number: 5
+    slug: fsct-cryptographic-hash
+    spec_category: component-attributes
+    spec_clause_number: "2.2.2.5"
+    spec_clause_name: Cryptographic Hash
+    spec_clause_url: https://www.cisa.gov/resources-tools/resources/framing-software-component-transparency-2024
+    element_id: cryptographic_hash
+    element_description: component cryptographic hash
+    competency_question: All component cryptographic hashes provided?
+    warning: An SBOM component should have a cryptographic hash.
+    sarif_name: FsctCryptographicHashMissing
+    status: catalogue-only
+
+  - number: 6
+    slug: fsct-relationship
+    spec_category: component-attributes
+    spec_clause_number: "2.2.2.6"
+    spec_clause_name: Relationship
+    spec_clause_url: https://www.cisa.gov/resources-tools/resources/framing-software-component-transparency-2024
+    element_id: relationship
+    element_description: component relationship and completeness
+    competency_question: All component relationships provided?
+    warning: An SBOM component should declare its relationship and completeness.
+    sarif_name: FsctRelationshipMissing
+    status: catalogue-only
+
+  - number: 7
+    slug: fsct-concluded-license
+    spec_category: component-attributes
+    spec_clause_number: "2.2.2.7"
+    spec_clause_name: License
+    spec_clause_url: https://www.cisa.gov/resources-tools/resources/framing-software-component-transparency-2024
+    element_id: concluded_license
+    element_description: component concluded license
+    competency_question: All component concluded license provided?
+    warning: An SBOM component should have a concluded license.
+    probe:
+      name: require_component_attribute
+      params: { attribute: concluded_license }
+    sarif_name: FsctConcludedLicenseMissing
+    json_key: componentConcludedLicenses
+
+  - number: 8
+    slug: fsct-copyright-notice
+    spec_category: component-attributes
+    spec_clause_number: "2.2.2.8"
+    spec_clause_name: Copyright Notice
+    spec_clause_url: https://www.cisa.gov/resources-tools/resources/framing-software-component-transparency-2024
+    element_id: copyright_notice
+    element_description: component copyright text
+    competency_question: All component copyright notice provided?
+    warning: An SBOM component should have a copyright notice.
+    probe:
+      name: require_component_attribute
+      params: { attribute: copyright_notice }
+    sarif_name: FsctCopyrightNoticeMissing
+    json_key: componentCopyrightNotices

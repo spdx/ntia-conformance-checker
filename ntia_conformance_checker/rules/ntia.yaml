@@ -7,14 +7,13 @@
 # National Telecommunications and Information Administration, 2021.
 # Source: https://www.ntia.gov/report/2021/minimum-elements-software-bill-materials-sbom
 #
-# Rule ids follow [SPEC]-[CATEGORY]-[NN].  See RULES.md.
+# Rule ids follow SBOM-[SPEC]-[CATEGORY]-[NNN].  See RULES.md.
 
 spec:
-  standard_id: ntia
-  spec_code: NTIA
-  title: 2021 NTIA SBOM Minimum Elements
-  help_uri: https://www.ntia.gov/report/2021/minimum-elements-software-bill-materials-sbom
-  sarif_taxonomy_name: ntia-minimum-elements
+  spec_id: ntia
+  spec_title: 2021 NTIA SBOM Minimum Elements
+  spec_uri: https://www.ntia.gov/report/2021/minimum-elements-software-bill-materials-sbom
+  sarif_category_taxonomy_name: ntia-minimum-elements
   sarif_clause_taxonomy_name: ntia-clauses
 
 categories:
@@ -34,116 +33,116 @@ categories:
 rules:
   # ---- Data Fields (component-level) -----------------------------------
 
-  - category: data-fields
-    number: 1
-    slug: ntia-supplier-name
+  - number: 1
+    slug: ntia-component-supplier-name
+    spec_category: data-fields
+    spec_clause_number: IV
+    spec_clause_name: Data Fields -- Supplier Name
+    spec_clause_url: https://www.ntia.gov/report/2021/minimum-elements-software-bill-materials-sbom
     element_id: supplier
+    element_description: component supplier
+    competency_question: All component suppliers provided?
+    warning: An SBOM component should have a supplier name.
     probe:
       name: require_component_attribute
       params: { attribute: supplier }
-    label: All component suppliers provided?
-    description: component supplier
-    warning: An SBOM component should have a supplier name.
-    sarif_rule_name: NtiaComponentSupplierMissing
-    ref_section: IV
-    ref_title: Data Fields -- Supplier Name
-    ref_url: https://www.ntia.gov/report/2021/minimum-elements-software-bill-materials-sbom
+    sarif_name: NtiaComponentSupplierMissing
     json_key: componentSuppliers
 
-  - category: data-fields
-    number: 2
+  - number: 2
     slug: ntia-component-name
+    spec_category: data-fields
+    spec_clause_number: IV
+    spec_clause_name: Data Fields -- Component Name
+    spec_clause_url: https://www.ntia.gov/report/2021/minimum-elements-software-bill-materials-sbom
     element_id: name
+    element_description: component name
+    competency_question: All component names provided?
+    warning: An SBOM component should have a name.
     probe:
       name: require_component_attribute
       params: { attribute: name }
-    label: All component names provided?
-    description: component name
-    warning: An SBOM component should have a name.
-    sarif_rule_name: NtiaComponentNameMissing
-    ref_section: IV
-    ref_title: Data Fields -- Component Name
-    ref_url: https://www.ntia.gov/report/2021/minimum-elements-software-bill-materials-sbom
+    sarif_name: NtiaComponentNameMissing
     json_key: componentNames
 
-  - category: data-fields
-    number: 3
+  - number: 3
     slug: ntia-component-version
+    spec_category: data-fields
+    spec_clause_number: IV
+    spec_clause_name: Data Fields -- Version of the Component
+    spec_clause_url: https://www.ntia.gov/report/2021/minimum-elements-software-bill-materials-sbom
     element_id: version
+    element_description: component version
+    competency_question: All component versions provided?
+    warning: An SBOM component should have a version.
     probe:
       name: require_component_attribute
       params: { attribute: version }
-    label: All component versions provided?
-    description: component version
-    warning: An SBOM component should have a version.
-    sarif_rule_name: NtiaComponentVersionMissing
-    ref_section: IV
-    ref_title: Data Fields -- Version of the Component
-    ref_url: https://www.ntia.gov/report/2021/minimum-elements-software-bill-materials-sbom
+    sarif_name: NtiaComponentVersionMissing
     json_key: componentVersions
 
-  - category: data-fields
-    number: 4
-    slug: ntia-unique-identifier
+  - number: 4
+    slug: ntia-component-identifier
+    spec_category: data-fields
+    spec_clause_number: IV
+    spec_clause_name: Data Fields -- Other Unique Identifiers
+    spec_clause_url: https://www.ntia.gov/report/2021/minimum-elements-software-bill-materials-sbom
     element_id: unique_identifier
+    element_description: component identifier
+    competency_question: All component identifiers provided?
+    warning: An SBOM component should have a unique identifier.
     probe:
       name: require_component_attribute
       params: { attribute: unique_identifier }
-    label: All component identifiers provided?
-    description: component identifier
-    warning: An SBOM component should have a unique identifier.
-    sarif_rule_name: NtiaComponentIdentifierMissing
-    ref_section: IV
-    ref_title: Data Fields -- Other Unique Identifiers
-    ref_url: https://www.ntia.gov/report/2021/minimum-elements-software-bill-materials-sbom
+    sarif_name: NtiaComponentIdentifierMissing
     json_key: componentIdentifiers
 
   # ---- Data Fields (document-level) ------------------------------------
 
-  - category: data-fields
-    number: 5
+  - number: 5
     slug: ntia-dependency-relationship
+    spec_category: data-fields
+    spec_clause_number: IV
+    spec_clause_name: Data Fields -- Dependency Relationship
+    spec_clause_url: https://www.ntia.gov/report/2021/minimum-elements-software-bill-materials-sbom
     element_id: dependency_relationship
+    element_description: dependency relationships
+    competency_question: Dependency relationships provided?
+    warning: An SBOM should declare dependency relationships.
     probe:
       name: require_document_attribute
       params: { attribute: dependency_relationship }
-    label: Dependency relationships provided?
-    description: dependency relationships
-    warning: An SBOM should declare dependency relationships.
-    sarif_rule_name: NtiaDependencyRelationshipsMissing
-    ref_section: IV
-    ref_title: Data Fields -- Dependency Relationship
-    ref_url: https://www.ntia.gov/report/2021/minimum-elements-software-bill-materials-sbom
+    sarif_name: NtiaDependencyRelationshipsMissing
     json_key: dependencyRelationshipsProvided
 
-  - category: data-fields
-    number: 6
+  - number: 6
     slug: ntia-sbom-author
+    spec_category: data-fields
+    spec_clause_number: IV
+    spec_clause_name: Data Fields -- Author of SBOM Data
+    spec_clause_url: https://www.ntia.gov/report/2021/minimum-elements-software-bill-materials-sbom
     element_id: author
+    element_description: SBOM author
+    competency_question: SBOM author name provided?
+    warning: An SBOM should have an author name.
     probe:
       name: require_document_attribute
       params: { attribute: author }
-    label: SBOM author name provided?
-    description: SBOM author
-    warning: An SBOM should have an author name.
-    sarif_rule_name: NtiaSbomAuthorMissing
-    ref_section: IV
-    ref_title: Data Fields -- Author of SBOM Data
-    ref_url: https://www.ntia.gov/report/2021/minimum-elements-software-bill-materials-sbom
+    sarif_name: NtiaSbomAuthorMissing
     json_key: authorNameProvided
 
-  - category: data-fields
-    number: 7
+  - number: 7
     slug: ntia-sbom-timestamp
+    spec_category: data-fields
+    spec_clause_number: IV
+    spec_clause_name: Data Fields -- Timestamp
+    spec_clause_url: https://www.ntia.gov/report/2021/minimum-elements-software-bill-materials-sbom
     element_id: timestamp
+    element_description: SBOM creation timestamp
+    competency_question: SBOM creation timestamp provided?
+    warning: An SBOM should have a creation timestamp.
     probe:
       name: require_document_attribute
       params: { attribute: timestamp }
-    label: SBOM creation timestamp provided?
-    description: SBOM creation timestamp
-    warning: An SBOM should have a creation timestamp.
-    sarif_rule_name: NtiaSbomTimestampMissing
-    ref_section: IV
-    ref_title: Data Fields -- Timestamp
-    ref_url: https://www.ntia.gov/report/2021/minimum-elements-software-bill-materials-sbom
+    sarif_name: NtiaSbomTimestampMissing
     json_key: timestampProvided

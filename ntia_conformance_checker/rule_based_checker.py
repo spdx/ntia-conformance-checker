@@ -1,4 +1,4 @@
-# SPDX-FileCopyrightText: 2026 SPDX contributors
+# SPDX-FileCopyrightText: 2026-present SPDX contributors
 # SPDX-FileType: SOURCE
 # SPDX-License-Identifier: Apache-2.0
 
@@ -72,7 +72,7 @@ class RuleBasedChecker(BaseChecker):
         # Table rows are derived from active rules in spec order so they
         # stay in sync with the YAML / RULES.md without manual duplication.
         self.table_elements = [
-            (rule.label, not self.findings.get(self._spec.rule_id(rule), []))
+            (rule.competency_question, not self.findings.get(self._spec.rule_id(rule), []))
             for rule in self._spec.active_rules()
         ]
 

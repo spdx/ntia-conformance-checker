@@ -19,17 +19,17 @@ from ntia_conformance_checker import FSCT3Checker, NTIAChecker, sbom_checker
 _HERE = os.path.dirname(__file__)
 
 # NTIA rule ids per RULES.md (lowercase kebab category = data-fields).
-NTIA_DF_COMPONENT_NAME = "NTIA-DF-02"
-NTIA_DF_COMPONENT_VERSION = "NTIA-DF-03"
-NTIA_DF_COMPONENT_IDENTIFIER = "NTIA-DF-04"
-NTIA_DF_COMPONENT_SUPPLIER = "NTIA-DF-01"
-NTIA_DF_DEPENDENCY = "NTIA-DF-05"
-NTIA_DF_AUTHOR = "NTIA-DF-06"
-NTIA_DF_TIMESTAMP = "NTIA-DF-07"
+NTIA_DF_COMPONENT_NAME = "SBOM-NTIA-DF-002"
+NTIA_DF_COMPONENT_VERSION = "SBOM-NTIA-DF-003"
+NTIA_DF_COMPONENT_IDENTIFIER = "SBOM-NTIA-DF-004"
+NTIA_DF_COMPONENT_SUPPLIER = "SBOM-NTIA-DF-001"
+NTIA_DF_DEPENDENCY = "SBOM-NTIA-DF-005"
+NTIA_DF_AUTHOR = "SBOM-NTIA-DF-006"
+NTIA_DF_TIMESTAMP = "SBOM-NTIA-DF-007"
 
 # FSCT rule ids per RULES.md.
-FSCT_COMP_CONCLUDED_LICENSE = "FSCT-COMP-07"
-FSCT_COMP_COPYRIGHT_NOTICE = "FSCT-COMP-08"
+FSCT_COMP_CONCLUDED_LICENSE = "SBOM-FSCT3-COMP-007"
+FSCT_COMP_COPYRIGHT_NOTICE = "SBOM-FSCT3-COMP-008"
 
 NTIA_TAXONOMY_NAME = "ntia-minimum-elements"
 NTIA_CLAUSE_TAXONOMY_NAME = "ntia-clauses"
@@ -106,12 +106,12 @@ def test_sarif_no_elements_missing_ntia(test_file: str) -> None:
         cat_target = kinds_to_targets[("superset",)]
         assert cat_target["toolComponent"]["name"] == NTIA_TAXONOMY_NAME
         assert cat_target["id"] in cat_ids
-        # clause relationship is present when the rule has a ref_section
-        if rule["properties"]["refSection"]:
+        # clause relationship is present when the rule has a spec_clause_number
+        if rule["properties"]["specClauseNumber"]:
             assert ("equal",) in kinds_to_targets
             clause_target = kinds_to_targets[("equal",)]
             assert clause_target["toolComponent"]["name"] == NTIA_CLAUSE_TAXONOMY_NAME
-            assert clause_target["id"] == rule["properties"]["refSection"]
+            assert clause_target["id"] == rule["properties"]["specClauseNumber"]
 
 
 @pytest.mark.parametrize("test_file", _fixtures("no_elements_missing"))
@@ -119,7 +119,7 @@ def test_sarif_no_elements_missing_fsct3(test_file: str) -> None:
     sarif = FSCT3Checker(test_file).output_sarif()
     run = _run(sarif)
     assert not run["results"]
-    assert run["properties"]["complianceStandard"] == "fsct3-min"
+    assert run["properties"]["complianceStandard"] == "fsct3"
 
     tax_names = [t["name"] for t in run["taxonomies"]]
     assert FSCT_TAXONOMY_NAME in tax_names
@@ -134,8 +134,8 @@ def test_sarif_no_elements_missing_fsct3(test_file: str) -> None:
     assert FSCT_COMP_CONCLUDED_LICENSE in rule_ids
     assert FSCT_COMP_COPYRIGHT_NOTICE in rule_ids
     # Catalogue-only rules also appear in the catalogue.
-    assert "FSCT-META-04" in rule_ids  # Primary Component
-    assert "FSCT-COMP-05" in rule_ids  # Cryptographic Hash
+    assert "SBOM-FSCT3-META-004" in rule_ids  # Primary Component
+    assert "SBOM-FSCT3-COMP-005" in rule_ids  # Cryptographic Hash
 
     # Clause taxon ids match the §2.2.x section numbers.
     clause_tax = next(

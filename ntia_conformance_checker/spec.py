@@ -10,24 +10,22 @@ output format (text table, JSON, SARIF, future OSCAL):
 * :class:`SpecCategory` -- one category / cluster within a standard.  Maps to a
   SARIF taxon in the per-spec *category* taxonomy and to an OSCAL ``group``.
 
-* :class:`SpecRule` -- one minimum-element check.  Holds the element id,
-  checker instance attribute, report label, result kind, optional cluster
-  grouping (for G7), optional SPDX-3 gating, source-spec reference (clause
-  number + URL), maturity, status, and optional JSON output mapping.
+* :class:`SpecRule` -- one minimum-element check.  Holds rule identity, its
+  location in the source spec (category + clause), the element under test, the
+  human-facing meaning (description, competency question, warning), maturity,
+  status, the probe that performs the check, and optional output mappings.
 
 * :class:`Spec` -- a compliance standard's full rule catalogue.  Holds the
-  standard id, title, general help URL (used as a fallback when a rule has
-  no rule-specific URL), SARIF taxonomy/taxon identifiers, and the tuple of
-  :class:`SpecRule` entries.
+  standard id/code/title, general help URL (used as a fallback when a rule has
+  no rule-specific URL), the categories and rules, and the SARIF taxonomy
+  identifiers.
 
-Rule identifiers follow the ``[SPEC]-[CATEGORY]-[NN]`` convention documented
-in ``RULES.md``.  ``SPEC`` is :attr:`Spec.spec_code` (e.g. ``NTIA``, ``FSCT``);
-``CATEGORY`` is :attr:`SpecCategory.code` (e.g. ``DF``, ``COMP``); ``NN`` is
-:attr:`SpecRule.number` zero-padded.
-
-Cluster-less checkers (NTIA, FSCT3) leave :attr:`SpecRule.cluster` empty.
-Cluster-aware checkers (G7) set it on every entry; rendering code that
-iterates clusters simply skips entries whose ``cluster`` does not match.
+Rule identifiers follow the ``SBOM-[SPEC]-[CATEGORY]-[NNN]`` convention
+documented in ``RULES.md``.  ``SPEC`` is the uppercased :attr:`Spec.spec_id`
+(e.g. ``NTIA``, ``FSCT3``) -- the edition is part of the id because each
+edition is a distinct standard with its own requirements; ``CATEGORY`` is
+:attr:`SpecCategory.code` (e.g. ``DF``, ``COMP``); ``NNN`` is
+:attr:`SpecRule.number` zero-padded to three digits.
 """
 
 from __future__ import annotations
@@ -71,19 +69,20 @@ class ProbeRef:
 
 @dataclass(frozen=True, kw_only=True)
 class SpecCategory:
-    """A grouping within a :class:`Spec` (e.g. NTIA Data Fields).
+    """A grouping within a :class:`Spec` (e.g. NTIA Data Fields, a G7 cluster).
 
     Renders as a SARIF taxon in the spec's *category taxonomy* and as an
     OSCAL ``group`` in a future OSCAL exporter.
     """
 
     id: str
-    """Lowercase kebab-case category id (taxon id / OSCAL group id).
-    Example: ``"data-fields"`` for NTIA §IV Data Fields."""
+    """Lowercase kebab-case category id (SARIF taxon id / OSCAL group id).
+    Example: ``"data-fields"`` for NTIA §IV Data Fields.  Referenced by
+    :attr:`SpecRule.spec_category`."""
 
     code: str
-    """Uppercase short code used as the ``CATEGORY`` segment of a rule id.
-    Example: ``"DF"`` -> ``NTIA-DF-01``."""
+    """Uppercase short, hyphen-free token used as the ``CATEGORY`` segment of
+    a rule id.  Example: ``"DF"`` -> ``SBOM-NTIA-DF-001``."""
 
     title: str
     """Human-readable category title.  Example: ``"Data Fields"``."""
@@ -100,40 +99,55 @@ class SpecRule:
 
     # -- Rule identity ----------------------------------------------------
 
-    category: str
-    """Id of the :class:`SpecCategory` this rule belongs to (matches
-    :attr:`SpecCategory.id`).  Determines the ``CATEGORY`` segment of the
-    rule id and the category taxon the rule's ``relationships`` point at."""
-
     number: int
-    """Zero-padded sequence number within ``(spec, category)``, in the order
-    the spec lists the attribute.  Becomes ``NN`` in the rule id."""
+    """Sequence number within ``(spec, category)``, in the order the spec
+    lists the attribute.  Zero-padded to three digits as ``NNN`` in the
+    rule id."""
 
     slug: str
     """Human-readable rule slug, lowercase kebab-case, **prefixed with the
     lowercase spec code** to avoid cross-spec collisions.  Example:
-    ``"ntia-component-name"``, ``"fsct-component-name"``."""
+    ``"ntia-component-supplier-name"``, ``"fsct-component-name"``."""
+
+    # -- Spec mapping (location in the source spec) -----------------------
+
+    spec_category: str
+    """Id of the :class:`SpecCategory` this rule belongs to (matches
+    :attr:`SpecCategory.id`).  Determines the ``CATEGORY`` segment of the
+    rule id (via the category's ``code``) and the category taxon the rule's
+    ``relationships`` point at."""
+
+    spec_clause_number: str = ""
+    """Literal clause / section designator from the source spec (e.g. ``"IV"``
+    or ``"2.2.2.7"``).  Becomes the id of the rule's clause taxon and -- when
+    paired with :attr:`Spec.sarif_clause_taxonomy_name` -- a SARIF taxonomy
+    entry."""
+
+    spec_clause_name: str = ""
+    """Human-readable clause title (e.g. ``"License"``)."""
+
+    spec_clause_url: str = ""
+    """Deep link to the exact spec clause.  When empty, consumers fall back
+    to :attr:`Spec.spec_uri` via :meth:`Spec.rule_uri`."""
+
+    # -- Element & meaning ------------------------------------------------
 
     element_id: str = ""
     """Canonical element id from
     :data:`ntia_conformance_checker.model.ELEMENT_IDS` (e.g. ``"name"``,
-    ``"supplier"``, ``"creation_timestamp"``).  Carries the semantic key
-    that survives across specs -- different specs may give the same
-    underlying concept different names (e.g. "Type" vs "Generation
-    Context"), but the ``element_id`` matches as long as the probe
-    queries the same SBOM-model field."""
+    ``"supplier"``, ``"timestamp"``).  Carries the semantic key that survives
+    across specs -- different specs may name the same underlying concept
+    differently, but the ``element_id`` matches as long as the probe queries
+    the same SBOM-model field."""
 
-    sarif_rule_name: str
-    """SARIF ``reportingDescriptor.name`` (PascalCase short name,
-    e.g. ``NtiaComponentNameMissing``)."""
+    element_description: str = ""
+    """Short noun phrase naming the element (e.g. ``"component supplier"``).
+    Used in per-finding result messages.  For the canonical user-facing
+    prose, see :attr:`warning`."""
 
-    label: str
-    """Exact table label used in text/HTML reports."""
-
-    description: str = ""
-    """Short noun phrase naming the missing element (e.g. ``"component
-    supplier"``).  Used in per-finding result messages.  For the canonical
-    user-facing prose, see :attr:`warning`."""
+    competency_question: str = ""
+    """The yes/no competency question the rule answers, used as the label in
+    text/HTML report tables (e.g. ``"All component suppliers provided?"``)."""
 
     warning: str = ""
     """Canonical, single-sentence diagnostic prose for the rule, following
@@ -142,25 +156,11 @@ class SpecRule:
     * component-level: ``"An SBOM component should have a {X}."``
     * document-level:  ``"An SBOM should {X}."``
 
-    This string is the source of truth for the user-facing warning text
-    (analogous to Microsoft's CA-rule "warning" column).  SARIF emits it as
-    the rule's ``shortDescription.text``; CLI / HTML / future localisers
-    should consume it from here rather than re-inventing wording in code.
-    Empty falls back to ``"{description.capitalize()} is missing."``."""
-
-    # -- Source spec reference --------------------------------------------
-
-    ref_section: str = ""
-    """Literal section number from the source spec (e.g. ``"2.2.2.7"``).
-    Becomes the id of the rule's clause taxon and -- when paired with
-    :attr:`Spec.sarif_clause_taxonomy_name` -- a SARIF taxonomy entry."""
-
-    ref_title: str = ""
-    """Human-readable clause title (e.g. ``"License"``)."""
-
-    ref_url: str = ""
-    """Deep link to the exact spec clause.  When empty, consumers fall back
-    to :attr:`Spec.help_uri` via :meth:`Spec.rule_help_uri`."""
+    This string is the source of truth for the user-facing warning text.
+    SARIF emits it as the rule's ``shortDescription.text``; CLI / HTML /
+    future localisers should consume it from here rather than re-inventing
+    wording in code.  Empty falls back to
+    ``"{element_description.capitalize()} is missing."``."""
 
     # -- Maturity / status ------------------------------------------------
 
@@ -171,36 +171,29 @@ class SpecRule:
     """Whether the rule is emitted in the catalogue / as results.
     See :data:`Status` for semantics."""
 
-    # -- OSCAL output (deferred) ------------------------------------------
+    # -- The check --------------------------------------------------------
+
+    probe: ProbeRef | None = None
+    """Probe to run for this rule.  ``None`` for catalogue-only and TBD
+    rules (they appear in the catalogue but no probe is invoked)."""
+
+    # -- Output mappings --------------------------------------------------
+
+    sarif_name: str
+    """SARIF ``reportingDescriptor.name`` (PascalCase short name,
+    e.g. ``NtiaComponentSupplierMissing``)."""
 
     oscal_control_id: str = ""
     """Optional override for the future OSCAL ``control-id``.  When empty,
     the OSCAL exporter is expected to lowercase the SARIF rule id."""
 
-    # -- Cluster / SPDX gating (G7) ---------------------------------------
-
-    cluster: str = ""
-    """Optional cluster name.  Falsy means the rule belongs to no cluster."""
-
-    spdx3_only: bool = False
-    """If True, the rule is omitted from cluster tables when the SBOM is
-    not SPDX 3.  The attribute still exists with its class-level default."""
-
-    # -- JSON output mapping (used by G7-style output_json) ---------------
-
     json_group: str | None = None
-    """JSON output group name (e.g. ``"aiPackages"``).  ``None`` means the
-    rule, if emitted, lives at the top level of the JSON output."""
+    """JSON output group / key prefix (e.g. ``"aiPackages"``).  ``None`` means
+    the rule, if emitted, lives at the top level of the JSON output."""
 
     json_key: str | None = None
     """JSON output key within ``json_group``.  ``None`` means the rule is
     not emitted in JSON output."""
-
-    # -- Rule-based engine ------------------------------------------------
-
-    probe: ProbeRef | None = None
-    """Probe to run for this rule.  ``None`` for catalogue-only and TBD
-    rules (they appear in the catalogue but no probe is invoked)."""
 
 
 _MATURITY_TO_SARIF_LEVEL: dict[Maturity, str] = {
@@ -218,47 +211,46 @@ class Spec:
     identifiers) lives here; per-rule overrides live on :class:`SpecRule`.
     """
 
-    standard_id: str
-    """Compliance-standard identifier (lowercase), e.g. ``"ntia"`` /
-    ``"fsct3-min"``.  Used in machine-to-machine handoffs (e.g. Lumina's
-    ``RegulationId``) and in ``run.properties.complianceStandard``."""
+    # -- Identity ---------------------------------------------------------
 
-    spec_code: str
-    """Uppercase short spec code used as the ``SPEC`` segment of rule ids
-    (e.g. ``"NTIA"``, ``"FSCT"``).  See ``RULES.md``."""
+    spec_id: str
+    """Compliance-standard identifier, e.g. ``"ntia"`` / ``"fsct3"``.  Registry
+    key, YAML filename, and the value emitted in SARIF
+    ``run.properties.complianceStandard``.  Its uppercase form is the ``SPEC``
+    segment of every rule id, so it must be a hyphen-free, uppercase-safe
+    token (lowercase ASCII letters/digits, starting with a letter)."""
 
-    title: str
-    """Human-readable standard name, e.g. ``"NTIA Minimum Elements"``."""
+    spec_title: str
+    """Human-readable standard name, e.g. ``"2021 NTIA SBOM Minimum
+    Elements"``."""
 
-    help_uri: str = ""
+    spec_uri: str = ""
     """General documentation URL for the standard.  Used as the fallback
-    when a :class:`SpecRule` does not provide its own ``ref_url``."""
+    when a :class:`SpecRule` does not provide its own ``spec_clause_url``."""
 
-    # -- Category taxonomy ------------------------------------------------
-
-    sarif_taxonomy_name: str = ""
-    """SARIF ``ToolComponent.name`` of the *category* taxonomy
-    (e.g. ``"ntia-minimum-elements"``).  Doubles as the OSCAL catalog id."""
+    # -- Content ----------------------------------------------------------
 
     categories: tuple[SpecCategory, ...] = field(default_factory=tuple)
     """The standard's categories / clusters.  Each becomes a SARIF taxon in
     the category taxonomy."""
-
-    # -- Clause taxonomy (Phase 2 -- per-clause provenance) ---------------
-
-    sarif_clause_taxonomy_name: str = ""
-    """SARIF ``ToolComponent.name`` of the *clause* taxonomy
-    (e.g. ``"fsct-clauses"``).  Each taxon id is a literal spec section
-    number from :attr:`SpecRule.ref_section`.  Empty disables the clause
-    taxonomy and the second ``equal`` relationship on every rule."""
-
-    # -- Rules ------------------------------------------------------------
 
     rules: tuple[SpecRule, ...] = field(default_factory=tuple)
     """The standard's rule catalogue.  Rules with ``status == "tbd"`` are
     excluded from SARIF emission entirely; rules with
     ``status == "catalogue-only"`` appear in the catalogue but never as
     results."""
+
+    # -- SARIF taxonomy ---------------------------------------------------
+
+    sarif_category_taxonomy_name: str = ""
+    """SARIF ``ToolComponent.name`` of the *category* taxonomy
+    (e.g. ``"ntia-minimum-elements"``).  Doubles as the OSCAL catalog id."""
+
+    sarif_clause_taxonomy_name: str = ""
+    """SARIF ``ToolComponent.name`` of the *clause* taxonomy
+    (e.g. ``"ntia-clauses"``).  Each taxon id is a literal spec clause number
+    from :attr:`SpecRule.spec_clause_number`.  Empty disables the clause
+    taxonomy and the second ``equal`` relationship on every rule."""
 
     # -- Derived helpers --------------------------------------------------
 
@@ -267,12 +259,15 @@ class Spec:
         for cat in self.categories:
             if cat.id == category_id:
                 return cat
-        raise KeyError(f"Spec {self.spec_code!r} has no category {category_id!r}")
+        raise KeyError(f"Spec {self.spec_id!r} has no category {category_id!r}")
 
     def rule_id(self, rule: SpecRule) -> str:
-        """Compose the canonical ``[SPEC]-[CAT]-[NN]`` rule id."""
-        cat = self.category(rule.category)
-        return f"{self.spec_code}-{cat.code}-{rule.number:02d}"
+        """Compose the canonical ``SBOM-[SPEC]-[CAT]-[NNN]`` rule id.
+
+        The ``SPEC`` segment is :attr:`spec_id` uppercased.
+        """
+        cat = self.category(rule.spec_category)
+        return f"SBOM-{self.spec_id.upper()}-{cat.code}-{rule.number:03d}"
 
     def oscal_control_id(self, rule: SpecRule) -> str:
         """Return the rule's OSCAL control id (override or lowercased rule id)."""
@@ -282,18 +277,9 @@ class Spec:
         """SARIF default ``level`` derived from maturity."""
         return _MATURITY_TO_SARIF_LEVEL[rule.maturity]
 
-    def rule_help_uri(self, rule: SpecRule) -> str:
-        """Rule's source-spec URL if set, otherwise the standard URL."""
-        return rule.ref_url or self.help_uri
-
-    def rules_for_cluster(self, cluster: str) -> tuple[SpecRule, ...]:
-        """Return rules whose :attr:`SpecRule.cluster` matches ``cluster``.
-
-        Useful for cluster-aware checkers (G7) when rendering per-cluster
-        tables.  For cluster-less standards (NTIA, FSCT3) callers usually
-        iterate :attr:`rules` directly instead.
-        """
-        return tuple(r for r in self.rules if r.cluster == cluster)
+    def rule_uri(self, rule: SpecRule) -> str:
+        """Rule's source-spec clause URL if set, otherwise the standard URL."""
+        return rule.spec_clause_url or self.spec_uri
 
     def emitted_rules(self) -> tuple[SpecRule, ...]:
         """Rules that appear in the SARIF catalogue (everything except TBD)."""

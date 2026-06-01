@@ -22,6 +22,7 @@ if TYPE_CHECKING:
     from spdx_tools.spdx.validation.validation_message import ValidationMessage
 
 
+# pylint: disable=too-many-instance-attributes
 @dataclass
 class ReportContext:
     """Context for generating conformance reports."""
@@ -32,6 +33,7 @@ class ReportContext:
     requirement_results: list[tuple[str, bool]] | None = None
     components_without_info: list[tuple[str, list[tuple[str, str]]]] | None = None
     validation_messages: list[ValidationMessage] | None = None
+    conformance_messages: list[ValidationMessage] | None = None
     parsing_errors: list[str] | None = None
 
 
@@ -197,6 +199,10 @@ def report_text(
         )
         report.append(get_validation_messages_text(rc.validation_messages, verbose))
 
+    if rc.conformance_messages:
+        report.append("The following conformance issues were found:\n")
+        report.append(get_validation_messages_text(rc.conformance_messages, verbose))
+
     return "\n".join(report)
 
 
@@ -301,6 +307,19 @@ def report_html(
         )
         report.append(
             get_validation_messages_html(rc.validation_messages, verbose=verbose)
+        )
+        report.append("</div>")
+
+    # Conformance messages
+    if rc.conformance_messages:
+        report.append("<div class='conformance-msg'>")
+        report.append(
+            "<p class='conformance-msg-label'>"
+            "The following conformance issues were found:"
+            "</p>"
+        )
+        report.append(
+            get_validation_messages_html(rc.conformance_messages, verbose=verbose)
         )
         report.append("</div>")
 

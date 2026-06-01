@@ -60,7 +60,7 @@ def get_parsed_args() -> argparse.Namespace:
         + "\n\n"
         "Examples:\n"
         "  sbomcheck sbom.spdx\n"
-        "  sbomcheck -s spdx3 -c fsct3-min -v sbom.json\n"
+        "  sbomcheck -s spdx3 -c fsct3 -v sbom.json\n"
         "  sbomcheck sbom.yaml --output json --output-file report.json\n"
     )
 

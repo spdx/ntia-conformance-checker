@@ -53,7 +53,7 @@ def test_sbomchecker_ntia_no_errors(test_file: str) -> None:
 
 @pytest.mark.parametrize("test_file", test_files)
 def test_sbomchecker_fsct3_no_errors(test_file: str) -> None:
-    sbom = sbom_checker.SbomChecker(test_file, compliance="fsct3-min")
+    sbom = sbom_checker.SbomChecker(test_file, compliance="fsct3")
     assert sbom.file == test_file
     assert sbom.document_value("spec_version")
     assert sbom.document_value("author")
@@ -307,10 +307,14 @@ def test_sbomchecker_spdx3_general() -> None:
     assert sbom.doc is not None
     assert isinstance(sbom.doc, spdx3.SHACLObjectSet)
     assert sbom.sbom_name == "hello"
+    assert not sbom.sbom_gen_context  # No SBOM -> No SBOM generation context
     spdx3_spdx_document, validation_messages = validate_spdx3_data(sbom.doc)
-    assert (
-        len(validation_messages) >= 1
-    )  # There should be a message about missing /Core/Bom.
+    # The file is spec-valid SPDX 3; no SPDX 3 spec errors expected.
+    assert len(validation_messages) == 0
+    # The conformance check (rootElement must be /Software/Sbom) fires here
+    # and is reported via sbom.conformance_messages,
+    # not sbom.validation_messages.
+    assert len(sbom.conformance_messages) >= 1
     assert isinstance(spdx3_spdx_document, spdx3.SpdxDocument)
     assert getattr(spdx3_spdx_document, "name") == sbom.sbom_name
     assert (
@@ -346,7 +350,7 @@ def test_sbomchecker_spdx3_no_elements_missing() -> None:
 def test_sbomchecker_fsct3_spdx3_no_elements_missing() -> None:
     test_file = Path(__file__).parent / "data" / "spdx3" / "no_elements_missing.json"
     sbom = sbom_checker.SbomChecker(
-        str(test_file), sbom_spec="spdx3", compliance="fsct3-min"
+        str(test_file), sbom_spec="spdx3", compliance="fsct3"
     )
     assert sbom.doc is not None
     assert isinstance(sbom.doc, spdx3.SHACLObjectSet)
@@ -417,8 +421,10 @@ def test_sbomchecker_output_json_validation_messages() -> None:
     test_file = Path(__file__).parent / "data" / "spdx3" / "has_no_sbom.json"
     sbom = sbom_checker.SbomChecker(str(test_file), sbom_spec="spdx3")
     got = sbom.output_json()
-    assert got["validationMessages"]
-    assert "root element" in got["validationMessages"][0]["message"]
+    assert got["conformanceMessages"]
+    print(got["conformanceMessages"][0]["message"])
+    assert "rootElement" in got["conformanceMessages"][0]["message"]
+    assert "SBOM type" in got["conformanceMessages"][0]["message"]
 
 
 def test_sbomchecker_output_html() -> None:
@@ -471,7 +477,7 @@ def test_sbomchecker_fsct3_output_html() -> None:
     filepath = os.path.join(
         os.path.dirname(__file__), "data", "other_tests", "SPDXSBOMExample.spdx.yml"
     )
-    sbom = sbom_checker.SbomChecker(filepath, compliance="fsct3-min")
+    sbom = sbom_checker.SbomChecker(filepath, compliance="fsct3")
 
     got = sbom.output_html()
     expected = (

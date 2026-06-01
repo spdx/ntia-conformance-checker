@@ -10,15 +10,16 @@ as the single source of truth for the rule catalogue.
 The emitted log contains two taxonomies:
 
 1. **Category taxonomy** -- ``ToolComponent`` whose name is
-   :attr:`Spec.sarif_taxonomy_name` (e.g. ``ntia-minimum-elements``).  One
-   taxon per :class:`SpecCategory`.  Each rule has a ``relationships`` entry
-   with ``kinds: ["superset"]`` pointing at its category taxon.
+   :attr:`Spec.sarif_category_taxonomy_name` (e.g. ``ntia-minimum-elements``).
+   One taxon per :class:`SpecCategory`.  Each rule has a ``relationships``
+   entry with ``kinds: ["superset"]`` pointing at its category taxon.
 
 2. **Clause taxonomy** -- ``ToolComponent`` whose name is
-   :attr:`Spec.sarif_clause_taxonomy_name` (e.g. ``fsct-clauses``).  One
-   taxon per distinct :attr:`SpecRule.ref_section` value.  Each rule has a
-   second ``relationships`` entry with ``kinds: ["equal"]`` pointing at its
-   clause taxon.  Disabled if the spec leaves the clause taxonomy name empty.
+   :attr:`Spec.sarif_clause_taxonomy_name` (e.g. ``ntia-clauses``).  One
+   taxon per distinct :attr:`SpecRule.spec_clause_number` value.  Each rule
+   has a second ``relationships`` entry with ``kinds: ["equal"]`` pointing at
+   its clause taxon.  Disabled if the spec leaves the clause taxonomy name
+   empty.
 
 Rule and taxon ids are OSCAL-control-id-shaped (see ``RULES.md``) so a future
 ``output_oscal()`` exporter can reuse them as ``catalog`` / ``group`` /
@@ -139,23 +140,23 @@ def _rule_relationships(spec: "Spec", rule: "SpecRule") -> list[dict[str, Any]]:
 
     Always includes a ``superset`` relationship pointing at the rule's
     category taxon.  If the spec defines a clause taxonomy *and* the rule has
-    a ``ref_section``, also includes an ``equal`` relationship pointing at
-    the clause taxon.
+    a ``spec_clause_number``, also includes an ``equal`` relationship pointing
+    at the clause taxon.
     """
     rels: list[dict[str, Any]] = [
         {
             "target": {
-                "id": rule.category,
-                "toolComponent": {"name": spec.sarif_taxonomy_name},
+                "id": rule.spec_category,
+                "toolComponent": {"name": spec.sarif_category_taxonomy_name},
             },
             "kinds": ["superset"],
         }
     ]
-    if spec.sarif_clause_taxonomy_name and rule.ref_section:
+    if spec.sarif_clause_taxonomy_name and rule.spec_clause_number:
         rels.append(
             {
                 "target": {
-                    "id": rule.ref_section,
+                    "id": rule.spec_clause_number,
                     "toolComponent": {"name": spec.sarif_clause_taxonomy_name},
                 },
                 "kinds": ["equal"],
@@ -167,29 +168,31 @@ def _rule_relationships(spec: "Spec", rule: "SpecRule") -> list[dict[str, Any]]:
 def _emit_rule(spec: "Spec", rule: "SpecRule") -> dict[str, Any]:
     """Build a SARIF ``reportingDescriptor`` for ``rule``."""
     rule_id = spec.rule_id(rule)
-    short_text = rule.warning or f"{rule.description.capitalize()} is missing."
+    short_text = (
+        rule.warning or f"{rule.element_description.capitalize()} is missing."
+    )
     descriptor: dict[str, Any] = {
         "id": rule_id,
-        "name": rule.sarif_rule_name,
+        "name": rule.sarif_name,
         "shortDescription": {"text": short_text},
         "fullDescription": {
             "text": (
-                f"The SBOM must provide {rule.description}.  "
+                f"The SBOM must provide {rule.element_description}.  "
                 "A result is emitted for every component (or once at the "
                 "document level) where this element is absent."
             )
         },
         "defaultConfiguration": {"level": spec.sarif_level(rule)},
-        "helpUri": spec.rule_help_uri(rule),
+        "helpUri": spec.rule_uri(rule),
         "relationships": _rule_relationships(spec, rule),
         "properties": {
             "slug": rule.slug,
             "elementId": rule.element_id,
-            "category": rule.category,
+            "specCategory": rule.spec_category,
             "maturity": rule.maturity,
             "status": rule.status,
-            "refSection": rule.ref_section,
-            "refTitle": rule.ref_title,
+            "specClauseNumber": rule.spec_clause_number,
+            "specClauseName": rule.spec_clause_name,
             "oscalControlId": spec.oscal_control_id(rule),
         },
     }
@@ -210,22 +213,22 @@ def _category_taxon(category: "SpecCategory", spec_title: str) -> dict[str, Any]
 
 
 def _clause_taxa(spec: "Spec") -> list[dict[str, Any]]:
-    """Build one taxon per distinct ref_section in the spec's emitted rules.
+    """Build one taxon per distinct spec_clause_number in the emitted rules.
 
-    Order follows the first occurrence of each ref_section in
+    Order follows the first occurrence of each spec_clause_number in
     :meth:`Spec.emitted_rules`.
     """
     seen: dict[str, dict[str, Any]] = {}
     for rule in spec.emitted_rules():
-        if not rule.ref_section or rule.ref_section in seen:
+        if not rule.spec_clause_number or rule.spec_clause_number in seen:
             continue
-        seen[rule.ref_section] = {
-            "id": rule.ref_section,
-            "name": rule.ref_title or rule.ref_section,
+        seen[rule.spec_clause_number] = {
+            "id": rule.spec_clause_number,
+            "name": rule.spec_clause_name or rule.spec_clause_number,
             "shortDescription": {
                 "text": (
-                    f"{spec.title} clause {rule.ref_section}"
-                    + (f": {rule.ref_title}." if rule.ref_title else ".")
+                    f"{spec.spec_title} clause {rule.spec_clause_number}"
+                    + (f": {rule.spec_clause_name}." if rule.spec_clause_name else ".")
                 )
             },
         }
@@ -235,15 +238,15 @@ def _clause_taxa(spec: "Spec") -> list[dict[str, Any]]:
 def _taxonomies(spec: "Spec") -> list[dict[str, Any]]:
     """Build the ``taxonomies`` array (category + optional clause)."""
     category_taxonomy: dict[str, Any] = {
-        "name": spec.sarif_taxonomy_name,
-        "informationUri": spec.help_uri or TOOL_URI,
+        "name": spec.sarif_category_taxonomy_name,
+        "informationUri": spec.spec_uri or TOOL_URI,
         "shortDescription": {
             "text": (
-                f"The set of {spec.title} categories (clusters / groups) "
+                f"The set of {spec.spec_title} categories (clusters / groups) "
                 "this checker emits rules for."
             )
         },
-        "taxa": [_category_taxon(c, spec.title) for c in spec.categories],
+        "taxa": [_category_taxon(c, spec.spec_title) for c in spec.categories],
     }
     taxonomies: list[dict[str, Any]] = [category_taxonomy]
 
@@ -253,11 +256,11 @@ def _taxonomies(spec: "Spec") -> list[dict[str, Any]]:
             taxonomies.append(
                 {
                     "name": spec.sarif_clause_taxonomy_name,
-                    "informationUri": spec.help_uri or TOOL_URI,
+                    "informationUri": spec.spec_uri or TOOL_URI,
                     "shortDescription": {
                         "text": (
-                            f"Individual clauses of {spec.title}; each taxon id "
-                            "is a literal spec section number."
+                            f"Individual clauses of {spec.spec_title}; each taxon "
+                            "id is a literal spec clause number."
                         )
                     },
                     "taxa": clause_taxa,
@@ -280,9 +283,9 @@ def _component_result(
 ) -> dict[str, Any]:
     label = name if name else spdx_id
     message_text = (
-        f"Component '{label}' ({spdx_id}) is missing a {rule.description}."
+        f"Component '{label}' ({spdx_id}) is missing a {rule.element_description}."
         if spdx_id and name
-        else f"Component '{label}' is missing a {rule.description}."
+        else f"Component '{label}' is missing a {rule.element_description}."
     )
     return {
         "ruleId": rule_id,
@@ -305,7 +308,7 @@ def _document_result(
     return {
         "ruleId": rule_id,
         "level": level,
-        "message": {"text": f"SBOM document is missing {rule.description}."},
+        "message": {"text": f"SBOM document is missing {rule.element_description}."},
         "locations": [
             {
                 "logicalLocations": [{"name": "document", "kind": "module"}],
@@ -420,7 +423,7 @@ def build_sarif(checker: "BaseChecker", *, embed_sbom: bool = False) -> dict[str
     ]
     parsing_errors = getattr(checker, "_parsing_errors", [])
 
-    supported_taxonomies = [{"name": spec.sarif_taxonomy_name}]
+    supported_taxonomies = [{"name": spec.sarif_category_taxonomy_name}]
     if spec.sarif_clause_taxonomy_name:
         supported_taxonomies.append({"name": spec.sarif_clause_taxonomy_name})
 
@@ -445,7 +448,7 @@ def build_sarif(checker: "BaseChecker", *, embed_sbom: bool = False) -> dict[str
         "properties": {
             "sbomSpec": getattr(checker, "sbom_spec", "") or "",
             "sbomName": getattr(checker, "sbom_name", "") or "",
-            "complianceStandard": spec.standard_id,
+            "complianceStandard": spec.spec_id,
         },
     }
 

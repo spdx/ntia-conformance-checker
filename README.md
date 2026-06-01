@@ -101,7 +101,7 @@ options:
   -h, --help            show this help message and exit
   -s, --sbom-spec {spdx2,spdx3}
                         SBOM specification of the input file; see below for details [default: spdx2]
-  -c, --comply {fsct3-min,ntia}
+  -c, --comply {fsct3,ntia}
                         Compliance standards to check against; see below for details [default: ntia]
   --skip-validation     Skip validation
   -r, --output {html,json,print,quiet,sarif}
@@ -119,7 +119,7 @@ choices:
     spdx3       System Package Data Exchange (SPDX) 3.x
 
   Compliance standards (for --comply):
-    fsct3-min   2024 CISA SBOM Baseline Attributes (Minimum Expected)
+    fsct3       2024 CISA SBOM Baseline Attributes (Minimum Expected)
     ntia        2021 NTIA SBOM Minimum Elements
 
   Report output types (for --output):
@@ -131,7 +131,7 @@ choices:
 
 Examples:
   sbomcheck sbom.spdx
-  sbomcheck -s spdx3 -c fsct3-min -v sbom.json
+  sbomcheck -s spdx3 -c fsct3 -v sbom.json
   sbomcheck sbom.yaml --output json --output-file report.json
 ```
 
