@@ -10,9 +10,9 @@
 # Rule ids follow SBOM-[SPEC]-[CATEGORY]-[NNN].  See RULES.md.
 
 spec:
-  spec_id: ntia
-  spec_title: 2021 NTIA SBOM Minimum Elements
-  spec_uri: https://www.ntia.gov/report/2021/minimum-elements-software-bill-materials-sbom
+  id: ntia
+  title: 2021 NTIA SBOM Minimum Elements
+  uri: https://www.ntia.gov/report/2021/minimum-elements-software-bill-materials-sbom
   sarif_category_taxonomy_name: ntia-minimum-elements
   sarif_clause_taxonomy_name: ntia-clauses
 
@@ -30,6 +30,9 @@ categories:
     title: Practices and Processes
     description: Operational practices for SBOM creation, exchange, and consumption.
 
+# NTIA is a flat spec: it defines no maturity tiers, so no `maturity_levels`
+# block.  Every rule sits at the implicit baseline (maturity 0 -> SARIF error).
+
 rules:
   # ---- Data Fields (component-level) -----------------------------------
 
@@ -38,7 +41,7 @@ rules:
     spec_category: data-fields
     spec_clause_number: IV
     spec_clause_name: Data Fields -- Supplier Name
-    spec_clause_url: https://www.ntia.gov/report/2021/minimum-elements-software-bill-materials-sbom
+    spec_clause_uri: https://www.ntia.gov/report/2021/minimum-elements-software-bill-materials-sbom
     element_id: supplier
     element_description: component supplier
     competency_question: All component suppliers provided?
@@ -54,7 +57,7 @@ rules:
     spec_category: data-fields
     spec_clause_number: IV
     spec_clause_name: Data Fields -- Component Name
-    spec_clause_url: https://www.ntia.gov/report/2021/minimum-elements-software-bill-materials-sbom
+    spec_clause_uri: https://www.ntia.gov/report/2021/minimum-elements-software-bill-materials-sbom
     element_id: name
     element_description: component name
     competency_question: All component names provided?
@@ -70,7 +73,7 @@ rules:
     spec_category: data-fields
     spec_clause_number: IV
     spec_clause_name: Data Fields -- Version of the Component
-    spec_clause_url: https://www.ntia.gov/report/2021/minimum-elements-software-bill-materials-sbom
+    spec_clause_uri: https://www.ntia.gov/report/2021/minimum-elements-software-bill-materials-sbom
     element_id: version
     element_description: component version
     competency_question: All component versions provided?
@@ -86,7 +89,7 @@ rules:
     spec_category: data-fields
     spec_clause_number: IV
     spec_clause_name: Data Fields -- Other Unique Identifiers
-    spec_clause_url: https://www.ntia.gov/report/2021/minimum-elements-software-bill-materials-sbom
+    spec_clause_uri: https://www.ntia.gov/report/2021/minimum-elements-software-bill-materials-sbom
     element_id: unique_identifier
     element_description: component identifier
     competency_question: All component identifiers provided?
@@ -104,7 +107,7 @@ rules:
     spec_category: data-fields
     spec_clause_number: IV
     spec_clause_name: Data Fields -- Dependency Relationship
-    spec_clause_url: https://www.ntia.gov/report/2021/minimum-elements-software-bill-materials-sbom
+    spec_clause_uri: https://www.ntia.gov/report/2021/minimum-elements-software-bill-materials-sbom
     element_id: dependency_relationship
     element_description: dependency relationships
     competency_question: Dependency relationships provided?
@@ -120,7 +123,7 @@ rules:
     spec_category: data-fields
     spec_clause_number: IV
     spec_clause_name: Data Fields -- Author of SBOM Data
-    spec_clause_url: https://www.ntia.gov/report/2021/minimum-elements-software-bill-materials-sbom
+    spec_clause_uri: https://www.ntia.gov/report/2021/minimum-elements-software-bill-materials-sbom
     element_id: author
     element_description: SBOM author
     competency_question: SBOM author name provided?
@@ -136,7 +139,7 @@ rules:
     spec_category: data-fields
     spec_clause_number: IV
     spec_clause_name: Data Fields -- Timestamp
-    spec_clause_url: https://www.ntia.gov/report/2021/minimum-elements-software-bill-materials-sbom
+    spec_clause_uri: https://www.ntia.gov/report/2021/minimum-elements-software-bill-materials-sbom
     element_id: timestamp
     element_description: SBOM creation timestamp
     competency_question: SBOM creation timestamp provided?

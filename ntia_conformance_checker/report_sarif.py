@@ -180,14 +180,16 @@ def _emit_rule(spec: "Spec", rule: "SpecRule") -> dict[str, Any]:
                 "document level) where this element is absent."
             )
         },
-        "defaultConfiguration": {"level": spec.sarif_level(rule)},
+        "defaultConfiguration": {"level": spec.severity(rule)},
         "helpUri": spec.rule_uri(rule),
         "relationships": _rule_relationships(spec, rule),
         "properties": {
             "slug": rule.slug,
             "elementId": rule.element_id,
             "specCategory": rule.spec_category,
-            "maturity": rule.maturity,
+            "maturityLevel": rule.maturity,
+            "maturity": spec.maturity_id(rule),
+            "provision": rule.provision,
             "status": rule.status,
             "specClauseNumber": rule.spec_clause_number,
             "specClauseName": rule.spec_clause_name,
@@ -225,7 +227,7 @@ def _clause_taxa(spec: "Spec") -> list[dict[str, Any]]:
             "name": rule.spec_clause_name or rule.spec_clause_number,
             "shortDescription": {
                 "text": (
-                    f"{spec.spec_title} clause {rule.spec_clause_number}"
+                    f"{spec.title} clause {rule.spec_clause_number}"
                     + (f": {rule.spec_clause_name}." if rule.spec_clause_name else ".")
                 )
             },
@@ -237,14 +239,14 @@ def _taxonomies(spec: "Spec") -> list[dict[str, Any]]:
     """Build the ``taxonomies`` array (category + optional clause)."""
     category_taxonomy: dict[str, Any] = {
         "name": spec.sarif_category_taxonomy_name,
-        "informationUri": spec.spec_uri or TOOL_URI,
+        "informationUri": spec.uri or TOOL_URI,
         "shortDescription": {
             "text": (
-                f"The set of {spec.spec_title} categories (clusters / groups) "
+                f"The set of {spec.title} categories (clusters / groups) "
                 "this checker emits rules for."
             )
         },
-        "taxa": [_category_taxon(c, spec.spec_title) for c in spec.categories],
+        "taxa": [_category_taxon(c, spec.title) for c in spec.categories],
     }
     taxonomies: list[dict[str, Any]] = [category_taxonomy]
 
@@ -254,10 +256,10 @@ def _taxonomies(spec: "Spec") -> list[dict[str, Any]]:
             taxonomies.append(
                 {
                     "name": spec.sarif_clause_taxonomy_name,
-                    "informationUri": spec.spec_uri or TOOL_URI,
+                    "informationUri": spec.uri or TOOL_URI,
                     "shortDescription": {
                         "text": (
-                            f"Individual clauses of {spec.spec_title}; each taxon "
+                            f"Individual clauses of {spec.title}; each taxon "
                             "id is a literal spec clause number."
                         )
                     },
@@ -274,20 +276,21 @@ def _taxonomies(spec: "Spec") -> list[dict[str, Any]]:
 def _component_result(
     rule_id: str,
     rule: "SpecRule",
-    level: str,
+    severity: str,
     name: str,
     spdx_id: str,
     artifact_uri: str,
 ) -> dict[str, Any]:
-    label = name if name else spdx_id
+    display_name = name if name else spdx_id
     message_text = (
-        f"Component '{label}' ({spdx_id}) is missing a {rule.element_description}."
+        f"Component '{display_name}' ({spdx_id}) is missing a "
+        f"{rule.element_description}."
         if spdx_id and name
-        else f"Component '{label}' is missing a {rule.element_description}."
+        else f"Component '{display_name}' is missing a {rule.element_description}."
     )
     return {
         "ruleId": rule_id,
-        "level": level,
+        "level": severity,
         "message": {"text": message_text},
         "locations": [
             {
@@ -301,11 +304,11 @@ def _component_result(
 
 
 def _document_result(
-    rule_id: str, rule: "SpecRule", level: str, artifact_uri: str
+    rule_id: str, rule: "SpecRule", severity: str, artifact_uri: str
 ) -> dict[str, Any]:
     return {
         "ruleId": rule_id,
-        "level": level,
+        "level": severity,
         "message": {"text": f"SBOM document is missing {rule.element_description}."},
         "locations": [
             {
@@ -333,19 +336,19 @@ def _results_for_rule(
         return []
 
     rule_id = spec.rule_id(rule)
-    level = spec.sarif_level(rule)
+    severity = spec.severity(rule)
     findings = getattr(checker, "findings", {}).get(rule_id, []) or []
 
     results: list[dict[str, Any]] = []
     for finding in findings:
         if finding.is_document_level:
-            results.append(_document_result(rule_id, rule, level, artifact_uri))
+            results.append(_document_result(rule_id, rule, severity, artifact_uri))
         else:
             results.append(
                 _component_result(
                     rule_id,
                     rule,
-                    level,
+                    severity,
                     finding.component_name or "",
                     finding.component_id or "",
                     artifact_uri,
@@ -446,7 +449,8 @@ def build_sarif(checker: "BaseChecker", *, embed_sbom: bool = False) -> dict[str
         "properties": {
             "sbomSpec": getattr(checker, "sbom_spec", "") or "",
             "sbomName": getattr(checker, "sbom_name", "") or "",
-            "complianceStandard": spec.spec_id,
+            "complianceStandard": spec.id,
+            "maturityTarget": getattr(checker, "target_maturity", 0),
         },
     }
 

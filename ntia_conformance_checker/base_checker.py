@@ -46,7 +46,7 @@ if TYPE_CHECKING:
     from .spec import Spec
 
 
-# pylint: disable=too-many-instance-attributes,too-many-public-methods
+# pylint: disable=too-many-instance-attributes,too-many-public-methods,too-many-lines
 class BaseChecker(DeprecatedCheckerMixin, ABC):
     """Base class for all compliance/conformance checkers.
 
@@ -183,7 +183,7 @@ class BaseChecker(DeprecatedCheckerMixin, ABC):
         if not self.findings:
             self.run_probes()
         out: list[tuple[str, list[tuple[str, str]]]] = []
-        for rule in self.spec.active_rules():
+        for rule in self.spec.active_rules(self.target_maturity):
             probe = rule.probe
             if probe is None or probe.name != "require_component_attribute":
                 continue
@@ -199,11 +199,13 @@ class BaseChecker(DeprecatedCheckerMixin, ABC):
         return out
 
     def run_probes(self) -> dict[str, list["Finding"]]:
-        """Run every active rule's probe and return findings keyed by rule id.
+        """Run each in-scope active rule's probe; return findings by rule id.
 
-        Catalogue-only and TBD rules are skipped (their ``probe`` is
-        ``None``).  The result is also stashed on ``self.findings`` so
-        repeat calls and downstream emitters don't re-execute probes.
+        "In scope" = ``maturity <= self.target_maturity``.  Catalogue-only and
+        TBD rules are skipped (their ``probe`` is ``None``), and rules above the
+        target are not evaluated at all.  The result is stashed on
+        ``self.findings`` so repeat calls and downstream emitters don't
+        re-execute probes.
         """
         # Importing lazily so BaseChecker stays cheap to import for
         # callers that only want the SBOM-parsing behaviour.
@@ -211,7 +213,7 @@ class BaseChecker(DeprecatedCheckerMixin, ABC):
         from .probes import lookup
 
         findings: dict[str, list[Finding]] = {}
-        for rule in self.spec.active_rules():
+        for rule in self.spec.active_rules(self.target_maturity):
             if rule.probe is None:
                 findings[self.spec.rule_id(rule)] = []
                 continue
@@ -227,12 +229,13 @@ class BaseChecker(DeprecatedCheckerMixin, ABC):
         """Abstract method to check compliance/conformance."""
         raise NotImplementedError
 
-    def __init__(
+    def __init__(  # pylint: disable=too-many-arguments,too-many-positional-arguments
         self,
         file: str,
         validate: bool = True,
         compliance: str = "",
         sbom_spec: str = DEFAULT_SBOM_SPEC,
+        target_maturity: int = 0,
     ) -> None:
         """
         Initialize the BaseChecker.
@@ -242,9 +245,13 @@ class BaseChecker(DeprecatedCheckerMixin, ABC):
             validate (bool): Whether to validate the file.
             compliance (str): The compliance standard to be used.
             sbom_spec (str): The SBOM specification to be used.
+            target_maturity (int): Maturity ordinal to assess against.  Rules
+                with ``maturity > target_maturity`` are out of scope (neither
+                evaluated nor reported).  Defaults to ``0`` (the baseline).
         """
         self.compliance_standard = compliance
         self.sbom_spec = sbom_spec
+        self.target_maturity = target_maturity
         # self.file_format = ""
 
         self.file = file
@@ -952,7 +959,7 @@ class BaseChecker(DeprecatedCheckerMixin, ABC):
         if not self.findings:
             self.run_probes()
 
-        for rule in self.spec.rules:
+        for rule in self.spec.active_rules(self.target_maturity):
             if not rule.json_key or rule.probe is None:
                 continue
             rule_id = self.spec.rule_id(rule)

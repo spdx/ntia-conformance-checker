@@ -33,8 +33,8 @@ FSCT_COMP_COPYRIGHT_NOTICE = "SBOM-FSCT3-COMP-008"
 
 NTIA_TAXONOMY_NAME = "ntia-minimum-elements"
 NTIA_CLAUSE_TAXONOMY_NAME = "ntia-clauses"
-FSCT_TAXONOMY_NAME = "fsct-baseline-attributes"
-FSCT_CLAUSE_TAXONOMY_NAME = "fsct-clauses"
+FSCT_TAXONOMY_NAME = "fsct3-baseline-attributes"
+FSCT_CLAUSE_TAXONOMY_NAME = "fsct3-clauses"
 
 
 def _fixtures(subdir: str) -> list[str]:
@@ -231,7 +231,7 @@ def test_sarif_catalogue_only_rules_emit_no_results() -> None:
     assert emitted_rule_ids.isdisjoint(catalogue_only_ids)
 
 
-# ---- Embed SBOM (--embed-sbom) ------------------------------------------
+# ---- Embed SBOM (output_sarif embed_sbom= / --output sarif-sbom) --------
 
 
 def test_sarif_embed_sbom_off_by_default() -> None:

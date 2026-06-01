@@ -5,12 +5,12 @@
 """Spec registry: the single source of truth for available standards.
 
 Every ``rules/*.yaml`` file packaged with this library is discovered and
-loaded once at import time, indexed by its ``spec_id``.  This makes a
-spec's ``spec_id`` the authoritative compliance identifier:
+loaded once at import time, indexed by its spec ``id``.  This makes a spec's
+``id`` the authoritative compliance identifier:
 
 * it is the string the user passes to ``--comply`` / ``compliance=``,
 * it keys the dispatch in :class:`SbomChecker`,
-* its :attr:`Spec.spec_title` is the human-readable description shown in CLI
+* its :attr:`Spec.title` is the human-readable description shown in CLI
   help and report headers.
 
 Adding a new standard is therefore *just dropping a YAML file* into the
@@ -19,13 +19,11 @@ hardcoded id list to update.  (A named convenience subclass such as
 ``NTIAChecker`` is optional and only kept for backwards-compatible
 imports.)
 
-**Convention:** name each file after its ``spec_id``
-(e.g. ``rules/ntia.yaml`` -> ``spec_id: ntia``;
-``rules/fsct3.yaml`` -> ``spec_id: fsct3``).
-Discovery keys on the in-file ``spec_id``, not the filename,
-so a mismatch is not a hard error -- but matching them keeps the
-directory navigable and pre-shapes future siblings
-(e.g. ``fsct3-rec.yaml`` for additional FSCTv3 maturity levels).
+**Convention:** name each file after its spec ``id``
+(e.g. ``rules/ntia.yaml`` -> ``id: ntia``; ``rules/fsct3.yaml`` -> ``id: fsct3``).
+Discovery keys on the in-file ``id``, not the filename, so a mismatch is not a
+hard error -- but matching them keeps the directory navigable.  A new edition
+is a new spec with its own ``id`` (e.g. a future ``fsct4.yaml`` -> ``id: fsct4``).
 """
 
 from __future__ import annotations
@@ -42,44 +40,44 @@ _RULES_DIR = Path(__file__).parent / "rules"
 
 
 def _discover() -> dict[str, Spec]:
-    """Load every packaged ``rules/*.yaml`` and index by ``standard_id``."""
+    """Load every packaged ``rules/*.yaml`` and index by spec ``id``."""
     registry: dict[str, Spec] = {}
     for yaml_path in sorted(_RULES_DIR.glob("*.yaml")):
         spec = load_spec(yaml_path)
-        if spec.spec_id in registry:
+        if spec.id in registry:
             raise ValueError(
-                f"Duplicate spec_id {spec.spec_id!r}: "
+                f"Duplicate spec id {spec.id!r}: "
                 f"{yaml_path.name} collides with an already-loaded spec."
             )
-        registry[spec.spec_id] = spec
+        registry[spec.id] = spec
     return registry
 
 
-# Loaded once at import.  Keyed by spec_id (e.g. "ntia", "fsct3").
+# Loaded once at import.  Keyed by spec id (e.g. "ntia", "fsct3").
 _REGISTRY: dict[str, Spec] = _discover()
 
 
-def get_spec(standard_id: str) -> Spec:
-    """Return the :class:`Spec` for ``standard_id``.
+def get_spec(spec_id: str) -> Spec:
+    """Return the :class:`Spec` for ``spec_id``.
 
     Raises:
-        ValueError: ``standard_id`` is not a known standard.  The message
-            lists the known ids so the caller can surface a useful error.
+        ValueError: ``spec_id`` is not a known standard.  The message lists the
+            known ids so the caller can surface a useful error.
     """
     try:
-        return _REGISTRY[standard_id]
+        return _REGISTRY[spec_id]
     except KeyError as exc:
         known = ", ".join(sorted(_REGISTRY))
         raise ValueError(
-            f"Unknown compliance standard: {standard_id!r}.  Known: {known}"
+            f"Unknown compliance standard: {spec_id!r}.  Known: {known}"
         ) from exc
 
 
-def standard_ids() -> tuple[str, ...]:
-    """All known compliance standard ids, sorted."""
+def spec_ids() -> tuple[str, ...]:
+    """All known compliance spec ``id`` values, sorted."""
     return tuple(sorted(_REGISTRY))
 
 
 def descriptions() -> dict[str, str]:
-    """Map each standard id to its human-readable :attr:`Spec.title`."""
-    return {sid: spec.spec_title for sid, spec in _REGISTRY.items()}
+    """Map each spec ``id`` to its human-readable :attr:`Spec.title`."""
+    return {spec_id: spec.title for spec_id, spec in _REGISTRY.items()}

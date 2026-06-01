@@ -12,16 +12,18 @@ output format (text table, JSON, SARIF, future OSCAL):
 
 * :class:`SpecRule` -- one minimum-element check.  Holds rule identity, its
   location in the source spec (category + clause), the element under test, the
-  human-facing meaning (description, competency question, warning), maturity,
-  status, the probe that performs the check, and optional output mappings.
+  human-facing meaning (element description, competency question, warning),
+  maturity (which tier requires it), provision (how strong the requirement
+  is), status, the probe that performs the check, and optional output
+  mappings.
 
 * :class:`Spec` -- a compliance standard's full rule catalogue.  Holds the
-  standard id/code/title, general help URL (used as a fallback when a rule has
+  standard id/title, general help URL (used as a fallback when a rule has
   no rule-specific URL), the categories and rules, and the SARIF taxonomy
   identifiers.
 
 Rule identifiers follow the ``SBOM-[SPEC]-[CATEGORY]-[NNN]`` convention
-documented in ``RULES.md``.  ``SPEC`` is the uppercased :attr:`Spec.spec_id`
+documented in ``RULES.md``.  ``SPEC`` is the uppercased :attr:`Spec.id`
 (e.g. ``NTIA``, ``FSCT3``) -- the edition is part of the id because each
 edition is a distinct standard with its own requirements; ``CATEGORY`` is
 :attr:`SpecCategory.code` (e.g. ``DF``, ``COMP``); ``NNN`` is
@@ -32,9 +34,6 @@ from __future__ import annotations
 
 from dataclasses import dataclass, field
 from typing import Any, Literal
-
-Maturity = Literal["minimum-expected", "recommended", "aspirational"]
-"""Three maturity levels per FSCT §2.2 / NTIA implicit equivalents."""
 
 Status = Literal["active", "catalogue-only", "tbd"]
 """Per-rule emission status.
@@ -48,6 +47,33 @@ Status = Literal["active", "catalogue-only", "tbd"]
   *not* added to the catalogue; it exists so that wiring up the check later
   does not require renumbering existing rules.
 """
+
+Severity = Literal["error", "warning", "note", "none"]
+"""Unified severity scale, ordered ``error > warning > note > none``.
+
+Shared vocabulary for SARIF ``result.level``, a rule's default severity, and
+the CLI log/verbosity threshold.  ``note`` is the informational band (logs and
+tool notifications); no rule provision maps to it.
+"""
+
+Provision = Literal["requirement", "recommendation", "permission"]
+"""ISO/IEC Directives provision type -- the kind of provision a rule states,
+independent of its maturity.  Determines severity and whether failure blocks
+conformance:
+
+* ``requirement`` -> ``error``, blocks compliance.
+* ``recommendation`` -> ``warning``, advisory.
+* ``permission`` -> ``none``, advisory (a permission cannot be *violated* by
+  absence, so it never produces an actionable finding).
+
+A single maturity level can mix all three.
+"""
+
+_PROVISION_TO_SEVERITY: dict[Provision, Severity] = {
+    "requirement": "error",
+    "recommendation": "warning",
+    "permission": "none",
+}
 
 
 @dataclass(frozen=True, kw_only=True)
@@ -65,6 +91,58 @@ class ProbeRef:
     params: dict[str, Any] = field(default_factory=dict)
     """Keyword arguments passed to the probe.  Probe functions declare
     every accepted parameter explicitly so typos in YAML fail loudly."""
+
+
+@dataclass(frozen=True, kw_only=True)
+class SpecMaturity:
+    """One maturity level within a :class:`Spec`.
+
+    Declaring maturity levels is **optional** -- a flat spec with no tiers
+    simply omits :attr:`Spec.maturity_levels`, and the loader substitutes
+    :data:`DEFAULT_MATURITY_LEVELS` (a single ``required`` / level ``0`` /
+    ``error`` baseline) so every rule still has a named level.
+
+    When a spec *does* declare levels, :attr:`level` is a **universal ordinal**
+    -- ``0`` is the baseline, higher numbers demand more depth / completeness.
+    This ordering is shared across specs (level 0 = baseline everywhere), so it
+    supports "is this rule within target level N?" and cross-spec comparison.
+
+    The :attr:`id` is a **spec-defined** machine slug for the level (FSCT v3:
+    ``minimum`` / ``recommended`` / ``aspirational``; NTIA: ``required``); the
+    :attr:`title` is its human label.  Rules still reference the level by its
+    integer :attr:`level`; ``id`` is for output and possible name-based
+    selection.
+
+    Maturity carries **no severity** -- it only scopes *which* requirements
+    apply at a target level.  How bad a missing requirement is comes from the
+    rule's :attr:`SpecRule.provision`, an orthogonal axis.
+    """
+
+    level: int
+    """Universal maturity ordinal (``0`` = baseline; higher = deeper)."""
+
+    id: str
+    """Spec-specific machine slug for the level (e.g. ``"minimum"``,
+    ``"required"``).  Lowercase, hyphen/underscore-friendly."""
+
+    title: str = ""
+    """Optional human-readable label (e.g. ``"Minimum Expected"``)."""
+
+    description: str = ""
+    """Optional one-line description of the maturity level."""
+
+
+DEFAULT_MATURITY_LEVELS: tuple["SpecMaturity", ...] = (
+    SpecMaturity(
+        level=0,
+        id="required",
+        title="Required",
+        description="A minimum element that the SBOM must provide.",
+    ),
+)
+"""Applied to any spec that does not declare its own ``maturity_levels`` -- a
+flat spec then has a single, named baseline level (``required``) instead of an
+anonymous one.  Severity comes from each rule's provision, not the tier."""
 
 
 @dataclass(frozen=True, kw_only=True)
@@ -106,8 +184,8 @@ class SpecRule:
 
     slug: str
     """Human-readable rule slug, lowercase kebab-case, **prefixed with the
-    lowercase spec code** to avoid cross-spec collisions.  Example:
-    ``"ntia-component-supplier-name"``, ``"fsct-component-name"``."""
+    spec id** to avoid cross-spec collisions.  Example:
+    ``"ntia-component-supplier-name"``, ``"fsct3-component-name"``."""
 
     # -- Spec mapping (location in the source spec) -----------------------
 
@@ -126,9 +204,9 @@ class SpecRule:
     spec_clause_name: str = ""
     """Human-readable clause title (e.g. ``"License"``)."""
 
-    spec_clause_url: str = ""
+    spec_clause_uri: str = ""
     """Deep link to the exact spec clause.  When empty, consumers fall back
-    to :attr:`Spec.spec_uri` via :meth:`Spec.rule_uri`."""
+    to :attr:`Spec.uri` via :meth:`Spec.rule_uri`."""
 
     # -- Element & meaning ------------------------------------------------
 
@@ -162,10 +240,21 @@ class SpecRule:
     wording in code.  Empty falls back to
     ``"{element_description.capitalize()} is missing."``."""
 
-    # -- Maturity / status ------------------------------------------------
+    # -- Maturity / provision / status ------------------------------------
 
-    maturity: Maturity = "minimum-expected"
-    """Spec-defined maturity level; drives the default SARIF severity."""
+    maturity: int = 0
+    """Universal maturity ordinal this rule sits at -- *which* tier requires
+    it.  Defaults to ``0`` (the baseline).  Must match one of the owning
+    :class:`Spec`'s :attr:`SpecMaturity.level` values -- for a flat spec that
+    is the substituted :data:`DEFAULT_MATURITY_LEVELS` (just level ``0``).
+    Lets a spec carry several rules for the same ``element_id`` at increasing
+    levels (each with its own deeper probe).  Carries **no** severity."""
+
+    provision: Provision = "requirement"
+    """ISO provision type -- *how bad* it is when missing.  Maps to severity
+    (``requirement`` -> ``error``, ``recommendation`` -> ``warning``,
+    ``permission`` -> ``none``) and decides whether failure blocks compliance
+    (only ``requirement`` does).  Orthogonal to :attr:`maturity`."""
 
     status: Status = "active"
     """Whether the rule is emitted in the catalogue / as results.
@@ -196,13 +285,6 @@ class SpecRule:
     not emitted in JSON output."""
 
 
-_MATURITY_TO_SARIF_LEVEL: dict[Maturity, str] = {
-    "minimum-expected": "error",
-    "recommended": "warning",
-    "aspirational": "note",
-}
-
-
 @dataclass(frozen=True, kw_only=True)
 class Spec:
     """A compliance standard's full rule catalogue.
@@ -213,26 +295,34 @@ class Spec:
 
     # -- Identity ---------------------------------------------------------
 
-    spec_id: str
+    id: str
     """Compliance-standard identifier, e.g. ``"ntia"`` / ``"fsct3"``.  Registry
     key, YAML filename, and the value emitted in SARIF
     ``run.properties.complianceStandard``.  Its uppercase form is the ``SPEC``
     segment of every rule id, so it must be a hyphen-free, uppercase-safe
     token (lowercase ASCII letters/digits, starting with a letter)."""
 
-    spec_title: str
+    title: str
     """Human-readable standard name, e.g. ``"2021 NTIA SBOM Minimum
     Elements"``."""
 
-    spec_uri: str = ""
+    uri: str = ""
     """General documentation URL for the standard.  Used as the fallback
-    when a :class:`SpecRule` does not provide its own ``spec_clause_url``."""
+    when a :class:`SpecRule` does not provide its own ``spec_clause_uri``."""
 
     # -- Content ----------------------------------------------------------
 
     categories: tuple[SpecCategory, ...] = field(default_factory=tuple)
     """The standard's categories / clusters.  Each becomes a SARIF taxon in
     the category taxonomy."""
+
+    maturity_levels: tuple[SpecMaturity, ...] = field(
+        default_factory=lambda: DEFAULT_MATURITY_LEVELS
+    )
+    """The standard's maturity vocabulary, keyed by universal ordinal.
+    **Optional in YAML** -- a flat spec omits it and the loader substitutes
+    :data:`DEFAULT_MATURITY_LEVELS` (a single ``required`` / level ``0`` /
+    ``error`` baseline).  When declared it must include level ``0``."""
 
     rules: tuple[SpecRule, ...] = field(default_factory=tuple)
     """The standard's rule catalogue.  Rules with ``status == "tbd"`` are
@@ -259,32 +349,90 @@ class Spec:
         for cat in self.categories:
             if cat.id == category_id:
                 return cat
-        raise KeyError(f"Spec {self.spec_id!r} has no category {category_id!r}")
+        raise KeyError(f"Spec {self.id!r} has no category {category_id!r}")
 
     def rule_id(self, rule: SpecRule) -> str:
         """Compose the canonical ``SBOM-[SPEC]-[CAT]-[NNN]`` rule id.
 
-        The ``SPEC`` segment is :attr:`spec_id` uppercased.
+        The ``SPEC`` segment is :attr:`id` uppercased.
         """
         cat = self.category(rule.spec_category)
-        return f"SBOM-{self.spec_id.upper()}-{cat.code}-{rule.number:03d}"
+        return f"SBOM-{self.id.upper()}-{cat.code}-{rule.number:03d}"
 
     def oscal_control_id(self, rule: SpecRule) -> str:
         """Return the rule's OSCAL control id (override or lowercased rule id)."""
         return rule.oscal_control_id or self.rule_id(rule).lower()
 
-    def sarif_level(self, rule: SpecRule) -> str:
-        """SARIF default ``level`` derived from maturity."""
-        return _MATURITY_TO_SARIF_LEVEL[rule.maturity]
+    def maturity(self, level: int) -> SpecMaturity:
+        """Look up a :class:`SpecMaturity` by its ordinal; KeyError if absent."""
+        for mat in self.maturity_levels:
+            if mat.level == level:
+                return mat
+        raise KeyError(f"Spec {self.id!r} has no maturity level {level!r}")
+
+    def maturity_id(self, rule: SpecRule) -> str:
+        """Spec-specific slug of ``rule``'s maturity level (``""`` if none)."""
+        for mat in self.maturity_levels:
+            if mat.level == rule.maturity:
+                return mat.id
+        return ""
+
+    def severity(self, rule: SpecRule) -> Severity:
+        """The rule's severity, from its provision (emitted as SARIF ``level``)."""
+        return _PROVISION_TO_SEVERITY[rule.provision]
 
     def rule_uri(self, rule: SpecRule) -> str:
         """Rule's source-spec clause URL if set, otherwise the standard URL."""
-        return rule.spec_clause_url or self.spec_uri
+        return rule.spec_clause_uri or self.uri
+
+    @property
+    def max_maturity(self) -> int:
+        """Highest declared maturity ordinal (``0`` for a flat spec)."""
+        return max((m.level for m in self.maturity_levels), default=0)
+
+    def maturity_ordinals(self) -> tuple[int, ...]:
+        """Declared maturity ordinals, ascending -- the valid assessment targets."""
+        return tuple(sorted(m.level for m in self.maturity_levels))
+
+    @staticmethod
+    def _in_scope(rule: SpecRule, target: int | None) -> bool:
+        """True if ``rule`` applies when assessing at ``target`` (``maturity <=
+        target``).  ``target is None`` means no maturity filter (all tiers)."""
+        return target is None or rule.maturity <= target
 
     def emitted_rules(self) -> tuple[SpecRule, ...]:
-        """Rules that appear in the SARIF catalogue (everything except TBD)."""
+        """Rules that appear in the SARIF catalogue (everything except TBD).
+
+        Not maturity-filtered: the catalogue advertises the full rule surface
+        of the spec regardless of the assessment target.
+        """
         return tuple(r for r in self.rules if r.status != "tbd")
 
-    def active_rules(self) -> tuple[SpecRule, ...]:
-        """Rules whose findings are actually emitted (excludes TBD + catalogue-only)."""
-        return tuple(r for r in self.rules if r.status == "active")
+    def active_rules(self, target: int | None = None) -> tuple[SpecRule, ...]:
+        """Active rules in scope for an assessment ``target`` maturity.
+
+        Excludes TBD + catalogue-only.  With ``target`` set, also excludes
+        rules above the target (``maturity > target``) -- they are out of scope
+        and are neither evaluated nor reported.  ``target is None`` keeps every
+        active rule (all tiers).
+        """
+        return tuple(
+            r for r in self.rules if r.status == "active" and self._in_scope(r, target)
+        )
+
+    def blocking_rules(self, target: int | None = None) -> tuple[SpecRule, ...]:
+        """In-scope active rules whose failure breaks compliance.
+
+        Only ``requirement`` provisions are blocking; ``recommendation`` /
+        ``permission`` rules are still emitted as findings (warning / none) but
+        are advisory -- a present-but-implausible value, say, is reported
+        without making the SBOM non-conformant.  Honours the assessment
+        ``target`` the same way as :meth:`active_rules`.
+        """
+        return tuple(
+            r
+            for r in self.rules
+            if r.status == "active"
+            and r.provision == "requirement"
+            and self._in_scope(r, target)
+        )

@@ -24,7 +24,7 @@ DEFAULT_SBOM_SPEC = "spdx2"
 SUPPORTED_SBOM_SPECS = set(SUPPORTED_SBOM_SPECS_DESC.keys())
 
 # Supported compliance standards are discovered from the packaged
-# ``rules/*.yaml`` files by the registry -- each spec's ``standard_id`` is
+# ``rules/*.yaml`` files by the registry -- each spec's ``id`` is
 # the compliance id and its ``title`` is the human description.  Adding a
 # new YAML is all that is needed to extend these; no edit here.
 SUPPORTED_COMPLIANCE_STANDARDS_DESC = _descriptions()

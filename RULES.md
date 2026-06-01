@@ -16,12 +16,12 @@ SBOM-[SPEC]-[CATEGORY]-[NNN]
 | Segment    | Meaning                                                                                | Example  |
 | :--------- | :------------------------------------------------------------------------------------- | :------- |
 | `SBOM`     | Fixed namespace prefix shared by every rule id.                                        | `SBOM`   |
-| `SPEC`     | `Spec.spec_id` uppercased (hyphen-free, uppercase-safe token).                          | `FSCT3`  |
+| `SPEC`     | `Spec.id` uppercased (hyphen-free, uppercase-safe token).                               | `FSCT3`  |
 | `CATEGORY` | Short uppercase code of a category within the spec (`SpecCategory.code`).               | `DF`     |
 | `NNN`      | Zero-padded (3-digit) sequence within `(SPEC, CATEGORY)`, in the order the spec lists.  | `001`    |
 
 * The id is derived (`Spec.rule_id`), never stored in the YAML, so it cannot
-  drift from `spec_id` / `category.code` / `number`.
+  drift from `id` / `category.code` / `number`.
 * The **edition is part of the `SPEC` segment** (`fsct3` → `FSCT3`), because each
   edition is a distinct standard with its own requirements.  A later edition
   (`fsct4` → `FSCT4`) therefore gets its own rule-id namespace, so rules never
@@ -31,7 +31,7 @@ SBOM-[SPEC]-[CATEGORY]-[NNN]
   `SpecRule.oscal_control_id`.
 * Each rule also stores the literal spec clause number it derives from
   (`SpecRule.spec_clause_number`, e.g. `2.2.2.7`) and a deep link
-  (`SpecRule.spec_clause_url`) so SARIF `helpUri` / OSCAL `link[rel="reference"]`
+  (`SpecRule.spec_clause_uri`) so SARIF `helpUri` / OSCAL `link[rel="reference"]`
   can point at the exact clause.
 * This naming convention follows SARIF rule
   [SARIF2009](https://learn.microsoft.com/en-us/dotnet/fundamentals/code-analysis/quality-rules/sarif2009)
@@ -48,17 +48,122 @@ SBOM-[SPEC]-[CATEGORY]-[NNN]
 | `COMP` | FSCT §2.2.2 Component Attributes    | per-component         |
 | `UNDEC` | FSCT §2.3 Undeclared SBOM Data     | document (reserved)   |
 
-## Severity
+## Conformance model (orthogonal axes + a target)
 
-| Maturity level (FSCT) / criticality (NTIA) | Default SARIF level |
-| :----------------------------------------- | :------------------ |
-| Minimum Expected / Required                | `error`             |
-| Recommended Practice                       | `warning`           |
-| Aspirational Goal                          | `note`              |
+A rule is governed by three independent fields, plus one runtime knob.  Keep
+them distinct:
 
-A rule emitted only at higher maturity is included in the catalogue but flagged
-in the `Status` column below -- the current checker only validates Minimum
-Expected.
+| Concept | Field / knob | Question it answers | Values |
+| :------ | :----------- | :------------------ | :----- |
+| **Maturity** | `maturity` (rule) | *at what depth is this required?* | ordinal `0,1,2…` |
+| **Target** | runtime | *how strict is this run?* | a chosen level `T` |
+| **Provision** | `provision` (rule) | *if it fails, how bad — does it block?* | requirement / recommendation / permission |
+| **Status** | `status` (rule) | *is the check wired up / emitted at all?* | active / catalogue-only / tbd |
+
+**Maturity scopes *whether* a rule is evaluated (vs. the target); provision
+decides *what its failure means*.**  They compose — don't conflate them.
+
+### Maturity vs. severity
+
+These are deliberately **separate**:
+
+* **Maturity** (`maturity:` -- a universal ordinal, `0` = baseline, higher =
+  more depth/completeness) answers *which tier requires this element*.  Each
+  spec declares its own `maturity_levels` mapping every ordinal to a
+  spec-specific id + title.  "Compliant at level N" = all rules with `maturity <= N`
+  pass.  Maturity carries **no severity**.
+* **Provision** (`provision:` -- the ISO/IEC Directives provision type) answers
+  *how bad it is when missing*, and is what maps to the severity:
+
+| Provision        | Severity  | Blocks? | Meaning                                      |
+| :--------------- | :-------- | :-----: | :------------------------------------------- |
+| `requirement`    | `error`   |   yes   | hard requirement (default)                   |
+| `recommendation` | `warning` |   no    | advisory                                     |
+| `permission`     | `none`    |   no    | allowed -- absence is never a finding        |
+
+A required element missing *at its maturity level* is an `error` because its
+provision is `requirement` -- the tier does not soften it.  A single maturity
+level can mix all three provisions.
+
+The severity scale is `error > warning > note > none`, shared by SARIF
+`result.level` and the CLI log/verbosity threshold.  **`note` is the
+informational band** -- used for logs and tool notifications (parser /
+validation messages), *not* for any rule provision.
+
+**Only `requirement` failures break compliance.**  `recommendation` /
+`permission` rules still emit findings (warning / none) but are advisory --
+e.g. a present-but-implausible value (an SBOM timestamp in the future) is
+reported as a `recommendation` → `warning` without making the SBOM
+non-conformant to the minimum elements.
+
+### Maturity levels per spec
+
+Declaring `maturity_levels` is **optional**.  A *flat* spec (e.g. NTIA) omits
+it; the loader substitutes a single named baseline (`level 0` / `required`).
+
+| Spec    | Levels (ordinal → id)                                                   |
+| :------ | :---------------------------------------------------------------------- |
+| NTIA    | `0 → required` (default, flat)                                          |
+| FSCT v3 | `0 → minimum`, `1 → recommended`, `2 → aspirational`                   |
+
+A spec may carry several rules for the same `element_id` at increasing levels,
+each with its own deeper probe.
+
+### Assessment target
+
+An assessment runs against a **target** maturity ordinal `T`
+(`SbomChecker(..., target_maturity=T)` or CLI `-m/--mature T`;
+default `0`, must be a level the spec declares).  Scoping is **cumulative**:
+
+* rules with `maturity <= T` are **in scope** -- evaluated, and (on failure)
+  reported + counted toward compliance per their provision;
+* rules with `maturity > T` are **out of scope** -- neither evaluated nor
+  reported.
+
+The full per-rule evaluation, given a target `T`:
+
+```text
+status == tbd            -> not in catalogue, skip
+status == catalogue-only -> in catalogue, never emit a result
+status == active:
+    maturity > T         -> OUT OF SCOPE -> no result
+    maturity <= T        -> run probe:
+        pass             -> no result
+        fail             -> emit at provision->severity
+                            (requirement also breaks compliance)
+```
+
+**Worked example.**  Two rules for the same element at different depths:
+
+* `R_a` -- dependencies present at top level -- `maturity 0`, `requirement`
+* `R_b` -- dependencies 2 levels deep -- `maturity 1`, `requirement`
+
+For an SBOM that declares only top-level dependencies:
+
+| Target `T` | `R_a` (mat 0) | `R_b` (mat 1) | Output | Verdict |
+| :--------: | :------------ | :------------ | :----- | :------ |
+| `0` | in scope → pass | out of scope | — | **PASS** |
+| `1` | in scope → pass | in scope → fail | `error` | **FAIL** |
+
+The SARIF catalogue still lists every non-TBD rule regardless of `T`; only
+*results* are scoped.  The emitted log records the chosen target in
+`run.properties.maturityTarget`.
+
+### Not yet implemented (the engine supports it; no rules use it yet)
+
+* **Quality / plausibility rules.**  The `recommendation` (warning) and
+  `permission` (none) provisions, and the advisory non-blocking-compliance
+  path, exist precisely for *present-but-wrong* checks -- e.g. "the SBOM
+  creation timestamp exists but is in the future" (`maturity 0`,
+  `provision: recommendation` → `warning`, does not break compliance).  No
+  such rule or probe ships yet; adding one needs a value-validating probe (the
+  current probes only check presence).
+* **Higher maturity tiers.**  The `> 0` maturity ordinals are wired end to end
+  (scoping, `-m/--mature`, severity), but every real FSCT rule above the
+  baseline is still `status: catalogue-only` -- it appears in the catalogue
+  but has no probe, so `-m 1` / `-m 2` currently changes scope without adding
+  active checks.  Activating a tier = giving its rules `status: active` and a
+  depth-appropriate probe.
 
 ## Warning text
 
@@ -146,23 +251,23 @@ verbatim in `SpecRule.spec_clause_number`.
 
 | Rule ID           | Slug                       | Warning                                              | Severity | Auto-Fix | Status            | Clause     |
 | :---------------- | :------------------------- | :--------------------------------------------------- | :------- | :------: | :---------------- | :--------- |
-| **SBOM-FSCT3-META-001**  | `fsct-author-name`         | An SBOM should have an author name.                  | `error`  |    ❌    | Active            | §2.2.1.1   |
-| **SBOM-FSCT3-META-002**  | `fsct-timestamp`           | An SBOM should have a creation timestamp.            | `error`  |    ❌    | Active            | §2.2.1.2   |
-| **SBOM-FSCT3-META-003**  | `fsct-sbom-type`           | An SBOM should declare its type.                     | `note`   |    ❌    | Catalogue only ¹ | §2.2.1.3   |
-| **SBOM-FSCT3-META-004**  | `fsct-primary-component`   | An SBOM should identify a primary component.         | `error`  |    ❌    | Catalogue only ¹ | §2.2.1.4   |
+| **SBOM-FSCT3-META-001**  | `fsct3-author-name`         | An SBOM should have an author name.                  | `error`  |    ❌    | Active            | §2.2.1.1   |
+| **SBOM-FSCT3-META-002**  | `fsct3-timestamp`           | An SBOM should have a creation timestamp.            | `error`  |    ❌    | Active            | §2.2.1.2   |
+| **SBOM-FSCT3-META-003**  | `fsct3-sbom-type`           | An SBOM should declare its type.                     | `note`   |    ❌    | Catalogue only ¹ | §2.2.1.3   |
+| **SBOM-FSCT3-META-004**  | `fsct3-primary-component`   | An SBOM should identify a primary component.         | `error`  |    ❌    | Catalogue only ¹ | §2.2.1.4   |
 
 ### Component Attributes (§2.2.2)
 
 | Rule ID           | Slug                         | Warning                                                              | Severity | Auto-Fix | Status            | Clause     |
 | :---------------- | :--------------------------- | :------------------------------------------------------------------- | :------- | :------: | :---------------- | :--------- |
-| **SBOM-FSCT3-COMP-001**  | `fsct-component-name`        | An SBOM component should have a name.                                | `error`  |    ❌    | Active            | §2.2.2.1   |
-| **SBOM-FSCT3-COMP-002**  | `fsct-component-version`     | An SBOM component should have a version.                             | `error`  |    ❌    | Active            | §2.2.2.2   |
-| **SBOM-FSCT3-COMP-003**  | `fsct-supplier-name`         | An SBOM component should have a supplier name.                       | `error`  |    ❌    | Active            | §2.2.2.3   |
-| **SBOM-FSCT3-COMP-004**  | `fsct-unique-identifier`     | An SBOM component should have a unique identifier.                   | `error`  |    ❌    | Active            | §2.2.2.4   |
-| **SBOM-FSCT3-COMP-005**  | `fsct-cryptographic-hash`    | An SBOM component should have a cryptographic hash.                  | `error`  |    ❌    | Catalogue only ¹ | §2.2.2.5   |
-| **SBOM-FSCT3-COMP-006**  | `fsct-relationship`          | An SBOM component should declare its relationship and completeness.  | `error`  |    ❌    | Catalogue only ¹ | §2.2.2.6   |
-| **SBOM-FSCT3-COMP-007**  | `fsct-concluded-license`     | An SBOM component should have a concluded license.                   | `error`  |    ❌    | Active            | §2.2.2.7   |
-| **SBOM-FSCT3-COMP-008**  | `fsct-copyright-notice`      | An SBOM component should have a copyright notice.                    | `error`  |    ❌    | Active            | §2.2.2.8   |
+| **SBOM-FSCT3-COMP-001**  | `fsct3-component-name`        | An SBOM component should have a name.                                | `error`  |    ❌    | Active            | §2.2.2.1   |
+| **SBOM-FSCT3-COMP-002**  | `fsct3-component-version`     | An SBOM component should have a version.                             | `error`  |    ❌    | Active            | §2.2.2.2   |
+| **SBOM-FSCT3-COMP-003**  | `fsct3-supplier-name`         | An SBOM component should have a supplier name.                       | `error`  |    ❌    | Active            | §2.2.2.3   |
+| **SBOM-FSCT3-COMP-004**  | `fsct3-unique-identifier`     | An SBOM component should have a unique identifier.                   | `error`  |    ❌    | Active            | §2.2.2.4   |
+| **SBOM-FSCT3-COMP-005**  | `fsct3-cryptographic-hash`    | An SBOM component should have a cryptographic hash.                  | `error`  |    ❌    | Catalogue only ¹ | §2.2.2.5   |
+| **SBOM-FSCT3-COMP-006**  | `fsct3-relationship`          | An SBOM component should declare its relationship and completeness.  | `error`  |    ❌    | Catalogue only ¹ | §2.2.2.6   |
+| **SBOM-FSCT3-COMP-007**  | `fsct3-concluded-license`     | An SBOM component should have a concluded license.                   | `error`  |    ❌    | Active            | §2.2.2.7   |
+| **SBOM-FSCT3-COMP-008**  | `fsct3-copyright-notice`      | An SBOM component should have a copyright notice.                    | `error`  |    ❌    | Active            | §2.2.2.8   |
 
 `FSCT-UNDEC-*` namespace (§2.3 Undeclared SBOM Data) reserved for future
 checks (unknown attributes, redacted components, unknown dependencies).
@@ -207,7 +312,7 @@ or Catalogue-only rules.
 4. Add the corresponding `SpecRule` entry to
    `ntia_conformance_checker/rules/<spec>.yaml`, filling `slug`, `element_id`,
    `element_description`, `competency_question`, `warning`,
-   `spec_clause_number`, `spec_clause_url`, `sarif_name`, the `probe`, and
+   `spec_clause_number`, `spec_clause_uri`, `sarif_name`, the `probe`, and
    (only if different) `oscal_control_id`.
 5. Add or extend a fixture in `tests/data/` exercising the rule and assert it
    in `tests/test_output_sarif.py`.

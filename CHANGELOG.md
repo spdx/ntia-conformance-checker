@@ -1,5 +1,5 @@
 ---
-SPDX-FileCopyrightText: 2025 SPDX contributors
+SPDX-FileCopyrightText: 2025-present SPDX contributors
 SPDX-FileType: DOCUMENTATION
 SPDX-License-Identifier: Apache-2.0
 ---
@@ -15,7 +15,28 @@ and this project adheres to [Semantic Versioning][semver].
 
 ### Added
 
-- Output in SARIF format
+- Declarative, YAML-based rule engine: each compliance standard is a
+  `rules/<spec_id>.yaml` file loaded into `Spec` / `SpecRule` / `SpecCategory`
+  dataclasses; adding a standard no longer needs a Python subclass.
+- SARIF output (`--output sarif`), plus `--output sarif-sbom` to embed the
+  source SBOM in the log.
+- Stable rule ids `SBOM-[SPEC]-[CATEGORY]-[NNN]` (e.g. `SBOM-NTIA-DF-001`).
+- Maturity model: a per-rule `maturity` ordinal (`0` = baseline) with
+  per-spec `maturity_levels`, plus a runtime assessment target
+  (`-m`/`--mature N`, `target_maturity=`) that scopes which rules apply.
+- Provision model: a per-rule `provision` (`requirement` / `recommendation` /
+  `permission`) driving severity (`error` / `warning` / `none`); only
+  `requirement` failures break compliance, so advisory checks are reported
+  without failing conformance.
+- Log verbosity on the shared `error > warning > note > none` scale:
+  `-v` / `--verbose` (info), `-vv` / `--debug` (debug),
+  `-q` / `--quiet` (errors only).
+- `-k` short flag for `--skip-validation`.
+
+### Changed
+
+- `--output quiet` renamed to `--output none` (`quiet` still accepted,
+  undocumented; the name is now reserved for log verbosity).
 
 ## [5.0.2] - 2026-04-29
 
