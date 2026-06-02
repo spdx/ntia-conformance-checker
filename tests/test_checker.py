@@ -559,6 +559,23 @@ def test_components_without_functions() -> None:
     # assert components == ["glibc-no-identifier"]
 
 
+def test_compliance_accepts_id_or_spec() -> None:
+    """``compliance`` resolves a registered id (str) or a Spec object; both
+    yield the same checker, and the label is the resolved spec id."""
+    from ntia_conformance_checker.registry import get_spec
+
+    by_id = sbom_checker.SbomChecker(test_files[0], compliance="fsct3")
+    by_spec = sbom_checker.SbomChecker(test_files[0], compliance=get_spec("fsct3"))
+    assert by_id.spec.id == "fsct3"
+    assert by_spec.spec is get_spec("fsct3")
+    assert by_id.compliance_standard == by_spec.compliance_standard == "fsct3"
+
+
+def test_compliance_unknown_id_raises() -> None:
+    with pytest.raises(ValueError):
+        sbom_checker.SbomChecker(test_files[0], compliance="does-not-exist")
+
+
 def test_compliant_attribute_deprecated_but_works() -> None:
     """The ``compliant`` attribute is deprecated in favour of
     ``check_compliance()`` but must still return the baseline verdict

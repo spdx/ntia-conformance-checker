@@ -4,7 +4,7 @@
 
 """SARIF 2.1.0 output builder for BaseChecker results.
 
-Reads the checker's ``_SPEC`` (a :class:`Spec` of :class:`SpecRule` entries)
+Reads the checker's ``spec`` (a :class:`Spec` of :class:`SpecRule` entries)
 as the single source of truth for the rule catalogue.
 
 The emitted log contains two taxonomies:
@@ -394,13 +394,13 @@ def build_sarif(
 ) -> dict[str, Any]:
     """Build a SARIF 2.1.0 log dict for *checker*.
 
-    Walks ``checker._SPEC.emitted_rules()`` to emit the rule catalogue (every
+    Walks ``checker.spec.emitted_rules()`` to emit the rule catalogue (every
     non-TBD rule, even if zero findings), then one result per
     (active rule, failing component) pair and one per failing document-level
     rule.  Catalogue-only rules appear in the catalogue but never as results.
 
     Args:
-        checker: Checker instance whose ``_SPEC`` and missing-element
+        checker: Checker instance whose ``spec`` and missing-element
             attributes provide the data.
         embed_sbom: When ``True``, read the input SBOM file and place its
             contents in ``runs[0].artifacts[0].contents`` (SARIF §3.24.7).

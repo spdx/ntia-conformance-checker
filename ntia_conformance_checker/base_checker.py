@@ -101,9 +101,6 @@ class BaseChecker(DeprecatedCheckerMixin, ABC):
         """Validation messages from SPDX document validation."""
         return self._validation_messages
 
-    _SPEC: "Spec"
-    """Subclass-defined class attribute holding the standard's Spec instance."""
-
     @property
     def conformance_messages(self) -> list[ValidationMessage]:
         """Conformance messages from compliance/conformance checks."""
@@ -127,14 +124,14 @@ class BaseChecker(DeprecatedCheckerMixin, ABC):
         return self.check_compliance(maturity=0)
 
     @property
+    @abstractmethod
     def spec(self) -> "Spec":
         """The compliance specification for this checker.
 
-        Defaults to reading the subclass's ``_SPEC`` class attribute.
-        Subclasses that need dynamic spec resolution may override this
-        property instead of defining ``_SPEC``.
+        Subclasses must provide it -- :class:`RuleBasedChecker` resolves it
+        from its ``compliance`` argument.
         """
-        return self._SPEC
+        raise NotImplementedError
 
     def components_without(self, element_id: str) -> list[tuple[str, str]]:
         """Components that do not declare ``element_id``.

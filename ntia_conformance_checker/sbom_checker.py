@@ -38,7 +38,7 @@ class SbomChecker(BaseChecker):
         cls,
         file: str,
         validate: bool = True,
-        compliance: str = "ntia",
+        compliance: "str | Spec" = "ntia",
         sbom_spec: str = "spdx2",
     ) -> Any:
         """
@@ -48,7 +48,9 @@ class SbomChecker(BaseChecker):
             file (str): The path to the SBOM file to be checked.
             validate (bool): Whether to validate the file before checking.
                 Defaults to True.
-            compliance (str): The compliance standard to use. Defaults to "ntia".
+            compliance (str | Spec): The compliance standard to use -- a
+                registered spec id (e.g. ``"ntia"``) or a :class:`Spec`
+                instance.  Defaults to ``"ntia"``.
             sbom_spec (str): The SBOM specification format. Defaults to "spdx2".
 
         Returns:
@@ -63,22 +65,18 @@ class SbomChecker(BaseChecker):
         if sbom_spec not in SUPPORTED_SBOM_SPECS:
             raise ValueError(f"Unsupported SBOM specification: {sbom_spec}")
 
-        # The registry is the single source of truth for which compliance
-        # standards exist; ``get_spec`` raises ValueError for unknown ids.
-        # Dispatch is spec-driven -- no per-standard branch here, so adding
-        # a new ``rules/<id>.yaml`` is all that is needed to support a new
-        # ``--comply`` value.
+        # Dispatch is spec-driven -- no per-standard branch here, so adding a
+        # new ``rules/<id>.yaml`` is all that is needed to support a new
+        # ``--comply`` value.  RuleBasedChecker resolves ``compliance`` (id or
+        # Spec) and raises ValueError for an unknown id.
         # pylint: disable=import-outside-toplevel
-        from .registry import get_spec
         from .rule_based_checker import RuleBasedChecker
 
-        spec = get_spec(compliance)
         return RuleBasedChecker(
             file,
             validate,
             compliance=compliance,
             sbom_spec=sbom_spec,
-            spec=spec,
         )
 
     def __init_subclass__(cls, /) -> None:  # prevent subclassing

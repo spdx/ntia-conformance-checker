@@ -34,13 +34,11 @@ class NTIAChecker(RuleBasedChecker):
         https://www.ntia.gov/report/2021/minimum-elements-software-bill-materials-sbom
     """
 
-    _SPEC: "Spec | None" = _NTIA_SPEC
-
     def __init__(
         self,
         file: str,
         validate: bool = True,
-        compliance: str = "ntia",
+        compliance: "str | Spec" = _NTIA_SPEC,
         sbom_spec: str = "spdx2",
     ) -> None:
         super().__init__(

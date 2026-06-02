@@ -38,13 +38,11 @@ class FSCT3Checker(RuleBasedChecker):
         https://www.cisa.gov/resources-tools/resources/framing-software-component-transparency-2024
     """
 
-    _SPEC: "Spec | None" = _FSCT_SPEC
-
     def __init__(
         self,
         file: str,
         validate: bool = True,
-        compliance: str = "fsct3",
+        compliance: "str | Spec" = _FSCT_SPEC,
         sbom_spec: str = "spdx2",
     ) -> None:
         super().__init__(
