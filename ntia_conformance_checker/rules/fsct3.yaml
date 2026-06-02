@@ -91,13 +91,14 @@ rules:
     spec_clause_name: Type
     spec_clause_uri: https://www.cisa.gov/resources-tools/resources/framing-software-component-transparency-2024
     element_id: sbom_type
-    element_description: SBOM type
-    competency_question: SBOM type provided?
-    warning: An SBOM should declare its type.
+    element_description: SBOM type (SBOM generation context)
+    competency_question: SBOM generation context (SBOM type) provided?
+    warning: An SBOM must declare its type (SBOM generation context).
+    probe:
+      name: require_document_attribute
+      params: { attribute: sbom_type }
     sarif_name: Fsct3SbomTypeMissing
-    maturity: 2
-    provision: recommendation
-    status: catalogue-only
+    json_key: sbomTypeProvided
 
   - number: 4
     slug: fsct3-primary-component

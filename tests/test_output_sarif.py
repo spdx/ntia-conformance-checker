@@ -28,6 +28,7 @@ NTIA_DF_AUTHOR = "SBOM-NTIA-DF-006"
 NTIA_DF_TIMESTAMP = "SBOM-NTIA-DF-007"
 
 # FSCT rule ids per RULES.md.
+FSCT_META_SBOM_TYPE = "SBOM-FSCT3-META-003"
 FSCT_COMP_CONCLUDED_LICENSE = "SBOM-FSCT3-COMP-007"
 FSCT_COMP_COPYRIGHT_NOTICE = "SBOM-FSCT3-COMP-008"
 
@@ -118,7 +119,14 @@ def test_sarif_no_elements_missing_ntia(test_file: str) -> None:
 def test_sarif_no_elements_missing_fsct3(test_file: str) -> None:
     sarif = FSCT3Checker(test_file).output_sarif()
     run = _run(sarif)
-    assert not run["results"]
+    # SPDX 2 cannot express an SBOM type, so fsct3 emits exactly one
+    # document-level missing-SBOM-type result for these otherwise-complete
+    # fixtures.
+    assert _result_rule_ids(run) == [FSCT_META_SBOM_TYPE]
+    sbom_type_result = run["results"][0]
+    loc = sbom_type_result["locations"][0]["logicalLocations"][0]
+    assert loc["name"] == "document"
+    assert sbom_type_result["level"] == "error"
     assert run["properties"]["complianceStandard"] == "fsct3"
 
     tax_names = [t["name"] for t in run["taxonomies"]]

@@ -236,7 +236,7 @@ distribution channels) and so will likely surface as `note`-level rules.
 
 ---
 
-## FSCT -- Common SBOM (CISA 2024, Third Edition)
+## FSCT3 -- Framing Software Component Transparency (CISA 2024, Third Edition)
 
 Source: *Framing Software Component Transparency: Establishing a Common
 Software Bill of Materials (SBOM) Third Edition*, CISA Tooling and
@@ -253,7 +253,7 @@ verbatim in `SpecRule.spec_clause_number`.
 | :---------------- | :------------------------- | :--------------------------------------------------- | :------- | :------: | :---------------- | :--------- |
 | **SBOM-FSCT3-META-001**  | `fsct3-author-name`         | An SBOM should have an author name.                  | `error`  |    ❌    | Active            | §2.2.1.1   |
 | **SBOM-FSCT3-META-002**  | `fsct3-timestamp`           | An SBOM should have a creation timestamp.            | `error`  |    ❌    | Active            | §2.2.1.2   |
-| **SBOM-FSCT3-META-003**  | `fsct3-sbom-type`           | An SBOM should declare its type.                     | `note`   |    ❌    | Catalogue only ¹ | §2.2.1.3   |
+| **SBOM-FSCT3-META-003**  | `fsct3-sbom-type`           | An SBOM must declare its type (SBOM generation context). | `error`  |    ❌    | Active            | §2.2.1.3   |
 | **SBOM-FSCT3-META-004**  | `fsct3-primary-component`   | An SBOM should identify a primary component.         | `error`  |    ❌    | Catalogue only ¹ | §2.2.1.4   |
 
 ### Component Attributes (§2.2.2)
