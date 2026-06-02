@@ -38,6 +38,18 @@ and this project adheres to [Semantic Versioning][semver].
 - `--output quiet` renamed to `--output none` (`quiet` still accepted,
   undocumented; the name is now reserved for log verbosity).
 
+## [5.0.3] - 2026-06-02
+
+This patch release fixes an expectation in `rootElement` of `SpdxDocument`
+during SPDX 3 validation.
+It contains no new features or security updates.
+
+### Fixed
+
+- Aligned SpdxDocument's rootElement validation with SPDX 3 ([#388])
+
+[#388]: https://github.com/spdx/ntia-conformance-checker/pull/388
+
 ## [5.0.2] - 2026-04-29
 
 This patch release improves validation for SPDX 3 Elements to prevent
@@ -372,6 +384,7 @@ Thanks to @goneall, @licquia, and @kestewart for mentoring @linynjosh.
 [#1]: https://github.com/spdx/ntia-conformance-checker/pull/1
 [keepachangelog]: https://keepachangelog.com/en/1.1.0/
 [semver]: https://semver.org/spec/v2.0.0.html
+[5.0.3]: https://github.com/spdx/ntia-conformance-checker/releases/tag/v5.0.3
 [5.0.2]: https://github.com/spdx/ntia-conformance-checker/releases/tag/v5.0.2
 [5.0.1]: https://github.com/spdx/ntia-conformance-checker/releases/tag/v5.0.1
 [5.0.0]: https://github.com/spdx/ntia-conformance-checker/releases/tag/v5.0.0
