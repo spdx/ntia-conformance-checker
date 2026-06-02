@@ -82,6 +82,8 @@ class BaseChecker(DeprecatedCheckerMixin, ABC):
     # value, cached) or :meth:`document_has` (presence bool).  Each
     # ``get_doc_<element_id>`` extractor is the single source of truth
     # for one element; the cache lives in ``_cache_doc_value``.
+    # See https://github.com/spdx/ntia-conformance-checker/issues/392
+    # for discussion on dependency relationships and DESCRIBES.
 
     compliant: bool = False  # Is SBOM compliant with the chosen standard?
 
@@ -486,6 +488,23 @@ class BaseChecker(DeprecatedCheckerMixin, ABC):
         ]
 
         return sbom_types
+
+    def get_doc_sbom_type(self) -> list[str]:
+        """Return the SBOM type(s) (a.k.a. SBOM generation context), or ``[]``.
+
+        Document-level extractor backing the ``sbom_type`` element id used by
+        :meth:`document_value` / :meth:`document_has` and the
+        ``require_document_attribute`` probe.  Reuses the value computed once in
+        :meth:`__init__` (``self.sbom_gen_context``) so the conformance message
+        emitted by :meth:`get_sbom_types` is not duplicated.
+
+        SBOM type is only expressible in SPDX 3 (``/Software/Sbom``); SPDX 2
+        SBOMs always return ``[]`` and therefore cannot satisfy an FSCT3
+        minimum-expected SBOM-type requirement.
+        """
+        if not self.doc:
+            return []
+        return list(getattr(self, "sbom_gen_context", []) or [])
 
     def get_components_without_concluded_license(self) -> list[tuple[str, str]]:
         """

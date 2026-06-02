@@ -43,6 +43,7 @@ def test_sbomchecker_ntia_no_errors(test_file: str) -> None:
     assert sbom.document_value("spec_version")
     assert sbom.document_value("author")
     assert sbom.document_value("timestamp")
+    assert not sbom.sbom_gen_context  # SPDX 2 does not have SBOM type
     assert sbom.document_value("dependency_relationship")
     assert not sbom.components_without("name")
     assert not sbom.components_without("version")
@@ -58,13 +59,16 @@ def test_sbomchecker_fsct3_no_errors(test_file: str) -> None:
     assert sbom.document_value("spec_version")
     assert sbom.document_value("author")
     assert sbom.document_value("timestamp")
+    assert not sbom.sbom_gen_context  # SPDX 2 does not have SBOM type
     assert sbom.document_value("dependency_relationship")
     assert not sbom.components_without("name")
     assert not sbom.components_without("version")
     assert not sbom.components_without("supplier")
     assert not sbom.components_without("unique_identifier")
     assert not sbom.components_without("concluded_license")
-    assert sbom.compliant
+    # FSCT3 minimum expected requires an SBOM type (SBOM generation context),
+    # which SPDX 2 cannot express, so these SPDX 2 SBOMs are not fsct3-compliant.
+    assert not sbom.compliant
 
 
 @pytest.mark.parametrize("test_file", test_files)
@@ -89,13 +93,16 @@ def test_fsct3checker_no_errors(test_file: str) -> None:
     assert sbom.document_value("spec_version")
     assert sbom.document_value("author")
     assert sbom.document_value("timestamp")
+    assert not sbom.sbom_gen_context  # SPDX 2 does not have SBOM type
     assert sbom.document_value("dependency_relationship")
     assert not sbom.components_without("name")
     assert not sbom.components_without("version")
     assert not sbom.components_without("supplier")
     assert not sbom.components_without("unique_identifier")
     assert not sbom.components_without("concluded_license")
-    assert sbom.compliant
+    # FSCT3 minimum expected requires an SBOM type (SBOM generation context),
+    # which SPDX 2 cannot express, so these SPDX 2 SBOMs are not fsct3-compliant.
+    assert not sbom.compliant
 
 
 ### Test missing author name
@@ -344,6 +351,7 @@ def test_sbomchecker_spdx3_no_elements_missing() -> None:
     assert sbom.document_value("spec_version")
     assert sbom.document_value("author")
     assert sbom.document_value("timestamp")
+    assert sbom.sbom_gen_context
     assert sbom.compliant
 
 
@@ -495,6 +503,8 @@ def test_sbomchecker_fsct3_output_html() -> None:
         "<td class='conformance-res-tab-v'>True</td></tr>\n"
         "<tr><td class='conformance-res-tab-r'>SBOM creation timestamp provided?</td>"
         "<td class='conformance-res-tab-v'>True</td></tr>\n"
+        "<tr><td class='conformance-res-tab-r'>SBOM generation context (SBOM type) provided?</td>"
+        "<td class='conformance-res-tab-v'>False</td></tr>\n"
         "<tr><td class='conformance-res-tab-r'>Dependency relationships provided?</td>"
         "<td class='conformance-res-tab-v'>True</td></tr>\n"
         "<tr><td class='conformance-res-tab-r'>All component names provided?</td>"
