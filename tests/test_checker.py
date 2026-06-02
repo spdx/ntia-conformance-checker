@@ -49,7 +49,7 @@ def test_sbomchecker_ntia_no_errors(test_file: str) -> None:
     assert not sbom.components_without("version")
     assert not sbom.components_without("supplier")
     assert not sbom.components_without("unique_identifier")
-    assert sbom.compliant
+    assert sbom.check_compliance()
 
 
 @pytest.mark.parametrize("test_file", test_files)
@@ -68,7 +68,7 @@ def test_sbomchecker_fsct3_no_errors(test_file: str) -> None:
     assert not sbom.components_without("concluded_license")
     # FSCT3 minimum expected requires an SBOM type (SBOM generation context),
     # which SPDX 2 cannot express, so these SPDX 2 SBOMs are not fsct3-compliant.
-    assert not sbom.compliant
+    assert not sbom.check_compliance()
 
 
 @pytest.mark.parametrize("test_file", test_files)
@@ -83,7 +83,7 @@ def test_ntiachecker_no_errors(test_file: str) -> None:
     assert not sbom.components_without("version")
     assert not sbom.components_without("supplier")
     assert not sbom.components_without("unique_identifier")
-    assert sbom.compliant
+    assert sbom.check_compliance()
 
 
 @pytest.mark.parametrize("test_file", test_files)
@@ -102,7 +102,7 @@ def test_fsct3checker_no_errors(test_file: str) -> None:
     assert not sbom.components_without("concluded_license")
     # FSCT3 minimum expected requires an SBOM type (SBOM generation context),
     # which SPDX 2 cannot express, so these SPDX 2 SBOMs are not fsct3-compliant.
-    assert not sbom.compliant
+    assert not sbom.check_compliance()
 
 
 ### Test missing author name
@@ -119,7 +119,7 @@ def test_sbomchecker_missing_author_name(test_file: str) -> None:
     the document does not contain a creator."""
     sbom_check = sbom_checker.SbomChecker(test_file)
 
-    assert not sbom_check.compliant
+    assert not sbom_check.check_compliance()
     assert sbom_check.parsing_errors
 
 
@@ -135,7 +135,7 @@ def test_sbomchecker_missing_timestamp(test_file: str) -> None:
     the document does not contain a created date."""
     sbom_check = sbom_checker.SbomChecker(test_file)
 
-    assert not sbom_check.compliant
+    assert not sbom_check.check_compliance()
     assert sbom_check.parsing_errors
 
 
@@ -152,7 +152,7 @@ def test_sbomchecker_missing_concluded_license(test_file: str) -> None:
     sbom_check = FSCT3Checker(test_file)
 
     assert sbom_check.components_without("concluded_license")
-    assert not sbom_check.compliant
+    assert not sbom_check.check_compliance()
 
 
 ### Test missing dependency relationships
@@ -177,7 +177,7 @@ def test_sbomchecker_missing_dependency_relationships(test_file: str) -> None:
     assert not sbom.components_without("version")
     assert not sbom.components_without("supplier")
     assert not sbom.components_without("unique_identifier")
-    assert not sbom.compliant
+    assert not sbom.check_compliance()
 
 
 ### Test missing component version
@@ -202,7 +202,7 @@ def test_sbomchecker_missing_component_version(test_file: str) -> None:
     )
     assert not sbom.components_without("supplier")
     assert not sbom.components_without("unique_identifier")
-    assert not sbom.compliant
+    assert not sbom.check_compliance()
 
 
 ### Test missing supplier name
@@ -226,7 +226,7 @@ def test_sbomchecker_missing_supplier_name(test_file: str) -> None:
         ["glibc", "Jena", "Saxon"],
     )
     assert not sbom.components_without("unique_identifier")
-    assert not sbom.compliant
+    assert not sbom.check_compliance()
 
 
 ### Test missing unique identifiers
@@ -244,7 +244,7 @@ def test_sbomchecker_missing_unique_identifiers(test_file: str) -> None:
 
     sbom_check = sbom_checker.SbomChecker(test_file)
 
-    assert not sbom_check.compliant
+    assert not sbom_check.check_compliance()
     assert sbom_check.parsing_errors
 
 
@@ -289,7 +289,7 @@ def test_sbomchecker_chainguard_example() -> None:
         "chainguard.spdx.json",
     )
     sbom = sbom_checker.SbomChecker(test_file)
-    assert sbom.compliant
+    assert sbom.check_compliance()
 
 
 def test_sbomchecker_alpine_no_package_supplier_name_example() -> None:
@@ -352,7 +352,7 @@ def test_sbomchecker_spdx3_no_elements_missing() -> None:
     assert sbom.document_value("author")
     assert sbom.document_value("timestamp")
     assert sbom.sbom_gen_context
-    assert sbom.compliant
+    assert sbom.check_compliance()
 
 
 def test_sbomchecker_fsct3_spdx3_no_elements_missing() -> None:
@@ -362,7 +362,7 @@ def test_sbomchecker_fsct3_spdx3_no_elements_missing() -> None:
     )
     assert sbom.doc is not None
     assert isinstance(sbom.doc, spdx3.SHACLObjectSet)
-    assert sbom.compliant
+    assert sbom.check_compliance()
     assert len(sbom.validation_messages) == 0
 
 
@@ -407,6 +407,7 @@ def test_sbomchecker_output_json() -> None:
     assert not got["isNtiaConformant"]
     assert not got["isConformant"]
     assert not got["validationMessages"]
+    assert got["specVersionProvided"]
     assert got["authorNameProvided"]
     assert got["timestampProvided"]
     assert got["dependencyRelationshipsProvided"]
@@ -556,6 +557,16 @@ def test_components_without_functions() -> None:
     # If any package misses the SPDXID the whole file seems to be invalid.
     # components = sbom.get_components_without_identifiers()
     # assert components == ["glibc-no-identifier"]
+
+
+def test_compliant_attribute_deprecated_but_works() -> None:
+    """The ``compliant`` attribute is deprecated in favour of
+    ``check_compliance()`` but must still return the baseline verdict
+    while emitting a DeprecationWarning."""
+    sbom = sbom_checker.SbomChecker(test_files[0])
+    with pytest.warns(DeprecationWarning, match="check_compliance"):
+        legacy = sbom.compliant
+    assert legacy == sbom.check_compliance(maturity=0)
 
 
 def test_removed_legacy_properties_raise_attribute_error() -> None:

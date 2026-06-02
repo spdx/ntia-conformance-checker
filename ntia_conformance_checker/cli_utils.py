@@ -317,16 +317,17 @@ def print_output(
     output_type: str,
     output_file: str | None,
     verbose: bool,
+    maturity: int = 0,
 ) -> None:
-    """Print or save the output report."""
+    """Print or save the output report at ``maturity`` (defaults to baseline 0)."""
     match output_type:
         case "print":
-            sbom.print_table_output(verbose=verbose)
+            sbom.print_table_output(verbose=verbose, maturity=maturity)
             if verbose:
-                sbom.print_components_missing_info()
+                sbom.print_components_missing_info(maturity=maturity)
 
         case "json":
-            result_dict: dict[str, Any] = sbom.output_json()
+            result_dict: dict[str, Any] = sbom.output_json(maturity=maturity)
             if output_file:
                 with open(output_file, "w", encoding="utf-8") as outfile:
                     json.dump(result_dict, outfile)
@@ -335,7 +336,9 @@ def print_output(
 
         case "sarif" | "sarif-sbom":
             embed = output_type == "sarif-sbom"
-            sarif_dict: dict[str, Any] = sbom.output_sarif(embed_sbom=embed)
+            sarif_dict: dict[str, Any] = sbom.output_sarif(
+                embed_sbom=embed, maturity=maturity
+            )
             if output_file:
                 with open(output_file, "w", encoding="utf-8") as outfile:
                     json.dump(sarif_dict, outfile, indent=2)
@@ -343,7 +346,7 @@ def print_output(
                 print(json.dumps(sarif_dict, indent=2))
 
         case "html":
-            html_output = sbom.output_html()
+            html_output = sbom.output_html(maturity=maturity)
             if output_file:
                 try:
                     with open(output_file, "w", encoding="utf-8") as outfile:

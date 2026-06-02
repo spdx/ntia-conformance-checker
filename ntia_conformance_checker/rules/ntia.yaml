@@ -13,8 +13,9 @@ spec:
   id: ntia
   title: 2021 NTIA SBOM Minimum Elements
   uri: https://www.ntia.gov/report/2021/minimum-elements-software-bill-materials-sbom
-  sarif_category_taxonomy_name: ntia-minimum-elements
-  sarif_clause_taxonomy_name: ntia-clauses
+  taxonomies:
+    category: ntia-minimum-elements
+    clause: ntia-clauses
 
 categories:
   - id: data-fields
@@ -37,7 +38,7 @@ rules:
   # ---- Data Fields (component-level) -----------------------------------
 
   - number: 1
-    slug: ntia-component-supplier-name
+    slug: ntia-component-supplier-missing
     spec_category: data-fields
     spec_clause_number: IV
     spec_clause_name: Data Fields -- Supplier Name
@@ -49,11 +50,10 @@ rules:
     probe:
       name: require_component_attribute
       params: { attribute: supplier }
-    sarif_name: NtiaComponentSupplierMissing
     json_key: componentSuppliers
 
   - number: 2
-    slug: ntia-component-name
+    slug: ntia-component-name-missing
     spec_category: data-fields
     spec_clause_number: IV
     spec_clause_name: Data Fields -- Component Name
@@ -65,11 +65,10 @@ rules:
     probe:
       name: require_component_attribute
       params: { attribute: name }
-    sarif_name: NtiaComponentNameMissing
     json_key: componentNames
 
   - number: 3
-    slug: ntia-component-version
+    slug: ntia-component-version-missing
     spec_category: data-fields
     spec_clause_number: IV
     spec_clause_name: Data Fields -- Version of the Component
@@ -81,11 +80,10 @@ rules:
     probe:
       name: require_component_attribute
       params: { attribute: version }
-    sarif_name: NtiaComponentVersionMissing
     json_key: componentVersions
 
   - number: 4
-    slug: ntia-component-identifier
+    slug: ntia-component-identifier-missing
     spec_category: data-fields
     spec_clause_number: IV
     spec_clause_name: Data Fields -- Other Unique Identifiers
@@ -97,13 +95,12 @@ rules:
     probe:
       name: require_component_attribute
       params: { attribute: unique_identifier }
-    sarif_name: NtiaComponentIdentifierMissing
     json_key: componentIdentifiers
 
   # ---- Data Fields (document-level) ------------------------------------
 
   - number: 5
-    slug: ntia-dependency-relationship
+    slug: ntia-dependency-relationships-missing
     spec_category: data-fields
     spec_clause_number: IV
     spec_clause_name: Data Fields -- Dependency Relationship
@@ -115,11 +112,10 @@ rules:
     probe:
       name: require_document_attribute
       params: { attribute: dependency_relationship }
-    sarif_name: NtiaDependencyRelationshipsMissing
     json_key: dependencyRelationshipsProvided
 
   - number: 6
-    slug: ntia-sbom-author
+    slug: ntia-sbom-author-missing
     spec_category: data-fields
     spec_clause_number: IV
     spec_clause_name: Data Fields -- Author of SBOM Data
@@ -131,11 +127,10 @@ rules:
     probe:
       name: require_document_attribute
       params: { attribute: author }
-    sarif_name: NtiaSbomAuthorMissing
     json_key: authorNameProvided
 
   - number: 7
-    slug: ntia-sbom-timestamp
+    slug: ntia-sbom-timestamp-missing
     spec_category: data-fields
     spec_clause_number: IV
     spec_clause_name: Data Fields -- Timestamp
@@ -147,5 +142,4 @@ rules:
     probe:
       name: require_document_attribute
       params: { attribute: timestamp }
-    sarif_name: NtiaSbomTimestampMissing
     json_key: timestampProvided

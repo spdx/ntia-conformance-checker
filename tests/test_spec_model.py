@@ -40,7 +40,6 @@ def _demo_spec() -> Spec:
                 number=1,
                 slug="demo-a",
                 spec_category="c",
-                sarif_name="A",
                 maturity=0,
                 provision="requirement",
             ),
@@ -48,7 +47,6 @@ def _demo_spec() -> Spec:
                 number=2,
                 slug="demo-b",
                 spec_category="c",
-                sarif_name="B",
                 maturity=1,
                 provision="requirement",
             ),
@@ -56,7 +54,6 @@ def _demo_spec() -> Spec:
                 number=3,
                 slug="demo-c",
                 spec_category="c",
-                sarif_name="C",
                 maturity=0,
                 provision="recommendation",
             ),
@@ -64,7 +61,6 @@ def _demo_spec() -> Spec:
                 number=4,
                 slug="demo-d",
                 spec_category="c",
-                sarif_name="D",
                 maturity=0,
                 provision="permission",
             ),
@@ -72,7 +68,6 @@ def _demo_spec() -> Spec:
                 number=5,
                 slug="demo-e",
                 spec_category="c",
-                sarif_name="E",
                 status="catalogue-only",
             ),
         ),
@@ -147,10 +142,7 @@ def test_provision_severity_mapping() -> None:
 
 
 def test_default_provision_is_requirement() -> None:
-    assert (
-        SpecRule(number=1, slug="x", spec_category="c", sarif_name="X").provision
-        == "requirement"
-    )
+    assert SpecRule(number=1, slug="x", spec_category="c").provision == "requirement"
 
 
 def test_maturity_id_resolution() -> None:
@@ -174,6 +166,30 @@ def test_fsct3_declares_three_levels() -> None:
     assert f.maturity_ordinals() == (0, 1, 2)
 
 
+def test_report_name_derived_from_slug() -> None:
+    s = _demo_spec()
+    # PascalCase of the kebab slug; no whitespace (SARIF reportingDescriptor.name).
+    assert s.report_name(s.rules[0]) == "DemoA"  # slug "demo-a"
+    ntia = get_spec("ntia")
+    for rule in ntia.rules:
+        rn = ntia.report_name(rule)
+        assert " " not in rn
+        assert rn == "".join(seg.capitalize() for seg in rule.slug.split("-"))
+
+
+def test_shipped_specs_taxonomy_names() -> None:
+    n = get_spec("ntia")
+    assert (n.taxonomies.category, n.taxonomies.clause) == (
+        "ntia-minimum-elements",
+        "ntia-clauses",
+    )
+    f = get_spec("fsct3")
+    assert (f.taxonomies.category, f.taxonomies.clause) == (
+        "fsct3-baseline-attributes",
+        "fsct3-clauses",
+    )
+
+
 # ---- loader validation --------------------------------------------------
 
 
@@ -189,7 +205,6 @@ rules:
   - number: 1
     slug: demo-a
     spec_category: c
-    sarif_name: A
     probe: { name: require_document_attribute, params: { attribute: author } }
 """
 
@@ -209,9 +224,9 @@ def test_loader_flat_spec_gets_default_level(tmp_path: Path) -> None:
 @pytest.mark.parametrize(
     "mutation",
     [
-        ("sarif_name: A", "sarif_name: A\n    provision: shall"),  # bad provision
-        ("sarif_name: A", "sarif_name: A\n    status: enabled"),  # bad status
-        ("sarif_name: A", "sarif_name: A\n    maturity: 1"),  # undeclared level
+        ("slug: demo-a", "slug: demo-a\n    provision: shall"),  # bad provision
+        ("slug: demo-a", "slug: demo-a\n    status: enabled"),  # bad status
+        ("slug: demo-a", "slug: demo-a\n    maturity: 1"),  # undeclared level
         ("id: demo", "id: Demo-3"),  # bad spec id token
     ],
 )

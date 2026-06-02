@@ -36,18 +36,16 @@ class NTIAChecker(RuleBasedChecker):
 
     _SPEC: "Spec | None" = _NTIA_SPEC
 
-    def __init__(  # pylint: disable=too-many-arguments,too-many-positional-arguments
+    def __init__(
         self,
         file: str,
         validate: bool = True,
         compliance: str = "ntia",
         sbom_spec: str = "spdx2",
-        target_maturity: int = 0,
     ) -> None:
         super().__init__(
             file=file,
             validate=validate,
             compliance=compliance,
             sbom_spec=sbom_spec,
-            target_maturity=target_maturity,
         )

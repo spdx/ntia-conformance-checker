@@ -10,12 +10,12 @@ as the single source of truth for the rule catalogue.
 The emitted log contains two taxonomies:
 
 1. **Category taxonomy** -- ``ToolComponent`` whose name is
-   :attr:`Spec.sarif_category_taxonomy_name` (e.g. ``ntia-minimum-elements``).
+   :attr:`SpecTaxonomies.category` (e.g. ``ntia-minimum-elements``).
    One taxon per :class:`SpecCategory`.  Each rule has a ``relationships``
    entry with ``kinds: ["superset"]`` pointing at its category taxon.
 
 2. **Clause taxonomy** -- ``ToolComponent`` whose name is
-   :attr:`Spec.sarif_clause_taxonomy_name` (e.g. ``ntia-clauses``).  One
+   :attr:`SpecTaxonomies.clause` (e.g. ``ntia-clauses``).  One
    taxon per distinct :attr:`SpecRule.spec_clause_number` value.  Each rule
    has a second ``relationships`` entry with ``kinds: ["equal"]`` pointing at
    its clause taxon.  Disabled if the spec leaves the clause taxonomy name
@@ -147,17 +147,17 @@ def _rule_relationships(spec: "Spec", rule: "SpecRule") -> list[dict[str, Any]]:
         {
             "target": {
                 "id": rule.spec_category,
-                "toolComponent": {"name": spec.sarif_category_taxonomy_name},
+                "toolComponent": {"name": spec.taxonomies.category},
             },
             "kinds": ["superset"],
         }
     ]
-    if spec.sarif_clause_taxonomy_name and rule.spec_clause_number:
+    if spec.taxonomies.clause and rule.spec_clause_number:
         rels.append(
             {
                 "target": {
                     "id": rule.spec_clause_number,
-                    "toolComponent": {"name": spec.sarif_clause_taxonomy_name},
+                    "toolComponent": {"name": spec.taxonomies.clause},
                 },
                 "kinds": ["equal"],
             }
@@ -171,7 +171,7 @@ def _emit_rule(spec: "Spec", rule: "SpecRule") -> dict[str, Any]:
     short_text = rule.warning or f"{rule.element_description.capitalize()} is missing."
     descriptor: dict[str, Any] = {
         "id": rule_id,
-        "name": rule.sarif_name,
+        "name": spec.report_name(rule),
         "shortDescription": {"text": short_text},
         "fullDescription": {
             "text": (
@@ -238,7 +238,7 @@ def _clause_taxa(spec: "Spec") -> list[dict[str, Any]]:
 def _taxonomies(spec: "Spec") -> list[dict[str, Any]]:
     """Build the ``taxonomies`` array (category + optional clause)."""
     category_taxonomy: dict[str, Any] = {
-        "name": spec.sarif_category_taxonomy_name,
+        "name": spec.taxonomies.category,
         "informationUri": spec.uri or TOOL_URI,
         "shortDescription": {
             "text": (
@@ -250,12 +250,12 @@ def _taxonomies(spec: "Spec") -> list[dict[str, Any]]:
     }
     taxonomies: list[dict[str, Any]] = [category_taxonomy]
 
-    if spec.sarif_clause_taxonomy_name:
+    if spec.taxonomies.clause:
         clause_taxa = _clause_taxa(spec)
         if clause_taxa:
             taxonomies.append(
                 {
-                    "name": spec.sarif_clause_taxonomy_name,
+                    "name": spec.taxonomies.clause,
                     "informationUri": spec.uri or TOOL_URI,
                     "shortDescription": {
                         "text": (
@@ -322,17 +322,22 @@ def _document_result(
 
 
 def _results_for_rule(
-    checker: "BaseChecker", spec: "Spec", rule: "SpecRule", artifact_uri: str
+    checker: "BaseChecker",
+    spec: "Spec",
+    rule: "SpecRule",
+    artifact_uri: str,
+    target_maturity: int,
 ) -> list[dict[str, Any]]:
     """Emit zero or more SARIF results for one rule.
 
     Reads ``checker.findings[rule_id]`` (populated by
     :meth:`BaseChecker.run_probes`) so the SARIF output reflects exactly
     what the rule's probe produced.  Catalogue-only and TBD rules never
-    emit results -- :meth:`BaseChecker.run_probes` skips them, and any
-    accidental entry in ``findings`` for them is ignored here too.
+    emit results.  ``run_probes`` is maturity-independent (it probes every
+    tier), so results are scoped here: a rule above ``target_maturity`` is
+    out of scope and emits nothing, even if it has findings cached.
     """
-    if rule.status != "active":
+    if rule.status != "active" or rule.maturity > target_maturity:
         return []
 
     rule_id = spec.rule_id(rule)
@@ -384,7 +389,9 @@ def _notifications(checker: "BaseChecker") -> list[dict[str, Any]]:
 # ---- Top-level builder ----------------------------------------------------
 
 
-def build_sarif(checker: "BaseChecker", *, embed_sbom: bool = False) -> dict[str, Any]:
+def build_sarif(
+    checker: "BaseChecker", *, embed_sbom: bool = False, maturity: int = 0
+) -> dict[str, Any]:
     """Build a SARIF 2.1.0 log dict for *checker*.
 
     Walks ``checker._SPEC.emitted_rules()`` to emit the rule catalogue (every
@@ -409,6 +416,15 @@ def build_sarif(checker: "BaseChecker", *, embed_sbom: bool = False) -> dict[str
             "SARIF output requires a Spec instance."
         )
 
+    # Resolve the maturity to scope *results* to (the catalogue is never
+    # scoped).  ``None`` means the baseline level 0.
+    target_maturity = maturity
+    if target_maturity not in spec.maturity_ordinals():
+        raise ValueError(
+            f"maturity {target_maturity!r} is not a declared maturity level "
+            f"of spec {spec.id!r}; valid levels: {list(spec.maturity_ordinals())!r}"
+        )
+
     # Ensure findings are populated; idempotent if subclasses already
     # called run_probes() in __init__.
     if not getattr(checker, "findings", None):
@@ -420,13 +436,14 @@ def build_sarif(checker: "BaseChecker", *, embed_sbom: bool = False) -> dict[str
     results = [
         result
         for rule in emitted
-        for result in _results_for_rule(checker, spec, rule, artifact_uri)
+        for result in _results_for_rule(
+            checker, spec, rule, artifact_uri, target_maturity
+        )
     ]
-    parsing_errors = getattr(checker, "_parsing_errors", [])
 
-    supported_taxonomies = [{"name": spec.sarif_category_taxonomy_name}]
-    if spec.sarif_clause_taxonomy_name:
-        supported_taxonomies.append({"name": spec.sarif_clause_taxonomy_name})
+    supported_taxonomies = [{"name": spec.taxonomies.category}]
+    if spec.taxonomies.clause:
+        supported_taxonomies.append({"name": spec.taxonomies.clause})
 
     run: dict[str, Any] = {
         "tool": {
@@ -442,7 +459,9 @@ def build_sarif(checker: "BaseChecker", *, embed_sbom: bool = False) -> dict[str
         "results": results,
         "invocations": [
             {
-                "executionSuccessful": not bool(parsing_errors),
+                "executionSuccessful": not bool(
+                    getattr(checker, "_parsing_errors", [])
+                ),
                 "toolExecutionNotifications": _notifications(checker),
             }
         ],
@@ -450,7 +469,7 @@ def build_sarif(checker: "BaseChecker", *, embed_sbom: bool = False) -> dict[str
             "sbomSpec": getattr(checker, "sbom_spec", "") or "",
             "sbomName": getattr(checker, "sbom_name", "") or "",
             "complianceStandard": spec.id,
-            "maturityTarget": getattr(checker, "target_maturity", 0),
+            "maturityTarget": target_maturity,
         },
     }
 

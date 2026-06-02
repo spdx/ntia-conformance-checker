@@ -57,6 +57,14 @@ def _discover() -> dict[str, Spec]:
 _REGISTRY: dict[str, Spec] = _discover()
 
 
+# ---- Public API ----------------------------------------------------------
+
+
+def descriptions() -> dict[str, str]:
+    """Map each spec ``id`` to its human-readable :attr:`Spec.title`."""
+    return {spec_id: spec.title for spec_id, spec in _REGISTRY.items()}
+
+
 def get_spec(spec_id: str) -> Spec:
     """Return the :class:`Spec` for ``spec_id``.
 
@@ -76,8 +84,3 @@ def get_spec(spec_id: str) -> Spec:
 def spec_ids() -> tuple[str, ...]:
     """All known compliance spec ``id`` values, sorted."""
     return tuple(sorted(_REGISTRY))
-
-
-def descriptions() -> dict[str, str]:
-    """Map each spec ``id`` to its human-readable :attr:`Spec.title`."""
-    return {spec_id: spec.title for spec_id, spec in _REGISTRY.items()}

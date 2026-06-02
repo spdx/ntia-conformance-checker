@@ -9,6 +9,7 @@ from __future__ import annotations
 import json
 import logging
 import os
+import warnings
 from abc import ABC, abstractmethod
 from typing import TYPE_CHECKING, Any, cast
 
@@ -85,8 +86,6 @@ class BaseChecker(DeprecatedCheckerMixin, ABC):
     # See https://github.com/spdx/ntia-conformance-checker/issues/392
     # for discussion on dependency relationships and DESCRIBES.
 
-    compliant: bool = False  # Is SBOM compliant with the chosen standard?
-
     findings: dict[str, "list[Finding]"]
     """Findings keyed by SARIF rule id, populated by :meth:`run_probes`.
     Empty list = the rule passed; list of :class:`Finding` = failures.
@@ -109,6 +108,23 @@ class BaseChecker(DeprecatedCheckerMixin, ABC):
     def conformance_messages(self) -> list[ValidationMessage]:
         """Conformance messages from compliance/conformance checks."""
         return self._conformance_messages
+
+    @property
+    def compliant(self) -> bool:
+        """Deprecated: the compliance verdict at the baseline maturity.
+
+        Kept for backwards compatibility.  Equivalent to
+        ``check_compliance(maturity=0)``.  Prefer calling
+        :meth:`check_compliance` directly -- it lets you pass a maturity
+        level and is not tied to any instance default.
+        """
+        warnings.warn(
+            "The 'compliant' attribute is deprecated; call "
+            "check_compliance(maturity=...) instead (defaults to maturity 0).",
+            DeprecationWarning,
+            stacklevel=2,
+        )
+        return self.check_compliance(maturity=0)
 
     @property
     def spec(self) -> "Spec":
@@ -172,20 +188,34 @@ class BaseChecker(DeprecatedCheckerMixin, ABC):
         """
         return bool(self.document_value(element_id))
 
-    @property
-    def all_components_without_info(
-        self,
+    def _validate_maturity(self, maturity: int) -> int:
+        """Validate ``maturity`` against the spec's declared levels.
+
+        Returns it unchanged when valid (``0`` -- the baseline -- always is);
+        raises ``ValueError`` otherwise.
+        """
+        valid = self.spec.maturity_ordinals()
+        if maturity not in valid:
+            raise ValueError(
+                f"maturity {maturity!r} is not a declared maturity level of "
+                f"spec {self.spec.id!r}; valid levels: {list(valid)!r}"
+            )
+        return maturity
+
+    def components_without_info(
+        self, maturity: int = 0
     ) -> list[tuple[str, list[tuple[str, str]]]]:
-        """Component-level findings grouped by element_id.
+        """Component-level findings grouped by element_id, scoped to ``maturity``.
 
         Derived on demand from :attr:`findings` (runs probes if needed).
         Used by the text / HTML reporters to render the missing-info
         block ("Missing required information in these components: ...").
         """
+        target = self._validate_maturity(maturity)
         if not self.findings:
             self.run_probes()
         out: list[tuple[str, list[tuple[str, str]]]] = []
-        for rule in self.spec.active_rules(self.target_maturity):
+        for rule in self.spec.active_rules(target):
             probe = rule.probe
             if probe is None or probe.name != "require_component_attribute":
                 continue
@@ -200,14 +230,41 @@ class BaseChecker(DeprecatedCheckerMixin, ABC):
             )
         return out
 
-    def run_probes(self) -> dict[str, list["Finding"]]:
-        """Run each in-scope active rule's probe; return findings by rule id.
+    @property
+    def all_components_without_info(
+        self,
+    ) -> list[tuple[str, list[tuple[str, str]]]]:
+        """Component-level findings grouped by element_id, at the baseline
+        maturity (0).  Thin alias for :meth:`components_without_info`."""
+        return self.components_without_info()
 
-        "In scope" = ``maturity <= self.target_maturity``.  Catalogue-only and
-        TBD rules are skipped (their ``probe`` is ``None``), and rules above the
-        target are not evaluated at all.  The result is stashed on
-        ``self.findings`` so repeat calls and downstream emitters don't
-        re-execute probes.
+    def requirement_results(self, maturity: int = 0) -> list[tuple[str, bool]]:
+        """Per-rule ``(competency_question, passed)`` rows for ``maturity``.
+
+        Rows follow the spec's active-rule order for the resolved maturity, so
+        the text / HTML report tables stay in sync with the YAML without manual
+        duplication.  Runs probes on first use.
+        """
+        target = self._validate_maturity(maturity)
+        if not self.findings:
+            self.run_probes()
+        return [
+            (
+                rule.competency_question,
+                not self.findings.get(self.spec.rule_id(rule), []),
+            )
+            for rule in self.spec.active_rules(target)
+        ]
+
+    def run_probes(self) -> dict[str, list["Finding"]]:
+        """Run every active rule's probe once; return findings by rule id.
+
+        Probes are presence checks and so are **maturity-independent**: this
+        runs *all* active rules (every maturity tier) and caches the result on
+        ``self.findings``.  Maturity is applied later as a pure view filter by
+        the verdict / report / output methods, so one checker instance can be
+        queried at different maturity levels without re-probing.  Catalogue-only
+        and TBD rules are skipped (their ``probe`` is ``None``).
         """
         # Importing lazily so BaseChecker stays cheap to import for
         # callers that only want the SBOM-parsing behaviour.
@@ -215,7 +272,7 @@ class BaseChecker(DeprecatedCheckerMixin, ABC):
         from .probes import lookup
 
         findings: dict[str, list[Finding]] = {}
-        for rule in self.spec.active_rules(self.target_maturity):
+        for rule in self.spec.active_rules():
             if rule.probe is None:
                 findings[self.spec.rule_id(rule)] = []
                 continue
@@ -227,17 +284,19 @@ class BaseChecker(DeprecatedCheckerMixin, ABC):
         return findings
 
     @abstractmethod
-    def check_compliance(self) -> bool:
-        """Abstract method to check compliance/conformance."""
+    def check_compliance(self, maturity: int = 0) -> bool:
+        """Abstract method to check compliance/conformance at ``maturity``.
+
+        Defaults to ``0`` (the baseline).
+        """
         raise NotImplementedError
 
-    def __init__(  # pylint: disable=too-many-arguments,too-many-positional-arguments
+    def __init__(
         self,
         file: str,
         validate: bool = True,
         compliance: str = "",
         sbom_spec: str = DEFAULT_SBOM_SPEC,
-        target_maturity: int = 0,
     ) -> None:
         """
         Initialize the BaseChecker.
@@ -247,13 +306,13 @@ class BaseChecker(DeprecatedCheckerMixin, ABC):
             validate (bool): Whether to validate the file.
             compliance (str): The compliance standard to be used.
             sbom_spec (str): The SBOM specification to be used.
-            target_maturity (int): Maturity ordinal to assess against.  Rules
-                with ``maturity > target_maturity`` are out of scope (neither
-                evaluated nor reported).  Defaults to ``0`` (the baseline).
+
+        Maturity is *not* an instance setting: probes run for all tiers, and
+        the level to assess against is supplied per call to the verdict /
+        report / output methods (defaulting to ``0``, the baseline).
         """
         self.compliance_standard = compliance
         self.sbom_spec = sbom_spec
-        self.target_maturity = target_maturity
         # self.file_format = ""
 
         self.file = file
@@ -302,8 +361,6 @@ class BaseChecker(DeprecatedCheckerMixin, ABC):
             # here.  They are evaluated lazily by :meth:`components_without`
             # (cached per element_id) the first time a probe / report /
             # output emitter asks for them.
-
-        self.table_elements: list[tuple[str, bool]] = []
 
     # ---- Document-level value extractors --------------------------------
     #
@@ -882,7 +939,7 @@ class BaseChecker(DeprecatedCheckerMixin, ABC):
 
         return object_set
 
-    def print_components_missing_info(self) -> None:
+    def print_components_missing_info(self, maturity: int = 0) -> None:
         """
         Print information about components that are missing required details.
 
@@ -896,22 +953,25 @@ class BaseChecker(DeprecatedCheckerMixin, ABC):
         if self._parsing_errors:
             return
 
-        if not self.all_components_without_info:
+        components_without_info = self.components_without_info(maturity)
+        if not components_without_info:
             return
 
         print("Missing required information in these components:")
-        for info_name, components in self.all_components_without_info:
+        for info_name, components in components_without_info:
             print(
                 f"{info_name} ({len(components)}): "
                 f"{', '.join([name for name, _ in components])}"
             )
 
-    def print_table_output(self, verbose: bool = False) -> None:
+    def print_table_output(self, verbose: bool = False, maturity: int = 0) -> None:
         """
         Print element-by-element result table.
 
         Args:
             verbose (bool): If True, print detailed information.
+            maturity (int): Maturity level to report against;
+                Defaults to ``0`` (the baseline).
 
         Returns:
             None
@@ -919,9 +979,9 @@ class BaseChecker(DeprecatedCheckerMixin, ABC):
         report_context = ReportContext(
             sbom_spec=getattr(self, "sbom_spec", ""),
             compliance_standard=getattr(self, "compliance_standard", ""),
-            compliant=getattr(self, "compliant", False),
-            requirement_results=getattr(self, "table_elements", []),
-            components_without_info=getattr(self, "all_components_without_info", []),
+            compliant=self.check_compliance(maturity),
+            requirement_results=self.requirement_results(maturity),
+            components_without_info=self.components_without_info(maturity),
             validation_messages=self._validation_messages,
             conformance_messages=self._conformance_messages,
             parsing_errors=self._parsing_errors,
@@ -929,9 +989,13 @@ class BaseChecker(DeprecatedCheckerMixin, ABC):
 
         print(report_text(report_context, verbose))
 
-    def output_html(self) -> str:
+    def output_html(self, maturity: int = 0) -> str:
         """
         Create element-by-element result table in HTML.
+
+        Args:
+            maturity (int): Maturity level to report against;
+                Defaults to ``0`` (the baseline).
 
         Returns:
             str: The HTML representation of the results.
@@ -939,9 +1003,9 @@ class BaseChecker(DeprecatedCheckerMixin, ABC):
         report_context = ReportContext(
             sbom_spec=getattr(self, "sbom_spec", ""),
             compliance_standard=getattr(self, "compliance_standard", ""),
-            compliant=getattr(self, "compliant", False),
-            requirement_results=getattr(self, "table_elements", []),
-            components_without_info=getattr(self, "all_components_without_info", []),
+            compliant=self.check_compliance(maturity),
+            requirement_results=self.requirement_results(maturity),
+            components_without_info=self.components_without_info(maturity),
             validation_messages=self._validation_messages,
             conformance_messages=self._conformance_messages,
             parsing_errors=self._parsing_errors,
@@ -949,17 +1013,21 @@ class BaseChecker(DeprecatedCheckerMixin, ABC):
 
         return report_html(report_context, verbose=True)
 
-    def output_json(self) -> dict[str, Any]:
+    def output_json(self, maturity: int = 0) -> dict[str, Any]:
         """
         Create a JSON-serializable result dict.
 
+        Args:
+            maturity (int): Maturity level to report against;
+                Defaults to ``0`` (the baseline).
+
         Subclasses may override to provide custom fields.
         """
+        target = self._validate_maturity(maturity)
+        is_conformant = self.check_compliance(target)
         result: dict[str, Any] = {
-            "isConformant": getattr(self, "compliant", False),
-            "isNtiaConformant": getattr(
-                self, "compliant", False
-            ),  # backward compatibility
+            "isConformant": is_conformant,
+            "isNtiaConformant": is_conformant,  # backward compatibility
             "complianceStandard": getattr(self, "compliance_standard", ""),
             "sbomSpec": getattr(self, "sbom_spec", ""),
             "validationMessages": get_validation_messages_json(
@@ -970,7 +1038,7 @@ class BaseChecker(DeprecatedCheckerMixin, ABC):
             ),
             "parsingError": self._parsing_errors,
             "sbomName": getattr(self, "sbom_name", ""),
-            "specVersionProvided": getattr(self, "doc_version", False),
+            "specVersionProvided": self.document_has("spec_version"),
             "totalNumberComponents": self.get_total_number_components(),
         }
 
@@ -978,7 +1046,7 @@ class BaseChecker(DeprecatedCheckerMixin, ABC):
         if not self.findings:
             self.run_probes()
 
-        for rule in self.spec.active_rules(self.target_maturity):
+        for rule in self.spec.active_rules(target):
             if not rule.json_key or rule.probe is None:
                 continue
             rule_id = self.spec.rule_id(rule)
@@ -997,7 +1065,9 @@ class BaseChecker(DeprecatedCheckerMixin, ABC):
 
         return result
 
-    def output_sarif(self, *, embed_sbom: bool = False) -> dict[str, Any]:
+    def output_sarif(
+        self, *, embed_sbom: bool = False, maturity: int = 0
+    ) -> dict[str, Any]:
         """
         Create a SARIF result log.
 
@@ -1012,6 +1082,9 @@ class BaseChecker(DeprecatedCheckerMixin, ABC):
                 can render the artifact alongside results from a single log
                 file.  Default is ``False`` (link by URI only) -- embedding
                 significantly increases the log size.
+            maturity: Maturity level to scope results to; defaults to ``0``
+                (the baseline).  The rule catalogue always lists every non-TBD
+                rule regardless of maturity; only *results* are scoped.
 
         Subclasses may override to provide custom fields.
         """
@@ -1020,4 +1093,4 @@ class BaseChecker(DeprecatedCheckerMixin, ABC):
         # pylint: disable=import-outside-toplevel
         from .report_sarif import build_sarif
 
-        return build_sarif(self, embed_sbom=embed_sbom)
+        return build_sarif(self, embed_sbom=embed_sbom, maturity=maturity)

@@ -202,13 +202,13 @@ The seven baseline data fields listed in the table on p.9.
 
 | Rule ID         | Slug                            | Warning                                              | Severity | Auto-Fix | Status | Clause             |
 | :-------------- | :------------------------------ | :--------------------------------------------------- | :------- | :------: | :----- | :----------------- |
-| **SBOM-NTIA-DF-001**  | `ntia-component-supplier-name`            | An SBOM component should have a supplier name.       | `error`  |    ❌    | Active | §IV (Supplier)     |
-| **SBOM-NTIA-DF-002**  | `ntia-component-name`           | An SBOM component should have a name.                | `error`  |    ❌    | Active | §IV (Name)         |
-| **SBOM-NTIA-DF-003**  | `ntia-component-version`        | An SBOM component should have a version.             | `error`  |    ❌    | Active | §IV (Version)      |
-| **SBOM-NTIA-DF-004**  | `ntia-component-identifier`        | An SBOM component should have a unique identifier.   | `error`  |    ❌    | Active | §IV (Identifiers)  |
-| **SBOM-NTIA-DF-005**  | `ntia-dependency-relationship`  | An SBOM should declare dependency relationships.     | `error`  |    ❌    | Active | §IV (Dependencies) |
-| **SBOM-NTIA-DF-006**  | `ntia-sbom-author`              | An SBOM should have an author name.                  | `error`  |    ❌    | Active | §IV (Author)       |
-| **SBOM-NTIA-DF-007**  | `ntia-sbom-timestamp`           | An SBOM should have a creation timestamp.            | `error`  |    ❌    | Active | §IV (Timestamp)    |
+| **SBOM-NTIA-DF-001**  | `ntia-component-supplier-missing`            | An SBOM component should have a supplier name.       | `error`  |    ❌    | Active | §IV (Supplier)     |
+| **SBOM-NTIA-DF-002**  | `ntia-component-name-missing`           | An SBOM component should have a name.                | `error`  |    ❌    | Active | §IV (Name)         |
+| **SBOM-NTIA-DF-003**  | `ntia-component-version-missing`        | An SBOM component should have a version.             | `error`  |    ❌    | Active | §IV (Version)      |
+| **SBOM-NTIA-DF-004**  | `ntia-component-identifier-missing`        | An SBOM component should have a unique identifier.   | `error`  |    ❌    | Active | §IV (Identifiers)  |
+| **SBOM-NTIA-DF-005**  | `ntia-dependency-relationships-missing`  | An SBOM should declare dependency relationships.     | `error`  |    ❌    | Active | §IV (Dependencies) |
+| **SBOM-NTIA-DF-006**  | `ntia-sbom-author-missing`              | An SBOM should have an author name.                  | `error`  |    ❌    | Active | §IV (Author)       |
+| **SBOM-NTIA-DF-007**  | `ntia-sbom-timestamp-missing`           | An SBOM should have a creation timestamp.            | `error`  |    ❌    | Active | §IV (Timestamp)    |
 
 ### Automation Support (§IV, reserved)
 
@@ -251,23 +251,23 @@ verbatim in `SpecRule.spec_clause_number`.
 
 | Rule ID           | Slug                       | Warning                                              | Severity | Auto-Fix | Status            | Clause     |
 | :---------------- | :------------------------- | :--------------------------------------------------- | :------- | :------: | :---------------- | :--------- |
-| **SBOM-FSCT3-META-001**  | `fsct3-author-name`         | An SBOM should have an author name.                  | `error`  |    ❌    | Active            | §2.2.1.1   |
-| **SBOM-FSCT3-META-002**  | `fsct3-timestamp`           | An SBOM should have a creation timestamp.            | `error`  |    ❌    | Active            | §2.2.1.2   |
-| **SBOM-FSCT3-META-003**  | `fsct3-sbom-type`           | An SBOM must declare its type (SBOM generation context). | `error`  |    ❌    | Active            | §2.2.1.3   |
-| **SBOM-FSCT3-META-004**  | `fsct3-primary-component`   | An SBOM should identify a primary component.         | `error`  |    ❌    | Catalogue only ¹ | §2.2.1.4   |
+| **SBOM-FSCT3-META-001**  | `fsct3-author-name-missing`         | An SBOM should have an author name.                  | `error`  |    ❌    | Active            | §2.2.1.1   |
+| **SBOM-FSCT3-META-002**  | `fsct3-timestamp-missing`           | An SBOM should have a creation timestamp.            | `error`  |    ❌    | Active            | §2.2.1.2   |
+| **SBOM-FSCT3-META-003**  | `fsct3-sbom-type-missing`           | An SBOM must declare its type (SBOM generation context). | `error`  |    ❌    | Active            | §2.2.1.3   |
+| **SBOM-FSCT3-META-004**  | `fsct3-primary-component-missing`   | An SBOM should identify a primary component.         | `error`  |    ❌    | Catalogue only ¹ | §2.2.1.4   |
 
 ### Component Attributes (§2.2.2)
 
 | Rule ID           | Slug                         | Warning                                                              | Severity | Auto-Fix | Status            | Clause     |
 | :---------------- | :--------------------------- | :------------------------------------------------------------------- | :------- | :------: | :---------------- | :--------- |
-| **SBOM-FSCT3-COMP-001**  | `fsct3-component-name`        | An SBOM component should have a name.                                | `error`  |    ❌    | Active            | §2.2.2.1   |
-| **SBOM-FSCT3-COMP-002**  | `fsct3-component-version`     | An SBOM component should have a version.                             | `error`  |    ❌    | Active            | §2.2.2.2   |
-| **SBOM-FSCT3-COMP-003**  | `fsct3-supplier-name`         | An SBOM component should have a supplier name.                       | `error`  |    ❌    | Active            | §2.2.2.3   |
-| **SBOM-FSCT3-COMP-004**  | `fsct3-unique-identifier`     | An SBOM component should have a unique identifier.                   | `error`  |    ❌    | Active            | §2.2.2.4   |
-| **SBOM-FSCT3-COMP-005**  | `fsct3-cryptographic-hash`    | An SBOM component should have a cryptographic hash.                  | `error`  |    ❌    | Catalogue only ¹ | §2.2.2.5   |
-| **SBOM-FSCT3-COMP-006**  | `fsct3-relationship`          | An SBOM component should declare its relationship and completeness.  | `error`  |    ❌    | Catalogue only ¹ | §2.2.2.6   |
-| **SBOM-FSCT3-COMP-007**  | `fsct3-concluded-license`     | An SBOM component should have a concluded license.                   | `error`  |    ❌    | Active            | §2.2.2.7   |
-| **SBOM-FSCT3-COMP-008**  | `fsct3-copyright-notice`      | An SBOM component should have a copyright notice.                    | `error`  |    ❌    | Active            | §2.2.2.8   |
+| **SBOM-FSCT3-COMP-001**  | `fsct3-component-name-missing`        | An SBOM component should have a name.                                | `error`  |    ❌    | Active            | §2.2.2.1   |
+| **SBOM-FSCT3-COMP-002**  | `fsct3-component-version-missing`     | An SBOM component should have a version.                             | `error`  |    ❌    | Active            | §2.2.2.2   |
+| **SBOM-FSCT3-COMP-003**  | `fsct3-supplier-name-missing`         | An SBOM component should have a supplier name.                       | `error`  |    ❌    | Active            | §2.2.2.3   |
+| **SBOM-FSCT3-COMP-004**  | `fsct3-unique-identifier-missing`     | An SBOM component should have a unique identifier.                   | `error`  |    ❌    | Active            | §2.2.2.4   |
+| **SBOM-FSCT3-COMP-005**  | `fsct3-cryptographic-hash-missing`    | An SBOM component should have a cryptographic hash.                  | `error`  |    ❌    | Catalogue only ¹ | §2.2.2.5   |
+| **SBOM-FSCT3-COMP-006**  | `fsct3-relationship-missing`          | An SBOM component should declare its relationship and completeness.  | `error`  |    ❌    | Catalogue only ¹ | §2.2.2.6   |
+| **SBOM-FSCT3-COMP-007**  | `fsct3-concluded-license-missing`     | An SBOM component should have a concluded license.                   | `error`  |    ❌    | Active            | §2.2.2.7   |
+| **SBOM-FSCT3-COMP-008**  | `fsct3-copyright-notice-missing`      | An SBOM component should have a copyright notice.                    | `error`  |    ❌    | Active            | §2.2.2.8   |
 
 `FSCT-UNDEC-*` namespace (§2.3 Undeclared SBOM Data) reserved for future
 checks (unknown attributes, redacted components, unknown dependencies).
@@ -310,9 +310,11 @@ or Catalogue-only rules.
    auto-fix, status, and clause.  Follow the warning-text patterns from the
    "Warning text" section above so users get parallel wording across rules.
 4. Add the corresponding `SpecRule` entry to
-   `ntia_conformance_checker/rules/<spec>.yaml`, filling `slug`, `element_id`,
-   `element_description`, `competency_question`, `warning`,
-   `spec_clause_number`, `spec_clause_uri`, `sarif_name`, the `probe`, and
-   (only if different) `oscal_control_id`.
+   `ntia_conformance_checker/rules/<spec>.yaml`, filling `slug` (lowercase
+   kebab, **finding-framed**, spec-prefixed -- e.g. `ntia-component-name-missing`),
+   `element_id`, `element_description`, `competency_question`, `warning`,
+   `spec_clause_number`, `spec_clause_uri`, the `probe`, and (only if different)
+   `oscal_control_id`.  The PascalCase report name (SARIF
+   `reportingDescriptor.name`) is **derived** from the slug -- do not specify it.
 5. Add or extend a fixture in `tests/data/` exercising the rule and assert it
    in `tests/test_output_sarif.py`.

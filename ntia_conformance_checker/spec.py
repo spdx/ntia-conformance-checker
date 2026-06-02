@@ -19,8 +19,7 @@ output format (text table, JSON, SARIF, future OSCAL):
 
 * :class:`Spec` -- a compliance standard's full rule catalogue.  Holds the
   standard id/title, general help URL (used as a fallback when a rule has
-  no rule-specific URL), the categories and rules, and the SARIF taxonomy
-  identifiers.
+  no rule-specific URL), the categories and rules, and the taxonomy names.
 
 Rule identifiers follow the ``SBOM-[SPEC]-[CATEGORY]-[NNN]`` convention
 documented in ``RULES.md``.  ``SPEC`` is the uppercased :attr:`Spec.id`
@@ -171,6 +170,37 @@ class SpecCategory:
 
 
 @dataclass(frozen=True, kw_only=True)
+class SpecTaxonomies:
+    """Names of a standard's two taxonomies (output-format agnostic).
+
+    Each taxonomy groups the rules along one axis and is materialised per
+    output format -- a SARIF ``ToolComponent`` (``toolComponent.name``) today,
+    an OSCAL catalog/group id later.  Despite the SARIF wording these names are
+    *not* SARIF-specific, hence no ``sarif_`` prefix.
+    """
+
+    category: str = ""
+    """Name of the *category* taxonomy (e.g. ``"ntia-minimum-elements"``).
+
+    Named for its **taxa**: each taxon is a :class:`SpecCategory`, and every
+    rule has a ``superset`` relationship to its category taxon.  Mind the
+    level mismatch -- the field names the taxonomy *by what it contains*
+    (categories), but the **taxonomy as a whole is the standard's catalog**,
+    so the value is the catalog/standard identifier (``"ntia-minimum-elements"``,
+    not ``"ntia-categories"``) and doubles as the OSCAL **catalog** id; the
+    categories within are the OSCAL **groups**."""
+
+    clause: str = ""
+    """Name of the *clause* taxonomy (e.g. ``"ntia-clauses"``).
+
+    Also named for its **taxa**: each taxon id is a literal spec clause number
+    from :attr:`SpecRule.spec_clause_number`, and every rule has an ``equal``
+    relationship to its clause taxon.  Here name and taxa line up (both
+    clause-flavoured), unlike :attr:`category`.  Empty disables the clause
+    taxonomy and the per-rule ``equal`` relationship."""
+
+
+@dataclass(frozen=True, kw_only=True)
 # pylint: disable=too-many-instance-attributes
 class SpecRule:
     """Per-element check specification, reusable across compliance checkers."""
@@ -184,8 +214,17 @@ class SpecRule:
 
     slug: str
     """Human-readable rule slug, lowercase kebab-case, **prefixed with the
-    spec id** to avoid cross-spec collisions.  Example:
-    ``"ntia-component-supplier-name"``, ``"fsct3-component-name"``."""
+    spec id** to avoid cross-spec collisions.
+
+    Frames the *finding* (the rule's failure condition), not the attribute --
+    e.g. ``"ntia-component-supplier-missing"``, ``"fsct3-component-name-missing"``.
+    Most rules are "...-missing" today, but the framing generalises
+    (``"fsct3-timestamp-not-iso-format"``).
+
+    This is the single human-readable identifier for a rule: the PascalCase
+    :meth:`Spec.report_name` (SARIF ``reportingDescriptor.name`` etc.) is
+    *derived* from it, so the two never drift -- they differ only in casing to
+    suit each output format's convention."""
 
     # -- Spec mapping (location in the source spec) -----------------------
 
@@ -198,8 +237,7 @@ class SpecRule:
     spec_clause_number: str = ""
     """Literal clause / section designator from the source spec (e.g. ``"IV"``
     or ``"2.2.2.7"``).  Becomes the id of the rule's clause taxon and -- when
-    paired with :attr:`Spec.sarif_clause_taxonomy_name` -- a SARIF taxonomy
-    entry."""
+    paired with :attr:`SpecTaxonomies.clause` -- a clause taxonomy entry."""
 
     spec_clause_name: str = ""
     """Human-readable clause title (e.g. ``"License"``)."""
@@ -268,10 +306,6 @@ class SpecRule:
 
     # -- Output mappings --------------------------------------------------
 
-    sarif_name: str
-    """SARIF ``reportingDescriptor.name`` (PascalCase short name,
-    e.g. ``NtiaComponentSupplierMissing``)."""
-
     oscal_control_id: str = ""
     """Optional override for the future OSCAL ``control-id``.  When empty,
     the OSCAL exporter is expected to lowercase the SARIF rule id."""
@@ -289,8 +323,8 @@ class SpecRule:
 class Spec:
     """A compliance standard's full rule catalogue.
 
-    Shared metadata at the standard level (general help URL, SARIF taxonomy
-    identifiers) lives here; per-rule overrides live on :class:`SpecRule`.
+    Shared metadata at the standard level (general help URL, taxonomy
+    names) lives here; per-rule overrides live on :class:`SpecRule`.
     """
 
     # -- Identity ---------------------------------------------------------
@@ -330,19 +364,14 @@ class Spec:
     ``status == "catalogue-only"`` appear in the catalogue but never as
     results."""
 
-    # -- SARIF taxonomy ---------------------------------------------------
+    # -- Taxonomies -------------------------------------------------------
 
-    sarif_category_taxonomy_name: str = ""
-    """SARIF ``ToolComponent.name`` of the *category* taxonomy
-    (e.g. ``"ntia-minimum-elements"``).  Doubles as the OSCAL catalog id."""
+    taxonomies: SpecTaxonomies = field(default_factory=SpecTaxonomies)
+    """The standard's :class:`SpecTaxonomies` (category + clause names).
+    Output-format agnostic; consumed by the SARIF emitter as
+    ``ToolComponent.name`` and by a future OSCAL exporter."""
 
-    sarif_clause_taxonomy_name: str = ""
-    """SARIF ``ToolComponent.name`` of the *clause* taxonomy
-    (e.g. ``"ntia-clauses"``).  Each taxon id is a literal spec clause number
-    from :attr:`SpecRule.spec_clause_number`.  Empty disables the clause
-    taxonomy and the second ``equal`` relationship on every rule."""
-
-    # -- Derived helpers --------------------------------------------------
+    # -- Lookups by key ---------------------------------------------------
 
     def category(self, category_id: str) -> SpecCategory:
         """Look up a :class:`SpecCategory` by id; raise KeyError if absent."""
@@ -350,6 +379,38 @@ class Spec:
             if cat.id == category_id:
                 return cat
         raise KeyError(f"Spec {self.id!r} has no category {category_id!r}")
+
+    def maturity(self, level: int) -> SpecMaturity:
+        """Look up a :class:`SpecMaturity` by its ordinal; KeyError if absent."""
+        for mat in self.maturity_levels:
+            if mat.level == level:
+                return mat
+        raise KeyError(f"Spec {self.id!r} has no maturity level {level!r}")
+
+    # -- Per-rule derived values ------------------------------------------
+
+    def maturity_id(self, rule: SpecRule) -> str:
+        """Spec-specific slug of ``rule``'s maturity level (``""`` if none)."""
+        for mat in self.maturity_levels:
+            if mat.level == rule.maturity:
+                return mat.id
+        return ""
+
+    def oscal_control_id(self, rule: SpecRule) -> str:
+        """Return the rule's OSCAL control id (override or lowercased rule id)."""
+        return rule.oscal_control_id or self.rule_id(rule).lower()
+
+    @staticmethod
+    def report_name(rule: SpecRule) -> str:
+        """PascalCase reporting name for ``rule``, derived from its slug.
+
+        Used as the SARIF ``reportingDescriptor.name`` (and any other
+        output format wanting a whitespace-free, human-readable rule name).
+        Derived -- never stored -- so it cannot drift from :attr:`SpecRule.slug`;
+        the two differ only in casing.  E.g. ``"ntia-component-supplier-missing"``
+        -> ``"NtiaComponentSupplierMissing"``.
+        """
+        return "".join(seg.capitalize() for seg in rule.slug.split("-"))
 
     def rule_id(self, rule: SpecRule) -> str:
         """Compose the canonical ``SBOM-[SPEC]-[CAT]-[NNN]`` rule id.
@@ -359,31 +420,15 @@ class Spec:
         cat = self.category(rule.spec_category)
         return f"SBOM-{self.id.upper()}-{cat.code}-{rule.number:03d}"
 
-    def oscal_control_id(self, rule: SpecRule) -> str:
-        """Return the rule's OSCAL control id (override or lowercased rule id)."""
-        return rule.oscal_control_id or self.rule_id(rule).lower()
-
-    def maturity(self, level: int) -> SpecMaturity:
-        """Look up a :class:`SpecMaturity` by its ordinal; KeyError if absent."""
-        for mat in self.maturity_levels:
-            if mat.level == level:
-                return mat
-        raise KeyError(f"Spec {self.id!r} has no maturity level {level!r}")
-
-    def maturity_id(self, rule: SpecRule) -> str:
-        """Spec-specific slug of ``rule``'s maturity level (``""`` if none)."""
-        for mat in self.maturity_levels:
-            if mat.level == rule.maturity:
-                return mat.id
-        return ""
+    def rule_uri(self, rule: SpecRule) -> str:
+        """Rule's source-spec clause URL if set, otherwise the standard URL."""
+        return rule.spec_clause_uri or self.uri
 
     def severity(self, rule: SpecRule) -> Severity:
         """The rule's severity, from its provision (emitted as SARIF ``level``)."""
         return _PROVISION_TO_SEVERITY[rule.provision]
 
-    def rule_uri(self, rule: SpecRule) -> str:
-        """Rule's source-spec clause URL if set, otherwise the standard URL."""
-        return rule.spec_clause_uri or self.uri
+    # -- Maturity levels --------------------------------------------------
 
     @property
     def max_maturity(self) -> int:
@@ -394,19 +439,13 @@ class Spec:
         """Declared maturity ordinals, ascending -- the valid assessment targets."""
         return tuple(sorted(m.level for m in self.maturity_levels))
 
+    # -- Rule selection ---------------------------------------------------
+
     @staticmethod
     def _in_scope(rule: SpecRule, target: int | None) -> bool:
         """True if ``rule`` applies when assessing at ``target`` (``maturity <=
         target``).  ``target is None`` means no maturity filter (all tiers)."""
         return target is None or rule.maturity <= target
-
-    def emitted_rules(self) -> tuple[SpecRule, ...]:
-        """Rules that appear in the SARIF catalogue (everything except TBD).
-
-        Not maturity-filtered: the catalogue advertises the full rule surface
-        of the spec regardless of the assessment target.
-        """
-        return tuple(r for r in self.rules if r.status != "tbd")
 
     def active_rules(self, target: int | None = None) -> tuple[SpecRule, ...]:
         """Active rules in scope for an assessment ``target`` maturity.
@@ -436,3 +475,11 @@ class Spec:
             and r.provision == "requirement"
             and self._in_scope(r, target)
         )
+
+    def emitted_rules(self) -> tuple[SpecRule, ...]:
+        """Rules that appear in the SARIF catalogue (everything except TBD).
+
+        Not maturity-filtered: the catalogue advertises the full rule surface
+        of the spec regardless of the assessment target.
+        """
+        return tuple(r for r in self.rules if r.status != "tbd")

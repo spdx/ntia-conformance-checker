@@ -53,10 +53,9 @@ def main() -> None:
             validate=not args.skip_validation,
             compliance=args.comply,
             sbom_spec=detected_sbom_spec,
-            target_maturity=args.maturity,
         )
     except ValueError as exc:
-        # Bad --comply / --sbom-spec / -m value: report cleanly, no traceback.
+        # Bad --comply / --sbom-spec value: report cleanly, no traceback.
         logging.error("%s", exc)
         sys.exit(2)
 
@@ -70,14 +69,23 @@ def main() -> None:
             )
         logging.debug("SBOM name: %s", sbom.sbom_name)
 
+    # Resolve the verdict first so an invalid -m value is reported cleanly
+    # (no traceback) before any output is emitted.
+    try:
+        is_compliant = sbom.check_compliance(args.maturity)
+    except ValueError as exc:
+        logging.error("%s", exc)
+        sys.exit(2)
+
     print_output(
         sbom,
         output_type=args.output,
         output_file=args.output_file,
         verbose=verbose,
+        maturity=args.maturity,
     )
 
-    sys.exit(0 if sbom.compliant else 1)  # 0 indicates success
+    sys.exit(0 if is_compliant else 1)  # 0 indicates success
 
 
 if __name__ == "__main__":

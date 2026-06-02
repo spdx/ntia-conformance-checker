@@ -44,13 +44,12 @@ class RuleBasedChecker(BaseChecker):
     # Subclasses may pin a spec here; otherwise pass ``spec=`` to __init__.
     _SPEC: "Spec | None" = None  # type: ignore[assignment]
 
-    def __init__(  # pylint: disable=too-many-arguments,too-many-positional-arguments
+    def __init__(  # pylint: disable=too-many-arguments
         self,
         file: str,
         validate: bool = True,
         compliance: str = "",
         sbom_spec: str = "spdx2",
-        target_maturity: int = 0,
         *,
         spec: "Spec | None" = None,
     ) -> None:
@@ -59,7 +58,6 @@ class RuleBasedChecker(BaseChecker):
             validate=validate,
             compliance=compliance,
             sbom_spec=sbom_spec,
-            target_maturity=target_maturity,
         )
 
         resolved = spec if spec is not None else type(self)._SPEC
@@ -70,41 +68,31 @@ class RuleBasedChecker(BaseChecker):
             )
         self._spec: Spec = resolved
 
-        valid_targets = self._spec.maturity_ordinals()
-        if self.target_maturity not in valid_targets:
-            raise ValueError(
-                f"target_maturity {self.target_maturity!r} is not a declared "
-                f"maturity level of spec {self._spec.id!r}; "
-                f"valid levels: {list(valid_targets)!r}"
-            )
-
         if self.doc:
+            # Probes are maturity-independent; run them once up front so the
+            # findings cache is warm.  Maturity is applied later as a view
+            # filter by check_compliance / requirement_results / output_*.
             self.run_probes()
-            self.compliant = self.check_compliance()
-
-        # Table rows are derived from in-scope active rules in spec order so
-        # they stay in sync with the YAML / RULES.md without manual duplication.
-        self.table_elements = [
-            (
-                rule.competency_question,
-                not self.findings.get(self._spec.rule_id(rule), []),
-            )
-            for rule in self._spec.active_rules(self.target_maturity)
-        ]
 
     @property
     def spec(self) -> "Spec":
         """The compliance spec resolved for this instance."""
         return self._spec
 
-    def check_compliance(self) -> bool:
+    def check_compliance(self, maturity: int = 0) -> bool:
         """Compliant iff every blocking (``requirement``) rule in scope passed
         and validation was clean.  ``recommendation`` / ``permission`` rules are
         advisory: they still emit warning / none findings but do not affect the
-        verdict."""
+        verdict.
+
+        Defaults to ``0`` (the baseline).
+        """
         if self.validation_messages:
             return False
+        target = self._validate_maturity(maturity)
+        if not self.findings:
+            self.run_probes()
         return all(
             not self.findings.get(self._spec.rule_id(rule), [])
-            for rule in self._spec.blocking_rules(self.target_maturity)
+            for rule in self._spec.blocking_rules(target)
         )

@@ -181,8 +181,16 @@ from ntia_conformance_checker import SbomChecker
 
 sbom_checker = SbomChecker("SBOM_filepath")
 
-print(sbom_checker.compliant)
+print(sbom_checker.check_compliance())
 ```
+
+`check_compliance()` accepts an optional `maturity` level (for specs that
+declare maturity tiers); it defaults to the instance's maturity (baseline,
+`0`).  One checker instance can be queried at different maturity levels.
+
+> The `compliant` attribute still works but is **deprecated** — it emits a
+> `DeprecationWarning` and is equivalent to `check_compliance(maturity=0)`.
+> Migrate to `check_compliance()`.
 
 See the API documentation at:
 <https://spdx.github.io/ntia-conformance-checker/>

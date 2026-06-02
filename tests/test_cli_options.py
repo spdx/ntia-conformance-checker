@@ -1,4 +1,4 @@
-# SPDX-FileCopyrightText: 2026 SPDX contributors
+# SPDX-FileCopyrightText: 2026-present SPDX contributors
 # SPDX-FileType: SOURCE
 # SPDX-License-Identifier: Apache-2.0
 
@@ -89,11 +89,13 @@ def test_skip_validation_shortcut(monkeypatch: MonkeyPatch) -> None:
 
 
 def test_target_within_declared_levels_ok() -> None:
-    # NTIA is flat (only level 0); target 0 is valid.
-    checker = NTIAChecker(_FIXTURE, target_maturity=0)
-    assert checker.target_maturity == 0
+    # NTIA is flat (only level 0); maturity 0 is valid.
+    checker = NTIAChecker(_FIXTURE)
+    assert isinstance(checker.check_compliance(maturity=0), bool)
 
 
 def test_target_above_declared_levels_raises() -> None:
+    # NTIA is flat (only level 0); maturity 3 is invalid.
+    checker = NTIAChecker(_FIXTURE)
     with pytest.raises(ValueError):
-        NTIAChecker(_FIXTURE, target_maturity=3)
+        checker.check_compliance(maturity=3)

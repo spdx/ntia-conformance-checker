@@ -34,13 +34,12 @@ class SbomChecker(BaseChecker):
     If "compliance" is not recognized, SbomChecker raises a ValueError.
     """
 
-    def __new__(  # pylint: disable=too-many-arguments,too-many-positional-arguments
+    def __new__(
         cls,
         file: str,
         validate: bool = True,
         compliance: str = "ntia",
         sbom_spec: str = "spdx2",
-        target_maturity: int = 0,
     ) -> Any:
         """
         Return an instance of a specific compliance checker.
@@ -51,17 +50,15 @@ class SbomChecker(BaseChecker):
                 Defaults to True.
             compliance (str): The compliance standard to use. Defaults to "ntia".
             sbom_spec (str): The SBOM specification format. Defaults to "spdx2".
-            target_maturity (int): Maturity ordinal to assess against; rules
-                above it are out of scope. Defaults to 0 (baseline).
 
         Returns:
             BaseChecker: An instance of the compliance checker configured for
                 the requested compliance standard.
 
         Raises:
-            ValueError: If ``sbom_spec`` is not supported, ``compliance`` is not
-                recognized, or ``target_maturity`` is not a declared maturity
-                level of the chosen spec.
+            ValueError: If ``sbom_spec`` is not supported or ``compliance`` is
+                not recognized.  An invalid maturity level is reported when a
+                verdict / output method is called with it, not at construction.
         """
         if sbom_spec not in SUPPORTED_SBOM_SPECS:
             raise ValueError(f"Unsupported SBOM specification: {sbom_spec}")
@@ -81,7 +78,6 @@ class SbomChecker(BaseChecker):
             validate,
             compliance=compliance,
             sbom_spec=sbom_spec,
-            target_maturity=target_maturity,
             spec=spec,
         )
 
@@ -91,7 +87,7 @@ class SbomChecker(BaseChecker):
             "Please subclass BaseChecker to implement custom checkers."
         )
 
-    def check_compliance(self) -> bool:
+    def check_compliance(self, maturity: int = 0) -> bool:
         raise NotImplementedError("This method is not implemented by SbomChecker.")
 
     @property
