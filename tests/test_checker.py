@@ -15,6 +15,7 @@ from spdx_python_model import v3_0_1 as spdx3  # type: ignore # import-untyped
 
 import ntia_conformance_checker.sbom_checker as sbom_checker
 from ntia_conformance_checker import FSCT3Checker, NTIAChecker
+from ntia_conformance_checker.registry import get_spec
 from ntia_conformance_checker.spdx3_utils import validate_spdx3_data
 
 
@@ -562,8 +563,6 @@ def test_components_without_functions() -> None:
 def test_compliance_accepts_id_or_spec() -> None:
     """``compliance`` resolves a registered id (str) or a Spec object; both
     yield the same checker, and the label is the resolved spec id."""
-    from ntia_conformance_checker.registry import get_spec
-
     by_id = sbom_checker.SbomChecker(test_files[0], compliance="fsct3")
     by_spec = sbom_checker.SbomChecker(test_files[0], compliance=get_spec("fsct3"))
     assert by_id.spec.id == "fsct3"
