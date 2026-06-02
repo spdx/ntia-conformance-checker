@@ -307,7 +307,7 @@ class BaseChecker(ABC):
             # We will assume here that the SpdxDocument's rootElement is
             # either /Core/Bom or /Software/Sbom.
             #
-            # If the's rootElement is a /Software/Package
+            # If the rootElement is a /Software/Package
             # (or its subclass),
             # it is considered to have a DESCRIBES relationship.
             #
