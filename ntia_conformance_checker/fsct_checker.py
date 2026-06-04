@@ -1,110 +1,53 @@
-# SPDX-FileCopyrightText: 2024-2025 SPDX contributors
+# SPDX-FileCopyrightText: 2024-present SPDX contributors
 # SPDX-FileType: SOURCE
 # SPDX-License-Identifier: Apache-2.0
 
-"""FSCT Common BOM checking functionality."""
+"""CISA SBOM Baseline Attributes (Framing Software Component Transparency)
+checker.
+
+Thin alias for :class:`RuleBasedChecker` pinned to
+:file:`rules/fsct.yaml`.
+"""
 
 from __future__ import annotations
 
-from .base_checker import BaseChecker
+from typing import TYPE_CHECKING
+
+from .registry import get_spec
+from .rule_based_checker import RuleBasedChecker
+
+if TYPE_CHECKING:
+    from .spec import Spec
+
+# Spec is loaded once by the registry (from rules/fsct3.yaml) and shared.
+_FSCT_SPEC: Spec = get_spec("fsct3")
 
 
-class FSCT3Checker(BaseChecker):
-    """FSCTv3 checker.
+class FSCT3Checker(RuleBasedChecker):
+    """2024 CISA SBOM Baseline Attributes check.
 
     A set of Baseline Attributes is defined in Section 2.2 of
-    Framing Software Component Transparency:
-    Establishing a Common Software Bill of Materials (SBOM) Third Edition.
+    Framing Software Component Transparency: Establishing a Common
+    Software Bill of Materials (SBOM) Third Edition.
 
-    There are three maturity levels (Minimum Expected, Recommended Practice,
-    and Aspirational Goal) for content provided in Attribute entries.
-
-    This checker currently only checks for Minimum Expected maturity level.
+    Three maturity levels (Minimum Expected, Recommended Practice,
+    Aspirational Goal) describe the evolving content of Attribute entries.
+    This checker currently only validates the Minimum Expected level.
 
     See:
         https://www.cisa.gov/resources-tools/resources/framing-software-component-transparency-2024
     """
 
-    MIN_ELEMENTS = [
-        "name",
-        "version",
-        "identifier",
-        "supplier",
-        "concluded_license",
-        "copyright_text",
-    ]
-
     def __init__(
         self,
         file: str,
         validate: bool = True,
-        compliance: str = "fsct3-min",
+        compliance: "str | Spec" = _FSCT_SPEC,
         sbom_spec: str = "spdx2",
-    ):
-        """
-        Initialize the FSCTv3 checker.
-
-        Args:
-            file (str): The name of the file to be checked.
-            validate (bool): Whether to validate the file.
-            compliance (str): The compliance standard to be used.
-            sbom_spec (str): The SBOM specification to be used.
-        """
+    ) -> None:
         super().__init__(
-            file=file, validate=validate, compliance=compliance, sbom_spec=sbom_spec
-        )
-
-        if compliance not in {"fsct3-min"}:
-            raise ValueError("Only FSCTv3 Minimum Expected compliance is supported.")
-
-        if self.doc:
-            self.compliant = self.check_compliance()
-
-        self.table_elements = [
-            ("All component names provided?", not self.components_without_names),
-            (
-                "All component versions provided?",
-                not self.components_without_versions,
-            ),
-            (
-                "All component identifiers provided?",
-                not self.components_without_identifiers,
-            ),
-            (
-                "All component suppliers provided?",
-                not self.components_without_suppliers,
-            ),
-            (
-                "All component concluded license provided?",
-                not self.components_without_concluded_licenses,
-            ),
-            (
-                "All component copyright notice provided?",
-                not self.components_without_copyright_texts,
-            ),
-            ("SBOM author name provided?", self.doc_author),
-            ("SBOM creation timestamp provided?", self.doc_timestamp),
-            (
-                "SBOM generation context (SBOM type) provided?",
-                bool(self.sbom_gen_context),
-            ),
-            ("Dependency relationships provided?", self.dependency_relationships),
-        ]
-
-    def check_compliance(self) -> bool:
-        """Check overall compliance with FSCTv3 Minimum Expected"""
-        return all(
-            [
-                self.doc_author,
-                self.doc_timestamp,
-                self.dependency_relationships,
-                bool(self.sbom_gen_context),
-                not self.components_without_names,
-                not self.components_without_versions,
-                not self.components_without_identifiers,
-                not self.components_without_suppliers,
-                not self.components_without_concluded_licenses,
-                not self.components_without_copyright_texts,
-                not self.validation_messages,
-            ]
+            file=file,
+            validate=validate,
+            compliance=compliance,
+            sbom_spec=sbom_spec,
         )

@@ -11,6 +11,37 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog][keepachangelog]
 and this project adheres to [Semantic Versioning][semver].
 
+## [UNRELEASED]
+
+This release introduces a declarative rule engine: compliance standards are now
+defined as YAML files (`rules/<spec_id>.yaml`) loaded by `RuleBasedChecker` at
+import time, with no Python subclass required per standard.  `NTIAChecker` and
+`FSCT3Checker` are retained as convenience subclasses for backward-compatible
+imports.
+
+### Added
+
+- Declarative rule engine: each compliance standard is a `rules/<spec_id>.yaml`
+  file; adding a standard no longer requires a Python subclass ([#393])
+- SARIF output via `output_sarif()` ([#393])
+- Stable rule ids `SBOM-[SPEC]-[CATEGORY]-[NNN]` (e.g. `SBOM-NTIA-DF-001`),
+  derived from each rule's slug ([#393])
+
+### Changed
+
+- `compliance` argument now also accepts a `Spec` object in addition to a spec
+  id string ([#393])
+- FSCT3: missing SBOM generation context (SBOM type) is now a blocking error
+  at maturity level 0 ([#393])
+- `--output quiet` renamed to `--output none` (`quiet` still accepted;
+  the name is now reserved for log verbosity) ([#393])
+
+### Deprecated
+
+- `BaseChecker.compliant` property; use `check_compliance()` instead ([#393])
+
+[#393]: https://github.com/spdx/ntia-conformance-checker/pull/393
+
 ## [5.0.3] - 2026-06-02
 
 This patch release fixes an expectation in `rootElement` of `SpdxDocument`

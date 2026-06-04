@@ -101,14 +101,17 @@ options:
   -h, --help            show this help message and exit
   -s, --sbom-spec {spdx2,spdx3}
                         SBOM specification of the input file; see below for details [default: spdx2]
-  -c, --comply {fsct3-min,ntia}
+  -c, --comply {fsct3,ntia}
                         Compliance standards to check against; see below for details [default: ntia]
-  --skip-validation     Skip validation
-  -r, --output {html,json,print,quiet}
-                        Report output type; see below for details [default: print]
+  -m, --mature N        Maturity level (ordinal) to assess against; rules above it are out of scope. 0 = baseline [default: 0]
+  -k, --skip-validation
+                        Skip validation
+  -r, --output TYPE     Report output type; see below for details [default: print]
   -o, --output-file PATH
                         Filepath for report output; if omitted, prints to console
-  -v, --verbose         Print more information (debug)
+  -v, --verbose         Increase log verbosity to info
+  -vv, --debug          Increase log verbosity to debug
+  -q, --quiet           Quiet logs: show errors only
   -V, --version         Display version of sbomcheck
 
 choices:
@@ -117,18 +120,20 @@ choices:
     spdx3       System Package Data Exchange (SPDX) 3.x
 
   Compliance standards (for --comply):
-    fsct3-min   2024 CISA Framing Software Component Transparency (minimum expectation)
+    fsct3       2024 CISA SBOM Baseline Attributes (Minimum Expected)
     ntia        2021 NTIA SBOM Minimum Elements
 
   Report output types (for --output):
-    html        Report in HTML format
-    json        Report in JSON format
     print       Print report to console
-    quiet       No output unless there are errors
+    json        Report in JSON format
+    sarif       Report in SARIF format
+    sarif-sbom  SARIF format with the input SBOM embedded
+    html        Report in HTML format
+    none        No report
 
 Examples:
   sbomcheck sbom.spdx
-  sbomcheck -s spdx3 -c fsct3-min -v sbom.json
+  sbomcheck -s spdx3 -c fsct3 -v sbom.json
   sbomcheck sbom.yaml --output json --output-file report.json
 ```
 
@@ -143,6 +148,17 @@ To generate the output in machine-readable JSON, run:
 ```bash
 sbomcheck sbom.spdx --output json
 ```
+
+To generate the output in [SARIF][sarif] format, run:
+
+```bash
+sbomcheck sbom.spdx --output sarif
+sbomcheck sbom.spdx --output sarif --output-file report.sarif
+sbomcheck sbom.spdx --output sarif-sbom
+```
+
+The `sarif-sbom` output type embeds the input SBOM contents in the SARIF
+output.
 
 To analyze an SPDX 3 JSON file, run:
 
@@ -165,8 +181,16 @@ from ntia_conformance_checker import SbomChecker
 
 sbom_checker = SbomChecker("SBOM_filepath")
 
-print(sbom_checker.compliant)
+print(sbom_checker.check_compliance())
 ```
+
+`check_compliance()` accepts an optional `maturity` level (for specs that
+declare maturity tiers); it defaults to the instance's maturity (baseline,
+`0`).  One checker instance can be queried at different maturity levels.
+
+> The `compliant` attribute still works but is **deprecated** — it emits a
+> `DeprecationWarning` and is equivalent to `check_compliance(maturity=0)`.
+> Migrate to `check_compliance()`.
 
 See the API documentation at:
 <https://spdx.github.io/ntia-conformance-checker/>
@@ -243,3 +267,4 @@ Check out the [frequently asked questions](./FAQ.md) document.
 [fsct3]: https://www.cisa.gov/resources-tools/resources/framing-software-component-transparency-2024
 [sbom-reqs]: https://drive.google.com/file/d/14HZGYD7pSSWEmtaHZzWrzPhxCXaCnloJ/view
 [pypi]: https://pypi.org/project/ntia-conformance-checker/
+[sarif]: https://docs.oasis-open.org/sarif/sarif/v2.1.0/sarif-v2.1.0.html
