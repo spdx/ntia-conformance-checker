@@ -40,9 +40,15 @@ _RULES_DIR = Path(__file__).parent / "rules"
 
 
 def _discover() -> dict[str, Spec]:
-    """Load every packaged ``rules/*.yaml`` and index by spec ``id``."""
+    """Load every packaged ``rules/*.yaml`` and index by spec ``id``.
+
+    Files whose name starts with ``_`` (e.g. ``_example.yaml``) are skipped:
+    they are documentation / templates, not shippable specs.
+    """
     registry: dict[str, Spec] = {}
     for yaml_path in sorted(_RULES_DIR.glob("*.yaml")):
+        if yaml_path.name.startswith("_"):
+            continue
         spec = load_spec(yaml_path)
         if spec.id in registry:
             raise ValueError(

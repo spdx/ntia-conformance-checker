@@ -6,8 +6,6 @@
 # The Minimum Elements For a Software Bill of Materials (SBOM),
 # National Telecommunications and Information Administration, 2021.
 # Source: https://www.ntia.gov/report/2021/minimum-elements-software-bill-materials-sbom
-#
-# Rule ids follow SBOM-[SPEC]-[CATEGORY]-[NNN].  See RULES.md.
 
 spec:
   id: ntia

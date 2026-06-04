@@ -7,8 +7,6 @@
 # of Materials (SBOM), Third Edition,
 # Cybersecurity and Infrastructure Security Agency, 2024.
 # Source: https://www.cisa.gov/resources-tools/resources/framing-software-component-transparency-2024
-#
-# Rule ids follow SBOM-[SPEC]-[CATEGORY]-[NNN].  See RULES.md.
 
 spec:
   id: fsct3

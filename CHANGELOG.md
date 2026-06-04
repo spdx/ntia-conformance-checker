@@ -13,30 +13,34 @@ and this project adheres to [Semantic Versioning][semver].
 
 ## [UNRELEASED]
 
+This release introduces a declarative rule engine: compliance standards are now
+defined as YAML files (`rules/<spec_id>.yaml`) loaded by `RuleBasedChecker` at
+import time, with no Python subclass required per standard.  `NTIAChecker` and
+`FSCT3Checker` are retained as convenience subclasses for backward-compatible
+imports.
+
 ### Added
 
-- Declarative, YAML-based rule engine: each compliance standard is a
-  `rules/<spec_id>.yaml` file loaded into `Spec` / `SpecRule` / `SpecCategory`
-  dataclasses; adding a standard no longer needs a Python subclass.
-- SARIF output (`--output sarif`), plus `--output sarif-sbom` to embed the
-  source SBOM in the log.
-- Stable rule ids `SBOM-[SPEC]-[CATEGORY]-[NNN]` (e.g. `SBOM-NTIA-DF-001`).
-- Maturity model: a per-rule `maturity` ordinal (`0` = baseline) with
-  per-spec `maturity_levels`, plus a runtime assessment target
-  (`-m`/`--mature N`, `target_maturity=`) that scopes which rules apply.
-- Provision model: a per-rule `provision` (`requirement` / `recommendation` /
-  `permission`) driving severity (`error` / `warning` / `none`); only
-  `requirement` failures break compliance, so advisory checks are reported
-  without failing conformance.
-- Log verbosity on the shared `error > warning > note > none` scale:
-  `-v` / `--verbose` (info), `-vv` / `--debug` (debug),
-  `-q` / `--quiet` (errors only).
-- `-k` short flag for `--skip-validation`.
+- Declarative rule engine: each compliance standard is a `rules/<spec_id>.yaml`
+  file; adding a standard no longer requires a Python subclass ([#393])
+- SARIF output via `output_sarif()` ([#393])
+- Stable rule ids `SBOM-[SPEC]-[CATEGORY]-[NNN]` (e.g. `SBOM-NTIA-DF-001`),
+  derived from each rule's slug ([#393])
 
 ### Changed
 
-- `--output quiet` renamed to `--output none` (`quiet` still accepted,
-  undocumented; the name is now reserved for log verbosity).
+- `compliance` argument now also accepts a `Spec` object in addition to a spec
+  id string ([#393])
+- FSCT3: missing SBOM generation context (SBOM type) is now a blocking error
+  at maturity level 0 ([#393])
+- `--output quiet` renamed to `--output none` (`quiet` still accepted;
+  the name is now reserved for log verbosity) ([#393])
+
+### Deprecated
+
+- `BaseChecker.compliant` property; use `check_compliance()` instead ([#393])
+
+[#393]: https://github.com/spdx/ntia-conformance-checker/pull/393
 
 ## [5.0.3] - 2026-06-02
 

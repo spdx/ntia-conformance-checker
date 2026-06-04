@@ -1,0 +1,68 @@
+# SPDX-FileCopyrightText: 2026-present SPDX contributors
+# SPDX-FileType: DOCUMENTATION
+# SPDX-License-Identifier: Apache-2.0
+#
+# Annotated example rule file.
+# The leading underscore in the filename makes the registry skip it at import
+# (see registry._discover) and keeps it out of the wheel.
+#
+# Copy this to rules/<spec_id>.yaml to add a real standard.
+# Full field reference: ../../RULES.md
+
+spec:
+  id: demo                       # machine id; lowercase, [a-z][a-z0-9]*.
+                                 # Uppercased into rule ids: SBOM-DEMO-...
+  title: Demo Example Standard   # human-readable name (shown in reports)
+  uri: https://example.org/demo  # fallback help URL when a rule omits its own
+  taxonomies:                    # output-format-agnostic taxonomy names (optional)
+    category: demo-elements      # SARIF category-taxonomy / OSCAL catalog id
+    clause: demo-clauses         # SARIF clause-taxonomy; omit to disable
+
+categories:                      # groupings of rules; each becomes a SARIF taxon
+  - id: data-fields              # kebab-case; referenced by rule.spec_category
+    code: DF                     # uppercase, hyphen-free; the [CATEGORY] segment
+    title: Data Fields
+    description: Per-component baseline fields.   # optional
+
+maturity_levels:                 # optional; omit entirely for a flat standard
+  - level: 0                     # ordinal 0 = baseline (must be declared)
+    id: required                 # spec-specific slug for the level
+    title: Required              # optional human label
+  - level: 1
+    id: recommended
+    title: Recommended
+
+rules:
+  - number: 1                    # sequence within (spec, category); -> NNN (001)
+    slug: demo-component-name-missing   # finding-framed, kebab, spec-prefixed.
+                                        # report_name derives: DemoComponentNameMissing
+    spec_category: data-fields   # must match a categories[].id above
+    spec_clause_number: "1.1"    # literal clause from the source spec (optional)
+    spec_clause_name: Name       # human clause title (optional)
+    spec_clause_uri: https://example.org/demo#name   # deep link (optional)
+    element_id: name             # canonical element id (see model.ELEMENT_IDS);
+                                 # the attribute the probe queries
+    element_description: component name      # noun phrase for finding messages
+    competency_question: All component names provided?   # report-table label
+    warning: An SBOM component should have a name.       # diagnostic prose
+    maturity: 0                  # which tier requires it; omitted -> 0
+    provision: requirement       # requirement|recommendation|permission
+                                 # -> severity error|warning|none; omitted -> requirement
+    status: active               # active|catalogue-only|tbd; omitted -> active
+    probe:                       # the check to run; omit for catalogue-only/tbd
+      name: require_component_attribute   # registered probe (probes/presence.py)
+      params: { attribute: name }         # kwargs passed to the probe
+    json_key: componentNames     # key in output_json(); omit to skip JSON output
+
+  # A document-level rule using the other built-in probe.
+  - number: 2
+    slug: demo-author-missing
+    spec_category: data-fields
+    element_id: author
+    element_description: SBOM author
+    competency_question: SBOM author name provided?
+    warning: An SBOM should have an author name.
+    probe:
+      name: require_document_attribute
+      params: { attribute: author }
+    json_key: authorProvided

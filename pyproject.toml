@@ -152,3 +152,11 @@ ntia_conformance_checker = [
     "py.typed", # Signal type hinting support
     "rules/*.yaml", # Ship declarative spec YAML files
 ]
+
+# Docs / templates living in rules/ are not shippable specs.  Keep them out of
+# the wheel; MANIFEST.in keeps them out of the sdist too.
+[tool.setuptools.exclude-package-data]
+ntia_conformance_checker = [
+    "rules/_*.yaml", # e.g. rules/_example.yaml (template, not a real spec)
+    "rules/README.md",
+]
