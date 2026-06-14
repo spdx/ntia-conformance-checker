@@ -201,14 +201,19 @@ def iter_relationships_by_type(
         if not _rel_type or _rel_type.split("/")[-1] != rel_type:
             continue
         from_: spdx3.Element | None = getattr(obj, "from_", None)
-        to: spdx3.Element | None = getattr(obj, "to", None)
-        if not from_ or not to:
+        to_elements: spdx3.Element | list[spdx3.Element] | None = getattr(obj, "to", None)
+        if not from_ or not to_elements:
             continue
 
-        from_id = getattr(from_, "spdxId", "")
-        to_id = getattr(to, "spdxId", "")
+        from_id = from_ if isinstance(from_, str) else getattr(from_, "spdxId", "")
+        # Normalize to_elements into a list so we can handle 1 or many uniformly
+        if not isinstance(to_elements, list):
+            to_elements = [to_elements]
 
-        yield from_id, to_id
+        for to_item in to_elements:
+            # Safely extract to_id whether it's a string URI or an Element object
+            to_id = to_item if isinstance(to_item, str) else getattr(to_item, "spdxId", "")
+            yield from_id, to_id
 
 
 def get_all_packages(object_set: spdx3.SHACLObjectSet) -> set[spdx3.software_Package]:
