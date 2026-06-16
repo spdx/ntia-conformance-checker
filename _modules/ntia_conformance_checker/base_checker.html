@@ -542,16 +542,25 @@
         <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">sbom_spec</span> <span class="o">==</span> <span class="s2">&quot;spdx3&quot;</span><span class="p">:</span>
             <span class="bp">self</span><span class="o">.</span><span class="n">doc</span> <span class="o">=</span> <span class="n">cast</span><span class="p">(</span><span class="s2">&quot;spdx3.SHACLObjectSet&quot;</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">doc</span><span class="p">)</span>
 
-            <span class="n">has_concluded_license_ids</span><span class="p">:</span> <span class="nb">set</span><span class="p">[</span><span class="nb">str</span><span class="p">]</span> <span class="o">=</span> <span class="p">{</span>
-                <span class="n">from_id</span>
-                <span class="k">for</span> <span class="n">from_id</span><span class="p">,</span> <span class="n">to_id</span> <span class="ow">in</span> <span class="n">iter_relationships_by_type</span><span class="p">(</span>
-                    <span class="bp">self</span><span class="o">.</span><span class="n">doc</span><span class="p">,</span> <span class="s2">&quot;hasConcludedLicense&quot;</span>
-                <span class="p">)</span>
-                <span class="k">if</span> <span class="n">to_id</span><span class="o">.</span><span class="n">strip</span><span class="p">()</span>
-                <span class="o">!=</span> <span class="n">spdx3</span><span class="o">.</span><span class="n">expandedlicensing_IndividualLicensingInfo</span><span class="o">.</span><span class="n">NAMED_INDIVIDUALS</span><span class="p">[</span>
+            <span class="n">has_concluded_license_ids</span><span class="p">:</span> <span class="nb">set</span><span class="p">[</span><span class="nb">str</span><span class="p">]</span> <span class="o">=</span> <span class="nb">set</span><span class="p">()</span>
+            <span class="n">no_assertion_uri</span> <span class="o">=</span> <span class="p">(</span>
+                <span class="n">spdx3</span><span class="o">.</span><span class="n">expandedlicensing_IndividualLicensingInfo</span><span class="o">.</span><span class="n">NAMED_INDIVIDUALS</span><span class="p">[</span>
                     <span class="s2">&quot;NoAssertionLicense&quot;</span>
                 <span class="p">]</span>
-            <span class="p">}</span>
+            <span class="p">)</span>
+
+            <span class="k">for</span> <span class="n">from_id</span><span class="p">,</span> <span class="n">to_ids</span> <span class="ow">in</span> <span class="n">iter_relationships_by_type</span><span class="p">(</span>
+                <span class="bp">self</span><span class="o">.</span><span class="n">doc</span><span class="p">,</span> <span class="s2">&quot;hasConcludedLicense&quot;</span>
+            <span class="p">):</span>
+
+                <span class="c1"># Filter out any &quot;NoAssertionLicense&quot; from the list</span>
+                <span class="n">valid_licenses</span> <span class="o">=</span> <span class="p">[</span>
+                    <span class="n">t_id</span> <span class="k">for</span> <span class="n">t_id</span> <span class="ow">in</span> <span class="n">to_ids</span> <span class="k">if</span> <span class="n">t_id</span><span class="o">.</span><span class="n">strip</span><span class="p">()</span> <span class="o">!=</span> <span class="n">no_assertion_uri</span>
+                <span class="p">]</span>
+
+                <span class="c1"># If there is at least one valid license left, this package is safe!</span>
+                <span class="k">if</span> <span class="n">valid_licenses</span><span class="p">:</span>
+                    <span class="n">has_concluded_license_ids</span><span class="o">.</span><span class="n">add</span><span class="p">(</span><span class="n">from_id</span><span class="p">)</span>
 
             <span class="k">return</span> <span class="p">[</span>
                 <span class="p">(</span><span class="n">name</span> <span class="ow">or</span> <span class="s2">&quot;&quot;</span><span class="p">,</span> <span class="n">spdx_id</span> <span class="ow">or</span> <span class="s2">&quot;&quot;</span><span class="p">)</span>
