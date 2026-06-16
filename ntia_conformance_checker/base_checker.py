@@ -481,16 +481,25 @@ class BaseChecker(ABC):
         if self.sbom_spec == "spdx3":
             self.doc = cast("spdx3.SHACLObjectSet", self.doc)
 
-            has_concluded_license_ids: set[str] = {
-                from_id
-                for from_id, to_id in iter_relationships_by_type(
-                    self.doc, "hasConcludedLicense"
-                )
-                if to_id.strip()
-                != spdx3.expandedlicensing_IndividualLicensingInfo.NAMED_INDIVIDUALS[
+            has_concluded_license_ids: set[str] = set()
+            no_assertion_uri = (
+                spdx3.expandedlicensing_IndividualLicensingInfo.NAMED_INDIVIDUALS[
                     "NoAssertionLicense"
                 ]
-            }
+            )
+
+            for from_id, to_ids in iter_relationships_by_type(
+                self.doc, "hasConcludedLicense"
+            ):
+
+                # Filter out any "NoAssertionLicense" from the list
+                valid_licenses = [
+                    t_id for t_id in to_ids if t_id.strip() != no_assertion_uri
+                ]
+
+                # If there is at least one valid license left, this package is safe!
+                if valid_licenses:
+                    has_concluded_license_ids.add(from_id)
 
             return [
                 (name or "", spdx_id or "")
