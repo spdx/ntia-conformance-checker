@@ -1,4 +1,4 @@
-# SPDX-FileCopyrightText: 2025 SPDX contributors
+# SPDX-FileCopyrightText: 2025-present SPDX contributors
 # SPDX-FileType: SOURCE
 # SPDX-License-Identifier: Apache-2.0
 
@@ -30,12 +30,20 @@ from .constants import (
 if TYPE_CHECKING:
     from .base_checker import BaseChecker
 
+# Advertised report output types (shown in --help / README).
 _OUTPUT_CHOICES = {
     "print": "Print report to console",
     "json": "Report in JSON format",
+    "sarif": "Report in SARIF format",
+    "sarif-sbom": "SARIF format with the input SBOM embedded",
     "html": "Report in HTML format",
-    "quiet": "No output unless there are errors",
+    "none": "No report",
 }
+
+# Accepted but undocumented (backward compatibility): "quiet" is the old name
+# for "none" -- "quiet" is now reserved for log verbosity (-q/--quiet).
+_OUTPUT_ALIASES = {"quiet": "none"}
+_OUTPUT_ALLOWED = set(_OUTPUT_CHOICES) | set(_OUTPUT_ALIASES)
 
 
 def get_parsed_args() -> argparse.Namespace:
@@ -59,7 +67,7 @@ def get_parsed_args() -> argparse.Namespace:
         + "\n\n"
         "Examples:\n"
         "  sbomcheck sbom.spdx\n"
-        "  sbomcheck -s spdx3 -c fsct3-min -v sbom.json\n"
+        "  sbomcheck -s spdx3 -c fsct3 -v sbom.json\n"
         "  sbomcheck sbom.yaml --output json --output-file report.json\n"
     )
 
@@ -102,6 +110,19 @@ def get_parsed_args() -> argparse.Namespace:
         help=argparse.SUPPRESS,  # hide from help
     )
     parser.add_argument(
+        "-m",
+        "--mature",
+        dest="maturity",
+        type=int,
+        default=0,
+        metavar="N",
+        help=(
+            "Maturity level (ordinal) to assess against; rules above it are "
+            "out of scope.  0 = baseline [default: 0]"
+        ),
+    )
+    parser.add_argument(
+        "-k",
         "--skip-validation",
         action="store_true",
         default=False,
@@ -110,7 +131,7 @@ def get_parsed_args() -> argparse.Namespace:
     parser.add_argument(
         "-r",
         "--output",
-        choices=sorted(_OUTPUT_CHOICES),
+        metavar="TYPE",
         default="print",
         help="Report output type; see below for details [default: print]",
     )
@@ -128,8 +149,22 @@ def get_parsed_args() -> argparse.Namespace:
     parser.add_argument(
         "-v",
         "--verbose",
+        action="count",
+        default=0,
+        help="Increase log verbosity: -v = info, -vv = debug",
+    )
+    parser.add_argument(
+        "--debug",
         action="store_true",
-        help="Print more information (debug)",
+        default=False,
+        help="Set log verbosity to debug (same as -vv)",
+    )
+    parser.add_argument(
+        "-q",
+        "--quiet",
+        action="store_true",
+        default=False,
+        help="Quiet logs: show errors only",
     )
     parser.add_argument(
         "-V",
@@ -139,6 +174,15 @@ def get_parsed_args() -> argparse.Namespace:
     )
 
     args = parser.parse_args()
+
+    # Normalise the report output type: map undocumented aliases and validate.
+    if args.output in _OUTPUT_ALIASES:
+        args.output = _OUTPUT_ALIASES[args.output]
+    if args.output not in _OUTPUT_CHOICES:
+        parser.error(
+            f"argument -r/--output: invalid choice: {args.output!r} "
+            f"(choose from {', '.join(sorted(_OUTPUT_CHOICES))})"
+        )
 
     if getattr(args, "file_opt", None):
         args.file = args.file_opt
@@ -268,25 +312,41 @@ def get_sbom_spec(file: str, sbom_spec: str) -> str:
 
 
 def print_output(
-    sbom: BaseChecker, *, output_type: str, output_file: str | None, verbose: bool
+    sbom: BaseChecker,
+    *,
+    output_type: str,
+    output_file: str | None,
+    verbose: bool,
+    maturity: int = 0,
 ) -> None:
-    """Print or save the output report."""
+    """Print or save the output report at ``maturity`` (defaults to baseline 0)."""
     match output_type:
         case "print":
-            sbom.print_table_output(verbose=verbose)
+            sbom.print_table_output(verbose=verbose, maturity=maturity)
             if verbose:
-                sbom.print_components_missing_info()
+                sbom.print_components_missing_info(maturity=maturity)
 
         case "json":
-            result_dict: dict[str, Any] = sbom.output_json()
+            result_dict: dict[str, Any] = sbom.output_json(maturity=maturity)
             if output_file:
                 with open(output_file, "w", encoding="utf-8") as outfile:
                     json.dump(result_dict, outfile)
             else:
                 print(json.dumps(result_dict, indent=2))
 
+        case "sarif" | "sarif-sbom":
+            embed = output_type == "sarif-sbom"
+            sarif_dict: dict[str, Any] = sbom.output_sarif(
+                embed_sbom=embed, maturity=maturity
+            )
+            if output_file:
+                with open(output_file, "w", encoding="utf-8") as outfile:
+                    json.dump(sarif_dict, outfile, indent=2)
+            else:
+                print(json.dumps(sarif_dict, indent=2))
+
         case "html":
-            html_output = sbom.output_html()
+            html_output = sbom.output_html(maturity=maturity)
             if output_file:
                 try:
                     with open(output_file, "w", encoding="utf-8") as outfile:
@@ -309,4 +369,4 @@ def print_output(
             else:
                 print(html_output)
 
-    # do nothing if output_type is "quiet" or unrecognized
+    # "none" (and its legacy alias "quiet") emit no report.

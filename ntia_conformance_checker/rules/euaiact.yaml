@@ -1,0 +1,404 @@
+# SPDX-FileCopyrightText: 2026-present SPDX contributors
+# SPDX-FileType: SOURCE
+# SPDX-License-Identifier: Apache-2.0
+#
+# Rules derived from
+# Regulation (EU) 2024/1689 of the European Parliament and of the Council
+# (EU AI Act), Annex VIII and Annex IX.
+# Source: https://eur-lex.europa.eu/eli/reg/2024/1689/oj/eng
+
+spec:
+  id: euaiact
+  title: EU AI Act Registration Database Obligations (Art. 49 and Art. 60)
+  uri: https://eur-lex.europa.eu/eli/reg/2024/1689/oj/eng
+  taxonomies:
+    category: euaiact-annex-sections
+    clause: euaiact-clauses
+
+categories:
+  - id: anx8-a
+    code: ANX8-A
+    title: Annex VIII Section A
+    description: >-
+      Information to be submitted by providers of high-risk AI systems
+      registering in the EU database under Article 49(1). 13 items.
+  - id: anx8-b
+    code: ANX8-B
+    title: Annex VIII Section B
+    description: >-
+      Information to be submitted by providers of AI systems that are not
+      high-risk but listed under Article 6(3), registering under Article 49(2).
+      9 items.
+  - id: anx8-c
+    code: ANX8-C
+    title: Annex VIII Section C
+    description: >-
+      Information to be submitted by deployers of high-risk AI systems that are
+      public authorities, registering under Article 49(3). 5 items.
+  - id: anx9
+    code: ANX9
+    title: Annex IX
+    description: >-
+      Information to be submitted for registration of real-world testing of
+      AI systems under Article 60. 5 items.
+
+rules:
+  # ---- Annex VIII Section A (Art. 49(1)) — provider, high-risk ---------
+
+  - number: 1
+    slug: euaiact-anx8-a-provider-info-missing
+    spec_category: anx8-a
+    spec_clause_number: "Annex VIII, Sec. A, item 1"
+    spec_clause_name: Provider name, address and contact details
+    spec_clause_uri: https://artificialintelligenceact.eu/annex/8/
+    element_id: provider_info
+    element_description: provider name, address and contact details
+    competency_question: Provider name, address and contact details provided?
+    warning: An EU AI Act registration should include the provider's name, address and contact details.
+
+  - number: 2
+    slug: euaiact-anx8-a-submitter-missing
+    spec_category: anx8-a
+    spec_clause_number: "Annex VIII, Sec. A, item 2"
+    spec_clause_name: Submitter acting on behalf of provider
+    spec_clause_uri: https://artificialintelligenceact.eu/annex/8/
+    element_id: submitter
+    element_description: submitter name, address and contact details (where applicable)
+    competency_question: Submitter details provided where submission is by a third party?
+    warning: Where submission is carried out by another person on behalf of the provider, that person's contact details should be included.
+
+  - number: 3
+    slug: euaiact-anx8-a-authorised-rep-missing
+    spec_category: anx8-a
+    spec_clause_number: "Annex VIII, Sec. A, item 3"
+    spec_clause_name: Authorised representative
+    spec_clause_uri: https://artificialintelligenceact.eu/annex/8/
+    element_id: authorised_rep
+    element_description: authorised representative name, address and contact details (where applicable)
+    competency_question: Authorised representative details provided where applicable?
+    warning: Where an authorised representative is appointed (Art. 22), their contact details should be included.
+
+  - number: 4
+    slug: euaiact-anx8-a-system-identity-missing
+    spec_category: anx8-a
+    spec_clause_number: "Annex VIII, Sec. A, item 4"
+    spec_clause_name: AI system trade name and traceability reference
+    spec_clause_uri: https://artificialintelligenceact.eu/annex/8/
+    element_id: system_identity
+    element_description: AI system trade name and traceability reference
+    competency_question: AI system trade name and traceability reference provided?
+    warning: An EU AI Act registration should include the AI system trade name and an unambiguous reference for traceability.
+
+  - number: 5
+    slug: euaiact-anx8-a-purpose-and-functions-missing
+    spec_category: anx8-a
+    spec_clause_number: "Annex VIII, Sec. A, item 5"
+    spec_clause_name: Intended purpose and components/functions
+    spec_clause_uri: https://artificialintelligenceact.eu/annex/8/
+    element_id: purpose_and_functions
+    element_description: intended purpose and components/functions description
+    competency_question: Intended purpose and components/functions described?
+    warning: An EU AI Act registration should include a description of the AI system's intended purpose and supported functions.
+
+  - number: 6
+    slug: euaiact-anx8-a-data-and-logic-missing
+    spec_category: anx8-a
+    spec_clause_number: "Annex VIII, Sec. A, item 6"
+    spec_clause_name: Data, inputs and operating logic description
+    spec_clause_uri: https://artificialintelligenceact.eu/annex/8/
+    element_id: data_and_logic
+    element_description: basic description of data, inputs and operating logic
+    competency_question: Data, inputs and operating logic described?
+    warning: An EU AI Act registration should include a basic description of the information used by the system and its operating logic.
+
+  - number: 7
+    slug: euaiact-anx8-a-market-status-missing
+    spec_category: anx8-a
+    spec_clause_number: "Annex VIII, Sec. A, item 7"
+    spec_clause_name: Market availability status
+    spec_clause_uri: https://artificialintelligenceact.eu/annex/8/
+    element_id: market_status
+    element_description: market availability status
+    competency_question: Market availability status declared?
+    warning: An EU AI Act registration should declare whether the system is on the market, in service, withdrawn, or recalled.
+
+  - number: 8
+    slug: euaiact-anx8-a-certificate-missing
+    spec_category: anx8-a
+    spec_clause_number: "Annex VIII, Sec. A, item 8"
+    spec_clause_name: Notified body certificate
+    spec_clause_uri: https://artificialintelligenceact.eu/annex/8/
+    element_id: certificate
+    element_description: notified body certificate type, number and expiry (where applicable)
+    competency_question: Notified body certificate details provided where applicable?
+    warning: Where a notified body was involved, certificate type, number and expiry date should be included.
+
+  - number: 9
+    slug: euaiact-anx8-a-certificate-copy-missing
+    spec_category: anx8-a
+    spec_clause_number: "Annex VIII, Sec. A, item 9"
+    spec_clause_name: Scanned copy of notified body certificate
+    spec_clause_uri: https://artificialintelligenceact.eu/annex/8/
+    element_id: certificate_copy
+    element_description: scanned copy of notified body certificate (where applicable)
+    competency_question: Scanned copy of notified body certificate provided where applicable?
+    warning: Where a notified body certificate exists, a scanned copy should be provided.
+
+  - number: 10
+    slug: euaiact-anx8-a-member-states-missing
+    spec_category: anx8-a
+    spec_clause_number: "Annex VIII, Sec. A, item 10"
+    spec_clause_name: Member states of market availability
+    spec_clause_uri: https://artificialintelligenceact.eu/annex/8/
+    element_id: member_states
+    element_description: member states in which the AI system is placed on the market or put into service
+    competency_question: Member states of availability declared?
+    warning: An EU AI Act registration should list the member states in which the system is available.
+
+  - number: 11
+    slug: euaiact-anx8-a-declaration-missing
+    spec_category: anx8-a
+    spec_clause_number: "Annex VIII, Sec. A, item 11"
+    spec_clause_name: EU declaration of conformity
+    spec_clause_uri: https://artificialintelligenceact.eu/annex/8/
+    element_id: declaration_of_conformity
+    element_description: copy of EU declaration of conformity
+    competency_question: EU declaration of conformity provided?
+    warning: An EU AI Act registration should include a copy of the EU declaration of conformity.
+
+  - number: 12
+    slug: euaiact-anx8-a-instructions-missing
+    spec_category: anx8-a
+    spec_clause_number: "Annex VIII, Sec. A, item 12"
+    spec_clause_name: Electronic instructions for use
+    spec_clause_uri: https://artificialintelligenceact.eu/annex/8/
+    element_id: instructions_for_use
+    element_description: electronic instructions for use (exception for law enforcement/migration/asylum/border)
+    competency_question: Electronic instructions for use provided (where not exempt)?
+    warning: Electronic instructions for use should be provided unless the system falls under the law enforcement/migration/asylum/border exception.
+
+  - number: 13
+    slug: euaiact-anx8-a-additional-url-missing
+    spec_category: anx8-a
+    spec_clause_number: "Annex VIII, Sec. A, item 13"
+    spec_clause_name: URL for additional information
+    spec_clause_uri: https://artificialintelligenceact.eu/annex/8/
+    element_id: additional_url
+    element_description: URL for additional information (optional)
+    competency_question: Additional information URL provided?
+    warning: A URL for additional information about the AI system may optionally be provided.
+
+  # ---- Annex VIII Section B (Art. 49(2)) — provider, not-high-risk ----
+
+  - number: 1
+    slug: euaiact-anx8-b-provider-info-missing
+    spec_category: anx8-b
+    spec_clause_number: "Annex VIII, Sec. B, item 1"
+    spec_clause_name: Provider name, address and contact details
+    spec_clause_uri: https://artificialintelligenceact.eu/annex/8/
+    element_id: provider_info
+    element_description: provider name, address and contact details
+    competency_question: Provider name, address and contact details provided?
+    warning: An EU AI Act Section B registration should include the provider's name, address and contact details.
+
+  - number: 2
+    slug: euaiact-anx8-b-submitter-missing
+    spec_category: anx8-b
+    spec_clause_number: "Annex VIII, Sec. B, item 2"
+    spec_clause_name: Submitter acting on behalf of provider
+    spec_clause_uri: https://artificialintelligenceact.eu/annex/8/
+    element_id: submitter
+    element_description: submitter details (where applicable)
+    competency_question: Submitter details provided where applicable?
+    warning: Where submission is carried out by another person, that person's contact details should be included.
+
+  - number: 3
+    slug: euaiact-anx8-b-authorised-rep-missing
+    spec_category: anx8-b
+    spec_clause_number: "Annex VIII, Sec. B, item 3"
+    spec_clause_name: Authorised representative
+    spec_clause_uri: https://artificialintelligenceact.eu/annex/8/
+    element_id: authorised_rep
+    element_description: authorised representative details (where applicable)
+    competency_question: Authorised representative details provided where applicable?
+    warning: Where an authorised representative is appointed, their contact details should be included.
+
+  - number: 4
+    slug: euaiact-anx8-b-system-identity-missing
+    spec_category: anx8-b
+    spec_clause_number: "Annex VIII, Sec. B, item 4"
+    spec_clause_name: AI system trade name and traceability reference
+    spec_clause_uri: https://artificialintelligenceact.eu/annex/8/
+    element_id: system_identity
+    element_description: AI system trade name and traceability reference
+    competency_question: AI system trade name and traceability reference provided?
+    warning: An EU AI Act Section B registration should include the AI system trade name and an unambiguous traceability reference.
+
+  - number: 5
+    slug: euaiact-anx8-b-purpose-missing
+    spec_category: anx8-b
+    spec_clause_number: "Annex VIII, Sec. B, item 5"
+    spec_clause_name: Intended purpose
+    spec_clause_uri: https://artificialintelligenceact.eu/annex/8/
+    element_id: intended_purpose
+    element_description: intended purpose of the AI system
+    competency_question: Intended purpose described?
+    warning: An EU AI Act Section B registration should describe the intended purpose of the AI system.
+
+  - number: 6
+    slug: euaiact-anx8-b-art63-condition-missing
+    spec_category: anx8-b
+    spec_clause_number: "Annex VIII, Sec. B, item 6"
+    spec_clause_name: Art. 6(3) condition for not-high-risk determination
+    spec_clause_uri: https://artificialintelligenceact.eu/annex/8/
+    element_id: art63_condition
+    element_description: Art. 6(3) condition applied for not-high-risk determination
+    competency_question: Art. 6(3) condition for not-high-risk determination stated?
+    warning: The specific Art. 6(3) condition used to determine the system is not high-risk should be stated.
+
+  - number: 7
+    slug: euaiact-anx8-b-grounds-summary-missing
+    spec_category: anx8-b
+    spec_clause_number: "Annex VIII, Sec. B, item 7"
+    spec_clause_name: Summary of grounds for not-high-risk determination
+    spec_clause_uri: https://artificialintelligenceact.eu/annex/8/
+    element_id: grounds_summary
+    element_description: brief summary of grounds for not-high-risk determination
+    competency_question: Summary of grounds for not-high-risk determination provided?
+    warning: A brief summary of the grounds used to determine the system is not high-risk should be provided.
+
+  - number: 8
+    slug: euaiact-anx8-b-market-status-missing
+    spec_category: anx8-b
+    spec_clause_number: "Annex VIII, Sec. B, item 8"
+    spec_clause_name: Market availability status
+    spec_clause_uri: https://artificialintelligenceact.eu/annex/8/
+    element_id: market_status
+    element_description: market availability status
+    competency_question: Market availability status declared?
+    warning: An EU AI Act Section B registration should declare the system's market availability status.
+
+  - number: 9
+    slug: euaiact-anx8-b-member-states-missing
+    spec_category: anx8-b
+    spec_clause_number: "Annex VIII, Sec. B, item 9"
+    spec_clause_name: Member states of market availability
+    spec_clause_uri: https://artificialintelligenceact.eu/annex/8/
+    element_id: member_states
+    element_description: member states in which the AI system is placed on the market or put into service
+    competency_question: Member states of availability declared?
+    warning: An EU AI Act Section B registration should list the member states in which the system is available.
+
+  # ---- Annex VIII Section C (Art. 49(3)) — deployer, public authority --
+
+  - number: 1
+    slug: euaiact-anx8-c-deployer-info-missing
+    spec_category: anx8-c
+    spec_clause_number: "Annex VIII, Sec. C, item 1"
+    spec_clause_name: Deployer name, address and contact details
+    spec_clause_uri: https://artificialintelligenceact.eu/annex/8/
+    element_id: deployer_info
+    element_description: deployer name, address and contact details
+    competency_question: Deployer name, address and contact details provided?
+    warning: An EU AI Act Section C registration should include the deployer's name, address and contact details.
+
+  - number: 2
+    slug: euaiact-anx8-c-submitter-missing
+    spec_category: anx8-c
+    spec_clause_number: "Annex VIII, Sec. C, item 2"
+    spec_clause_name: Submitter acting on behalf of deployer
+    spec_clause_uri: https://artificialintelligenceact.eu/annex/8/
+    element_id: submitter
+    element_description: submitter details (where applicable)
+    competency_question: Submitter details provided where applicable?
+    warning: Where submission is carried out by another person on behalf of the deployer, that person's contact details should be included.
+
+  - number: 3
+    slug: euaiact-anx8-c-provider-entry-url-missing
+    spec_category: anx8-c
+    spec_clause_number: "Annex VIII, Sec. C, item 3"
+    spec_clause_name: URL of provider's EU database entry
+    spec_clause_uri: https://artificialintelligenceact.eu/annex/8/
+    element_id: provider_entry_url
+    element_description: URL of the provider's entry in the EU database
+    competency_question: URL of the provider's EU database entry provided?
+    warning: An EU AI Act Section C registration should include the URL of the provider's corresponding EU database entry.
+
+  - number: 4
+    slug: euaiact-anx8-c-fria-summary-missing
+    spec_category: anx8-c
+    spec_clause_number: "Annex VIII, Sec. C, item 4"
+    spec_clause_name: Fundamental rights impact assessment summary
+    spec_clause_uri: https://artificialintelligenceact.eu/annex/8/
+    element_id: fria_summary
+    element_description: summary of the fundamental rights impact assessment
+    competency_question: Fundamental rights impact assessment summary provided?
+    warning: An EU AI Act Section C registration should include a summary of the fundamental rights impact assessment.
+
+  - number: 5
+    slug: euaiact-anx8-c-dpia-summary-missing
+    spec_category: anx8-c
+    spec_clause_number: "Annex VIII, Sec. C, item 5"
+    spec_clause_name: Data protection impact assessment summary
+    spec_clause_uri: https://artificialintelligenceact.eu/annex/8/
+    element_id: dpia_summary
+    element_description: summary of the data protection impact assessment (where applicable)
+    competency_question: Data protection impact assessment summary provided where applicable?
+    warning: Where a data protection impact assessment was conducted, a summary should be included in the registration.
+
+  # ---- Annex IX (Art. 60) — real-world testing -------------------------
+
+  - number: 1
+    slug: euaiact-anx9-test-uid-missing
+    spec_category: anx9
+    spec_clause_number: "Annex IX, item 1"
+    spec_clause_name: Union-wide unique single identification number
+    spec_clause_uri: https://artificialintelligenceact.eu/annex/9/
+    element_id: test_uid
+    element_description: Union-wide unique single identification number of the testing
+    competency_question: Union-wide unique identification number for the testing provided?
+    warning: A real-world testing registration should include the Union-wide unique single identification number of the testing.
+
+  - number: 2
+    slug: euaiact-anx9-contact-details-missing
+    spec_category: anx9
+    spec_clause_number: "Annex IX, item 2"
+    spec_clause_name: Provider/prospective provider and deployers contact details
+    spec_clause_uri: https://artificialintelligenceact.eu/annex/9/
+    element_id: contact_details
+    element_description: contact details of provider/prospective provider and deployers
+    competency_question: Contact details of provider and deployers provided?
+    warning: A real-world testing registration should include contact details of the provider/prospective provider and deployers involved.
+
+  - number: 3
+    slug: euaiact-anx9-system-description-missing
+    spec_category: anx9
+    spec_clause_number: "Annex IX, item 3"
+    spec_clause_name: AI system description for testing identification
+    spec_clause_uri: https://artificialintelligenceact.eu/annex/9/
+    element_id: system_description
+    element_description: AI system description sufficient for identification purposes
+    competency_question: AI system description for identification provided?
+    warning: A real-world testing registration should include a description of the AI system sufficient to identify it.
+
+  - number: 4
+    slug: euaiact-anx9-testing-plan-missing
+    spec_category: anx9
+    spec_clause_number: "Annex IX, item 4"
+    spec_clause_name: Summary of real-world testing plan
+    spec_clause_uri: https://artificialintelligenceact.eu/annex/9/
+    element_id: testing_plan
+    element_description: summary of the real-world testing plan
+    competency_question: Summary of the real-world testing plan provided?
+    warning: A real-world testing registration should include a summary of the testing plan.
+
+  - number: 5
+    slug: euaiact-anx9-suspension-termination-missing
+    spec_category: anx9
+    spec_clause_number: "Annex IX, item 5"
+    spec_clause_name: Information on suspension or termination of testing
+    spec_clause_uri: https://artificialintelligenceact.eu/annex/9/
+    element_id: suspension_termination
+    element_description: information on suspension or termination of testing (where applicable)
+    competency_question: Suspension or termination information provided where applicable?
+    warning: Where testing has been suspended or terminated, that information should be included in the registration.
