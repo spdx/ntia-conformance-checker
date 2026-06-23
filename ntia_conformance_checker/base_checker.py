@@ -34,6 +34,7 @@ from .report import (
 from .spdx3_utils import (
     get_boms_from_spdx_document,
     get_packages_from_bom,
+    has_package_dependency_relationship,
     iter_objects_with_property,
     iter_relationships_by_type,
     validate_spdx3_data,
@@ -108,7 +109,7 @@ class BaseChecker(ABC):
     doc_version: bool = False  # Has SPDX document version?
     doc_author: bool = False  # Has SPDX document author?
     doc_timestamp: bool = False  # Has SPDX document creation timestamp?
-    dependency_relationships: bool = False  # Has DESCRIBES relationship?
+    dependency_relationships: bool = False  # Has dependency relationship?
     # See https://github.com/spdx/ntia-conformance-checker/issues/392
     # for discussion on dependency relationships and DESCRIBES.
 
@@ -270,11 +271,11 @@ class BaseChecker(ABC):
         return False
 
     def check_dependency_relationships(self) -> bool:
-        """Check if the SBOM document describes at least one package.
+        """Check if the SBOM document declares dependency information.
 
         For SPDX 2 this checks for a DESCRIBES relationship; for SPDX 3 it
-        checks that a /Software/Sbom element lists at least one package in its
-        ``rootElement``.
+        checks package-level dependency relationships and falls back to whether
+        a /Software/Sbom element lists at least one package in its ``rootElement``.
         """
         if not self.doc:
             return False
@@ -304,6 +305,10 @@ class BaseChecker(ABC):
 
         # SPDX 3
         if self.sbom_spec == "spdx3":
+            self.doc = cast("spdx3.SHACLObjectSet", self.doc)
+            if has_package_dependency_relationship(self.doc):
+                return True
+
             # We will assume here that the SpdxDocument's rootElement is
             # either /Core/Bom or /Software/Sbom.
             #
