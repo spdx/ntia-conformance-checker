@@ -106,6 +106,10 @@ warn_unreachable = true
 warn_unused_configs = true
 warn_unused_ignores = true
 
+[[tool.mypy.overrides]]
+module = ["spdx_python_model.bindings", "spdx_python_model.bindings.*"]
+ignore_missing_imports = true
+
 [tool.pylint.main]
 disable = "duplicate-code"
 ignore = ["_version.py"]

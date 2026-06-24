@@ -11,9 +11,9 @@ import logging
 import os
 import warnings
 from abc import ABC, abstractmethod
-from typing import TYPE_CHECKING, Any, cast
+from typing import TYPE_CHECKING, Any, Union, cast
 
-from spdx_python_model import v3_0_1 as spdx3  # type: ignore # import-untyped
+from spdx_python_model.bindings import v3_0_1 as spdx3
 from spdx_tools.spdx.model.relationship import RelationshipType
 from spdx_tools.spdx.model.spdx_no_assertion import SpdxNoAssertion
 from spdx_tools.spdx.parser import parse_anything
@@ -414,11 +414,11 @@ class BaseChecker(ABC):
         In SPDX 3, SBOM type is only available in /Software/Sbom class.
         """
         # SBOM type is only available in SPDX 3
-        if not self.doc or self.sbom_spec != "spdx3":
+        if not self.doc or not self.__spdx3_doc or self.sbom_spec != "spdx3":
             return []
 
-        root_elements: list[spdx3.SHACLObject] = getattr(
-            self.__spdx3_doc, "rootElement", []
+        root_elements: spdx3.ListProxy[Union[str, spdx3.Element]] = (
+            self.__spdx3_doc.rootElement
         )
         if not root_elements:
             return []
@@ -491,7 +491,6 @@ class BaseChecker(ABC):
             for from_id, to_ids in iter_relationships_by_type(
                 self.doc, "hasConcludedLicense"
             ):
-
                 # Filter out any "NoAssertionLicense" from the list
                 valid_licenses = [
                     t_id for t_id in to_ids if t_id.strip() != no_assertion_uri
@@ -841,7 +840,7 @@ class BaseChecker(ABC):
 
         object_set: spdx3.SHACLObjectSet = spdx3.SHACLObjectSet()
         try:
-            with open(self.file, encoding="utf-8") as f:
+            with open(self.file, "rb") as f:
                 spdx3.JSONLDDeserializer().read(f, object_set)
         except (OSError, json.JSONDecodeError) as err:
             logging.warning("SPDX3 deserialization failed: %s", err)
