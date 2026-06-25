@@ -12,7 +12,7 @@ from pathlib import Path
 from unittest import TestCase
 
 import pytest
-from spdx_python_model import v3_0_1 as spdx3  # type: ignore # import-untyped
+from spdx_python_model.bindings import v3_0_1 as spdx3
 
 import ntia_conformance_checker.sbom_checker as sbom_checker
 from ntia_conformance_checker import FSCT3Checker, NTIAChecker

@@ -52,7 +52,7 @@ keywords = [
     "software component transparency",
     "supply chain security",
 ]
-dependencies = ["spdx-python-model==0.0.4", "spdx-tools>=0.8.5"]
+dependencies = ["spdx-python-model==0.0.6", "spdx-tools>=0.8.5"]
 
 [project.urls]
 Homepage = "https://github.com/spdx/ntia-conformance-checker"
@@ -105,6 +105,10 @@ warn_return_any = true
 warn_unreachable = true
 warn_unused_configs = true
 warn_unused_ignores = true
+
+[[tool.mypy.overrides]]
+module = ["spdx_python_model.bindings", "spdx_python_model.bindings.*"]
+ignore_missing_imports = true
 
 [tool.pylint.main]
 disable = "duplicate-code"

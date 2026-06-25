@@ -6,9 +6,9 @@
 
 from __future__ import annotations
 
-from typing import TYPE_CHECKING, Any, cast
+from typing import TYPE_CHECKING, Any, Union
 
-from spdx_python_model import v3_0_1 as spdx3  # type: ignore # import-untyped
+from spdx_python_model.bindings import v3_0_1 as spdx3
 from spdx_tools.spdx.validation.validation_message import (
     ValidationContext,
     ValidationMessage,
@@ -44,10 +44,9 @@ def validate_spdx3_data(
     doc: spdx3.SpdxDocument | None = None
     validation_messages: list[ValidationMessage] = []
 
-    spdx_documents: list[spdx3.SpdxDocument] = [
-        cast("spdx3.SpdxDocument", obj)
-        for obj in object_set.foreach_type("SpdxDocument")
-    ]
+    spdx_documents: list[spdx3.SpdxDocument] = list(
+        object_set.foreach_type(spdx3.SpdxDocument)
+    )
 
     # == SPDX 3 JSON serialization constraint =====
 
@@ -74,8 +73,8 @@ def validate_spdx3_data(
 
     doc = spdx_documents[0]
     doc_id = getattr(doc, "spdxId", None)
-    elements: list[Any] = getattr(doc, "element", []) or []
-    root_elements: list[Any] = getattr(doc, "rootElement", []) or []
+    elements: spdx3.ListProxy[Union[str, spdx3.Element]] = doc.element
+    root_elements: spdx3.ListProxy[Union[str, spdx3.Element]] = doc.rootElement
 
     # ElementCollection constraint: if there is at least one element,
     # there shall also be at least one rootElement.
@@ -180,7 +179,7 @@ def iter_objects_with_property(
         SPDX ID, and the specified property of the object.
     """
 
-    for obj in object_set.foreach_type(typ.__name__):
+    for obj in object_set.foreach_type(typ):
         name = (getattr(obj, "name", "") or "").strip()
         spdx_id = (getattr(obj, "spdxId", "") or "").strip()
         property_ = getattr(obj, property_name, None)
@@ -195,28 +194,19 @@ def iter_relationships_by_type(
     Yield (from_id, to_ids_list) for each relationship of the specified relationship type.
     """
 
-    for obj in object_set.foreach_type("Relationship"):
+    for obj in object_set.foreach_type(spdx3.Relationship):
         _rel_type = getattr(obj, "relationshipType", "")
         # Remove the IRI prefix of entry name before compare
         if not _rel_type or _rel_type.split("/")[-1] != rel_type:
             continue
-        from_: spdx3.Element | None = getattr(obj, "from_", None)
-        to_elements = getattr(obj, "to", None)
+        from_: str | spdx3.Element | None = obj.from_
+        to_elements: spdx3.ListProxy[Union[str, spdx3.Element]] = obj.to
         if not from_ or not to_elements:
             continue
 
         from_id = from_ if isinstance(from_, str) else getattr(from_, "spdxId", "")
-        # Normalize to_elements into a standard Python list
-        if isinstance(to_elements, str) or not hasattr(to_elements, "__iter__"):
-            # It's a single string or a single Element object
-            to_elements = [to_elements]
-        else:
-            # It's a ListProxy or an actual list. Force it to be a standard Python list.
-            to_elements = list(to_elements)
-
         to_ids = []
         for to_item in to_elements:
-            # Safely extract to_id whether it's a string URI or an Element object
             to_id = (
                 to_item if isinstance(to_item, str) else getattr(to_item, "spdxId", "")
             )
@@ -229,8 +219,7 @@ def iter_relationships_by_type(
 
 def get_all_packages(object_set: spdx3.SHACLObjectSet) -> set[spdx3.software_Package]:
     """Retrieve all /Software/Package objects from an SHACLObjectSet."""
-    packages: set[spdx3.software_Package] = {
-        cast("spdx3.software_Package", obj)
-        for obj in object_set.foreach_type("software_Package")
-    }
+    packages: set[spdx3.software_Package] = set(
+        object_set.foreach_type(spdx3.software_Package)
+    )
     return packages
