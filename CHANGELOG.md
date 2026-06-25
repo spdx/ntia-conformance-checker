@@ -11,6 +11,19 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog][keepachangelog]
 and this project adheres to [Semantic Versioning][semver].
 
+## [Unreleased]
+
+### Fixed
+
+- BREAKING CHANGE:
+  Fixed `iter_relationships_by_type` in `spdx3_utils.py`
+  to correctly handle `1..*` cardinality for relationship targets
+  and properly unbox `ListProxy` objects.
+  This changes the return signature to `Iterator[tuple[str, list[str]]]`
+  ([#398])
+
+[#398]: https://github.com/spdx/ntia-conformance-checker/pull/398
+
 ## [5.0.3] - 2026-06-02
 
 This patch release fixes an expectation in `rootElement` of `SpdxDocument`
