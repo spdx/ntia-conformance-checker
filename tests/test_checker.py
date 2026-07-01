@@ -347,7 +347,8 @@ def test_sbomchecker_spdx3_no_elements_missing() -> None:
     assert sbom.doc_author
     assert sbom.doc_timestamp
     assert sbom.sbom_gen_context
-    assert sbom.compliant
+    assert not sbom.dependency_relationships
+    assert not sbom.compliant
 
 
 def test_sbomchecker_fsct3_spdx3_no_elements_missing() -> None:
@@ -357,8 +358,24 @@ def test_sbomchecker_fsct3_spdx3_no_elements_missing() -> None:
     )
     assert sbom.doc is not None
     assert isinstance(sbom.doc, spdx3.SHACLObjectSet)
-    assert sbom.compliant
+    assert not sbom.dependency_relationships
+    assert not sbom.compliant
     assert len(sbom.validation_messages) == 0
+
+
+def test_sbomchecker_spdx3_package_dependency_relationship() -> None:
+    test_file = (
+        Path(__file__).parent
+        / "data"
+        / "spdx3"
+        / "package_dependency_relationship.json"
+    )
+    sbom = sbom_checker.SbomChecker(str(test_file), sbom_spec="spdx3")
+    assert sbom.doc is not None
+    assert isinstance(sbom.doc, spdx3.SHACLObjectSet)
+    assert len(sbom.validation_messages) == 0
+    assert sbom.dependency_relationships
+    assert sbom.compliant
 
 
 def test_sbomchecker_spdx3_missing_supplier_name() -> None:
