@@ -309,21 +309,6 @@ class BaseChecker(ABC):
             if has_package_dependency_relationship(self.doc):
                 return True
 
-            # We will assume here that the SpdxDocument's rootElement is
-            # either /Core/Bom or /Software/Sbom.
-            #
-            # If the rootElement is a /Software/Package
-            # (or its subclass),
-            # it is considered to have a DESCRIBES relationship.
-            #
-            # Note that if there is neither /Software/Package(s) nor /Core/Bom,
-            # a DESCRIBES relationship is not needed;
-            # however, this method may still return False,
-            # since it is factually considered as "no relationship".
-            #
-            # See https://github.com/spdx/ntia-conformance-checker/issues/392
-            # for discussion on dependency relationships and DESCRIBES.
-
             # There is a BOM/SBOM and an /Software/Package,
             # check if there is at least one package listed in any BOM/SBOM
             boms = get_boms_from_spdx_document(self.__spdx3_doc)
