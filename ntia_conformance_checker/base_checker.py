@@ -32,8 +32,6 @@ from .report import (
     report_text,
 )
 from .spdx3_utils import (
-    get_boms_from_spdx_document,
-    get_packages_from_bom,
     has_package_dependency_relationship,
     iter_objects_with_property,
     iter_relationships_by_type,
@@ -274,8 +272,7 @@ class BaseChecker(ABC):
         """Check if the SBOM document declares dependency information.
 
         For SPDX 2 this checks for a DESCRIBES relationship; for SPDX 3 it
-        checks package-level dependency relationships and falls back to whether
-        a /Software/Sbom element lists at least one package in its ``rootElement``.
+        checks package-level dependency relationships.
         """
         if not self.doc:
             return False
@@ -306,17 +303,7 @@ class BaseChecker(ABC):
         # SPDX 3
         if self.sbom_spec == "spdx3":
             self.doc = cast("spdx3.SHACLObjectSet", self.doc)
-            if has_package_dependency_relationship(self.doc):
-                return True
-
-            # There is a BOM/SBOM and an /Software/Package,
-            # check if there is at least one package listed in any BOM/SBOM
-            boms = get_boms_from_spdx_document(self.__spdx3_doc)
-            if boms:
-                for bom in boms:
-                    packages = get_packages_from_bom(bom)
-                    if packages:
-                        return True
+            return has_package_dependency_relationship(self.doc)
 
         return False
 
