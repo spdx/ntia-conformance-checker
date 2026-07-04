@@ -13,6 +13,20 @@ and this project adheres to [Semantic Versioning][semver].
 
 ## [Unreleased]
 
+### Added
+
+<!-- TODO: replace with [#NNN] link once this PR is opened -->
+
+- `-v`/`-vv`/`--debug` log verbosity levels and `-q`/`--quiet` to show
+  errors only; `-k` short flag for `--skip-validation`
+
+### Changed
+
+- BREAKING CHANGE: Default log level is now `WARNING` (previously `INFO`);
+  use `-v` to restore the old default verbosity
+- `--output quiet` renamed to `--output none` (`quiet` still accepted;
+  the name is now reserved for log verbosity)
+
 ### Fixed
 
 - BREAKING CHANGE:
