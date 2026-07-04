@@ -13,7 +13,7 @@ from typing import TYPE_CHECKING
 
 import pytest
 
-from ntia_conformance_checker.registry import get_spec
+from ntia_conformance_checker.registry import get_spec, spec_ids
 from ntia_conformance_checker.spec import (
     Spec,
     SpecCategory,
@@ -228,6 +228,11 @@ def test_loader_flat_spec_gets_default_level(tmp_path: Path) -> None:
         ("slug: demo-a", "slug: demo-a\n    status: enabled"),  # bad status
         ("slug: demo-a", "slug: demo-a\n    maturity: 1"),  # undeclared level
         ("id: demo", "id: Demo-3"),  # bad spec id token
+        ("spec_category: c", "spec_category: nope"),  # unknown category
+        (
+            "name: require_document_attribute",
+            "name: not_a_real_probe",
+        ),  # unregistered probe
     ],
 )
 def test_loader_rejects_bad_values(tmp_path: Path, mutation: tuple[str, str]) -> None:
@@ -243,3 +248,28 @@ def test_loader_requires_baseline_level_zero(tmp_path: Path) -> None:
     )
     with pytest.raises(SpecLoadError):
         load_spec(_write(tmp_path, bad))
+
+
+def test_loader_rejects_duplicate_rule_ids(tmp_path: Path) -> None:
+    bad = _GOOD + _GOOD.split("rules:\n")[1]  # duplicate the same rule block
+    with pytest.raises(SpecLoadError):
+        load_spec(_write(tmp_path, bad))
+
+
+# ---- cross-spec consistency (every packaged rules/*.yaml) ------------------
+
+
+@pytest.mark.parametrize("spec_id", spec_ids())
+def test_rule_ids_unique_per_spec(spec_id: str) -> None:
+    spec = get_spec(spec_id)
+    ids = [spec.rule_id(r) for r in spec.rules]
+    assert len(ids) == len(set(ids)), f"duplicate rule ids in {spec_id!r}: {ids}"
+
+
+@pytest.mark.parametrize("spec_id", spec_ids())
+def test_active_rules_have_a_probe(spec_id: str) -> None:
+    spec = get_spec(spec_id)
+    missing = [
+        spec.rule_id(r) for r in spec.rules if r.status == "active" and r.probe is None
+    ]
+    assert not missing, f"{spec_id!r} has active rules with no probe: {missing}"

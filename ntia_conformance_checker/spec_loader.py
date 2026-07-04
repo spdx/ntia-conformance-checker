@@ -1,3 +1,4 @@
+# SPDX-FileContributor: Arthit Suriyawongkul
 # SPDX-FileCopyrightText: 2026-present SPDX contributors
 # SPDX-FileType: SOURCE
 # SPDX-License-Identifier: Apache-2.0
@@ -50,6 +51,7 @@ from typing import Any, get_args
 
 import yaml
 
+from . import probes
 from .spec import (
     DEFAULT_MATURITY_LEVELS,
     ProbeRef,
@@ -123,9 +125,12 @@ def load_spec(path: str | Path) -> Spec:
     else:
         maturity_levels = tuple(_build_maturity(m, yaml_path) for m in raw_levels)
     allowed_levels = _validate_maturity_levels(maturity_levels, yaml_path)
+    category_ids = frozenset(c.id for c in categories)
     rules = tuple(
-        _build_rule(r, allowed_levels, yaml_path) for r in (raw.get("rules") or [])
+        _build_rule(r, allowed_levels, category_ids, yaml_path)
+        for r in (raw.get("rules") or [])
     )
+    _validate_unique_rule_ids(rules, yaml_path)
 
     return Spec(
         **spec_block,
@@ -218,6 +223,11 @@ def _build_probe(raw: Any, path: Path) -> ProbeRef:
     name = raw.get("name")
     if not isinstance(name, str) or not name:
         raise SpecLoadError(f"{path}: rule.probe.name must be a non-empty string")
+    if name not in probes.registered_names():
+        raise SpecLoadError(
+            f"{path}: rule.probe.name {name!r} is not a registered probe; "
+            f"known probes: {list(probes.registered_names())!r}"
+        )
     params = raw.get("params") or {}
     if not isinstance(params, dict):
         raise SpecLoadError(f"{path}: rule.probe.params must be a mapping or omitted")
@@ -227,7 +237,9 @@ def _build_probe(raw: Any, path: Path) -> ProbeRef:
     return ProbeRef(name=name, params=dict(params))
 
 
-def _build_rule(raw: Any, allowed_levels: frozenset[int], path: Path) -> SpecRule:
+def _build_rule(
+    raw: Any, allowed_levels: frozenset[int], category_ids: frozenset[str], path: Path
+) -> SpecRule:
     if not isinstance(raw, dict):
         raise SpecLoadError(
             f"{path}: each rule must be a mapping, got {type(raw).__name__}"
@@ -235,6 +247,11 @@ def _build_rule(raw: Any, allowed_levels: frozenset[int], path: Path) -> SpecRul
     data = dict(raw)  # shallow copy so we can pop
     probe_raw = data.pop("probe", None)
     _reject_unknown(data, _RULE_ALLOWED, "rules[]", path)
+    if data.get("spec_category") not in category_ids:
+        raise SpecLoadError(
+            f"{path}: rule spec_category must be one of {sorted(category_ids)!r}; "
+            f"got {data.get('spec_category')!r}"
+        )
     # maturity is an optional ordinal (omitted -> 0); when set it must name one
     # of the spec's declared maturity_levels.
     if "maturity" in data and data["maturity"] not in allowed_levels:
@@ -284,3 +301,20 @@ def _validate_maturity_levels(
             f"got {sorted(ordinals)!r}"
         )
     return frozenset(ordinals)
+
+
+def _validate_unique_rule_ids(rules: tuple[SpecRule, ...], path: Path) -> None:
+    """Reject rules sharing a ``(spec_category, number)`` pair.
+
+    Two rules with the same pair render the same rule id, so one silently
+    shadows the other's findings at check time.
+    """
+    seen: set[tuple[str, int]] = set()
+    for rule in rules:
+        key = (rule.spec_category, rule.number)
+        if key in seen:
+            raise SpecLoadError(
+                f"{path}: duplicate rule number {rule.number} in category "
+                f"{rule.spec_category!r}"
+            )
+        seen.add(key)

@@ -78,13 +78,10 @@ class BaseChecker(DeprecatedCheckerMixin, ABC):
 
     sbom_name: str = ""
 
-    # Document-level values are no longer eagerly stored as instance
-    # attributes.  Callers read them via :meth:`document_value` (raw
-    # value, cached) or :meth:`document_has` (presence bool).  Each
-    # ``get_doc_<element_id>`` extractor is the single source of truth
-    # for one element; the cache lives in ``_cache_doc_value``.
-    # See https://github.com/spdx/ntia-conformance-checker/issues/392
-    # for discussion on dependency relationships and DESCRIBES.
+    # Document-level values are read via :meth:`document_value` (raw value,
+    # cached) or :meth:`document_has` (presence bool).  Each
+    # ``get_doc_<element_id>`` extractor is the single source of truth for
+    # one element; the cache lives in ``_cache_doc_value``.
 
     findings: dict[str, "list[Finding]"]
     """Findings keyed by SARIF rule id, populated by :meth:`run_probes`.

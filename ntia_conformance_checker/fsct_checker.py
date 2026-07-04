@@ -6,7 +6,7 @@
 checker.
 
 Thin alias for :class:`RuleBasedChecker` pinned to
-:file:`rules/fsct.yaml`.
+:file:`rules/fsct3.yaml`.
 """
 
 from __future__ import annotations

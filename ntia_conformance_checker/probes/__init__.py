@@ -1,3 +1,4 @@
+# SPDX-FileContributor: Arthit Suriyawongkul
 # SPDX-FileCopyrightText: 2026-present SPDX contributors
 # SPDX-FileType: SOURCE
 # SPDX-License-Identifier: Apache-2.0
@@ -18,6 +19,6 @@ from __future__ import annotations
 
 # Import side-effect: register built-in probes by importing their modules.
 from . import presence  # noqa: F401  (registration only)
-from ._registry import lookup, probe
+from ._registry import lookup, probe, registered_names
 
-__all__ = ["lookup", "probe"]
+__all__ = ["lookup", "probe", "registered_names"]
