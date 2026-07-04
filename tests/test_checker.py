@@ -34,7 +34,7 @@ def _component_names(tuples_list: list[tuple[str, str]]) -> list[str]:
 
 
 SPDX3_RELATIONSHIP_TYPE_BASE = (
-    "https://spdx.org/rdf/3.0.1/terms/Core/RelationshipType"
+    "https://spdx.org/rdf/3.0.1/terms/Core/RelationshipType",
 )
 
 
