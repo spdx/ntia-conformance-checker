@@ -277,9 +277,7 @@ def has_package_dependency_relationship(object_set: spdx3.SHACLObjectSet) -> boo
 
     for rel_type in SPDX3_PACKAGE_DEPENDENCY_RELATIONSHIP_TYPES:
         for from_id, to_ids in iter_relationships_by_type(object_set, rel_type):
-            if from_id in element_ids and any(
-                to_id in element_ids for to_id in to_ids
-            ):
+            if from_id in element_ids and any(to_id in element_ids for to_id in to_ids):
                 return True
 
     return False
