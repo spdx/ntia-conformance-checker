@@ -19,6 +19,7 @@ if TYPE_CHECKING:
 
 
 SPDX3_PACKAGE_DEPENDENCY_RELATIONSHIP_TYPES = (
+    "contains",
     "dependsOn",
     "hasDynamicLink",
     "hasStaticLink",
