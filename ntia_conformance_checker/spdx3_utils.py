@@ -7,7 +7,7 @@
 from __future__ import annotations
 
 import importlib
-from typing import TYPE_CHECKING, Any, Union
+from typing import TYPE_CHECKING, Any, Union, cast
 
 from spdx_tools.spdx.validation.validation_message import (
     ValidationContext,
@@ -220,8 +220,9 @@ def iter_relationships_by_type(
         # Remove the IRI prefix of entry name before compare
         if not _rel_type or _rel_type.split("/")[-1] != rel_type:
             continue
-        from_: str | spdx3_types.Element | None = obj.from_
-        to_elements: spdx3_types.ListProxy[Union[str, spdx3_types.Element]] = obj.to
+        rel_obj = cast("spdx3_types.Relationship", obj)
+        from_: str | spdx3_types.Element | None = rel_obj.from_
+        to_elements: spdx3_types.ListProxy[Union[str, spdx3_types.Element]] = rel_obj.to
         if not from_ or not to_elements:
             continue
 
@@ -243,7 +244,8 @@ def get_all_packages(
 ) -> set[spdx3_types.software_Package]:
     """Retrieve all /Software/Package objects from an SHACLObjectSet."""
     packages: set[spdx3_types.software_Package] = set(
-        object_set.foreach_type(spdx_module.software_Package)
+        cast("spdx3_types.software_Package", pkg)
+        for pkg in object_set.foreach_type(spdx_module.software_Package)
     )
     return packages
 
