@@ -32,7 +32,7 @@ if TYPE_CHECKING:
 
 # Advertised report output types (shown in --help / README).
 _OUTPUT_CHOICES = {
-    "print": "Print report to console",
+    "print": "Report in regular text format",
     "json": "Report in JSON format",
     "html": "Report in HTML format",
     "none": "No report",
