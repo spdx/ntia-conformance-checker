@@ -28,7 +28,7 @@ Probe signature (informal -- enforced by convention, not types):
 from __future__ import annotations
 
 from collections.abc import Callable, Iterable
-from typing import TYPE_CHECKING, Any, Protocol
+from typing import TYPE_CHECKING, Protocol
 
 if TYPE_CHECKING:
     from ..model import Finding
@@ -88,9 +88,3 @@ def lookup(name: str) -> ProbeFn:
 def registered_names() -> tuple[str, ...]:
     """All registered probe names, sorted.  For tests / introspection."""
     return tuple(sorted(_PROBES))
-
-
-# Convenience re-export so callers don't need a second import.
-def run(name: str, checker: CheckerProtocol, **params: Any) -> Iterable["Finding"]:
-    """Look up ``name`` and call it with ``checker`` + ``params``."""
-    return lookup(name)(checker, **params)
