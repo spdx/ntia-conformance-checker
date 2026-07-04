@@ -11,13 +11,20 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog][keepachangelog]
 and this project adheres to [Semantic Versioning][semver].
 
-## [UNRELEASED]
+## [Unreleased]
 
-This release introduces a declarative rule engine: compliance standards are now
-defined as YAML files (`rules/<spec_id>.yaml`) loaded by `RuleBasedChecker` at
-import time, with no Python subclass required per standard.  `NTIAChecker` and
-`FSCT3Checker` are retained as convenience subclasses for backward-compatible
-imports.
+This major release corrects conformance logic, which may result in
+different conformance outcomes compared to previous versions.
+It also introduces a declarative rule engine to enhance extensibility.
+
+### Fixed
+
+- BREAKING CHANGE:
+  Fixed `iter_relationships_by_type` in `spdx3_utils.py`
+  to correctly handle `1..*` cardinality for relationship targets
+  and properly unbox `ListProxy` objects.
+  This changes the return signature to `Iterator[tuple[str, list[str]]]`
+  ([#398])
 
 ### Added
 
@@ -41,6 +48,7 @@ imports.
 - `BaseChecker.compliant` property; use `check_compliance()` instead ([#393])
 
 [#393]: https://github.com/spdx/ntia-conformance-checker/pull/393
+[#398]: https://github.com/spdx/ntia-conformance-checker/pull/398
 
 ## [5.0.3] - 2026-06-02
 

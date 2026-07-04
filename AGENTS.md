@@ -51,6 +51,7 @@ ruff check --fix . && mypy ntia_conformance_checker tests && pylint ntia_conform
   testing integration.
 - If a CI failure stems from differing dependency versions, prefer pinning
   the tool or adding an explanatory comment and raising a PR to align versions.
+- tests/test_real_world.py can be slow, only run it when necessary.
 
 ## 6. Security & secrets
 
