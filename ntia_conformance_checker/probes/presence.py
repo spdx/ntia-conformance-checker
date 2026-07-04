@@ -15,17 +15,15 @@ from __future__ import annotations
 from typing import TYPE_CHECKING
 
 from ..model import Finding
-from ._registry import probe
+from ._registry import CheckerProtocol, probe
 
 if TYPE_CHECKING:
     from collections.abc import Iterable
 
-    from ..base_checker import BaseChecker
-
 
 @probe("require_component_attribute")
 def require_component_attribute(
-    checker: "BaseChecker", *, attribute: str
+    checker: CheckerProtocol, *, attribute: str
 ) -> Iterable[Finding]:
     """Require every component in the SBOM to declare ``attribute``.
 
@@ -49,7 +47,7 @@ def require_component_attribute(
 
 @probe("require_document_attribute")
 def require_document_attribute(
-    checker: "BaseChecker", *, attribute: str
+    checker: CheckerProtocol, *, attribute: str
 ) -> Iterable[Finding]:
     """Require the SBOM document to declare ``attribute``.
 

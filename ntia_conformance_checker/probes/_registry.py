@@ -11,11 +11,11 @@ looked up by name when the rule engine processes a YAML rule's
 
 Probe signature (informal -- enforced by convention, not types):
 
-    probe(checker: BaseChecker, **params) -> Iterable[Finding]
+    probe(checker: CheckerProtocol, **params) -> Iterable[Finding]
 
 * ``checker`` -- the running checker instance.  Probes use the
-  presence-oriented accessors on it (:meth:`BaseChecker.components_without`
-  and :meth:`BaseChecker.document_has`) rather than poking at private
+  presence-oriented accessors on it (:meth:`CheckerProtocol.components_without`
+  and :meth:`CheckerProtocol.document_has`) rather than poking at private
   attributes, so they stay format-agnostic.
 * ``**params`` -- keyword arguments from the rule's ``probe.params`` YAML
   block.  Probes must declare every parameter explicitly (no ``**kwargs``)
@@ -28,11 +28,26 @@ Probe signature (informal -- enforced by convention, not types):
 from __future__ import annotations
 
 from collections.abc import Callable, Iterable
-from typing import TYPE_CHECKING, Any
+from typing import TYPE_CHECKING, Any, Protocol
 
 if TYPE_CHECKING:
-    from ..base_checker import BaseChecker
     from ..model import Finding
+
+
+class CheckerProtocol(Protocol):
+    """Structural type for the probe-facing surface of a checker.
+
+    Probes only need these two accessors, so they type-hint against this
+    protocol rather than importing the concrete ``BaseChecker`` -- any
+    object providing this shape satisfies it.
+    """
+
+    def components_without(self, element_id: str) -> list[tuple[str, str]]:
+        """Components missing ``element_id``, as ``(name, spdx_id)`` pairs."""
+
+    def document_has(self, element_id: str) -> bool:
+        """True iff the SBOM document declares ``element_id``."""
+
 
 ProbeFn = Callable[..., Iterable["Finding"]]
 
@@ -74,6 +89,6 @@ def registered_names() -> tuple[str, ...]:
 
 
 # Convenience re-export so callers don't need a second import.
-def run(name: str, checker: "BaseChecker", **params: Any) -> Iterable["Finding"]:
+def run(name: str, checker: CheckerProtocol, **params: Any) -> Iterable["Finding"]:
     """Look up ``name`` and call it with ``checker`` + ``params``."""
     return lookup(name)(checker, **params)
