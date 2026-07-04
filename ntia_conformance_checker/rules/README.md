@@ -13,6 +13,3 @@ SPDX-License-Identifier: Apache-2.0
     a standard.
 - Files prefixed with `_` (e.g. [`_example.yaml`](_example.yaml)) are skipped
   by the registry and not shipped.
-- For full details -- architecture, field reference, rule ids,
-  conformance model, probe registry, and the rule catalogue --
-  see [`../../RULES.md`](../../RULES.md).
