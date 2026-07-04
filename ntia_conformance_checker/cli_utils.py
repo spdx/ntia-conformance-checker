@@ -38,8 +38,8 @@ _OUTPUT_CHOICES = {
     "none": "No report",
 }
 
-# Accepted but undocumented (backward compatibility): "quiet" is the old name
-# for "none" -- "quiet" is now reserved for log verbosity (-q/--quiet).
+# Undocumented alias for backward compatibility. Not in _OUTPUT_CHOICES
+# because "quiet" is the log-verbosity flag (-q/--quiet).
 _OUTPUT_ALIASES = {"quiet": "none"}
 _OUTPUT_ALLOWED = set(_OUTPUT_CHOICES) | set(_OUTPUT_ALIASES)
 
@@ -339,4 +339,4 @@ def print_output(
             else:
                 print(html_output)
 
-    # "none" (and its legacy alias "quiet") emit no report.
+    # "none" (and its alias "quiet") emit no report.
