@@ -44,9 +44,11 @@ class CheckerProtocol(Protocol):
 
     def components_without(self, element_id: str) -> list[tuple[str, str]]:
         """Components missing ``element_id``, as ``(name, spdx_id)`` pairs."""
+        ...
 
     def document_has(self, element_id: str) -> bool:
         """True iff the SBOM document declares ``element_id``."""
+        ...
 
 
 ProbeFn = Callable[..., Iterable["Finding"]]
