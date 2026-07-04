@@ -405,7 +405,7 @@ def test_sbomchecker_spdx3_package_dependency_relationship() -> None:
         ("dependsOn", True),
         ("hasDynamicLink", True),
         ("hasStaticLink", True),
-        ("contains", False),
+        ("contains", True),
     ],
 )
 def test_spdx3_dependency_relationship_types(
