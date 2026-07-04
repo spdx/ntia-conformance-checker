@@ -123,10 +123,10 @@ choices:
     ntia        2021 NTIA SBOM Minimum Elements
 
   Report output types (for --output):
-    print       Print report to console
-    json        Report in JSON format
     html        Report in HTML format
+    json        Report in JSON format
     none        No report
+    print       Report in regular text format
 
 Examples:
   sbomcheck sbom.spdx
