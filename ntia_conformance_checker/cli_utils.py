@@ -41,7 +41,6 @@ _OUTPUT_CHOICES = {
 # Undocumented alias for backward compatibility. Not in _OUTPUT_CHOICES
 # because "quiet" is the log-verbosity flag (-q/--quiet).
 _OUTPUT_ALIASES = {"quiet": "none"}
-_OUTPUT_ALLOWED = set(_OUTPUT_CHOICES) | set(_OUTPUT_ALIASES)
 
 
 def get_parsed_args() -> argparse.Namespace:
