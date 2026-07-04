@@ -18,6 +18,14 @@ if TYPE_CHECKING:
     from collections.abc import Iterator
 
 
+SPDX3_PACKAGE_DEPENDENCY_RELATIONSHIP_TYPES = (
+    "contains",
+    "dependsOn",
+    "hasDynamicLink",
+    "hasStaticLink",
+)
+
+
 def validate_spdx3_data(
     object_set: spdx3.SHACLObjectSet,
 ) -> tuple[spdx3.SpdxDocument | None, list[ValidationMessage]]:
@@ -223,3 +231,43 @@ def get_all_packages(object_set: spdx3.SHACLObjectSet) -> set[spdx3.software_Pac
         object_set.foreach_type(spdx3.software_Package)
     )
     return packages
+
+
+def get_all_package_ids(object_set: spdx3.SHACLObjectSet) -> set[str]:
+    """Retrieve spdxId for all /Software/Package objects from an SHACLObjectSet."""
+    return {
+        spdx_id
+        for _name, spdx_id, _ in iter_objects_with_property(
+            object_set,
+            spdx3.software_Package,
+            "spdxId",
+        )
+        if spdx_id
+    }
+
+
+def get_all_element_ids(object_set: spdx3.SHACLObjectSet) -> set[str]:
+    """Retrieve spdxId for all SPDX 3 Element objects from an SHACLObjectSet."""
+    return {
+        spdx_id
+        for _name, spdx_id, _ in iter_objects_with_property(
+            object_set,
+            spdx3.Element,
+            "spdxId",
+        )
+        if spdx_id
+    }
+
+
+def has_package_dependency_relationship(object_set: spdx3.SHACLObjectSet) -> bool:
+    """Return True if a dependency relationship connects SPDX 3 Elements."""
+    element_ids = get_all_element_ids(object_set)
+    if len(element_ids) < 2:
+        return False
+
+    for rel_type in SPDX3_PACKAGE_DEPENDENCY_RELATIONSHIP_TYPES:
+        for from_id, to_ids in iter_relationships_by_type(object_set, rel_type):
+            if from_id in element_ids and any(to_id in element_ids for to_id in to_ids):
+                return True
+
+    return False
