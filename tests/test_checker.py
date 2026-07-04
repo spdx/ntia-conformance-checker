@@ -16,7 +16,10 @@ from spdx_python_model.bindings import v3_0_1 as spdx3
 
 import ntia_conformance_checker.sbom_checker as sbom_checker
 from ntia_conformance_checker import FSCT3Checker, NTIAChecker
-from ntia_conformance_checker.spdx3_utils import validate_spdx3_data
+from ntia_conformance_checker.spdx3_utils import (
+    has_package_dependency_relationship,
+    validate_spdx3_data,
+)
 
 
 def _component_names(tuples_list: list[tuple[str, str]]) -> list[str]:
@@ -28,6 +31,22 @@ def _component_names(tuples_list: list[tuple[str, str]]) -> list[str]:
         t[0] if t and t[0] not in (None, "") else (t[1] if t else "")
         for t in tuples_list
     ]
+
+
+SPDX3_RELATIONSHIP_TYPE_BASE = "https://spdx.org/rdf/3.0.1/terms/Core/RelationshipType"
+
+
+def _spdx3_package_dependency_object_set() -> spdx3.SHACLObjectSet:
+    test_file = (
+        Path(__file__).parent
+        / "data"
+        / "spdx3"
+        / "package_dependency_relationship.json"
+    )
+    sbom = sbom_checker.SbomChecker(str(test_file), sbom_spec="spdx3")
+    assert sbom.doc is not None
+    assert isinstance(sbom.doc, spdx3.SHACLObjectSet)
+    return sbom.doc
 
 
 ### Test no element missing
@@ -347,6 +366,7 @@ def test_sbomchecker_spdx3_no_elements_missing() -> None:
     assert sbom.doc_author
     assert sbom.doc_timestamp
     assert sbom.sbom_gen_context
+    assert sbom.dependency_relationships
     assert sbom.compliant
 
 
@@ -357,8 +377,58 @@ def test_sbomchecker_fsct3_spdx3_no_elements_missing() -> None:
     )
     assert sbom.doc is not None
     assert isinstance(sbom.doc, spdx3.SHACLObjectSet)
+    assert sbom.dependency_relationships
     assert sbom.compliant
     assert len(sbom.validation_messages) == 0
+
+
+def test_sbomchecker_spdx3_package_dependency_relationship() -> None:
+    test_file = (
+        Path(__file__).parent
+        / "data"
+        / "spdx3"
+        / "package_dependency_relationship.json"
+    )
+    sbom = sbom_checker.SbomChecker(str(test_file), sbom_spec="spdx3")
+    assert sbom.doc is not None
+    assert isinstance(sbom.doc, spdx3.SHACLObjectSet)
+    assert len(sbom.validation_messages) == 0
+    assert sbom.dependency_relationships
+    assert sbom.compliant
+
+
+@pytest.mark.parametrize(
+    ("relationship_type", "expected"),
+    [
+        ("dependsOn", True),
+        ("hasDynamicLink", True),
+        ("hasStaticLink", True),
+        ("contains", True),
+    ],
+)
+def test_spdx3_dependency_relationship_types(
+    relationship_type: str, expected: bool
+) -> None:
+    object_set = _spdx3_package_dependency_object_set()
+    relationship = next(object_set.foreach_type(spdx3.Relationship))
+    relationship.relationshipType = (
+        f"{SPDX3_RELATIONSHIP_TYPE_BASE}/{relationship_type}"
+    )
+    assert has_package_dependency_relationship(object_set) is expected
+
+
+def test_spdx3_dependency_relationship_accepts_element_endpoints() -> None:
+    object_set = _spdx3_package_dependency_object_set()
+    relationship = next(object_set.foreach_type(spdx3.Relationship))
+    sbom = object_set.find_by_id("https://spdx.org/spdxdocs/SBOM-package-dependency")
+    package = object_set.find_by_id("https://spdx.org/spdxdocs/Package-library")
+    assert isinstance(sbom, spdx3.Element)
+    assert isinstance(package, spdx3.Element)
+
+    relationship.from_ = sbom
+    relationship.to = [package]
+
+    assert has_package_dependency_relationship(object_set)
 
 
 def test_sbomchecker_spdx3_missing_supplier_name() -> None:
