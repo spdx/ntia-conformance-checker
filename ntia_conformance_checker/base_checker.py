@@ -33,8 +33,7 @@ from .report import (
     report_text,
 )
 from .spdx3_utils import (
-    get_boms_from_spdx_document,
-    get_packages_from_bom,
+    has_package_dependency_relationship,
     iter_objects_with_property,
     iter_relationships_by_type,
     validate_spdx3_data,
@@ -443,11 +442,13 @@ class BaseChecker(DeprecatedCheckerMixin, ABC):
         return ""
 
     def get_doc_dependency_relationship(self) -> list[object]:
-        """Return the list of DESCRIBES-style dependency relationships.
+        """Return the SBOM's declared dependency relationships.
 
-        Empty list = no relationships declared (rule fails).  The list
-        carries opaque relationship objects so future probes can inspect
-        types, completeness, etc.; current probes only check truthiness.
+        Empty list = no relationships declared (rule fails); non-empty means
+        the rule passes.  For SPDX 2 this looks for a DESCRIBES relationship
+        to a package; for SPDX 3 it checks package-level dependency
+        relationships (``contains``, ``dependsOn``, ``hasDynamicLink``,
+        ``hasStaticLink``) between declared Elements.
         """
         if not self.doc:
             return []
@@ -468,11 +469,8 @@ class BaseChecker(DeprecatedCheckerMixin, ABC):
             ]
 
         if self.sbom_spec == "spdx3":
-            boms = get_boms_from_spdx_document(self.__spdx3_doc)
-            out: list[object] = []
-            for bom in boms or []:
-                out.extend(get_packages_from_bom(bom) or [])
-            return out
+            self.doc = cast("spdx3.SHACLObjectSet", self.doc)
+            return [True] if has_package_dependency_relationship(self.doc) else []
 
         return []
 
