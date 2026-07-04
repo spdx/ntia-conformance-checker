@@ -51,6 +51,14 @@
     <span class="kn">from</span><span class="w"> </span><span class="nn">collections.abc</span><span class="w"> </span><span class="kn">import</span> <span class="n">Iterator</span>
 
 
+<span class="n">SPDX3_PACKAGE_DEPENDENCY_RELATIONSHIP_TYPES</span> <span class="o">=</span> <span class="p">(</span>
+    <span class="s2">&quot;contains&quot;</span><span class="p">,</span>
+    <span class="s2">&quot;dependsOn&quot;</span><span class="p">,</span>
+    <span class="s2">&quot;hasDynamicLink&quot;</span><span class="p">,</span>
+    <span class="s2">&quot;hasStaticLink&quot;</span><span class="p">,</span>
+<span class="p">)</span>
+
+
 <div class="viewcode-block" id="validate_spdx3_data">
 <a class="viewcode-back" href="../../ntia_conformance_checker.html#ntia_conformance_checker.spdx3_utils.validate_spdx3_data">[docs]</a>
 <span class="k">def</span><span class="w"> </span><span class="nf">validate_spdx3_data</span><span class="p">(</span>
@@ -273,6 +281,55 @@
         <span class="n">object_set</span><span class="o">.</span><span class="n">foreach_type</span><span class="p">(</span><span class="n">spdx3</span><span class="o">.</span><span class="n">software_Package</span><span class="p">)</span>
     <span class="p">)</span>
     <span class="k">return</span> <span class="n">packages</span></div>
+
+
+
+<div class="viewcode-block" id="get_all_package_ids">
+<a class="viewcode-back" href="../../ntia_conformance_checker.html#ntia_conformance_checker.spdx3_utils.get_all_package_ids">[docs]</a>
+<span class="k">def</span><span class="w"> </span><span class="nf">get_all_package_ids</span><span class="p">(</span><span class="n">object_set</span><span class="p">:</span> <span class="n">spdx3</span><span class="o">.</span><span class="n">SHACLObjectSet</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">set</span><span class="p">[</span><span class="nb">str</span><span class="p">]:</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;Retrieve spdxId for all /Software/Package objects from an SHACLObjectSet.&quot;&quot;&quot;</span>
+    <span class="k">return</span> <span class="p">{</span>
+        <span class="n">spdx_id</span>
+        <span class="k">for</span> <span class="n">_name</span><span class="p">,</span> <span class="n">spdx_id</span><span class="p">,</span> <span class="n">_</span> <span class="ow">in</span> <span class="n">iter_objects_with_property</span><span class="p">(</span>
+            <span class="n">object_set</span><span class="p">,</span>
+            <span class="n">spdx3</span><span class="o">.</span><span class="n">software_Package</span><span class="p">,</span>
+            <span class="s2">&quot;spdxId&quot;</span><span class="p">,</span>
+        <span class="p">)</span>
+        <span class="k">if</span> <span class="n">spdx_id</span>
+    <span class="p">}</span></div>
+
+
+
+<div class="viewcode-block" id="get_all_element_ids">
+<a class="viewcode-back" href="../../ntia_conformance_checker.html#ntia_conformance_checker.spdx3_utils.get_all_element_ids">[docs]</a>
+<span class="k">def</span><span class="w"> </span><span class="nf">get_all_element_ids</span><span class="p">(</span><span class="n">object_set</span><span class="p">:</span> <span class="n">spdx3</span><span class="o">.</span><span class="n">SHACLObjectSet</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">set</span><span class="p">[</span><span class="nb">str</span><span class="p">]:</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;Retrieve spdxId for all SPDX 3 Element objects from an SHACLObjectSet.&quot;&quot;&quot;</span>
+    <span class="k">return</span> <span class="p">{</span>
+        <span class="n">spdx_id</span>
+        <span class="k">for</span> <span class="n">_name</span><span class="p">,</span> <span class="n">spdx_id</span><span class="p">,</span> <span class="n">_</span> <span class="ow">in</span> <span class="n">iter_objects_with_property</span><span class="p">(</span>
+            <span class="n">object_set</span><span class="p">,</span>
+            <span class="n">spdx3</span><span class="o">.</span><span class="n">Element</span><span class="p">,</span>
+            <span class="s2">&quot;spdxId&quot;</span><span class="p">,</span>
+        <span class="p">)</span>
+        <span class="k">if</span> <span class="n">spdx_id</span>
+    <span class="p">}</span></div>
+
+
+
+<div class="viewcode-block" id="has_package_dependency_relationship">
+<a class="viewcode-back" href="../../ntia_conformance_checker.html#ntia_conformance_checker.spdx3_utils.has_package_dependency_relationship">[docs]</a>
+<span class="k">def</span><span class="w"> </span><span class="nf">has_package_dependency_relationship</span><span class="p">(</span><span class="n">object_set</span><span class="p">:</span> <span class="n">spdx3</span><span class="o">.</span><span class="n">SHACLObjectSet</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">bool</span><span class="p">:</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;Return True if a dependency relationship connects SPDX 3 Elements.&quot;&quot;&quot;</span>
+    <span class="n">element_ids</span> <span class="o">=</span> <span class="n">get_all_element_ids</span><span class="p">(</span><span class="n">object_set</span><span class="p">)</span>
+    <span class="k">if</span> <span class="nb">len</span><span class="p">(</span><span class="n">element_ids</span><span class="p">)</span> <span class="o">&lt;</span> <span class="mi">2</span><span class="p">:</span>
+        <span class="k">return</span> <span class="kc">False</span>
+
+    <span class="k">for</span> <span class="n">rel_type</span> <span class="ow">in</span> <span class="n">SPDX3_PACKAGE_DEPENDENCY_RELATIONSHIP_TYPES</span><span class="p">:</span>
+        <span class="k">for</span> <span class="n">from_id</span><span class="p">,</span> <span class="n">to_ids</span> <span class="ow">in</span> <span class="n">iter_relationships_by_type</span><span class="p">(</span><span class="n">object_set</span><span class="p">,</span> <span class="n">rel_type</span><span class="p">):</span>
+            <span class="k">if</span> <span class="n">from_id</span> <span class="ow">in</span> <span class="n">element_ids</span> <span class="ow">and</span> <span class="nb">any</span><span class="p">(</span><span class="n">to_id</span> <span class="ow">in</span> <span class="n">element_ids</span> <span class="k">for</span> <span class="n">to_id</span> <span class="ow">in</span> <span class="n">to_ids</span><span class="p">):</span>
+                <span class="k">return</span> <span class="kc">True</span>
+
+    <span class="k">return</span> <span class="kc">False</span></div>
 
 </pre></div>
 

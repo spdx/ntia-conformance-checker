@@ -69,10 +69,9 @@ such as <cite>check_compliance</cite> and <cite>output_json</cite>.</p>
 <dl class="py method">
 <dt class="sig sig-object py" id="ntia_conformance_checker.base_checker.BaseChecker.check_dependency_relationships">
 <span class="sig-name descname"><span class="pre">check_dependency_relationships</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">bool</span></span></span><a class="reference internal" href="_modules/ntia_conformance_checker/base_checker.html#BaseChecker.check_dependency_relationships"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#ntia_conformance_checker.base_checker.BaseChecker.check_dependency_relationships" title="Link to this definition">¶</a></dt>
-<dd><p>Check if the SBOM document describes at least one package.</p>
+<dd><p>Check if the SBOM document declares dependency information.</p>
 <p>For SPDX 2 this checks for a DESCRIBES relationship; for SPDX 3 it
-checks that a /Software/Sbom element lists at least one package in its
-<code class="docutils literal notranslate"><span class="pre">rootElement</span></code>.</p>
+checks package-level dependency relationships.</p>
 </dd></dl>
 
 <dl class="py method">
@@ -750,6 +749,18 @@ during instantiation.</p>
 <span id="ntia-conformance-checker-spdx3-utils-module"></span><h2>ntia_conformance_checker.spdx3_utils module<a class="headerlink" href="#module-ntia_conformance_checker.spdx3_utils" title="Link to this heading">¶</a></h2>
 <p>Helpers for SPDX 3.</p>
 <dl class="py function">
+<dt class="sig sig-object py" id="ntia_conformance_checker.spdx3_utils.get_all_element_ids">
+<span class="sig-prename descclassname"><span class="pre">ntia_conformance_checker.spdx3_utils.</span></span><span class="sig-name descname"><span class="pre">get_all_element_ids</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">object_set</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">SHACLObjectSet</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">set</span><span class="p"><span class="pre">[</span></span><span class="pre">str</span><span class="p"><span class="pre">]</span></span></span></span><a class="reference internal" href="_modules/ntia_conformance_checker/spdx3_utils.html#get_all_element_ids"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#ntia_conformance_checker.spdx3_utils.get_all_element_ids" title="Link to this definition">¶</a></dt>
+<dd><p>Retrieve spdxId for all SPDX 3 Element objects from an SHACLObjectSet.</p>
+</dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="ntia_conformance_checker.spdx3_utils.get_all_package_ids">
+<span class="sig-prename descclassname"><span class="pre">ntia_conformance_checker.spdx3_utils.</span></span><span class="sig-name descname"><span class="pre">get_all_package_ids</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">object_set</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">SHACLObjectSet</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">set</span><span class="p"><span class="pre">[</span></span><span class="pre">str</span><span class="p"><span class="pre">]</span></span></span></span><a class="reference internal" href="_modules/ntia_conformance_checker/spdx3_utils.html#get_all_package_ids"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#ntia_conformance_checker.spdx3_utils.get_all_package_ids" title="Link to this definition">¶</a></dt>
+<dd><p>Retrieve spdxId for all /Software/Package objects from an SHACLObjectSet.</p>
+</dd></dl>
+
+<dl class="py function">
 <dt class="sig sig-object py" id="ntia_conformance_checker.spdx3_utils.get_all_packages">
 <span class="sig-prename descclassname"><span class="pre">ntia_conformance_checker.spdx3_utils.</span></span><span class="sig-name descname"><span class="pre">get_all_packages</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">object_set</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">SHACLObjectSet</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">set</span><span class="p"><span class="pre">[</span></span><span class="pre">software_Package</span><span class="p"><span class="pre">]</span></span></span></span><a class="reference internal" href="_modules/ntia_conformance_checker/spdx3_utils.html#get_all_packages"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#ntia_conformance_checker.spdx3_utils.get_all_packages" title="Link to this definition">¶</a></dt>
 <dd><p>Retrieve all /Software/Package objects from an SHACLObjectSet.</p>
@@ -787,6 +798,12 @@ during instantiation.</p>
 <dd class="field-odd"><p>list[spdx3.software_Package] | None</p>
 </dd>
 </dl>
+</dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="ntia_conformance_checker.spdx3_utils.has_package_dependency_relationship">
+<span class="sig-prename descclassname"><span class="pre">ntia_conformance_checker.spdx3_utils.</span></span><span class="sig-name descname"><span class="pre">has_package_dependency_relationship</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">object_set</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">SHACLObjectSet</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">bool</span></span></span><a class="reference internal" href="_modules/ntia_conformance_checker/spdx3_utils.html#has_package_dependency_relationship"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#ntia_conformance_checker.spdx3_utils.has_package_dependency_relationship" title="Link to this definition">¶</a></dt>
+<dd><p>Return True if a dependency relationship connects SPDX 3 Elements.</p>
 </dd></dl>
 
 <dl class="py function">
@@ -874,10 +891,9 @@ such as <cite>check_compliance</cite> and <cite>output_json</cite>.</p>
 <dl class="py method">
 <dt class="sig sig-object py" id="ntia_conformance_checker.BaseChecker.check_dependency_relationships">
 <span class="sig-name descname"><span class="pre">check_dependency_relationships</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">bool</span></span></span><a class="reference internal" href="_modules/ntia_conformance_checker/base_checker.html#BaseChecker.check_dependency_relationships"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#ntia_conformance_checker.BaseChecker.check_dependency_relationships" title="Link to this definition">¶</a></dt>
-<dd><p>Check if the SBOM document describes at least one package.</p>
+<dd><p>Check if the SBOM document declares dependency information.</p>
 <p>For SPDX 2 this checks for a DESCRIBES relationship; for SPDX 3 it
-checks that a /Software/Sbom element lists at least one package in its
-<code class="docutils literal notranslate"><span class="pre">rootElement</span></code>.</p>
+checks package-level dependency relationships.</p>
 </dd></dl>
 
 <dl class="py method">
