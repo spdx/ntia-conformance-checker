@@ -329,7 +329,9 @@ def test_sbomchecker_spdx3_general() -> None:
     assert isinstance(sbom.doc, spdx3.SHACLObjectSet)
     assert sbom.sbom_name == "hello"
     assert not sbom.sbom_gen_context  # No SBOM -> No SBOM generation context
-    spdx3_spdx_document, validation_messages = validate_spdx3_data(sbom.doc)
+    spdx3_spdx_document, validation_messages = validate_spdx3_data(
+        sbom.doc, sbom.spdx_module
+    )
     # The file is spec-valid SPDX 3; no SPDX 3 spec errors expected.
     assert len(validation_messages) == 0
     # The conformance check (rootElement must be /Software/Sbom) fires here
@@ -414,21 +416,23 @@ def test_spdx3_dependency_relationship_types(
     relationship.relationshipType = (
         f"{SPDX3_RELATIONSHIP_TYPE_BASE}/{relationship_type}"
     )
-    assert has_package_dependency_relationship(object_set) is expected
+    assert has_package_dependency_relationship(object_set, spdx3) is expected
 
 
 def test_spdx3_dependency_relationship_accepts_element_endpoints() -> None:
     object_set = _spdx3_package_dependency_object_set()
     relationship = next(object_set.foreach_type(spdx3.Relationship))
-    sbom = object_set.find_by_id("https://spdx.org/spdxdocs/SBOM-package-dependency")
+    sbom_element = object_set.find_by_id(
+        "https://spdx.org/spdxdocs/SBOM-package-dependency"
+    )
     package = object_set.find_by_id("https://spdx.org/spdxdocs/Package-library")
-    assert isinstance(sbom, spdx3.Element)
+    assert isinstance(sbom_element, spdx3.Element)
     assert isinstance(package, spdx3.Element)
 
-    relationship.from_ = sbom
+    relationship.from_ = sbom_element
     relationship.to = [package]
 
-    assert has_package_dependency_relationship(object_set)
+    assert has_package_dependency_relationship(object_set, spdx3)
 
 
 def test_sbomchecker_spdx3_missing_supplier_name() -> None:

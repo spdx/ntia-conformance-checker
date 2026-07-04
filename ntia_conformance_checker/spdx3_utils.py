@@ -6,16 +6,20 @@
 
 from __future__ import annotations
 
+import importlib
 from typing import TYPE_CHECKING, Any, Union
 
-from spdx_python_model.bindings import v3_0_1 as spdx3
 from spdx_tools.spdx.validation.validation_message import (
     ValidationContext,
     ValidationMessage,
 )
 
+from .constants import SPDX3_MODEL_BINDINGS_MAP
+
 if TYPE_CHECKING:
     from collections.abc import Iterator
+
+    from spdx_python_model.bindings import v3_0_1 as spdx3_types
 
 
 SPDX3_PACKAGE_DEPENDENCY_RELATIONSHIP_TYPES = (
@@ -27,8 +31,8 @@ SPDX3_PACKAGE_DEPENDENCY_RELATIONSHIP_TYPES = (
 
 
 def validate_spdx3_data(
-    object_set: spdx3.SHACLObjectSet,
-) -> tuple[spdx3.SpdxDocument | None, list[ValidationMessage]]:
+    object_set: Any, spdx_module: Any
+) -> tuple[spdx3_types.SpdxDocument | None, list[ValidationMessage]]:
     """
     Validate an SHACLObjectSet if it contains a valid SpdxDocument.
 
@@ -49,11 +53,11 @@ def validate_spdx3_data(
     # which is originally meant for SPDX 2, to report validation errors for
     # SPDX 3 as well, so the print/HTML/JSON output functions can be reused.
 
-    doc: spdx3.SpdxDocument | None = None
+    doc: spdx3_types.SpdxDocument | None = None
     validation_messages: list[ValidationMessage] = []
 
-    spdx_documents: list[spdx3.SpdxDocument] = list(
-        object_set.foreach_type(spdx3.SpdxDocument)
+    spdx_documents: list[spdx3_types.SpdxDocument] = list(
+        object_set.foreach_type(spdx_module.SpdxDocument)
     )
 
     # == SPDX 3 JSON serialization constraint =====
@@ -81,8 +85,10 @@ def validate_spdx3_data(
 
     doc = spdx_documents[0]
     doc_id = getattr(doc, "spdxId", None)
-    elements: spdx3.ListProxy[Union[str, spdx3.Element]] = doc.element
-    root_elements: spdx3.ListProxy[Union[str, spdx3.Element]] = doc.rootElement
+    elements: spdx3_types.ListProxy[Union[str, spdx3_types.Element]] = doc.element
+    root_elements: spdx3_types.ListProxy[Union[str, spdx3_types.Element]] = (
+        doc.rootElement
+    )
 
     # ElementCollection constraint: if there is at least one element,
     # there shall also be at least one rootElement.
@@ -101,7 +107,7 @@ def validate_spdx3_data(
     # ElementCollection constraint: element items shall not be of type SpdxDocument.
     # Ref: https://spdx.github.io/spdx-spec/latest/model/Core/Classes/ElementCollection/
     for elem in elements:
-        if isinstance(elem, spdx3.SpdxDocument):
+        if isinstance(elem, spdx_module.SpdxDocument):
             elem_id = getattr(elem, "spdxId", None)
             error_msg = (
                 "An SpdxDocument element shall not be of type SpdxDocument. "
@@ -113,7 +119,7 @@ def validate_spdx3_data(
     # ElementCollection constraint: rootElement items shall not be of type SpdxDocument.
     # Ref: https://spdx.github.io/spdx-spec/latest/model/Core/Classes/ElementCollection/
     for root_elem in root_elements:
-        if isinstance(root_elem, spdx3.SpdxDocument):
+        if isinstance(root_elem, spdx_module.SpdxDocument):
             root_elem_id = getattr(root_elem, "spdxId", None)
             error_msg = (
                 "An SpdxDocument rootElement shall not be of type SpdxDocument. "
@@ -126,8 +132,8 @@ def validate_spdx3_data(
 
 
 def get_boms_from_spdx_document(
-    spdx_doc: spdx3.SpdxDocument | None,
-) -> list[spdx3.Bom] | None:
+    spdx_doc: spdx3_types.SpdxDocument | None,
+) -> list[spdx3_types.Bom] | None:
     """
     Retrieve the BOMs that are rootElements of an SPDX 3 SpdxDocument.
 
@@ -140,7 +146,7 @@ def get_boms_from_spdx_document(
     if not spdx_doc:
         return None
 
-    root_elements: list[spdx3.Bom] = getattr(spdx_doc, "rootElement", [])
+    root_elements: list[spdx3_types.Bom] = getattr(spdx_doc, "rootElement", [])
     if not root_elements:
         return None
 
@@ -148,8 +154,8 @@ def get_boms_from_spdx_document(
 
 
 def get_packages_from_bom(
-    bom: spdx3.Bom | None,
-) -> list[spdx3.software_Package] | None:
+    bom: spdx3_types.Bom | None,
+) -> list[spdx3_types.software_Package] | None:
     """
     Retrieve the /Software/Packages that are rootElements of an SPDX 3 BOM.
 
@@ -162,7 +168,7 @@ def get_packages_from_bom(
     if not bom:
         return None
 
-    root_elements: list[spdx3.software_Package] = getattr(bom, "rootElement", [])
+    root_elements: list[spdx3_types.software_Package] = getattr(bom, "rootElement", [])
     if not root_elements or len(root_elements) != 1:
         return None
 
@@ -170,8 +176,8 @@ def get_packages_from_bom(
 
 
 def iter_objects_with_property(
-    object_set: spdx3.SHACLObjectSet,
-    typ: type[spdx3.SHACLObject] = spdx3.Artifact,
+    object_set: spdx3_types.SHACLObjectSet,
+    typ: Any,
     property_name: str = "spdxId",
     reachable_ids: set[str] | None = None,
 ) -> Iterator[tuple[str, str, Any]]:
@@ -201,20 +207,21 @@ def iter_objects_with_property(
 
 
 def iter_relationships_by_type(
-    object_set: spdx3.SHACLObjectSet,
+    object_set: spdx3_types.SHACLObjectSet,
     rel_type: str,
+    spdx_module: Any,
 ) -> Iterator[tuple[str, list[str]]]:
     """
     Yield (from_id, to_ids_list) for each relationship of the specified relationship type.
     """
 
-    for obj in object_set.foreach_type(spdx3.Relationship):
+    for obj in object_set.foreach_type(spdx_module.Relationship):
         _rel_type = getattr(obj, "relationshipType", "")
         # Remove the IRI prefix of entry name before compare
         if not _rel_type or _rel_type.split("/")[-1] != rel_type:
             continue
-        from_: str | spdx3.Element | None = obj.from_
-        to_elements: spdx3.ListProxy[Union[str, spdx3.Element]] = obj.to
+        from_: str | spdx3_types.Element | None = obj.from_
+        to_elements: spdx3_types.ListProxy[Union[str, spdx3_types.Element]] = obj.to
         if not from_ or not to_elements:
             continue
 
@@ -231,49 +238,89 @@ def iter_relationships_by_type(
             yield from_id, to_ids
 
 
-def get_all_packages(object_set: spdx3.SHACLObjectSet) -> set[spdx3.software_Package]:
+def get_all_packages(
+    object_set: spdx3_types.SHACLObjectSet, spdx_module: Any
+) -> set[spdx3_types.software_Package]:
     """Retrieve all /Software/Package objects from an SHACLObjectSet."""
-    packages: set[spdx3.software_Package] = set(
-        object_set.foreach_type(spdx3.software_Package)
+    packages: set[spdx3_types.software_Package] = set(
+        object_set.foreach_type(spdx_module.software_Package)
     )
     return packages
 
 
 def get_all_package_ids(
-    object_set: spdx3.SHACLObjectSet, reachable_ids: set[str] | None = None
+    object_set: spdx3_types.SHACLObjectSet,
+    spdx_module: Any,
+    reachable_ids: set[str] | None = None,
 ) -> set[str]:
     """Retrieve spdxId for all /Software/Package objects from an SHACLObjectSet."""
     return {
         spdx_id
         for _name, spdx_id, _ in iter_objects_with_property(
-            object_set, spdx3.software_Package, "spdxId", reachable_ids
+            object_set,
+            spdx_module.software_Package,
+            "spdxId",
+            reachable_ids,
         )
         if spdx_id
     }
 
 
 def get_all_element_ids(
-    object_set: spdx3.SHACLObjectSet, reachable_ids: set[str] | None = None
+    object_set: spdx3_types.SHACLObjectSet,
+    spdx_module: Any,
+    reachable_ids: set[str] | None = None,
 ) -> set[str]:
     """Retrieve spdxId for all SPDX 3 Element objects from an SHACLObjectSet."""
     return {
         spdx_id
         for _name, spdx_id, _ in iter_objects_with_property(
-            object_set, spdx3.Element, "spdxId", reachable_ids
+            object_set,
+            spdx_module.Element,
+            "spdxId",
+            reachable_ids,
         )
         if spdx_id
     }
 
 
-def has_package_dependency_relationship(object_set: spdx3.SHACLObjectSet) -> bool:
+def has_package_dependency_relationship(
+    object_set: spdx3_types.SHACLObjectSet, spdx_module: Any
+) -> bool:
     """Return True if a dependency relationship connects SPDX 3 Elements."""
-    element_ids = get_all_element_ids(object_set)
+    element_ids = get_all_element_ids(object_set, spdx_module)
     if len(element_ids) < 2:
         return False
 
     for rel_type in SPDX3_PACKAGE_DEPENDENCY_RELATIONSHIP_TYPES:
-        for from_id, to_ids in iter_relationships_by_type(object_set, rel_type):
+        for from_id, to_ids in iter_relationships_by_type(
+            object_set, rel_type, spdx_module
+        ):
             if from_id in element_ids and any(to_id in element_ids for to_id in to_ids):
                 return True
 
     return False
+
+
+class UnsupportedVersionError(Exception):
+    """Raised when the required SPDX Python bindings are not available."""
+
+
+def load_spdx3_model(major: int, minor: int) -> Any:
+    """Dynamically loads the appropriate spdx_python_model version bindings."""
+    version_key = (major, minor)
+
+    # Check if the requested version is supported and available
+    if version_key not in SPDX3_MODEL_BINDINGS_MAP:
+        raise UnsupportedVersionError(
+            f"Bindings for SPDX {major}.{minor} are not implemented in this tool."
+        )
+
+    version_suffix = SPDX3_MODEL_BINDINGS_MAP[version_key]
+    module_path = f"spdx_python_model.bindings.{version_suffix}"
+    try:
+        return importlib.import_module(module_path)
+    except ImportError as exc:
+        raise UnsupportedVersionError(
+            f"Bindings for SPDX {major}.{minor} ({module_path}) are not available."
+        ) from exc

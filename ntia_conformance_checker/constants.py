@@ -42,10 +42,14 @@ SUPPORTED_COMPLIANCE_STANDARDS_DESC = {
 DEFAULT_COMPLIANCE_STANDARD = "ntia"
 SUPPORTED_COMPLIANCE_STANDARDS = set(SUPPORTED_COMPLIANCE_STANDARDS_DESC.keys())
 
-SUPPORTED_SPDX_VERSIONS = {(2, 2), (2, 3), (3, 0)}  # (Major, Minor)
+SUPPORTED_SPDX_VERSIONS = {(2, 2), (2, 3), (3, 0), (3, 1)}  # (Major, Minor)
 SUPPORTED_SPDX2_VERSION_STRINGS = {
     f"SPDX-{maj}.{min}" for (maj, min) in SUPPORTED_SPDX_VERSIONS if maj == 2
 }  # e.g. "SPDX-2.2", "SPDX-2.3"
 SUPPORTED_SPDX3_VERSION_STRINGS = {
     f"{maj}.{min}" for (maj, min) in SUPPORTED_SPDX_VERSIONS if maj == 3
 }  # e.g. "3.0"
+SPDX3_MODEL_BINDINGS_MAP = {
+    (3, 0): "v3_0_1",
+    (3, 1): "v3_1",
+}

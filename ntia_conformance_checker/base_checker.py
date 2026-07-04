@@ -13,7 +13,6 @@ import warnings
 from abc import ABC, abstractmethod
 from typing import TYPE_CHECKING, Any, Union, cast
 
-from spdx_python_model.bindings import v3_0_1 as spdx3
 from spdx_tools.spdx.model.relationship import RelationshipType
 from spdx_tools.spdx.model.spdx_no_assertion import SpdxNoAssertion
 from spdx_tools.spdx.parser import parse_anything
@@ -24,6 +23,7 @@ from spdx_tools.spdx.validation.validation_message import (
     ValidationMessage,
 )
 
+from .cli_utils import get_spdx_version
 from .constants import DEFAULT_SBOM_SPEC
 from .graph_utils import analyze_graph_connectivity
 from .report import (
@@ -36,14 +36,16 @@ from .spdx3_utils import (
     has_package_dependency_relationship,
     iter_objects_with_property,
     iter_relationships_by_type,
+    load_spdx3_model,
     validate_spdx3_data,
 )
 
 if TYPE_CHECKING:
+    from spdx_python_model.bindings import v3_0_1 as spdx3_types
     from spdx_tools.spdx.model.document import Document
 
 
-# pylint: disable=too-many-instance-attributes,too-many-public-methods
+# pylint: disable=too-many-instance-attributes,too-many-public-methods, too-many-lines
 class BaseChecker(ABC):
     """Base class for all compliance/conformance checkers.
 
@@ -53,6 +55,9 @@ class BaseChecker(ABC):
     Any class inheriting from BaseChecker must implement its abstract methods,
     such as `check_compliance` and `output_json`.
     """
+
+    # Store the loaded SPDX 3 module for the specific version being checked.
+    spdx_module: Any = None
 
     # Minimum elements/baseline attributes required by a compliance standard
     MIN_ELEMENTS: list[str] = []
@@ -88,8 +93,8 @@ class BaseChecker(ABC):
     # For SPDX 3, we have to use SHACLObjectSet instead of SpdxDocument,
     # because we need access to relationships and other elements that are not
     # accessible from SpdxDocument.
-    doc: Document | spdx3.SHACLObjectSet | None = None
-    __spdx3_doc: spdx3.SpdxDocument | None = None  # cached SPDX 3 document
+    doc: Document | spdx3_types.SHACLObjectSet | None = None
+    __spdx3_doc: spdx3_types.SpdxDocument | None = None  # cached SPDX 3 document
 
     _parsing_errors: list[str] = []
     _validation_messages: list[ValidationMessage] = []
@@ -190,12 +195,21 @@ class BaseChecker(ABC):
             case "spdx2":
                 self.doc = self.parse_file()
             case "spdx3":
+                version_tuple = get_spdx_version(self.file, "spdx3")
+                major, minor = version_tuple if version_tuple else (3, 0)
+
+                self.spdx_module = load_spdx3_model(major, minor)
+
+                print(f"DEBUG: Loaded module: {self.spdx_module.__name__}")
+
                 object_set = self.parse_spdx3_file()
                 if not object_set:
                     logging.error("Failed to parse the SPDX 3 file.")
                 else:
                     self.doc = object_set
-                    self.__spdx3_doc, _val_msgs = validate_spdx3_data(object_set)
+                    self.__spdx3_doc, _val_msgs = validate_spdx3_data(
+                        object_set, self.spdx_module
+                    )
                     if not self.__spdx3_doc or _val_msgs:
                         logging.error("SpdxDocument not found or invalid.")
                     self._validation_messages.extend(_val_msgs)
@@ -309,8 +323,8 @@ class BaseChecker(ABC):
 
         # SPDX 3
         if self.sbom_spec == "spdx3":
-            self.doc = cast("spdx3.SHACLObjectSet", self.doc)
-            return has_package_dependency_relationship(self.doc)
+            self.doc = cast("spdx3_types.SHACLObjectSet", self.doc)
+            return has_package_dependency_relationship(self.doc, self.spdx_module)
 
         return False
 
@@ -358,7 +372,7 @@ class BaseChecker(ABC):
 
         # SPDX 3
         if self.sbom_spec == "spdx3" and isinstance(
-            self.__spdx3_doc, spdx3.SpdxDocument
+            self.__spdx3_doc, self.spdx_module.SpdxDocument
         ):
             doc_creation_info = getattr(self.__spdx3_doc, "creationInfo", None)
             if doc_creation_info:
@@ -382,7 +396,7 @@ class BaseChecker(ABC):
 
         # SPDX 3
         elif self.sbom_spec == "spdx3" and isinstance(
-            self.__spdx3_doc, spdx3.SpdxDocument
+            self.__spdx3_doc, self.spdx_module.SpdxDocument
         ):
             name = getattr(self.__spdx3_doc, "name", "")
 
@@ -401,7 +415,7 @@ class BaseChecker(ABC):
         if not self.doc or not self.__spdx3_doc or self.sbom_spec != "spdx3":
             return []
 
-        root_elements: spdx3.ListProxy[Union[str, spdx3.Element]] = (
+        root_elements: spdx3_types.ListProxy[Union[str, spdx3_types.Element]] = (
             self.__spdx3_doc.rootElement
         )
         if not root_elements:
@@ -411,7 +425,7 @@ class BaseChecker(ABC):
 
         # Assuming only one rootElement per document
         root_elem = root_elements[0]
-        if not isinstance(root_elem, spdx3.software_Sbom):
+        if not isinstance(root_elem, self.spdx_module.software_Sbom):
             doc_id = getattr(self.__spdx3_doc, "spdxId", None)
             root_elem_id = getattr(root_elem, "spdxId", None)
             error_msg = (
@@ -464,17 +478,14 @@ class BaseChecker(ABC):
 
         # SPDX 3
         if self.sbom_spec == "spdx3":
-            self.doc = cast("spdx3.SHACLObjectSet", self.doc)
+            self.doc = cast("spdx3_types.SHACLObjectSet", self.doc)
 
             has_concluded_license_ids: set[str] = set()
-            no_assertion_uri = (
-                spdx3.expandedlicensing_IndividualLicensingInfo.NAMED_INDIVIDUALS[
-                    "NoAssertionLicense"
-                ]
-            )
+            lic_info = self.spdx_module.expandedlicensing_IndividualLicensingInfo
+            no_assertion_uri = lic_info.NAMED_INDIVIDUALS["NoAssertionLicense"]
 
             for from_id, to_ids in iter_relationships_by_type(
-                self.doc, "hasConcludedLicense"
+                self.doc, "hasConcludedLicense", self.spdx_module
             ):
                 # Filter out any "NoAssertionLicense" from the list
                 valid_licenses = [
@@ -489,7 +500,7 @@ class BaseChecker(ABC):
                 (name or "", spdx_id or "")
                 for name, spdx_id, _ in iter_objects_with_property(
                     self.doc,
-                    spdx3.software_Package,
+                    self.spdx_module.software_Package,
                     "spdxId",
                     self.reachable_component_ids,
                 )
@@ -531,13 +542,13 @@ class BaseChecker(ABC):
 
         # SPDX 3
         if self.sbom_spec == "spdx3":
-            self.doc = cast("spdx3.SHACLObjectSet", self.doc)
+            self.doc = cast("spdx3_types.SHACLObjectSet", self.doc)
 
             return [
                 (name or "", spdx_id or "")
                 for name, spdx_id, copyright_text in iter_objects_with_property(
                     self.doc,
-                    spdx3.software_Package,
+                    self.spdx_module.software_Package,
                     "software_copyrightText",
                     self.reachable_component_ids,
                 )
@@ -584,12 +595,15 @@ class BaseChecker(ABC):
 
         # SPDX 3
         if self.sbom_spec == "spdx3":
-            self.doc = cast("spdx3.SHACLObjectSet", self.doc)
+            self.doc = cast("spdx3_types.SHACLObjectSet", self.doc)
 
             return [
                 (name or "", spdx_id or "")
                 for name, _, spdx_id in iter_objects_with_property(
-                    self.doc, spdx3.Element, "spdxId", self.reachable_component_ids
+                    self.doc,
+                    self.spdx_module.Element,
+                    "spdxId",
+                    self.reachable_component_ids,
                 )
                 if not spdx_id or (isinstance(spdx_id, str) and spdx_id.strip() == "")
             ]
@@ -625,13 +639,13 @@ class BaseChecker(ABC):
 
         # SPDX 3
         if self.sbom_spec == "spdx3":
-            self.doc = cast("spdx3.SHACLObjectSet", self.doc)
+            self.doc = cast("spdx3_types.SHACLObjectSet", self.doc)
 
             return [
                 (name or "", spdx_id or "")
                 for _, spdx_id, name in iter_objects_with_property(
                     self.doc,
-                    spdx3.software_Package,
+                    self.spdx_module.software_Package,
                     "name",
                     self.reachable_component_ids,
                 )
@@ -673,13 +687,13 @@ class BaseChecker(ABC):
 
         # SPDX 3
         if self.sbom_spec == "spdx3":
-            self.doc = cast("spdx3.SHACLObjectSet", self.doc)
+            self.doc = cast("spdx3_types.SHACLObjectSet", self.doc)
 
             return [
                 (name or "", spdx_id or "")
                 for name, spdx_id, supplier in iter_objects_with_property(
                     self.doc,
-                    spdx3.software_Package,
+                    self.spdx_module.software_Package,
                     "suppliedBy",
                     self.reachable_component_ids,
                 )
@@ -725,13 +739,13 @@ class BaseChecker(ABC):
 
         # SPDX 3
         if self.sbom_spec == "spdx3":
-            self.doc = cast("spdx3.SHACLObjectSet", self.doc)
+            self.doc = cast("spdx3_types.SHACLObjectSet", self.doc)
 
             return [
                 (name or "", spdx_id or "")
                 for name, spdx_id, package_version in iter_objects_with_property(
                     self.doc,
-                    spdx3.software_Package,
+                    self.spdx_module.software_Package,
                     "software_packageVersion",
                     self.reachable_component_ids,
                 )
@@ -779,8 +793,8 @@ class BaseChecker(ABC):
 
         # SPDX 3
         if self.sbom_spec == "spdx3":
-            self.doc = cast("spdx3.SHACLObjectSet", self.doc)
-            objects: set[spdx3.SHACLObject] = getattr(self.doc, "objects", set())
+            self.doc = cast("spdx3_types.SHACLObjectSet", self.doc)
+            objects: set[spdx3_types.SHACLObject] = getattr(self.doc, "objects", set())
             return len(objects)
 
         return 0
@@ -824,12 +838,12 @@ class BaseChecker(ABC):
 
         return cast("Document", doc)
 
-    def parse_spdx3_file(self) -> spdx3.SHACLObjectSet | None:
+    def parse_spdx3_file(self) -> spdx3_types.SHACLObjectSet | None:
         """
         Parse SPDX 3 SBOM document.
 
         Returns:
-            spdx3.SHACLObjectSet | None: An SHACLObjectSet if successful, otherwise None.
+            spdx3_types.SHACLObjectSet | None: An SHACLObjectSet if successful, otherwise None.
         """
         if not self.file or str(self.file).strip() == "":
             logging.error("No file path provided.")
@@ -839,10 +853,10 @@ class BaseChecker(ABC):
             logging.error("File not found: %s", self.file)
             return None
 
-        object_set: spdx3.SHACLObjectSet = spdx3.SHACLObjectSet()
+        object_set: spdx3_types.SHACLObjectSet = self.spdx_module.SHACLObjectSet()
         try:
             with open(self.file, "rb") as f:
-                spdx3.JSONLDDeserializer().read(f, object_set)
+                self.spdx_module.JSONLDDeserializer().read(f, object_set)
         except (OSError, json.JSONDecodeError) as err:
             logging.warning("SPDX3 deserialization failed: %s", err)
             self._parsing_errors.append(str(err))
