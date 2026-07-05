@@ -53,6 +53,10 @@ rules:
     probe:                       # the check to run; omit for catalogue-only/tbd
       name: require_component_attribute   # registered probe (probes/presence.py)
       params: { attribute: name }         # kwargs passed to the probe
+    # concept_uri: https://example.org/vocab/component-name
+                                 # optional IRI of the element's concept in an
+                                 # external SBOM ontology; reserved slot, left
+                                 # empty until external vocabulary linking lands
     json_key: componentNames     # key in output_json(); omit to skip JSON output
 
   # A document-level rule using the other built-in probe.

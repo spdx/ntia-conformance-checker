@@ -305,6 +305,19 @@ class SpecRule:
     """Probe to run for this rule.  ``None`` for catalogue-only and TBD
     rules (they appear in the catalogue but no probe is invoked)."""
 
+    # -- Semantic mapping (external vocabulary) ---------------------------
+
+    concept_uri: str = ""
+    """IRI of the semantic concept this rule's element corresponds to in an
+    external vocabulary (e.g. a SKOS concept in an SBOM ontology).
+
+    Empty for now: this is a reserved slot for linking rules to a shared,
+    spec-independent element vocabulary so the same underlying element in
+    different standards (NTIA supplier, FSCT3 supplier) resolves to one
+    concept.  When populated, consumers may treat it as the object of a
+    ``skos:exactMatch`` / SSSOM mapping and emit it in output.  Kept as an
+    opaque string -- the schema does not bind any particular vocabulary."""
+
     # -- Output mappings --------------------------------------------------
 
     oscal_control_id: str = ""

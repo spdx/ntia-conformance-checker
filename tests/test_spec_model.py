@@ -221,6 +221,19 @@ def test_loader_flat_spec_gets_default_level(tmp_path: Path) -> None:
     assert s.rule_id(s.rules[0]) == "SBOM-DEMO-C-001"
 
 
+def test_concept_uri_defaults_empty_and_round_trips(tmp_path: Path) -> None:
+    # Reserved semantic-mapping slot: empty by default, opaque when set.
+    assert load_spec(_write(tmp_path, _GOOD)).rules[0].concept_uri == ""
+    with_uri = _GOOD.replace(
+        "spec_category: c",
+        "spec_category: c\n    concept_uri: https://w3id.org/sbom/doc-author",
+    )
+    assert (
+        load_spec(_write(tmp_path, with_uri)).rules[0].concept_uri
+        == "https://w3id.org/sbom/doc-author"
+    )
+
+
 @pytest.mark.parametrize(
     "mutation",
     [
