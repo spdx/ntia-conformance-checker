@@ -11,8 +11,10 @@ import logging
 import os
 import warnings
 from abc import ABC, abstractmethod
+from pathlib import Path
 from typing import TYPE_CHECKING, Any, Union, cast
 
+import spdx_python_model
 from spdx_tools.spdx.model.relationship import RelationshipType
 from spdx_tools.spdx.model.spdx_no_assertion import SpdxNoAssertion
 from spdx_tools.spdx.parser import parse_anything
@@ -23,7 +25,6 @@ from spdx_tools.spdx.validation.validation_message import (
     ValidationMessage,
 )
 
-from .cli_utils import get_spdx_version
 from .constants import DEFAULT_SBOM_SPEC
 from .graph_utils import analyze_graph_connectivity
 from .report import (
@@ -36,7 +37,6 @@ from .spdx3_utils import (
     has_package_dependency_relationship,
     iter_objects_with_property,
     iter_relationships_by_type,
-    load_spdx3_model,
     validate_spdx3_data,
 )
 
@@ -195,17 +195,11 @@ class BaseChecker(ABC):
             case "spdx2":
                 self.doc = self.parse_file()
             case "spdx3":
-                version_tuple = get_spdx_version(self.file, "spdx3")
-                major, minor = version_tuple if version_tuple else (3, 0)
+                try:
+                    self.spdx_module, object_set = spdx_python_model.load(
+                        Path(self.file)
+                    )
 
-                self.spdx_module = load_spdx3_model(major, minor)
-
-                print(f"DEBUG: Loaded module: {self.spdx_module.__name__}")
-
-                object_set = self.parse_spdx3_file()
-                if not object_set:
-                    logging.error("Failed to parse the SPDX 3 file.")
-                else:
                     self.doc = object_set
                     self.__spdx3_doc, _val_msgs = validate_spdx3_data(
                         object_set, self.spdx_module
@@ -213,6 +207,11 @@ class BaseChecker(ABC):
                     if not self.__spdx3_doc or _val_msgs:
                         logging.error("SpdxDocument not found or invalid.")
                     self._validation_messages.extend(_val_msgs)
+                except ValueError:
+                    raise
+                except Exception as err:  # pylint: disable=broad-exception-caught
+                    logging.error("Failed to load SPDX 3 document: %s", err)
+                    self._parsing_errors.append(str(err))
             case _:
                 # We can add a heuristic to detect the spec from the file content here,
                 # in case sbom_spec is not provided or invalid.

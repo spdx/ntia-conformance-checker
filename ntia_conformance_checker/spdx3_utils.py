@@ -6,15 +6,12 @@
 
 from __future__ import annotations
 
-import importlib
 from typing import TYPE_CHECKING, Any, Union, cast
 
 from spdx_tools.spdx.validation.validation_message import (
     ValidationContext,
     ValidationMessage,
 )
-
-from .constants import SPDX3_MODEL_BINDINGS_MAP
 
 if TYPE_CHECKING:
     from collections.abc import Iterator
@@ -302,27 +299,3 @@ def has_package_dependency_relationship(
                 return True
 
     return False
-
-
-class UnsupportedVersionError(Exception):
-    """Raised when the required SPDX Python bindings are not available."""
-
-
-def load_spdx3_model(major: int, minor: int) -> Any:
-    """Dynamically loads the appropriate spdx_python_model version bindings."""
-    version_key = (major, minor)
-
-    # Check if the requested version is supported and available
-    if version_key not in SPDX3_MODEL_BINDINGS_MAP:
-        raise UnsupportedVersionError(
-            f"Bindings for SPDX {major}.{minor} are not implemented in this tool."
-        )
-
-    version_suffix = SPDX3_MODEL_BINDINGS_MAP[version_key]
-    module_path = f"spdx_python_model.bindings.{version_suffix}"
-    try:
-        return importlib.import_module(module_path)
-    except ImportError as exc:
-        raise UnsupportedVersionError(
-            f"Bindings for SPDX {major}.{minor} ({module_path}) are not available."
-        ) from exc

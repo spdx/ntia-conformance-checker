@@ -49,7 +49,3 @@ SUPPORTED_SPDX2_VERSION_STRINGS = {
 SUPPORTED_SPDX3_VERSION_STRINGS = {
     f"{maj}.{min}" for (maj, min) in SUPPORTED_SPDX_VERSIONS if maj == 3
 }  # e.g. "3.0"
-SPDX3_MODEL_BINDINGS_MAP = {
-    (3, 0): "v3_0_1",
-    (3, 1): "v3_1",
-}
