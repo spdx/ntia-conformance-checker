@@ -221,17 +221,19 @@ def test_loader_flat_spec_gets_default_level(tmp_path: Path) -> None:
     assert s.rule_id(s.rules[0]) == "SBOM-DEMO-C-001"
 
 
-def test_concept_uri_defaults_empty_and_round_trips(tmp_path: Path) -> None:
+def test_element_concept_uris_defaults_empty_and_round_trips(tmp_path: Path) -> None:
     # Reserved semantic-mapping slot: empty by default, opaque when set.
-    assert load_spec(_write(tmp_path, _GOOD)).rules[0].concept_uri == ""
-    with_uri = _GOOD.replace(
+    assert load_spec(_write(tmp_path, _GOOD)).rules[0].element_concept_uris == ()
+    uris = [
+        "https://example.org/vocab#doc-author",
+        "https://example.org/other-vocab#author",
+    ]
+    with_uris = _GOOD.replace(
         "spec_category: c",
-        "spec_category: c\n    concept_uri: https://w3id.org/sbom/doc-author",
+        f"spec_category: c\n    element_concept_uris: {uris}",
     )
-    assert (
-        load_spec(_write(tmp_path, with_uri)).rules[0].concept_uri
-        == "https://w3id.org/sbom/doc-author"
-    )
+    rule = load_spec(_write(tmp_path, with_uris)).rules[0]
+    assert rule.element_concept_uris == tuple(uris)
 
 
 @pytest.mark.parametrize(
@@ -246,6 +248,10 @@ def test_concept_uri_defaults_empty_and_round_trips(tmp_path: Path) -> None:
             "name: require_document_attribute",
             "name: not_a_real_probe",
         ),  # unregistered probe
+        (
+            "spec_category: c",
+            "spec_category: c\n    element_concept_uris: https://example.org/vocab#x",
+        ),  # element_concept_uris must be a list, not a bare string
     ],
 )
 def test_loader_rejects_bad_values(tmp_path: Path, mutation: tuple[str, str]) -> None:

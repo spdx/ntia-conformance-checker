@@ -262,6 +262,11 @@ class SpecRule:
     Used in per-finding result messages.  For the canonical user-facing
     prose, see :attr:`warning`."""
 
+    element_concept_uris: tuple[str, ...] = ()
+    """IRIs of this element's concept in external vocabularies -- the
+    external-identifier counterpart to :attr:`element_id`.
+    Consumers may treat each entry as ``skos:exactMatch``."""
+
     competency_question: str = ""
     """The yes/no competency question the rule answers, used as the label in
     text/HTML report tables (e.g. ``"All component suppliers provided?"``)."""
@@ -304,19 +309,6 @@ class SpecRule:
     probe: ProbeRef | None = None
     """Probe to run for this rule.  ``None`` for catalogue-only and TBD
     rules (they appear in the catalogue but no probe is invoked)."""
-
-    # -- Semantic mapping (external vocabulary) ---------------------------
-
-    concept_uri: str = ""
-    """IRI of the semantic concept this rule's element corresponds to in an
-    external vocabulary (e.g. a SKOS concept in an SBOM ontology).
-
-    Empty for now: this is a reserved slot for linking rules to a shared,
-    spec-independent element vocabulary so the same underlying element in
-    different standards (NTIA supplier, FSCT3 supplier) resolves to one
-    concept.  When populated, consumers may treat it as the object of a
-    ``skos:exactMatch`` / SSSOM mapping and emit it in output.  Kept as an
-    opaque string -- the schema does not bind any particular vocabulary."""
 
     # -- Output mappings --------------------------------------------------
 

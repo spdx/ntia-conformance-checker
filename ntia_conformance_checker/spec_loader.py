@@ -261,6 +261,14 @@ def _build_rule(
         )
     _reject_bad_enum(data, "provision", _PROVISION_VALUES, path)
     _reject_bad_enum(data, "status", _STATUS_VALUES, path)
+    if "element_concept_uris" in data:
+        uris = data["element_concept_uris"]
+        if not isinstance(uris, list) or not all(isinstance(u, str) for u in uris):
+            raise SpecLoadError(
+                f"{path}: rule element_concept_uris must be a list of strings; "
+                f"got {uris!r}"
+            )
+        data["element_concept_uris"] = tuple(uris)
     probe = _build_probe(probe_raw, path) if probe_raw is not None else None
     return SpecRule(**data, probe=probe)
 
