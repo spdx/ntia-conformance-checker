@@ -1,4 +1,4 @@
-# SPDX-FileCopyrightText: 2024 SPDX contributors
+# SPDX-FileCopyrightText: 2024-present SPDX contributors
 # SPDX-FileType: SOURCE
 # SPDX-License-Identifier: Apache-2.0
 
@@ -6,10 +6,13 @@
 
 from __future__ import annotations
 
-from typing import Any, final
+from typing import TYPE_CHECKING, Any, final
 
 from .base_checker import BaseChecker
 from .constants import SUPPORTED_SBOM_SPECS
+
+if TYPE_CHECKING:
+    from .spec import Spec
 
 
 @final
@@ -23,56 +26,58 @@ class SbomChecker(BaseChecker):
     a subclass of BaseChecker based on the given "compliance" argument
     during instantiation.
 
-    Currently there are two compliance standards available:
+    Currently supported compliance standards:
 
-    - **"ntia" (default)**, returns an instance of NTIAChecker
-      - NTIAChecker has the same behavior as the original SbomChecker
-    - **"fsct3-min"**, returns an instance of FSCT3Checker
-      - FSCT3Checker is a checker for FSCT 3rd Edition Baseline Attributes
+    - **"ntia" (default)**: 2021 NTIA SBOM Minimum Elements
+    - **"fsct3"**: 2024 CISA SBOM Baseline Attributes (Minimum Expected)
 
     If "compliance" is not recognized, SbomChecker raises a ValueError.
     """
-
-    # Note that all NTIA-specific functionalities are moved to
-    # .ntia_checker.NTIAChecker, and common functionalities that can be shared
-    # among checkers of different compliance standards are moved to
-    # .base_checker.BaseChecker.
 
     def __new__(
         cls,
         file: str,
         validate: bool = True,
-        compliance: str = "ntia",
+        compliance: "str | Spec" = "ntia",
         sbom_spec: str = "spdx2",
     ) -> Any:
         """
-        Returns an instance of a specific compliance checker.
+        Return an instance of a specific compliance checker.
 
         Args:
-            file (str): The name of the file to be checked.
-            validate (bool): Whether to validate the file.
-            compliance (str): The compliance standard to be used. Defaults to "ntia".
-            sbom_spec (str): The SBOM specification to be used. Defaults to "spdx2".
+            file (str): The path to the SBOM file to be checked.
+            validate (bool): Whether to validate the file before checking.
+                Defaults to True.
+            compliance (str | Spec): The compliance standard to use -- a
+                registered spec id (e.g. ``"ntia"``) or a :class:`Spec`
+                instance.  Defaults to ``"ntia"``.
+            sbom_spec (str): The SBOM specification format. Defaults to "spdx2".
 
         Returns:
-            BaseChecker: An instance of a specific compliance checker.
+            BaseChecker: An instance of the compliance checker configured for
+                the requested compliance standard.
+
+        Raises:
+            ValueError: If ``sbom_spec`` is not supported or ``compliance`` is
+                not recognized.  An invalid maturity level is reported when a
+                verdict / output method is called with it, not at construction.
         """
         if sbom_spec not in SUPPORTED_SBOM_SPECS:
             raise ValueError(f"Unsupported SBOM specification: {sbom_spec}")
 
-        if compliance == "ntia":
-            # pylint: disable=import-outside-toplevel
-            from .ntia_checker import NTIAChecker
+        # Dispatch is spec-driven -- no per-standard branch here, so adding a
+        # new ``rules/<id>.yaml`` is all that is needed to support a new
+        # ``--comply`` value.  RuleBasedChecker resolves ``compliance`` (id or
+        # Spec) and raises ValueError for an unknown id.
+        # pylint: disable=import-outside-toplevel
+        from .rule_based_checker import RuleBasedChecker
 
-            return NTIAChecker(file, validate, sbom_spec=sbom_spec)
-
-        if compliance.startswith("fsct3"):
-            # pylint: disable=import-outside-toplevel
-            from .fsct_checker import FSCT3Checker
-
-            return FSCT3Checker(file, validate, sbom_spec=sbom_spec)
-
-        raise ValueError(f"Unknown compliance standard: {compliance}")
+        return RuleBasedChecker(
+            file,
+            validate,
+            compliance=compliance,
+            sbom_spec=sbom_spec,
+        )
 
     def __init_subclass__(cls, /) -> None:  # prevent subclassing
         raise TypeError(
@@ -80,5 +85,9 @@ class SbomChecker(BaseChecker):
             "Please subclass BaseChecker to implement custom checkers."
         )
 
-    def check_compliance(self) -> bool:
+    def check_compliance(self, maturity: int = 0) -> bool:
         raise NotImplementedError("This method is not implemented by SbomChecker.")
+
+    @property
+    def spec(self) -> "Spec":
+        raise NotImplementedError("This property is not implemented by SbomChecker.")

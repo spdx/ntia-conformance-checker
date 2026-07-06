@@ -13,6 +13,10 @@ and this project adheres to [Semantic Versioning][semver].
 
 ## [Unreleased]
 
+This major release corrects conformance logic, which may result in
+different conformance outcomes compared to previous versions.
+It also introduces a declarative rule engine to enhance extensibility.
+
 ### Fixed
 
 - BREAKING CHANGE:
@@ -22,6 +26,28 @@ and this project adheres to [Semantic Versioning][semver].
   This changes the return signature to `Iterator[tuple[str, list[str]]]`
   ([#398])
 
+### Added
+
+- Declarative rule engine: each compliance standard is a `rules/<spec_id>.yaml`
+  file; adding a standard no longer requires a Python subclass ([#393])
+- SARIF output via `output_sarif()` ([#393])
+- Stable rule ids `SBOM-[SPEC]-[CATEGORY]-[NNN]` (e.g. `SBOM-NTIA-DF-001`),
+  derived from each rule's slug ([#393])
+
+### Changed
+
+- `compliance` argument now also accepts a `Spec` object in addition to a spec
+  id string ([#393])
+- FSCT3: missing SBOM generation context (SBOM type) is now a blocking error
+  at maturity level 0 ([#393])
+- `--output quiet` renamed to `--output none` (`quiet` still accepted;
+  the name is now reserved for log verbosity) ([#393])
+
+### Deprecated
+
+- `BaseChecker.compliant` property; use `check_compliance()` instead ([#393])
+
+[#393]: https://github.com/spdx/ntia-conformance-checker/pull/393
 [#398]: https://github.com/spdx/ntia-conformance-checker/pull/398
 
 ## [5.0.3] - 2026-06-02
