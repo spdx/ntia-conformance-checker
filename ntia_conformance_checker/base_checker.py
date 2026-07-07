@@ -62,15 +62,18 @@ class BaseChecker(ABC):
     _COMPONENTS_WITHOUT_INFO = {
         "name": ("components_without_names", "Components missing a name"),
         "version": ("components_without_versions", "Components missing a version"),
-        "identifier": ("components_without_identifiers", "Components missing an identifier"),
+        "identifier": (
+            "components_without_identifiers",
+            "Components missing an identifier",
+        ),
         "supplier": ("components_without_suppliers", "Components missing a supplier"),
         "concluded_license": (
-            "components_without_concluded_licenses", 
-            "Components missing a concluded license"
+            "components_without_concluded_licenses",
+            "Components missing a concluded license",
         ),
         "copyright_text": (
             "components_without_copyright_texts",
-            "Components missing a copyright text"
+            "Components missing a copyright text",
         ),
     }
 
@@ -181,7 +184,7 @@ class BaseChecker(ABC):
 
         self.reachable_component_ids: set[str] = set()
         self.floating_component_ids: set[str] = set()
-        self.has_disconnected_components: bool = False
+        self.has_unknown_components: bool = False
 
         match sbom_spec:
             case "spdx2":
@@ -219,7 +222,9 @@ class BaseChecker(ABC):
             self.components_without_names = self.get_components_without_names()
             self.components_without_versions = self.get_components_without_versions()
             self.components_without_suppliers = self.get_components_without_suppliers()
-            self.components_without_identifiers = self.get_components_without_identifiers()
+            self.components_without_identifiers = (
+                self.get_components_without_identifiers()
+            )
             self.components_without_concluded_licenses = (
                 self.get_components_without_concluded_licenses()
             )
@@ -229,9 +234,9 @@ class BaseChecker(ABC):
 
             # List of (info_name, components) tuples,
             # where components is a list of (component_name, spdx_id) tuples
-            self.all_components_without_info: list[tuple[str, list[tuple[str, str]]]] = (
-                self._get_all_components_without_info()
-            )
+            self.all_components_without_info: list[
+                tuple[str, list[tuple[str, str]]]
+            ] = self._get_all_components_without_info()
 
         self.table_elements: list[tuple[str, bool]] = []
 
@@ -962,7 +967,7 @@ class BaseChecker(ABC):
         return result
 
     def _evaluate_graph_connectivity(self) -> None:
-        """Evaluate graph connectivity to isolate floating nodes and dangling pointers."""
+        """Evaluate graph connectivity to isolate floating nodes and unknown pointers."""
         self.reachable_component_ids = get_reachable_components(
             self.sbom_spec, self.doc, getattr(self, "_BaseChecker__spdx3_doc", None)
         )
@@ -988,10 +993,12 @@ class BaseChecker(ABC):
         if self.floating_component_ids:
             logging.warning(
                 "Found %d disconnected 'floating' elements. They will be ignored for compliance.",
-                len(self.floating_component_ids)
+                len(self.floating_component_ids),
             )
 
         if not self.reachable_component_ids.issubset(all_doc_ids):
-            logging.error("Disconnected components detected!"
-                          "A relationship points to a missing element.")
-            self.has_dangling_pointers = True
+            logging.error(
+                "Unknown components detected!"
+                "A relationship points to a missing element."
+            )
+            self.has_unknown_components = True

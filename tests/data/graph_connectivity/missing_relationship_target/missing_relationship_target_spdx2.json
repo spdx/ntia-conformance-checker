@@ -1,9 +1,9 @@
 {
   "SPDXID": "SPDXRef-DOCUMENT",
   "spdxVersion": "SPDX-2.3",
-  "name": "SPDX2-Dangling-Dependency-Test",
+  "name": "SPDX2-Unknown-Component-Dependency-Test",
   "dataLicense": "CC0-1.0",
-  "documentNamespace": "https://swinslow.net/spdx-examples/spdx2-dangling",
+  "documentNamespace": "https://swinslow.net/spdx-examples/spdx2-unknown",
   "creationInfo": {
     "comment": "",
     "creators": [

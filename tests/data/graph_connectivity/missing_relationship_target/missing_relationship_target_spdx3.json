@@ -17,7 +17,7 @@
       "rootElement": [
         "https://swinslow.net/spdx-examples/SPDXRef-Package-A"
       ],
-      "name": "Dangling-Dependency-Test-SBOM",
+      "name": "Unknown-Component-Dependency-Test-SBOM",
       "creationInfo": "_:creationInfo_0"
     },
     {
