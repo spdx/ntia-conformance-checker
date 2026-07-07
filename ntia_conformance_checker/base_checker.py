@@ -487,10 +487,7 @@ class BaseChecker(ABC):
             return [
                 (name or "", spdx_id or "")
                 for name, spdx_id, _ in iter_objects_with_property(
-                    self.doc,
-                    spdx3.software_Package,
-                    "spdxId",
-                    self.reachable_component_ids,
+                    self.doc, spdx3.software_Package, "spdxId", self.reachable_component_ids,
                 )
                 if spdx_id not in has_concluded_license_ids
             ]
@@ -626,10 +623,7 @@ class BaseChecker(ABC):
             return [
                 (name or "", spdx_id or "")
                 for _, spdx_id, name in iter_objects_with_property(
-                    self.doc,
-                    spdx3.software_Package,
-                    "name",
-                    self.reachable_component_ids,
+                    self.doc, spdx3.software_Package, "name", self.reachable_component_ids,
                 )
                 if not name or (isinstance(name, str) and name.strip() == "")
             ]
@@ -673,10 +667,7 @@ class BaseChecker(ABC):
             return [
                 (name or "", spdx_id or "")
                 for name, spdx_id, supplier in iter_objects_with_property(
-                    self.doc,
-                    spdx3.software_Package,
-                    "suppliedBy",
-                    self.reachable_component_ids,
+                    self.doc, spdx3.software_Package, "suppliedBy",self.reachable_component_ids,
                 )
                 if not supplier
                 or (
@@ -724,9 +715,7 @@ class BaseChecker(ABC):
             return [
                 (name or "", spdx_id or "")
                 for name, spdx_id, package_version in iter_objects_with_property(
-                    self.doc,
-                    spdx3.software_Package,
-                    "software_packageVersion",
+                    self.doc, spdx3.software_Package, "software_packageVersion",
                     self.reachable_component_ids,
                 )
                 if not package_version
