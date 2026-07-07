@@ -173,6 +173,7 @@ def iter_objects_with_property(
     object_set: spdx3.SHACLObjectSet,
     typ: type[spdx3.SHACLObject] = spdx3.Artifact,
     property_name: str = "spdxId",
+    reachable_ids: set[str] | None = None,
 ) -> Iterator[tuple[str, str, Any]]:
     """
     Yield (name, spdxId, property) for each SPDX 3 object.
@@ -181,6 +182,7 @@ def iter_objects_with_property(
         object_set (spdx3.SHACLObjectSet): The SHACLObjectSet to iterate over.
         typ (type[spdx3.SHACLObject]): The type of SPDX3 object
         property_name (str): The property name to retrieve.
+        reachable_ids (set[str] | None): A set of reachable SPDX IDs from root.
 
     Yields:
         Iterator[tuple[str, str, Any]]: A tuple containing the name,
@@ -190,6 +192,10 @@ def iter_objects_with_property(
     for obj in object_set.foreach_type(typ):
         name = (getattr(obj, "name", "") or "").strip()
         spdx_id = (getattr(obj, "spdxId", "") or "").strip()
+
+        if reachable_ids is not None and spdx_id not in reachable_ids:
+            continue
+
         property_ = getattr(obj, property_name, None)
         yield name, spdx_id, property_
 
@@ -233,27 +239,27 @@ def get_all_packages(object_set: spdx3.SHACLObjectSet) -> set[spdx3.software_Pac
     return packages
 
 
-def get_all_package_ids(object_set: spdx3.SHACLObjectSet) -> set[str]:
+def get_all_package_ids(
+    object_set: spdx3.SHACLObjectSet, reachable_ids: set[str] | None = None
+) -> set[str]:
     """Retrieve spdxId for all /Software/Package objects from an SHACLObjectSet."""
     return {
         spdx_id
         for _name, spdx_id, _ in iter_objects_with_property(
-            object_set,
-            spdx3.software_Package,
-            "spdxId",
+            object_set, spdx3.software_Package, "spdxId", reachable_ids
         )
         if spdx_id
     }
 
 
-def get_all_element_ids(object_set: spdx3.SHACLObjectSet) -> set[str]:
+def get_all_element_ids(
+    object_set: spdx3.SHACLObjectSet, reachable_ids: set[str] | None = None
+) -> set[str]:
     """Retrieve spdxId for all SPDX 3 Element objects from an SHACLObjectSet."""
     return {
         spdx_id
         for _name, spdx_id, _ in iter_objects_with_property(
-            object_set,
-            spdx3.Element,
-            "spdxId",
+            object_set, spdx3.Element, "spdxId", reachable_ids
         )
         if spdx_id
     }

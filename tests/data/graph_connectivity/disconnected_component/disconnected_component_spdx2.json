@@ -1,0 +1,44 @@
+{
+  "SPDXID": "SPDXRef-DOCUMENT",
+  "spdxVersion": "SPDX-2.3",
+  "name": "SPDX2-Orphan-Component-Test",
+  "dataLicense": "CC0-1.0",
+  "documentNamespace": "https://swinslow.net/spdx-examples/spdx2-orphan",
+  "creationInfo": {
+    "comment": "",
+    "creators": [
+      "Person: Induwara"
+    ],
+    "created": "2026-07-01T12:00:00Z"
+  },
+  "packages": [
+    {
+      "name": "Valid-Root-Package",
+      "SPDXID": "SPDXRef-Package-Valid",
+      "versionInfo": "1.0.0",
+      "supplier": "Organization: Test Supplier",
+      "downloadLocation": "NOASSERTION",
+      "filesAnalyzed": false,
+      "licenseConcluded": "NOASSERTION",
+      "licenseDeclared": "NOASSERTION",
+      "copyrightText": "NOASSERTION"
+    },
+    {
+      "name": "",
+      "SPDXID": "SPDXRef-Package-Orphan",
+      "versionInfo": "9.9.9",
+      "downloadLocation": "NOASSERTION",
+      "filesAnalyzed": false,
+      "licenseConcluded": "NOASSERTION",
+      "licenseDeclared": "NOASSERTION",
+      "copyrightText": "NOASSERTION"
+    }
+  ],
+  "relationships": [
+    {
+      "spdxElementId": "SPDXRef-DOCUMENT",
+      "relationshipType": "DESCRIBES",
+      "relatedSpdxElement": "SPDXRef-Package-Valid"
+    }
+  ]
+}

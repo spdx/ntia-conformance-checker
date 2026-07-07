@@ -1,0 +1,53 @@
+{
+  "@context": "https://spdx.org/rdf/3.0.1/spdx-context.jsonld",
+  "@graph": [
+    {
+      "@id": "_:creationInfo_0",
+      "type": "CreationInfo",
+      "specVersion": "3.0.1",
+      "createdBy": [
+        "https://swinslow.net/spdx-examples/SPDXRef-Person1"
+      ],
+      "created": "2026-07-01T12:00:00Z"
+    },
+    {
+      "@id": "https://swinslow.net/spdx-examples/document1",
+      "type": "SpdxDocument",
+      "dataLicense": "https://swinslow.net/spdx-examples/SPDXRef-CC0",
+      "rootElement": [
+        "https://swinslow.net/spdx-examples/SPDXRef-Package-A"
+      ],
+      "name": "Dangling-Dependency-Test-SBOM",
+      "creationInfo": "_:creationInfo_0"
+    },
+    {
+      "@id": "https://swinslow.net/spdx-examples/SPDXRef-Person1",
+      "type": "Person",
+      "name": "Induwara",
+      "creationInfo": "_:creationInfo_0"
+    },
+    {
+      "@id": "https://swinslow.net/spdx-examples/SPDXRef-CC0",
+      "type": "simplelicensing_LicenseExpression",
+      "simplelicensing_licenseExpression": "CC0-1.0",
+      "creationInfo": "_:creationInfo_0"
+    },
+    {
+      "@id": "https://swinslow.net/spdx-examples/SPDXRef-Package-A",
+      "type": "software_Package",
+      "name": "Root-Application-Package",
+      "software_packageVersion": "1.0.0",
+      "creationInfo": "_:creationInfo_0"
+    },
+    {
+      "@id": "https://swinslow.net/spdx-examples/SPDXRef-Rel1",
+      "type": "Relationship",
+      "relationshipType": "describes",
+      "from": "https://swinslow.net/spdx-examples/document1",
+      "to": [
+        "https://swinslow.net/spdx-examples/SPDXRef-Package-B"
+      ],
+      "creationInfo": "_:creationInfo_0"
+    }
+  ]
+}

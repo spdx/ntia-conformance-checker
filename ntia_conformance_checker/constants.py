@@ -11,6 +11,12 @@ SUPPORTED_SBOM_SPECS_DESC = {
 DEFAULT_SBOM_SPEC = "spdx2"
 SUPPORTED_SBOM_SPECS = set(SUPPORTED_SBOM_SPECS_DESC.keys())
 
+VALID_SPDX2_RELATIONSHIP_TYPES = {
+    "DESCRIBES",
+    "CONTAINS",
+    "DEPENDS_ON",
+}
+
 SUPPORTED_COMPLIANCE_STANDARDS_DESC = {
     # "cisasbom2025": "2025 CISA SBOM Minimum Elements",
     # https://www.cisa.gov/resources-tools/resources/2025-minimum-elements-software-bill-materials-sbom

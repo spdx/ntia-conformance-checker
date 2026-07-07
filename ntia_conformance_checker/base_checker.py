@@ -25,6 +25,7 @@ from spdx_tools.spdx.validation.validation_message import (
 )
 
 from .constants import DEFAULT_SBOM_SPEC
+from .graph_utils import get_reachable_components
 from .report import (
     ReportContext,
     get_validation_messages_json,
@@ -61,18 +62,15 @@ class BaseChecker(ABC):
     _COMPONENTS_WITHOUT_INFO = {
         "name": ("components_without_names", "Components missing a name"),
         "version": ("components_without_versions", "Components missing a version"),
-        "identifier": (
-            "components_without_identifiers",
-            "Components missing an identifier",
-        ),
+        "identifier": ("components_without_identifiers", "Components missing an identifier"),
         "supplier": ("components_without_suppliers", "Components missing a supplier"),
         "concluded_license": (
-            "components_without_concluded_licenses",
-            "Components missing a concluded license",
+            "components_without_concluded_licenses", 
+            "Components missing a concluded license"
         ),
         "copyright_text": (
             "components_without_copyright_texts",
-            "Components missing a copyright text",
+            "Components missing a copyright text"
         ),
     }
 
@@ -181,6 +179,10 @@ class BaseChecker(ABC):
         self._validation_messages = []
         self._conformance_messages = []
 
+        self.reachable_component_ids: set[str] = set()
+        self.floating_component_ids: set[str] = set()
+        self.has_disconnected_components: bool = False
+
         match sbom_spec:
             case "spdx2":
                 self.doc = self.parse_file()
@@ -200,6 +202,8 @@ class BaseChecker(ABC):
                 raise ValueError(f"Unsupported SBOM specification: {sbom_spec}")
 
         if self.doc:
+            self._evaluate_graph_connectivity()
+
             if validate and sbom_spec == "spdx2":
                 self.doc = cast("Document", self.doc)
                 self._validation_messages = validate_full_spdx_document(self.doc)
@@ -215,9 +219,7 @@ class BaseChecker(ABC):
             self.components_without_names = self.get_components_without_names()
             self.components_without_versions = self.get_components_without_versions()
             self.components_without_suppliers = self.get_components_without_suppliers()
-            self.components_without_identifiers = (
-                self.get_components_without_identifiers()
-            )
+            self.components_without_identifiers = self.get_components_without_identifiers()
             self.components_without_concluded_licenses = (
                 self.get_components_without_concluded_licenses()
             )
@@ -227,9 +229,9 @@ class BaseChecker(ABC):
 
             # List of (info_name, components) tuples,
             # where components is a list of (component_name, spdx_id) tuples
-            self.all_components_without_info: list[
-                tuple[str, list[tuple[str, str]]]
-            ] = self._get_all_components_without_info()
+            self.all_components_without_info: list[tuple[str, list[tuple[str, str]]]] = (
+                self._get_all_components_without_info()
+            )
 
         self.table_elements: list[tuple[str, bool]] = []
 
@@ -483,6 +485,7 @@ class BaseChecker(ABC):
                     self.doc,
                     spdx3.software_Package,
                     "spdxId",
+                    self.reachable_component_ids,
                 )
                 if spdx_id not in has_concluded_license_ids
             ]
@@ -529,6 +532,7 @@ class BaseChecker(ABC):
                     self.doc,
                     spdx3.software_Package,
                     "software_copyrightText",
+                    self.reachable_component_ids,
                 )
                 if not copyright_text
                 or (isinstance(copyright_text, str) and copyright_text.strip() == "")
@@ -577,7 +581,7 @@ class BaseChecker(ABC):
             return [
                 (name or "", spdx_id or "")
                 for name, _, spdx_id in iter_objects_with_property(
-                    self.doc, spdx3.Element, "spdxId"
+                    self.doc, spdx3.Element, "spdxId", self.reachable_component_ids
                 )
                 if not spdx_id or (isinstance(spdx_id, str) and spdx_id.strip() == "")
             ]
@@ -617,7 +621,10 @@ class BaseChecker(ABC):
             return [
                 (name or "", spdx_id or "")
                 for _, spdx_id, name in iter_objects_with_property(
-                    self.doc, spdx3.software_Package, "name"
+                    self.doc,
+                    spdx3.software_Package,
+                    "name",
+                    self.reachable_component_ids,
                 )
                 if not name or (isinstance(name, str) and name.strip() == "")
             ]
@@ -661,7 +668,10 @@ class BaseChecker(ABC):
             return [
                 (name or "", spdx_id or "")
                 for name, spdx_id, supplier in iter_objects_with_property(
-                    self.doc, spdx3.software_Package, "suppliedBy"
+                    self.doc,
+                    spdx3.software_Package,
+                    "suppliedBy",
+                    self.reachable_component_ids,
                 )
                 if not supplier
                 or (
@@ -709,7 +719,10 @@ class BaseChecker(ABC):
             return [
                 (name or "", spdx_id or "")
                 for name, spdx_id, package_version in iter_objects_with_property(
-                    self.doc, spdx3.software_Package, "software_packageVersion"
+                    self.doc,
+                    spdx3.software_Package,
+                    "software_packageVersion",
+                    self.reachable_component_ids,
                 )
                 if not package_version
                 or (isinstance(package_version, str) and package_version.strip() == "")
@@ -947,3 +960,38 @@ class BaseChecker(ABC):
             }
 
         return result
+
+    def _evaluate_graph_connectivity(self) -> None:
+        """Evaluate graph connectivity to isolate floating nodes and dangling pointers."""
+        self.reachable_component_ids = get_reachable_components(
+            self.sbom_spec, self.doc, getattr(self, "_BaseChecker__spdx3_doc", None)
+        )
+
+        all_doc_ids: set[str] = set()
+
+        if self.sbom_spec == "spdx2":
+            spdx2_doc = cast("Document", self.doc)
+            all_doc_ids = {
+                pkg.spdx_id
+                for pkg in spdx2_doc.packages
+                if isinstance(pkg.spdx_id, str)
+            }
+        elif self.sbom_spec == "spdx3":
+            spdx3_doc_set = cast("spdx3.SHACLObjectSet", self.doc)
+            all_doc_ids = {
+                getattr(obj, "spdxId")
+                for obj in spdx3_doc_set.objects
+                if isinstance(getattr(obj, "spdxId", None), str)
+            }
+
+        self.floating_component_ids = all_doc_ids - self.reachable_component_ids
+        if self.floating_component_ids:
+            logging.warning(
+                "Found %d disconnected 'floating' elements. They will be ignored for compliance.",
+                len(self.floating_component_ids)
+            )
+
+        if not self.reachable_component_ids.issubset(all_doc_ids):
+            logging.error("Disconnected components detected!"
+                          "A relationship points to a missing element.")
+            self.has_dangling_pointers = True

@@ -1,0 +1,33 @@
+{
+  "SPDXID": "SPDXRef-DOCUMENT",
+  "spdxVersion": "SPDX-2.3",
+  "name": "SPDX2-Dangling-Dependency-Test",
+  "dataLicense": "CC0-1.0",
+  "documentNamespace": "https://swinslow.net/spdx-examples/spdx2-dangling",
+  "creationInfo": {
+    "comment": "",
+    "creators": [
+      "Person: Induwara"
+    ],
+    "created": "2026-07-01T12:00:00Z"
+  },
+  "packages": [
+    {
+      "name": "Root-Application-Package",
+      "SPDXID": "SPDXRef-Package-A",
+      "versionInfo": "1.0.0",
+      "downloadLocation": "NOASSERTION",
+      "filesAnalyzed": false,
+      "licenseConcluded": "NOASSERTION",
+      "licenseDeclared": "NOASSERTION",
+      "copyrightText": "NOASSERTION"
+    }
+  ],
+  "relationships": [
+    {
+      "spdxElementId": "SPDXRef-DOCUMENT",
+      "relationshipType": "DESCRIBES",
+      "relatedSpdxElement": "SPDXRef-Package-B"
+    }
+  ]
+}
