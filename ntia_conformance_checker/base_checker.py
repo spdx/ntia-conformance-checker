@@ -25,7 +25,7 @@ from spdx_tools.spdx.validation.validation_message import (
 )
 
 from .constants import DEFAULT_SBOM_SPEC
-from .graph_utils import analyze_graph_connectivity, get_reachable_components
+from .graph_utils import analyze_graph_connectivity
 from .report import (
     ReportContext,
     get_validation_messages_json,
