@@ -968,9 +968,6 @@ class BaseChecker(ABC):
 
     def _evaluate_graph_connectivity(self) -> None:
         """Evaluate graph connectivity to isolate floating nodes and unknown pointers."""
-        self.reachable_component_ids = get_reachable_components(
-            self.sbom_spec, self.doc, getattr(self, "_BaseChecker__spdx3_doc", None)
-        )
 
         reachable, floating, has_unknown_pointers = analyze_graph_connectivity(
             self.sbom_spec, self.doc, getattr(self, "_BaseChecker__spdx3_doc", None)
