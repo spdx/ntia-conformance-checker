@@ -4,7 +4,7 @@
 
 """Graph utilities for SPDX 2 and SPDX 3."""
 
-from typing import TYPE_CHECKING, Any
+from typing import TYPE_CHECKING, Any, cast
 
 from spdx_python_model.bindings import v3_0_1 as spdx3
 from spdx_tools.spdx.model.relationship import RelationshipType
@@ -15,21 +15,52 @@ if TYPE_CHECKING:
     from spdx_tools.spdx.model.document import Document
 
 
-def _build_spdx2_graph(doc: "Document") -> tuple[list[str], dict[str, list[str]]]:
+def analyze_graph_connectivity(
+    sbom_spec: str, parsed_data: Any, spdx3_doc: Any = None
+) -> tuple[set[str], set[str], bool]:
+    """
+    Analyzes the graph to find reachable nodes, floating nodes, and unknown pointers.
+
+    Returns:
+        tuple: (reachable_ids, floating_ids, has_unknown_pointers)
+    """
+    reachable_ids = get_reachable_components(sbom_spec, parsed_data, spdx3_doc)
+    all_doc_ids: set[str] = set()
+
+    if sbom_spec == "spdx2":
+        spdx2_doc = cast("Document", parsed_data)
+        all_doc_ids = {
+            pkg.spdx_id for pkg in spdx2_doc.packages if isinstance(pkg.spdx_id, str)
+        }
+    elif sbom_spec == "spdx3":
+        spdx3_doc_set = cast("spdx3.SHACLObjectSet", parsed_data)
+        all_doc_ids = {
+            getattr(obj, "spdxId")
+            for obj in spdx3_doc_set.objects
+            if isinstance(getattr(obj, "spdxId", None), str)
+        }
+
+    floating_ids = all_doc_ids - reachable_ids
+    has_unknown_pointerns = not reachable_ids.issubset(all_doc_ids)
+
+    return reachable_ids, floating_ids, has_unknown_pointerns
+
+
+def _build_spdx2_graph(spdx2_doc: "Document") -> tuple[list[str], dict[str, list[str]]]:
     """Build the initial queue and connection map for SPDX 2."""
     queue: list[str] = []
     graph_connection_map: dict[str, list[str]] = {}
 
-    if not doc.relationships:
+    if not spdx2_doc.relationships:
         return queue, graph_connection_map
 
     doc_id = "SPDXRef-DOCUMENT"
-    if getattr(doc, "creation_info", None) and getattr(
-        doc.creation_info, "spdx_id", None
+    if getattr(spdx2_doc, "creation_info", None) and getattr(
+        spdx2_doc.creation_info, "spdx_id", None
     ):
-        doc_id = doc.creation_info.spdx_id
+        doc_id = spdx2_doc.creation_info.spdx_id
 
-    for rel in doc.relationships:
+    for rel in spdx2_doc.relationships:
         source_id = rel.spdx_element_id
         target_id = rel.related_spdx_element_id
 
@@ -90,7 +121,7 @@ def _extract_spdx3_collection_edges(
 
 
 def _build_spdx3_graph(
-    doc: spdx3.SHACLObjectSet, spdx3_doc: spdx3.SpdxDocument | None
+    object_set: spdx3.SHACLObjectSet, spdx3_doc: spdx3.SpdxDocument | None
 ) -> tuple[list[str], dict[str, list[str]]]:
     """Build the initial queue and connection map for SPDX 3."""
     queue: list[str] = []
@@ -103,7 +134,7 @@ def _build_spdx3_graph(
                 queue.append(root_id)
 
     # Build the graph connection map
-    for obj in doc.objects:
+    for obj in object_set.objects:
         # Capture explicit relationships from Relationship objects
         if isinstance(obj, spdx3.Relationship):
             _extract_spdx3_relationship_edges(obj, graph_connection_map)
@@ -116,13 +147,13 @@ def _build_spdx3_graph(
 
 
 def get_reachable_components(
-    sbom_spec: str, doc: Any, spdx3_doc: Any = None
+    sbom_spec: str, parsed_data: Any, spdx3_doc: Any = None
 ) -> set[str]:
     """
     Get all components connected to the root by using Breadth-First Search.
     """
 
-    if not doc:
+    if not parsed_data:
         return set()
 
     queue: list[str] = []
@@ -132,11 +163,11 @@ def get_reachable_components(
 
     # SPDX 2
     if sbom_spec == "spdx2":
-        queue, graph_connection_map = _build_spdx2_graph(doc)
+        queue, graph_connection_map = _build_spdx2_graph(parsed_data)
 
     # SPDX 3
     if sbom_spec == "spdx3":
-        queue, graph_connection_map = _build_spdx3_graph(doc, spdx3_doc)
+        queue, graph_connection_map = _build_spdx3_graph(parsed_data, spdx3_doc)
 
     reachable_component_ids: set[str] = set(queue)
 

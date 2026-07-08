@@ -25,7 +25,7 @@ from spdx_tools.spdx.validation.validation_message import (
 )
 
 from .constants import DEFAULT_SBOM_SPEC
-from .graph_utils import get_reachable_components
+from .graph_utils import analyze_graph_connectivity, get_reachable_components
 from .report import (
     ReportContext,
     get_validation_messages_json,
@@ -487,7 +487,10 @@ class BaseChecker(ABC):
             return [
                 (name or "", spdx_id or "")
                 for name, spdx_id, _ in iter_objects_with_property(
-                    self.doc, spdx3.software_Package, "spdxId", self.reachable_component_ids,
+                    self.doc,
+                    spdx3.software_Package,
+                    "spdxId",
+                    self.reachable_component_ids,
                 )
                 if spdx_id not in has_concluded_license_ids
             ]
@@ -623,7 +626,10 @@ class BaseChecker(ABC):
             return [
                 (name or "", spdx_id or "")
                 for _, spdx_id, name in iter_objects_with_property(
-                    self.doc, spdx3.software_Package, "name", self.reachable_component_ids,
+                    self.doc,
+                    spdx3.software_Package,
+                    "name",
+                    self.reachable_component_ids,
                 )
                 if not name or (isinstance(name, str) and name.strip() == "")
             ]
@@ -667,7 +673,10 @@ class BaseChecker(ABC):
             return [
                 (name or "", spdx_id or "")
                 for name, spdx_id, supplier in iter_objects_with_property(
-                    self.doc, spdx3.software_Package, "suppliedBy",self.reachable_component_ids,
+                    self.doc,
+                    spdx3.software_Package,
+                    "suppliedBy",
+                    self.reachable_component_ids,
                 )
                 if not supplier
                 or (
@@ -715,7 +724,9 @@ class BaseChecker(ABC):
             return [
                 (name or "", spdx_id or "")
                 for name, spdx_id, package_version in iter_objects_with_property(
-                    self.doc, spdx3.software_Package, "software_packageVersion",
+                    self.doc,
+                    spdx3.software_Package,
+                    "software_packageVersion",
                     self.reachable_component_ids,
                 )
                 if not package_version
@@ -961,33 +972,22 @@ class BaseChecker(ABC):
             self.sbom_spec, self.doc, getattr(self, "_BaseChecker__spdx3_doc", None)
         )
 
-        all_doc_ids: set[str] = set()
+        reachable, floating, has_unknown_pointers = analyze_graph_connectivity(
+            self.sbom_spec, self.doc, getattr(self, "_BaseChecker__spdx3_doc", None)
+        )
 
-        if self.sbom_spec == "spdx2":
-            spdx2_doc = cast("Document", self.doc)
-            all_doc_ids = {
-                pkg.spdx_id
-                for pkg in spdx2_doc.packages
-                if isinstance(pkg.spdx_id, str)
-            }
-        elif self.sbom_spec == "spdx3":
-            spdx3_doc_set = cast("spdx3.SHACLObjectSet", self.doc)
-            all_doc_ids = {
-                getattr(obj, "spdxId")
-                for obj in spdx3_doc_set.objects
-                if isinstance(getattr(obj, "spdxId", None), str)
-            }
+        self.reachable_component_ids = reachable
+        self.floating_component_ids = floating
+        self.has_unknown_pointers = has_unknown_pointers
 
-        self.floating_component_ids = all_doc_ids - self.reachable_component_ids
         if self.floating_component_ids:
             logging.warning(
                 "Found %d disconnected 'floating' elements. They will be ignored for compliance.",
                 len(self.floating_component_ids),
             )
 
-        if not self.reachable_component_ids.issubset(all_doc_ids):
+        if self.has_unknown_pointers:
             logging.error(
                 "Unknown components detected!"
                 "A relationship points to a missing element."
             )
-            self.has_unknown_components = True
