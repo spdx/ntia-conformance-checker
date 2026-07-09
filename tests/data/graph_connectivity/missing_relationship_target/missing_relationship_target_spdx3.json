@@ -51,12 +51,41 @@
       "creationInfo": "_:creationInfo_0"
     },
     {
-      "spdxId": "https://swinslow.net/spdx-examples/SPDXRef-Rel-License",
+      "spdxId": "https://swinslow.net/spdx-examples/SPDXRef-Package-Decoy",
+      "type": "software_Package",
+      "name": "Decoy-Sub-Package",
+      "suppliedBy": "https://swinslow.net/spdx-examples/SPDXRef-Person1",
+      "software_packageVersion": "1.0.0",
+      "software_copyrightText": "NOASSERTION",
+      "creationInfo": "_:creationInfo_0"
+    },
+    {
+      "spdxId": "https://swinslow.net/spdx-examples/SPDXRef-Rel-License-1",
       "type": "Relationship",
       "relationshipType": "hasConcludedLicense",
       "from": "https://swinslow.net/spdx-examples/SPDXRef-Package-A",
       "to": [
         "https://swinslow.net/spdx-examples/SPDXRef-CC0"
+      ],
+      "creationInfo": "_:creationInfo_0"
+    },
+    {
+      "spdxId": "https://swinslow.net/spdx-examples/SPDXRef-Rel-License-2",
+      "type": "Relationship",
+      "relationshipType": "hasConcludedLicense",
+      "from": "https://swinslow.net/spdx-examples/SPDXRef-Package-Decoy",
+      "to": [
+        "https://swinslow.net/spdx-examples/SPDXRef-CC0"
+      ],
+      "creationInfo": "_:creationInfo_0"
+    },
+    {
+      "spdxId": "https://swinslow.net/spdx-examples/SPDXRef-Rel-Valid-Decoy",
+      "type": "Relationship",
+      "relationshipType": "contains",
+      "from": "https://swinslow.net/spdx-examples/SPDXRef-Package-A",
+      "to": [
+        "https://swinslow.net/spdx-examples/SPDXRef-Package-Decoy"
       ],
       "creationInfo": "_:creationInfo_0"
     },
