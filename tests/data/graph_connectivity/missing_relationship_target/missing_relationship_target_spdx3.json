@@ -11,7 +11,7 @@
       "created": "2026-07-01T12:00:00Z"
     },
     {
-      "@id": "https://swinslow.net/spdx-examples/document1",
+      "spdxId": "https://swinslow.net/spdx-examples/document1",
       "type": "SpdxDocument",
       "dataLicense": "https://swinslow.net/spdx-examples/SPDXRef-CC0",
       "rootElement": [
@@ -21,26 +21,26 @@
       "creationInfo": "_:creationInfo_0"
     },
     {
-      "@id": "https://swinslow.net/spdx-examples/SPDXRef-Person1",
+      "spdxId": "https://swinslow.net/spdx-examples/SPDXRef-Person1",
       "type": "Person",
       "name": "Induwara",
       "creationInfo": "_:creationInfo_0"
     },
     {
-      "@id": "https://swinslow.net/spdx-examples/SPDXRef-CC0",
+      "spdxId": "https://swinslow.net/spdx-examples/SPDXRef-CC0",
       "type": "simplelicensing_LicenseExpression",
       "simplelicensing_licenseExpression": "CC0-1.0",
       "creationInfo": "_:creationInfo_0"
     },
     {
-      "@id": "https://swinslow.net/spdx-examples/SPDXRef-Package-A",
+      "spdxId": "https://swinslow.net/spdx-examples/SPDXRef-Package-A",
       "type": "software_Package",
       "name": "Root-Application-Package",
       "software_packageVersion": "1.0.0",
       "creationInfo": "_:creationInfo_0"
     },
     {
-      "@id": "https://swinslow.net/spdx-examples/SPDXRef-Rel1",
+      "spdxId": "https://swinslow.net/spdx-examples/SPDXRef-Rel1",
       "type": "Relationship",
       "relationshipType": "describes",
       "from": "https://swinslow.net/spdx-examples/document1",
