@@ -16,17 +16,23 @@
       "name": "Root-Application-Package",
       "SPDXID": "SPDXRef-Package-A",
       "versionInfo": "1.0.0",
+      "supplier": "Organization: Test Supplier",
       "downloadLocation": "NOASSERTION",
       "filesAnalyzed": false,
-      "licenseConcluded": "NOASSERTION",
-      "licenseDeclared": "NOASSERTION",
-      "copyrightText": "NOASSERTION"
+      "licenseConcluded": "CC0-1.0",
+      "licenseDeclared": "CC0-1.0",
+      "copyrightText": "Copyright 2026 Induwara"
     }
   ],
   "relationships": [
     {
       "spdxElementId": "SPDXRef-DOCUMENT",
       "relationshipType": "DESCRIBES",
+      "relatedSpdxElement": "SPDXRef-Package-A"
+    },
+    {
+      "spdxElementId": "SPDXRef-Package-A",
+      "relationshipType": "DEPENDS_ON",
       "relatedSpdxElement": "SPDXRef-Package-B"
     }
   ]
