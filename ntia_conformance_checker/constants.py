@@ -11,10 +11,26 @@ SUPPORTED_SBOM_SPECS_DESC = {
 DEFAULT_SBOM_SPEC = "spdx2"
 SUPPORTED_SBOM_SPECS = set(SUPPORTED_SBOM_SPECS_DESC.keys())
 
-VALID_SPDX2_RELATIONSHIP_TYPES = {
+VALID_SPDX2_COMPOSITION_RELATIONSHIPS = {
     "DESCRIBES",
     "CONTAINS",
     "DEPENDS_ON",
+    "DYNAMIC_LINK",
+    "STATIC_LINK",
+    "HAS_PREREQUISITE",
+}
+VALID_SPDX3_COMPOSITION_RELATIONSHIPS = {
+    # Composition
+    "contains",
+    "hasOptionalComponent",
+    "packagedBy",
+    # Dependencies
+    "dependsOn",
+    "hasDynamicLink",
+    "hasStaticLink",
+    "hasPrerequisite",
+    "hasOptionalDependency",
+    "hasProvidedDependency",
 }
 
 SUPPORTED_COMPLIANCE_STANDARDS_DESC = {

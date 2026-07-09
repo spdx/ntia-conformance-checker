@@ -9,7 +9,10 @@ from typing import TYPE_CHECKING, Any, cast
 from spdx_python_model.bindings import v3_0_1 as spdx3
 from spdx_tools.spdx.model.relationship import RelationshipType
 
-from .constants import VALID_SPDX2_RELATIONSHIP_TYPES
+from .constants import (
+    VALID_SPDX2_COMPOSITION_RELATIONSHIPS,
+    VALID_SPDX3_COMPOSITION_RELATIONSHIPS,
+)
 
 if TYPE_CHECKING:
     from spdx_tools.spdx.model.document import Document
@@ -75,7 +78,7 @@ def _build_spdx2_graph(spdx2_doc: "Document") -> tuple[list[str], dict[str, list
             queue.append(target_id)
 
         # Build the graph connection map
-        if rel.relationship_type.name in VALID_SPDX2_RELATIONSHIP_TYPES:
+        if rel.relationship_type.name in VALID_SPDX2_COMPOSITION_RELATIONSHIPS:
             if source_id not in graph_connection_map:
                 graph_connection_map[source_id] = []
             graph_connection_map[source_id].append(target_id)
@@ -86,6 +89,16 @@ def _extract_spdx3_relationship_edges(
     obj: spdx3.Relationship, graph_connection_map: dict[str, list[str]]
 ) -> None:
     """Helper to extract explicit relationship edges."""
+    rel_type_iri = getattr(obj, "relationshipType", "")
+    if not rel_type_iri:
+        return
+
+    # Extract the actual name from the IRI (e.g., ".../contains" -> "contains")
+    rel_name = rel_type_iri.split("/")[-1]
+
+    if rel_name not in VALID_SPDX3_COMPOSITION_RELATIONSHIPS:
+        return
+
     from_ = getattr(obj, "from_", None)
     from_id = from_ if isinstance(from_, str) else getattr(from_, "spdxId", None)
 
@@ -127,6 +140,8 @@ def _build_spdx3_graph(
     queue: list[str] = []
     graph_connection_map: dict[str, list[str]] = {}
 
+    doc_id = getattr(spdx3_doc, "spdxId", None) if spdx3_doc else None
+
     if spdx3_doc and getattr(spdx3_doc, "rootElement", None):
         for root in spdx3_doc.rootElement:
             root_id = root if isinstance(root, str) else getattr(root, "spdxId", "")
@@ -137,7 +152,23 @@ def _build_spdx3_graph(
     for obj in object_set.objects:
         # Capture explicit relationships from Relationship objects
         if isinstance(obj, spdx3.Relationship):
-            _extract_spdx3_relationship_edges(obj, graph_connection_map)
+            from_ = getattr(obj, "from_", None)
+            from_id = (
+                from_ if isinstance(from_, str) else getattr(from_, "spdxId", None)
+            )
+
+            # If a relationship originates from the Document itself,
+            # its targets are treated as Roots.
+            if doc_id and from_id == doc_id:
+                to_ids = [
+                    t if isinstance(t, str) else getattr(t, "spdxId", "")
+                    for t in getattr(obj, "to", [])
+                ]
+                queue.extend([t for t in to_ids if t])
+
+            # Normal relationships between packages build the map
+            else:
+                _extract_spdx3_relationship_edges(obj, graph_connection_map)
 
         # Capture implicit relationships from Collections (like Sbom, Bom, etc.)
         if isinstance(obj, spdx3.ElementCollection):

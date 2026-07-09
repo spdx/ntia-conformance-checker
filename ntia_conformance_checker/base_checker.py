@@ -451,7 +451,8 @@ class BaseChecker(ABC):
             return [
                 (package.name or "", package.spdx_id or "")
                 for package in packages
-                if (
+                if package.spdx_id in self.reachable_component_ids
+                and (
                     package.license_concluded is None
                     or isinstance(package.license_concluded, SpdxNoAssertion)
                     or (
@@ -517,7 +518,8 @@ class BaseChecker(ABC):
             return [
                 (package.name or "", package.spdx_id or "")
                 for package in packages
-                if (
+                if package.spdx_id in self.reachable_component_ids
+                and (
                     package.copyright_text is None
                     or isinstance(package.copyright_text, SpdxNoAssertion)
                     or (
@@ -570,7 +572,8 @@ class BaseChecker(ABC):
             return [
                 (package.name or "", package.spdx_id or "")
                 for package in packages
-                if (
+                if package.spdx_id in self.reachable_component_ids
+                and (
                     package.spdx_id is None
                     or (
                         isinstance(package.spdx_id, str)
@@ -613,7 +616,8 @@ class BaseChecker(ABC):
             return [
                 (package.name or "", package.spdx_id or "")
                 for package in packages
-                if (
+                if package.spdx_id in self.reachable_component_ids
+                and (
                     package.name is None
                     or (isinstance(package.name, str) and package.name.strip() == "")
                 )
@@ -656,7 +660,8 @@ class BaseChecker(ABC):
             return [
                 (package.name or "", package.spdx_id or "")
                 for package in packages
-                if (
+                if package.spdx_id in self.reachable_component_ids
+                and (
                     package.supplier is None
                     or isinstance(package.supplier, SpdxNoAssertion)
                     or (
@@ -707,7 +712,8 @@ class BaseChecker(ABC):
             return [
                 (package.name or "", package.spdx_id or "")
                 for package in packages
-                if (
+                if package.spdx_id in self.reachable_component_ids
+                and (
                     package.version is None
                     or isinstance(package.version, SpdxNoAssertion)
                     or (

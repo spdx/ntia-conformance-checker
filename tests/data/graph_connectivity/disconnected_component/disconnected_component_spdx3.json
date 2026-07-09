@@ -73,8 +73,26 @@
       "software_packageVersion": "9.9.9"
     },
     {
+      "type": "software_Package",
+      "spdxId": "https://swinslow.net/spdx-examples/SPDXRef-Package-Sub",
+      "name": "Valid-Sub-Package",
+      "software_packageVersion": "2.0",
+      "suppliedBy": "https://swinslow.net/spdx-examples/SPDXRef-Supplier",
+      "creationInfo": "_:creationinfo"
+    },
+    {
       "type": "Relationship",
-      "spdxId": "https://swinslow.net/spdx-examples/SPDXRef-RelValid",
+      "spdxId": "https://swinslow.net/spdx-examples/SPDXRef-RelValid-1",
+      "relationshipType": "contains",
+      "from": "https://swinslow.net/spdx-examples/SPDXRef-Package-Valid",
+      "to": [
+        "https://swinslow.net/spdx-examples/SPDXRef-Package-Sub"
+      ],
+      "creationInfo": "_:creationinfo"
+    },
+    {
+      "type": "Relationship",
+      "spdxId": "https://swinslow.net/spdx-examples/SPDXRef-RelValid-2",
       "creationInfo": "_:creationinfo",
       "relationshipType": "describes",
       "from": "https://swinslow.net/spdx-examples/document1",

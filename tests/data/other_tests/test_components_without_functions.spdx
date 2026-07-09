@@ -225,6 +225,11 @@ Relationship: SPDXRef-CommonsLangSrc GENERATED_FROM NOASSERTION
 Relationship: SPDXRef-JenaLib CONTAINS SPDXRef-Package
 Relationship: SPDXRef-DOCUMENT DESCRIBES SPDXRef-File
 Relationship: SPDXRef-DOCUMENT DESCRIBES SPDXRef-Package
+Relationship: SPDXRef-DOCUMENT DESCRIBES SPDXRef-Package1
+Relationship: SPDXRef-DOCUMENT DESCRIBES SPDXRef-Package2
+Relationship: SPDXRef-DOCUMENT DESCRIBES SPDXRef-Package3
+Relationship: SPDXRef-DOCUMENT DESCRIBES SPDXRef-Package4
+Relationship: SPDXRef-DOCUMENT DESCRIBES SPDXRef-Package5
 
 ## Annotations
 Annotator: Person: Jane Doe

@@ -237,7 +237,7 @@ def test_sbomchecker_missing_supplier_name(test_file: str) -> None:
     assert not sbom.components_without_versions
     TestCase().assertCountEqual(
         _component_names(sbom.components_without_suppliers),
-        ["glibc", "Jena", "Saxon"],
+        ["glibc", "Saxon"],
     )
     assert not sbom.components_without_identifiers
     assert not sbom.compliant
