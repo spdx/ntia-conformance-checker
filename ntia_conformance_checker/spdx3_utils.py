@@ -6,6 +6,9 @@
 
 from __future__ import annotations
 
+import json
+import logging
+import os
 from typing import TYPE_CHECKING, Any, Union
 
 from spdx_python_model.bindings import v3_0_1 as spdx3
@@ -277,3 +280,32 @@ def has_package_dependency_relationship(object_set: spdx3.SHACLObjectSet) -> boo
                 return True
 
     return False
+
+
+def parse_spdx3_file(file_path: str) -> tuple[spdx3.SHACLObjectSet | None, list[str]]:
+    """
+    Parse SPDX 3 SBOM document.
+
+    Returns:
+        spdx3.SHACLObjectSet | None: An SHACLObjectSet if successful, otherwise None.
+    """
+    parsing_errors: list[str] = []
+
+    if not file_path or str(file_path).strip() == "":
+        logging.error("No file path provided.")
+        return None, parsing_errors
+
+    if not os.path.exists(file_path):
+        logging.error("File not found: %s", file_path)
+        return None, parsing_errors
+
+    object_set: spdx3.SHACLObjectSet = spdx3.SHACLObjectSet()
+    try:
+        with open(file_path, "rb") as f:
+            spdx3.JSONLDDeserializer().read(f, object_set)
+    except (OSError, json.JSONDecodeError) as err:
+        logging.warning("SPDX3 deserialization failed: %s", err)
+        parsing_errors.append(str(err))
+        return None, parsing_errors
+
+    return object_set, parsing_errors

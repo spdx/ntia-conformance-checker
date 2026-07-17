@@ -6,7 +6,6 @@
 
 from __future__ import annotations
 
-import json
 import logging
 import os
 import warnings
@@ -36,6 +35,7 @@ from .spdx3_utils import (
     has_package_dependency_relationship,
     iter_objects_with_property,
     iter_relationships_by_type,
+    parse_spdx3_file,
     validate_spdx3_data,
 )
 
@@ -184,13 +184,16 @@ class BaseChecker(ABC):
 
         self.reachable_component_ids: set[str] = set()
         self.floating_component_ids: set[str] = set()
+        self.unknown_pointer_edges: dict[str, list[str]] = {}
         self.has_unknown_components: bool = False
 
         match sbom_spec:
             case "spdx2":
                 self.doc = self.parse_file()
             case "spdx3":
-                object_set = self.parse_spdx3_file()
+                object_set, parsing_errors = parse_spdx3_file(self.file)
+                self._parsing_errors.extend(parsing_errors)
+
                 if not object_set:
                     logging.error("Failed to parse the SPDX 3 file.")
                 else:
@@ -824,32 +827,6 @@ class BaseChecker(ABC):
 
         return cast("Document", doc)
 
-    def parse_spdx3_file(self) -> spdx3.SHACLObjectSet | None:
-        """
-        Parse SPDX 3 SBOM document.
-
-        Returns:
-            spdx3.SHACLObjectSet | None: An SHACLObjectSet if successful, otherwise None.
-        """
-        if not self.file or str(self.file).strip() == "":
-            logging.error("No file path provided.")
-            return None
-
-        if not os.path.exists(self.file):
-            logging.error("File not found: %s", self.file)
-            return None
-
-        object_set: spdx3.SHACLObjectSet = spdx3.SHACLObjectSet()
-        try:
-            with open(self.file, "rb") as f:
-                spdx3.JSONLDDeserializer().read(f, object_set)
-        except (OSError, json.JSONDecodeError) as err:
-            logging.warning("SPDX3 deserialization failed: %s", err)
-            self._parsing_errors.append(str(err))
-            return None
-
-        return object_set
-
     def print_components_missing_info(self) -> None:
         """
         Print information about components that are missing required details.
@@ -893,6 +870,8 @@ class BaseChecker(ABC):
             validation_messages=self._validation_messages,
             conformance_messages=self._conformance_messages,
             parsing_errors=self._parsing_errors,
+            unknown_pointer_edges=getattr(self, "unknown_pointer_edges", {}),
+            floating_component_ids=getattr(self, "floating_component_ids", set()),
         )
 
         print(report_text(report_context, verbose))
@@ -913,6 +892,8 @@ class BaseChecker(ABC):
             validation_messages=self._validation_messages,
             conformance_messages=self._conformance_messages,
             parsing_errors=self._parsing_errors,
+            unknown_pointer_edges=getattr(self, "unknown_pointer_edges", {}),
+            floating_component_ids=getattr(self, "floating_component_ids", set()),
         )
 
         return report_html(report_context, verbose=True)
@@ -945,6 +926,20 @@ class BaseChecker(ABC):
                 self, "dependency_relationships", False
             ),
             "totalNumberComponents": self.get_total_number_components(),
+            "graphValidation": {
+                "unknownPointers": {
+                    "hasUnknownPointers": getattr(self, "has_unknown_pointers", False),
+                    "unknownPointerEdges": getattr(self, "unknown_pointer_edges", {}),
+                },
+                "floatingComponents": {
+                    "floatingComponentCount": len(
+                        getattr(self, "floating_component_ids", set())
+                    ),
+                    "floatingComponentIds": list(
+                        getattr(self, "floating_component_ids", set())
+                    ),
+                },
+            },
         }
 
         _groups = {
@@ -975,12 +970,15 @@ class BaseChecker(ABC):
     def _evaluate_graph_connectivity(self) -> None:
         """Evaluate graph connectivity to isolate floating nodes and unknown pointers."""
 
-        reachable, floating, _, has_unknown_pointers = analyze_graph_connectivity(
-            self.sbom_spec, self.doc, getattr(self, "_BaseChecker__spdx3_doc", None)
+        reachable, floating, unknown_pointer_edges, has_unknown_pointers = (
+            analyze_graph_connectivity(
+                self.sbom_spec, self.doc, getattr(self, "_BaseChecker__spdx3_doc", None)
+            )
         )
 
         self.reachable_component_ids = reachable
         self.floating_component_ids = floating
+        self.unknown_pointer_edges = unknown_pointer_edges
         self.has_unknown_pointers = has_unknown_pointers
 
         if self.floating_component_ids:
