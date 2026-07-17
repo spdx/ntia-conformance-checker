@@ -667,7 +667,7 @@ def test_missing_relationship_target(test_file: str) -> None:
     assert sbom.compliant is False
 
 
-### Test diconnected graph
+### Test disconnected graph
 
 dirname = os.path.join(
     os.path.dirname(__file__), "data", "graph_connectivity", "disconnected_component"

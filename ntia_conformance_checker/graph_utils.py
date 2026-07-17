@@ -20,14 +20,16 @@ if TYPE_CHECKING:
 
 def analyze_graph_connectivity(
     sbom_spec: str, parsed_data: Any, spdx3_doc: Any = None
-) -> tuple[set[str], set[str], bool]:
+) -> tuple[set[str], set[str], dict[str, list[str]], bool]:
     """
-    Analyzes the graph to find reachable nodes, floating nodes, and unknown pointers.
+    Analyzes the graph to find reachable nodes, floating nodes, and unknown pointer edges.
 
     Returns:
-        tuple: (reachable_ids, floating_ids, has_unknown_pointers)
+        tuple: (reachable_ids, floating_ids, unknown_pointer_edges, has_unknown_pointers)
     """
-    reachable_ids = get_reachable_components(sbom_spec, parsed_data, spdx3_doc)
+    reachable_ids, connection_map = get_reachable_components(
+        sbom_spec, parsed_data, spdx3_doc
+    )
     all_doc_ids: set[str] = set()
 
     if sbom_spec == "spdx2":
@@ -44,9 +46,16 @@ def analyze_graph_connectivity(
         }
 
     floating_ids = all_doc_ids - reachable_ids
-    has_unknown_pointerns = not reachable_ids.issubset(all_doc_ids)
+    has_unknown_pointers = not reachable_ids.issubset(all_doc_ids)
 
-    return reachable_ids, floating_ids, has_unknown_pointerns
+    # Find exactly which edges point to unknown nodes
+    unknown_pointer_edges: dict[str, list[str]] = {}
+    for source_id, target_ids in connection_map.items():
+        missing_targets = [t for t in target_ids if t not in all_doc_ids]
+        if missing_targets:
+            unknown_pointer_edges[source_id] = missing_targets
+
+    return reachable_ids, floating_ids, unknown_pointer_edges, has_unknown_pointers
 
 
 def _build_spdx2_graph(spdx2_doc: "Document") -> tuple[list[str], dict[str, list[str]]]:
@@ -179,13 +188,16 @@ def _build_spdx3_graph(
 
 def get_reachable_components(
     sbom_spec: str, parsed_data: Any, spdx3_doc: Any = None
-) -> set[str]:
+) -> tuple[set[str], dict[str, list[str]]]:
     """
     Get all components connected to the root by using Breadth-First Search.
+
+    Returns:
+        tuple: (reachable_component_ids, graph_connection_map)
     """
 
     if not parsed_data:
-        return set()
+        return set(), {}
 
     queue: list[str] = []
 
@@ -212,4 +224,4 @@ def get_reachable_components(
                     reachable_component_ids.add(target_id)
                     queue.append(target_id)
 
-    return reachable_component_ids
+    return reachable_component_ids, graph_connection_map
