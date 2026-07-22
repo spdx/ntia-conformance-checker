@@ -151,43 +151,52 @@ def get_validation_messages_json(
     return json_output
 
 
-def _graph_text_report(rc: ReportContext, report: list[str]) -> None:
-    """Helper to format graph structural issues into text output."""
-    if not rc.unknown_pointer_edges and not rc.floating_component_ids:
-        return
+def _generate_graph_text_report(rc: ReportContext) -> list[str]:
+    """Generates a text report for graph structural issues."""
+    graph_issues_report: list[str] = []
 
-    report.append("\n" + "=" * 55)
-    report.append("Structural Graph Issues ".center(55))
-    report.append("=" * 55)
+    if not rc.unknown_pointer_edges and not rc.floating_component_ids:
+        return graph_issues_report
+
+    graph_issues_report.append("\n" + "=" * 55)
+    graph_issues_report.append("Structural Graph Issues ".center(55))
+    graph_issues_report.append("=" * 55)
 
     if rc.unknown_pointer_edges:
-        report.append("\n************* ERROR *************")
-        report.append(
+        graph_issues_report.append("\n************* ERROR *************")
+        graph_issues_report.append(
             "Unknown components detected! A relationship points to a missing element."
         )
-        report.append("  -> Broken dependency linkages found:")
+        graph_issues_report.append("  -> Broken dependency linkages found:")
         for source, targets in rc.unknown_pointer_edges.items():
             for target in targets:
-                report.append(
+                graph_issues_report.append(
                     f"    * Component '{source}' links to missing element '{target}'"
                 )
 
     if rc.floating_component_ids:
         floating_ids = list(rc.floating_component_ids)
-        report.append("\n************ WARNING ************")
-        report.append(f"Found {len(floating_ids)} disconnected 'floating' elements.")
-        report.append(
+        graph_issues_report.append("\n************ WARNING ************")
+        graph_issues_report.append(
+            f"Found {len(floating_ids)} disconnected 'floating' elements."
+        )
+        graph_issues_report.append(
             "  -> These elements are not attached to the primary software tree"
         )
-        report.append("     and were ignored during the compliance check.\n")
+        graph_issues_report.append(
+            "     and were ignored during the compliance check.\n"
+        )
 
         for spdx_id in floating_ids[:10]:
-            report.append(f"    * {spdx_id}")
+            graph_issues_report.append(f"    * {spdx_id}")
 
         if len(floating_ids) > 10:
-            report.append(f"    * ... and {len(floating_ids) - 10} more items.")
+            graph_issues_report.append(
+                f"    * ... and {len(floating_ids) - 10} more items."
+            )
 
-    report.append("\n" + "-" * 55)
+    graph_issues_report.append("\n" + "-" * 55)
+    return graph_issues_report
 
 
 def report_text(
@@ -245,48 +254,58 @@ def report_text(
         report.append(get_validation_messages_text(rc.conformance_messages, verbose))
 
     # structural graph issues
-    _graph_text_report(rc, report)
+    graph_issues_report = _generate_graph_text_report(rc)
+    if graph_issues_report:
+        report.extend(graph_issues_report)
 
     return "\n".join(report)
 
 
-def _graph_html_report(rc: ReportContext, report: list[str]) -> None:
-    """Helper to format graph structural issues into HTML output."""
-    if not rc.unknown_pointer_edges and not rc.floating_component_ids:
-        return
+def _generate_graph_html_report(rc: ReportContext) -> list[str]:
+    """Generates an HTML report for graph structural issues."""
+    graph_issues_report: list[str] = []
 
-    report.append("<div class='conformance-graph'>")
-    report.append("<h2 class='conformance-res-title'>Structural Graph Issues</h2>")
+    if not rc.unknown_pointer_edges and not rc.floating_component_ids:
+        return graph_issues_report
+
+    graph_issues_report.append("<div class='conformance-graph'>")
+    graph_issues_report.append(
+        "<h2 class='conformance-res-title'>Structural Graph Issues</h2>"
+    )
 
     if rc.unknown_pointer_edges:
-        report.append(
+        graph_issues_report.append(
             "<p class='conformance-err-label'><strong>ERROR:</strong>"
             " Unknown components detected! A relationship points to a missing element.</p>"
         )
-        report.append("<ul class='conformance-err-list'>")
+        graph_issues_report.append("<ul class='conformance-err-list'>")
         for source, targets in rc.unknown_pointer_edges.items():
             for target in targets:
-                report.append(
+                graph_issues_report.append(
                     f"<li>Component '<b>{source}</b>' links to missing element "
                     f"'<b>{target}</b>'</li>"
                 )
-        report.append("</ul>")
+        graph_issues_report.append("</ul>")
 
     if rc.floating_component_ids:
         floating_ids = list(rc.floating_component_ids)
-        report.append(
+        graph_issues_report.append(
             "<p class='conformance-msg-label' style='margin-top: 15px;'>"
             f"<strong>WARNING:</strong> Found {len(floating_ids)} disconnected "
             "'floating' elements ignored during compliance.</p>"
         )
-        report.append("<ul class='conformance-msg-list'>")
+        graph_issues_report.append("<ul class='conformance-msg-list'>")
         for spdx_id in floating_ids[:10]:
-            report.append(f"<li>{spdx_id}</li>")
+            graph_issues_report.append(f"<li>{spdx_id}</li>")
         if len(floating_ids) > 10:
-            report.append(f"<li>... and {len(floating_ids) - 10} more items.</li>")
-        report.append("</ul>")
+            graph_issues_report.append(
+                f"<li>... and {len(floating_ids) - 10} more items.</li>"
+            )
+        graph_issues_report.append("</ul>")
 
-    report.append("</div>")
+    graph_issues_report.append("</div>")
+
+    return graph_issues_report
 
 
 def report_html(
@@ -407,6 +426,8 @@ def report_html(
         report.append("</div>")
 
     # structural graph issues
-    _graph_html_report(rc, report)
+    graph_issues_report = _generate_graph_html_report(rc)
+    if graph_issues_report:
+        report.extend(graph_issues_report)
 
     return "\n".join(report)
