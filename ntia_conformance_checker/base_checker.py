@@ -990,5 +990,5 @@ class BaseChecker(ABC):
         if self.has_unknown_pointers:
             logging.error(
                 "Unknown components detected!"
-                "A relationship points to a missing element."
+                " A relationship points to a missing element."
             )
