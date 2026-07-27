@@ -1,0 +1,333 @@
+<!DOCTYPE html>
+
+<html lang="en" data-content_root="../../">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>ntia_conformance_checker.graph_utils &#8212; NTIA Conformance Checker  documentation</title>
+    <link rel="stylesheet" type="text/css" href="../../_static/pygments.css?v=5ecbeea2" />
+    <link rel="stylesheet" type="text/css" href="../../_static/basic.css?v=b08954a9" />
+    <link rel="stylesheet" type="text/css" href="../../_static/alabaster.css?v=27fed22d" />
+    <script src="../../_static/documentation_options.js?v=5929fcd5"></script>
+    <script src="../../_static/doctools.js?v=fd6eb6e6"></script>
+    <script src="../../_static/sphinx_highlight.js?v=6ffebe34"></script>
+    <link rel="index" title="Index" href="../../genindex.html" />
+    <link rel="search" title="Search" href="../../search.html" />
+   
+  <link rel="stylesheet" href="../../_static/custom.css" type="text/css" />
+  
+
+  
+  
+
+  </head><body>
+  
+
+    <div class="document">
+      <div class="documentwrapper">
+        <div class="bodywrapper">
+          
+
+          <div class="body" role="main">
+            
+  <h1>Source code for ntia_conformance_checker.graph_utils</h1><div class="highlight"><pre>
+<span></span><span class="c1"># SPDX-FileCopyrightText: 2025 SPDX contributors</span>
+<span class="c1"># SPDX-FileType: SOURCE</span>
+<span class="c1"># SPDX-License-Identifier: Apache-2.0</span>
+
+<span class="sd">&quot;&quot;&quot;Graph utilities for SPDX 2 and SPDX 3.&quot;&quot;&quot;</span>
+
+<span class="kn">from</span><span class="w"> </span><span class="nn">typing</span><span class="w"> </span><span class="kn">import</span> <span class="n">TYPE_CHECKING</span><span class="p">,</span> <span class="n">Any</span><span class="p">,</span> <span class="n">cast</span>
+
+<span class="kn">from</span><span class="w"> </span><span class="nn">spdx_python_model.bindings</span><span class="w"> </span><span class="kn">import</span> <span class="n">v3_0_1</span> <span class="k">as</span> <span class="n">spdx3</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">spdx_tools.spdx.model.relationship</span><span class="w"> </span><span class="kn">import</span> <span class="n">RelationshipType</span>
+
+<span class="kn">from</span><span class="w"> </span><span class="nn">.constants</span><span class="w"> </span><span class="kn">import</span> <span class="p">(</span>
+    <span class="n">VALID_SPDX2_COMPOSITION_RELATIONSHIPS</span><span class="p">,</span>
+    <span class="n">VALID_SPDX3_COMPOSITION_RELATIONSHIPS</span><span class="p">,</span>
+<span class="p">)</span>
+
+<span class="k">if</span> <span class="n">TYPE_CHECKING</span><span class="p">:</span>
+    <span class="kn">from</span><span class="w"> </span><span class="nn">spdx_tools.spdx.model.document</span><span class="w"> </span><span class="kn">import</span> <span class="n">Document</span>
+
+
+<div class="viewcode-block" id="analyze_graph_connectivity">
+<a class="viewcode-back" href="../../ntia_conformance_checker.html#ntia_conformance_checker.graph_utils.analyze_graph_connectivity">[docs]</a>
+<span class="k">def</span><span class="w"> </span><span class="nf">analyze_graph_connectivity</span><span class="p">(</span>
+    <span class="n">sbom_spec</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span> <span class="n">parsed_data</span><span class="p">:</span> <span class="n">Any</span><span class="p">,</span> <span class="n">spdx3_doc</span><span class="p">:</span> <span class="n">Any</span> <span class="o">=</span> <span class="kc">None</span>
+<span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">tuple</span><span class="p">[</span><span class="nb">set</span><span class="p">[</span><span class="nb">str</span><span class="p">],</span> <span class="nb">set</span><span class="p">[</span><span class="nb">str</span><span class="p">],</span> <span class="nb">dict</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="nb">list</span><span class="p">[</span><span class="nb">str</span><span class="p">]],</span> <span class="nb">bool</span><span class="p">]:</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    Analyzes the graph to find reachable nodes, floating nodes, and unknown pointer edges.</span>
+
+<span class="sd">    Returns:</span>
+<span class="sd">        tuple: (reachable_ids, floating_ids, unknown_pointer_edges, has_unknown_pointers)</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+    <span class="n">reachable_ids</span><span class="p">,</span> <span class="n">connection_map</span> <span class="o">=</span> <span class="n">get_reachable_components</span><span class="p">(</span>
+        <span class="n">sbom_spec</span><span class="p">,</span> <span class="n">parsed_data</span><span class="p">,</span> <span class="n">spdx3_doc</span>
+    <span class="p">)</span>
+    <span class="n">all_doc_ids</span><span class="p">:</span> <span class="nb">set</span><span class="p">[</span><span class="nb">str</span><span class="p">]</span> <span class="o">=</span> <span class="nb">set</span><span class="p">()</span>
+
+    <span class="k">if</span> <span class="n">sbom_spec</span> <span class="o">==</span> <span class="s2">&quot;spdx2&quot;</span><span class="p">:</span>
+        <span class="n">spdx2_doc</span> <span class="o">=</span> <span class="n">cast</span><span class="p">(</span><span class="s2">&quot;Document&quot;</span><span class="p">,</span> <span class="n">parsed_data</span><span class="p">)</span>
+        <span class="n">all_doc_ids</span> <span class="o">=</span> <span class="p">{</span>
+            <span class="n">pkg</span><span class="o">.</span><span class="n">spdx_id</span> <span class="k">for</span> <span class="n">pkg</span> <span class="ow">in</span> <span class="n">spdx2_doc</span><span class="o">.</span><span class="n">packages</span> <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">pkg</span><span class="o">.</span><span class="n">spdx_id</span><span class="p">,</span> <span class="nb">str</span><span class="p">)</span>
+        <span class="p">}</span>
+    <span class="k">elif</span> <span class="n">sbom_spec</span> <span class="o">==</span> <span class="s2">&quot;spdx3&quot;</span><span class="p">:</span>
+        <span class="n">spdx3_doc_set</span> <span class="o">=</span> <span class="n">cast</span><span class="p">(</span><span class="s2">&quot;spdx3.SHACLObjectSet&quot;</span><span class="p">,</span> <span class="n">parsed_data</span><span class="p">)</span>
+        <span class="n">all_doc_ids</span> <span class="o">=</span> <span class="p">{</span>
+            <span class="nb">getattr</span><span class="p">(</span><span class="n">obj</span><span class="p">,</span> <span class="s2">&quot;spdxId&quot;</span><span class="p">)</span>
+            <span class="k">for</span> <span class="n">obj</span> <span class="ow">in</span> <span class="n">spdx3_doc_set</span><span class="o">.</span><span class="n">objects</span>
+            <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="nb">getattr</span><span class="p">(</span><span class="n">obj</span><span class="p">,</span> <span class="s2">&quot;spdxId&quot;</span><span class="p">,</span> <span class="kc">None</span><span class="p">),</span> <span class="nb">str</span><span class="p">)</span>
+        <span class="p">}</span>
+
+    <span class="n">floating_ids</span> <span class="o">=</span> <span class="n">all_doc_ids</span> <span class="o">-</span> <span class="n">reachable_ids</span>
+    <span class="n">has_unknown_pointers</span> <span class="o">=</span> <span class="ow">not</span> <span class="n">reachable_ids</span><span class="o">.</span><span class="n">issubset</span><span class="p">(</span><span class="n">all_doc_ids</span><span class="p">)</span>
+
+    <span class="c1"># Find exactly which edges point to unknown nodes</span>
+    <span class="n">unknown_pointer_edges</span><span class="p">:</span> <span class="nb">dict</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="nb">list</span><span class="p">[</span><span class="nb">str</span><span class="p">]]</span> <span class="o">=</span> <span class="p">{}</span>
+    <span class="k">for</span> <span class="n">source_id</span><span class="p">,</span> <span class="n">target_ids</span> <span class="ow">in</span> <span class="n">connection_map</span><span class="o">.</span><span class="n">items</span><span class="p">():</span>
+        <span class="n">missing_targets</span> <span class="o">=</span> <span class="p">[</span><span class="n">t</span> <span class="k">for</span> <span class="n">t</span> <span class="ow">in</span> <span class="n">target_ids</span> <span class="k">if</span> <span class="n">t</span> <span class="ow">not</span> <span class="ow">in</span> <span class="n">all_doc_ids</span><span class="p">]</span>
+        <span class="k">if</span> <span class="n">missing_targets</span><span class="p">:</span>
+            <span class="n">unknown_pointer_edges</span><span class="p">[</span><span class="n">source_id</span><span class="p">]</span> <span class="o">=</span> <span class="n">missing_targets</span>
+
+    <span class="k">return</span> <span class="n">reachable_ids</span><span class="p">,</span> <span class="n">floating_ids</span><span class="p">,</span> <span class="n">unknown_pointer_edges</span><span class="p">,</span> <span class="n">has_unknown_pointers</span></div>
+
+
+
+<span class="k">def</span><span class="w"> </span><span class="nf">_build_spdx2_graph</span><span class="p">(</span><span class="n">spdx2_doc</span><span class="p">:</span> <span class="s2">&quot;Document&quot;</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">tuple</span><span class="p">[</span><span class="nb">list</span><span class="p">[</span><span class="nb">str</span><span class="p">],</span> <span class="nb">dict</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="nb">list</span><span class="p">[</span><span class="nb">str</span><span class="p">]]]:</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;Build the initial queue and connection map for SPDX 2.&quot;&quot;&quot;</span>
+    <span class="n">queue</span><span class="p">:</span> <span class="nb">list</span><span class="p">[</span><span class="nb">str</span><span class="p">]</span> <span class="o">=</span> <span class="p">[]</span>
+    <span class="n">graph_connection_map</span><span class="p">:</span> <span class="nb">dict</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="nb">list</span><span class="p">[</span><span class="nb">str</span><span class="p">]]</span> <span class="o">=</span> <span class="p">{}</span>
+
+    <span class="k">if</span> <span class="ow">not</span> <span class="n">spdx2_doc</span><span class="o">.</span><span class="n">relationships</span><span class="p">:</span>
+        <span class="k">return</span> <span class="n">queue</span><span class="p">,</span> <span class="n">graph_connection_map</span>
+
+    <span class="n">doc_id</span> <span class="o">=</span> <span class="s2">&quot;SPDXRef-DOCUMENT&quot;</span>
+    <span class="k">if</span> <span class="nb">getattr</span><span class="p">(</span><span class="n">spdx2_doc</span><span class="p">,</span> <span class="s2">&quot;creation_info&quot;</span><span class="p">,</span> <span class="kc">None</span><span class="p">)</span> <span class="ow">and</span> <span class="nb">getattr</span><span class="p">(</span>
+        <span class="n">spdx2_doc</span><span class="o">.</span><span class="n">creation_info</span><span class="p">,</span> <span class="s2">&quot;spdx_id&quot;</span><span class="p">,</span> <span class="kc">None</span>
+    <span class="p">):</span>
+        <span class="n">doc_id</span> <span class="o">=</span> <span class="n">spdx2_doc</span><span class="o">.</span><span class="n">creation_info</span><span class="o">.</span><span class="n">spdx_id</span>
+
+    <span class="k">for</span> <span class="n">rel</span> <span class="ow">in</span> <span class="n">spdx2_doc</span><span class="o">.</span><span class="n">relationships</span><span class="p">:</span>
+        <span class="n">source_id</span> <span class="o">=</span> <span class="n">rel</span><span class="o">.</span><span class="n">spdx_element_id</span>
+        <span class="n">target_id</span> <span class="o">=</span> <span class="n">rel</span><span class="o">.</span><span class="n">related_spdx_element_id</span>
+
+        <span class="k">if</span> <span class="ow">not</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">source_id</span><span class="p">,</span> <span class="nb">str</span><span class="p">)</span> <span class="ow">or</span> <span class="ow">not</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">target_id</span><span class="p">,</span> <span class="nb">str</span><span class="p">):</span>
+            <span class="k">continue</span>
+
+        <span class="c1"># Get the root elements</span>
+        <span class="k">if</span> <span class="n">rel</span><span class="o">.</span><span class="n">relationship_type</span> <span class="o">==</span> <span class="n">RelationshipType</span><span class="o">.</span><span class="n">DESCRIBES</span> <span class="ow">and</span> <span class="n">source_id</span> <span class="ow">in</span> <span class="p">(</span>
+            <span class="n">doc_id</span><span class="p">,</span>
+            <span class="s2">&quot;SPDXRef-DOCUMENT&quot;</span><span class="p">,</span>
+        <span class="p">):</span>
+            <span class="n">queue</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">target_id</span><span class="p">)</span>
+
+        <span class="c1"># Build the graph connection map</span>
+        <span class="k">if</span> <span class="n">rel</span><span class="o">.</span><span class="n">relationship_type</span><span class="o">.</span><span class="n">name</span> <span class="ow">in</span> <span class="n">VALID_SPDX2_COMPOSITION_RELATIONSHIPS</span><span class="p">:</span>
+            <span class="k">if</span> <span class="n">source_id</span> <span class="ow">not</span> <span class="ow">in</span> <span class="n">graph_connection_map</span><span class="p">:</span>
+                <span class="n">graph_connection_map</span><span class="p">[</span><span class="n">source_id</span><span class="p">]</span> <span class="o">=</span> <span class="p">[]</span>
+            <span class="n">graph_connection_map</span><span class="p">[</span><span class="n">source_id</span><span class="p">]</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">target_id</span><span class="p">)</span>
+    <span class="k">return</span> <span class="n">queue</span><span class="p">,</span> <span class="n">graph_connection_map</span>
+
+
+<span class="k">def</span><span class="w"> </span><span class="nf">_extract_spdx3_relationship_edges</span><span class="p">(</span>
+    <span class="n">obj</span><span class="p">:</span> <span class="n">spdx3</span><span class="o">.</span><span class="n">Relationship</span><span class="p">,</span> <span class="n">graph_connection_map</span><span class="p">:</span> <span class="nb">dict</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="nb">list</span><span class="p">[</span><span class="nb">str</span><span class="p">]]</span>
+<span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;Helper to extract explicit relationship edges.&quot;&quot;&quot;</span>
+    <span class="n">rel_type_iri</span> <span class="o">=</span> <span class="nb">getattr</span><span class="p">(</span><span class="n">obj</span><span class="p">,</span> <span class="s2">&quot;relationshipType&quot;</span><span class="p">,</span> <span class="s2">&quot;&quot;</span><span class="p">)</span>
+    <span class="k">if</span> <span class="ow">not</span> <span class="n">rel_type_iri</span><span class="p">:</span>
+        <span class="k">return</span>
+
+    <span class="c1"># Extract the actual name from the IRI (e.g., &quot;.../contains&quot; -&gt; &quot;contains&quot;)</span>
+    <span class="n">rel_name</span> <span class="o">=</span> <span class="n">rel_type_iri</span><span class="o">.</span><span class="n">split</span><span class="p">(</span><span class="s2">&quot;/&quot;</span><span class="p">)[</span><span class="o">-</span><span class="mi">1</span><span class="p">]</span>
+
+    <span class="k">if</span> <span class="n">rel_name</span> <span class="ow">not</span> <span class="ow">in</span> <span class="n">VALID_SPDX3_COMPOSITION_RELATIONSHIPS</span><span class="p">:</span>
+        <span class="k">return</span>
+
+    <span class="n">from_</span> <span class="o">=</span> <span class="nb">getattr</span><span class="p">(</span><span class="n">obj</span><span class="p">,</span> <span class="s2">&quot;from_&quot;</span><span class="p">,</span> <span class="kc">None</span><span class="p">)</span>
+    <span class="n">from_id</span> <span class="o">=</span> <span class="n">from_</span> <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">from_</span><span class="p">,</span> <span class="nb">str</span><span class="p">)</span> <span class="k">else</span> <span class="nb">getattr</span><span class="p">(</span><span class="n">from_</span><span class="p">,</span> <span class="s2">&quot;spdxId&quot;</span><span class="p">,</span> <span class="kc">None</span><span class="p">)</span>
+
+    <span class="k">if</span> <span class="ow">not</span> <span class="n">from_id</span><span class="p">:</span>
+        <span class="k">return</span>
+
+    <span class="n">to_ids</span> <span class="o">=</span> <span class="p">[</span>
+        <span class="n">t</span> <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">t</span><span class="p">,</span> <span class="nb">str</span><span class="p">)</span> <span class="k">else</span> <span class="nb">getattr</span><span class="p">(</span><span class="n">t</span><span class="p">,</span> <span class="s2">&quot;spdxId&quot;</span><span class="p">,</span> <span class="s2">&quot;&quot;</span><span class="p">)</span>
+        <span class="k">for</span> <span class="n">t</span> <span class="ow">in</span> <span class="nb">getattr</span><span class="p">(</span><span class="n">obj</span><span class="p">,</span> <span class="s2">&quot;to&quot;</span><span class="p">,</span> <span class="p">[])</span>
+    <span class="p">]</span>
+
+    <span class="k">if</span> <span class="n">from_id</span> <span class="ow">not</span> <span class="ow">in</span> <span class="n">graph_connection_map</span><span class="p">:</span>
+        <span class="n">graph_connection_map</span><span class="p">[</span><span class="n">from_id</span><span class="p">]</span> <span class="o">=</span> <span class="p">[]</span>
+    <span class="n">graph_connection_map</span><span class="p">[</span><span class="n">from_id</span><span class="p">]</span><span class="o">.</span><span class="n">extend</span><span class="p">([</span><span class="n">t</span> <span class="k">for</span> <span class="n">t</span> <span class="ow">in</span> <span class="n">to_ids</span> <span class="k">if</span> <span class="n">t</span><span class="p">])</span>
+
+
+<span class="k">def</span><span class="w"> </span><span class="nf">_extract_spdx3_collection_edges</span><span class="p">(</span>
+    <span class="n">obj</span><span class="p">:</span> <span class="n">spdx3</span><span class="o">.</span><span class="n">ElementCollection</span><span class="p">,</span> <span class="n">graph_connection_map</span><span class="p">:</span> <span class="nb">dict</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="nb">list</span><span class="p">[</span><span class="nb">str</span><span class="p">]]</span>
+<span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;Helper to extract implicit collection edges (e.g. Sbom, Document).&quot;&quot;&quot;</span>
+    <span class="n">col_id</span> <span class="o">=</span> <span class="nb">getattr</span><span class="p">(</span><span class="n">obj</span><span class="p">,</span> <span class="s2">&quot;spdxId&quot;</span><span class="p">,</span> <span class="kc">None</span><span class="p">)</span>
+    <span class="k">if</span> <span class="ow">not</span> <span class="n">col_id</span><span class="p">:</span>
+        <span class="k">return</span>
+
+    <span class="k">if</span> <span class="n">col_id</span> <span class="ow">not</span> <span class="ow">in</span> <span class="n">graph_connection_map</span><span class="p">:</span>
+        <span class="n">graph_connection_map</span><span class="p">[</span><span class="n">col_id</span><span class="p">]</span> <span class="o">=</span> <span class="p">[]</span>
+
+    <span class="k">for</span> <span class="n">attr</span> <span class="ow">in</span> <span class="p">(</span><span class="s2">&quot;rootElement&quot;</span><span class="p">,</span> <span class="s2">&quot;element&quot;</span><span class="p">):</span>
+        <span class="k">for</span> <span class="n">elem</span> <span class="ow">in</span> <span class="nb">getattr</span><span class="p">(</span><span class="n">obj</span><span class="p">,</span> <span class="n">attr</span><span class="p">,</span> <span class="p">[]):</span>
+            <span class="n">e_id</span> <span class="o">=</span> <span class="n">elem</span> <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">elem</span><span class="p">,</span> <span class="nb">str</span><span class="p">)</span> <span class="k">else</span> <span class="nb">getattr</span><span class="p">(</span><span class="n">elem</span><span class="p">,</span> <span class="s2">&quot;spdxId&quot;</span><span class="p">,</span> <span class="s2">&quot;&quot;</span><span class="p">)</span>
+            <span class="k">if</span> <span class="n">e_id</span><span class="p">:</span>
+                <span class="n">graph_connection_map</span><span class="p">[</span><span class="n">col_id</span><span class="p">]</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">e_id</span><span class="p">)</span>
+
+
+<span class="k">def</span><span class="w"> </span><span class="nf">_build_spdx3_graph</span><span class="p">(</span>
+    <span class="n">object_set</span><span class="p">:</span> <span class="n">spdx3</span><span class="o">.</span><span class="n">SHACLObjectSet</span><span class="p">,</span> <span class="n">spdx3_doc</span><span class="p">:</span> <span class="n">spdx3</span><span class="o">.</span><span class="n">SpdxDocument</span> <span class="o">|</span> <span class="kc">None</span>
+<span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">tuple</span><span class="p">[</span><span class="nb">list</span><span class="p">[</span><span class="nb">str</span><span class="p">],</span> <span class="nb">dict</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="nb">list</span><span class="p">[</span><span class="nb">str</span><span class="p">]]]:</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;Build the initial queue and connection map for SPDX 3.&quot;&quot;&quot;</span>
+    <span class="n">queue</span><span class="p">:</span> <span class="nb">list</span><span class="p">[</span><span class="nb">str</span><span class="p">]</span> <span class="o">=</span> <span class="p">[]</span>
+    <span class="n">graph_connection_map</span><span class="p">:</span> <span class="nb">dict</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="nb">list</span><span class="p">[</span><span class="nb">str</span><span class="p">]]</span> <span class="o">=</span> <span class="p">{}</span>
+
+    <span class="n">doc_id</span> <span class="o">=</span> <span class="nb">getattr</span><span class="p">(</span><span class="n">spdx3_doc</span><span class="p">,</span> <span class="s2">&quot;spdxId&quot;</span><span class="p">,</span> <span class="kc">None</span><span class="p">)</span> <span class="k">if</span> <span class="n">spdx3_doc</span> <span class="k">else</span> <span class="kc">None</span>
+
+    <span class="k">if</span> <span class="n">spdx3_doc</span> <span class="ow">and</span> <span class="nb">getattr</span><span class="p">(</span><span class="n">spdx3_doc</span><span class="p">,</span> <span class="s2">&quot;rootElement&quot;</span><span class="p">,</span> <span class="kc">None</span><span class="p">):</span>
+        <span class="k">for</span> <span class="n">root</span> <span class="ow">in</span> <span class="n">spdx3_doc</span><span class="o">.</span><span class="n">rootElement</span><span class="p">:</span>
+            <span class="n">root_id</span> <span class="o">=</span> <span class="n">root</span> <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">root</span><span class="p">,</span> <span class="nb">str</span><span class="p">)</span> <span class="k">else</span> <span class="nb">getattr</span><span class="p">(</span><span class="n">root</span><span class="p">,</span> <span class="s2">&quot;spdxId&quot;</span><span class="p">,</span> <span class="s2">&quot;&quot;</span><span class="p">)</span>
+            <span class="k">if</span> <span class="n">root_id</span><span class="p">:</span>
+                <span class="n">queue</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">root_id</span><span class="p">)</span>
+
+    <span class="c1"># Build the graph connection map</span>
+    <span class="k">for</span> <span class="n">obj</span> <span class="ow">in</span> <span class="n">object_set</span><span class="o">.</span><span class="n">objects</span><span class="p">:</span>
+        <span class="c1"># Capture explicit relationships from Relationship objects</span>
+        <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">obj</span><span class="p">,</span> <span class="n">spdx3</span><span class="o">.</span><span class="n">Relationship</span><span class="p">):</span>
+            <span class="n">from_</span> <span class="o">=</span> <span class="nb">getattr</span><span class="p">(</span><span class="n">obj</span><span class="p">,</span> <span class="s2">&quot;from_&quot;</span><span class="p">,</span> <span class="kc">None</span><span class="p">)</span>
+            <span class="n">from_id</span> <span class="o">=</span> <span class="p">(</span>
+                <span class="n">from_</span> <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">from_</span><span class="p">,</span> <span class="nb">str</span><span class="p">)</span> <span class="k">else</span> <span class="nb">getattr</span><span class="p">(</span><span class="n">from_</span><span class="p">,</span> <span class="s2">&quot;spdxId&quot;</span><span class="p">,</span> <span class="kc">None</span><span class="p">)</span>
+            <span class="p">)</span>
+
+            <span class="c1"># If a relationship originates from the Document itself,</span>
+            <span class="c1"># its targets are treated as Roots.</span>
+            <span class="k">if</span> <span class="n">doc_id</span> <span class="ow">and</span> <span class="n">from_id</span> <span class="o">==</span> <span class="n">doc_id</span><span class="p">:</span>
+                <span class="n">to_ids</span> <span class="o">=</span> <span class="p">[</span>
+                    <span class="n">t</span> <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">t</span><span class="p">,</span> <span class="nb">str</span><span class="p">)</span> <span class="k">else</span> <span class="nb">getattr</span><span class="p">(</span><span class="n">t</span><span class="p">,</span> <span class="s2">&quot;spdxId&quot;</span><span class="p">,</span> <span class="s2">&quot;&quot;</span><span class="p">)</span>
+                    <span class="k">for</span> <span class="n">t</span> <span class="ow">in</span> <span class="nb">getattr</span><span class="p">(</span><span class="n">obj</span><span class="p">,</span> <span class="s2">&quot;to&quot;</span><span class="p">,</span> <span class="p">[])</span>
+                <span class="p">]</span>
+                <span class="n">queue</span><span class="o">.</span><span class="n">extend</span><span class="p">([</span><span class="n">t</span> <span class="k">for</span> <span class="n">t</span> <span class="ow">in</span> <span class="n">to_ids</span> <span class="k">if</span> <span class="n">t</span><span class="p">])</span>
+
+            <span class="c1"># Normal relationships between packages build the map</span>
+            <span class="k">else</span><span class="p">:</span>
+                <span class="n">_extract_spdx3_relationship_edges</span><span class="p">(</span><span class="n">obj</span><span class="p">,</span> <span class="n">graph_connection_map</span><span class="p">)</span>
+
+        <span class="c1"># Capture implicit relationships from Collections (like Sbom, Bom, etc.)</span>
+        <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">obj</span><span class="p">,</span> <span class="n">spdx3</span><span class="o">.</span><span class="n">ElementCollection</span><span class="p">):</span>
+            <span class="n">_extract_spdx3_collection_edges</span><span class="p">(</span><span class="n">obj</span><span class="p">,</span> <span class="n">graph_connection_map</span><span class="p">)</span>
+
+    <span class="k">return</span> <span class="n">queue</span><span class="p">,</span> <span class="n">graph_connection_map</span>
+
+
+<div class="viewcode-block" id="get_reachable_components">
+<a class="viewcode-back" href="../../ntia_conformance_checker.html#ntia_conformance_checker.graph_utils.get_reachable_components">[docs]</a>
+<span class="k">def</span><span class="w"> </span><span class="nf">get_reachable_components</span><span class="p">(</span>
+    <span class="n">sbom_spec</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span> <span class="n">parsed_data</span><span class="p">:</span> <span class="n">Any</span><span class="p">,</span> <span class="n">spdx3_doc</span><span class="p">:</span> <span class="n">Any</span> <span class="o">=</span> <span class="kc">None</span>
+<span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">tuple</span><span class="p">[</span><span class="nb">set</span><span class="p">[</span><span class="nb">str</span><span class="p">],</span> <span class="nb">dict</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="nb">list</span><span class="p">[</span><span class="nb">str</span><span class="p">]]]:</span>
+<span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="sd">    Get all components connected to the root by using Breadth-First Search.</span>
+
+<span class="sd">    Returns:</span>
+<span class="sd">        tuple: (reachable_component_ids, graph_connection_map)</span>
+<span class="sd">    &quot;&quot;&quot;</span>
+
+    <span class="k">if</span> <span class="ow">not</span> <span class="n">parsed_data</span><span class="p">:</span>
+        <span class="k">return</span> <span class="nb">set</span><span class="p">(),</span> <span class="p">{}</span>
+
+    <span class="n">queue</span><span class="p">:</span> <span class="nb">list</span><span class="p">[</span><span class="nb">str</span><span class="p">]</span> <span class="o">=</span> <span class="p">[]</span>
+
+    <span class="c1"># graph_connection_map: source_id -&gt; list[target_ids]</span>
+    <span class="n">graph_connection_map</span><span class="p">:</span> <span class="nb">dict</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="nb">list</span><span class="p">[</span><span class="nb">str</span><span class="p">]]</span> <span class="o">=</span> <span class="p">{}</span>
+
+    <span class="c1"># SPDX 2</span>
+    <span class="k">if</span> <span class="n">sbom_spec</span> <span class="o">==</span> <span class="s2">&quot;spdx2&quot;</span><span class="p">:</span>
+        <span class="n">queue</span><span class="p">,</span> <span class="n">graph_connection_map</span> <span class="o">=</span> <span class="n">_build_spdx2_graph</span><span class="p">(</span><span class="n">parsed_data</span><span class="p">)</span>
+
+    <span class="c1"># SPDX 3</span>
+    <span class="k">if</span> <span class="n">sbom_spec</span> <span class="o">==</span> <span class="s2">&quot;spdx3&quot;</span><span class="p">:</span>
+        <span class="n">queue</span><span class="p">,</span> <span class="n">graph_connection_map</span> <span class="o">=</span> <span class="n">_build_spdx3_graph</span><span class="p">(</span><span class="n">parsed_data</span><span class="p">,</span> <span class="n">spdx3_doc</span><span class="p">)</span>
+
+    <span class="n">reachable_component_ids</span><span class="p">:</span> <span class="nb">set</span><span class="p">[</span><span class="nb">str</span><span class="p">]</span> <span class="o">=</span> <span class="nb">set</span><span class="p">(</span><span class="n">queue</span><span class="p">)</span>
+
+    <span class="c1"># Perform BFS to find all reachable components</span>
+    <span class="k">while</span> <span class="n">queue</span><span class="p">:</span>
+        <span class="n">current_id</span> <span class="o">=</span> <span class="n">queue</span><span class="o">.</span><span class="n">pop</span><span class="p">(</span><span class="mi">0</span><span class="p">)</span>
+
+        <span class="k">if</span> <span class="n">current_id</span> <span class="ow">in</span> <span class="n">graph_connection_map</span><span class="p">:</span>
+            <span class="k">for</span> <span class="n">target_id</span> <span class="ow">in</span> <span class="n">graph_connection_map</span><span class="p">[</span><span class="n">current_id</span><span class="p">]:</span>
+                <span class="k">if</span> <span class="n">target_id</span> <span class="ow">not</span> <span class="ow">in</span> <span class="n">reachable_component_ids</span><span class="p">:</span>
+                    <span class="n">reachable_component_ids</span><span class="o">.</span><span class="n">add</span><span class="p">(</span><span class="n">target_id</span><span class="p">)</span>
+                    <span class="n">queue</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">target_id</span><span class="p">)</span>
+
+    <span class="k">return</span> <span class="n">reachable_component_ids</span><span class="p">,</span> <span class="n">graph_connection_map</span></div>
+
+</pre></div>
+
+          </div>
+          
+        </div>
+      </div>
+      <div class="sphinxsidebar" role="navigation" aria-label="Main">
+        <div class="sphinxsidebarwrapper">
+<h1 class="logo"><a href="../../index.html">NTIA Conformance Checker</a></h1>
+
+
+
+
+
+
+
+
+
+<search id="searchbox" style="display: none" role="search">
+    <div class="searchformwrapper">
+    <form class="search" action="../../search.html" method="get">
+      <input type="text" name="q" aria-labelledby="searchlabel" autocomplete="off" autocorrect="off" autocapitalize="off" spellcheck="false" placeholder="Search"/>
+      <input type="submit" value="Go" />
+    </form>
+    </div>
+</search>
+<script>document.getElementById('searchbox').style.display = "block"</script><h3>Navigation</h3>
+<p class="caption" role="heading"><span class="caption-text">Contents:</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../../modules.html">ntia_conformance_checker</a></li>
+</ul>
+
+<div class="relations">
+<h3>Related Topics</h3>
+<ul>
+  <li><a href="../../index.html">Documentation overview</a><ul>
+  <li><a href="../index.html">Module code</a><ul>
+  </ul></li>
+  </ul></li>
+</ul>
+</div>
+
+
+
+
+
+
+
+
+        </div>
+      </div>
+      <div class="clearer"></div>
+    </div>
+    <div class="footer">
+      &#169;2022-2026 SPDX contributors.
+      
+      |
+      Powered by <a href="https://www.sphinx-doc.org/">Sphinx 9.1.0</a>
+      &amp; <a href="https://alabaster.readthedocs.io">Alabaster 1.0.0</a>
+      
+    </div>
+
+    
+
+    
+  </body>
+</html>

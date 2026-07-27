@@ -58,6 +58,7 @@
 <span class="p">)</span>
 
 <span class="kn">from</span><span class="w"> </span><span class="nn">.constants</span><span class="w"> </span><span class="kn">import</span> <span class="n">DEFAULT_SBOM_SPEC</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">.graph_utils</span><span class="w"> </span><span class="kn">import</span> <span class="n">analyze_graph_connectivity</span>
 <span class="kn">from</span><span class="w"> </span><span class="nn">.report</span><span class="w"> </span><span class="kn">import</span> <span class="p">(</span>
     <span class="n">ReportContext</span><span class="p">,</span>
     <span class="n">get_validation_messages_json</span><span class="p">,</span>
@@ -219,6 +220,10 @@
         <span class="bp">self</span><span class="o">.</span><span class="n">_validation_messages</span> <span class="o">=</span> <span class="p">[]</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">_conformance_messages</span> <span class="o">=</span> <span class="p">[]</span>
 
+        <span class="bp">self</span><span class="o">.</span><span class="n">reachable_component_ids</span><span class="p">:</span> <span class="nb">set</span><span class="p">[</span><span class="nb">str</span><span class="p">]</span> <span class="o">=</span> <span class="nb">set</span><span class="p">()</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">floating_component_ids</span><span class="p">:</span> <span class="nb">set</span><span class="p">[</span><span class="nb">str</span><span class="p">]</span> <span class="o">=</span> <span class="nb">set</span><span class="p">()</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">has_unknown_components</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">False</span>
+
         <span class="k">match</span> <span class="n">sbom_spec</span><span class="p">:</span>
             <span class="k">case</span> <span class="s2">&quot;spdx2&quot;</span><span class="p">:</span>
                 <span class="bp">self</span><span class="o">.</span><span class="n">doc</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">parse_file</span><span class="p">()</span>
@@ -238,6 +243,8 @@
                 <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;Unsupported SBOM specification: </span><span class="si">{</span><span class="n">sbom_spec</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
 
         <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">doc</span><span class="p">:</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">_evaluate_graph_connectivity</span><span class="p">()</span>
+
             <span class="k">if</span> <span class="n">validate</span> <span class="ow">and</span> <span class="n">sbom_spec</span> <span class="o">==</span> <span class="s2">&quot;spdx2&quot;</span><span class="p">:</span>
                 <span class="bp">self</span><span class="o">.</span><span class="n">doc</span> <span class="o">=</span> <span class="n">cast</span><span class="p">(</span><span class="s2">&quot;Document&quot;</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">doc</span><span class="p">)</span>
                 <span class="bp">self</span><span class="o">.</span><span class="n">_validation_messages</span> <span class="o">=</span> <span class="n">validate_full_spdx_document</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">doc</span><span class="p">)</span>
@@ -505,7 +512,8 @@
             <span class="k">return</span> <span class="p">[</span>
                 <span class="p">(</span><span class="n">package</span><span class="o">.</span><span class="n">name</span> <span class="ow">or</span> <span class="s2">&quot;&quot;</span><span class="p">,</span> <span class="n">package</span><span class="o">.</span><span class="n">spdx_id</span> <span class="ow">or</span> <span class="s2">&quot;&quot;</span><span class="p">)</span>
                 <span class="k">for</span> <span class="n">package</span> <span class="ow">in</span> <span class="n">packages</span>
-                <span class="k">if</span> <span class="p">(</span>
+                <span class="k">if</span> <span class="n">package</span><span class="o">.</span><span class="n">spdx_id</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">reachable_component_ids</span>
+                <span class="ow">and</span> <span class="p">(</span>
                     <span class="n">package</span><span class="o">.</span><span class="n">license_concluded</span> <span class="ow">is</span> <span class="kc">None</span>
                     <span class="ow">or</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">package</span><span class="o">.</span><span class="n">license_concluded</span><span class="p">,</span> <span class="n">SpdxNoAssertion</span><span class="p">)</span>
                     <span class="ow">or</span> <span class="p">(</span>
@@ -544,6 +552,7 @@
                     <span class="bp">self</span><span class="o">.</span><span class="n">doc</span><span class="p">,</span>
                     <span class="n">spdx3</span><span class="o">.</span><span class="n">software_Package</span><span class="p">,</span>
                     <span class="s2">&quot;spdxId&quot;</span><span class="p">,</span>
+                    <span class="bp">self</span><span class="o">.</span><span class="n">reachable_component_ids</span><span class="p">,</span>
                 <span class="p">)</span>
                 <span class="k">if</span> <span class="n">spdx_id</span> <span class="ow">not</span> <span class="ow">in</span> <span class="n">has_concluded_license_ids</span>
             <span class="p">]</span>
@@ -573,7 +582,8 @@
             <span class="k">return</span> <span class="p">[</span>
                 <span class="p">(</span><span class="n">package</span><span class="o">.</span><span class="n">name</span> <span class="ow">or</span> <span class="s2">&quot;&quot;</span><span class="p">,</span> <span class="n">package</span><span class="o">.</span><span class="n">spdx_id</span> <span class="ow">or</span> <span class="s2">&quot;&quot;</span><span class="p">)</span>
                 <span class="k">for</span> <span class="n">package</span> <span class="ow">in</span> <span class="n">packages</span>
-                <span class="k">if</span> <span class="p">(</span>
+                <span class="k">if</span> <span class="n">package</span><span class="o">.</span><span class="n">spdx_id</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">reachable_component_ids</span>
+                <span class="ow">and</span> <span class="p">(</span>
                     <span class="n">package</span><span class="o">.</span><span class="n">copyright_text</span> <span class="ow">is</span> <span class="kc">None</span>
                     <span class="ow">or</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">package</span><span class="o">.</span><span class="n">copyright_text</span><span class="p">,</span> <span class="n">SpdxNoAssertion</span><span class="p">)</span>
                     <span class="ow">or</span> <span class="p">(</span>
@@ -593,6 +603,7 @@
                     <span class="bp">self</span><span class="o">.</span><span class="n">doc</span><span class="p">,</span>
                     <span class="n">spdx3</span><span class="o">.</span><span class="n">software_Package</span><span class="p">,</span>
                     <span class="s2">&quot;software_copyrightText&quot;</span><span class="p">,</span>
+                    <span class="bp">self</span><span class="o">.</span><span class="n">reachable_component_ids</span><span class="p">,</span>
                 <span class="p">)</span>
                 <span class="k">if</span> <span class="ow">not</span> <span class="n">copyright_text</span>
                 <span class="ow">or</span> <span class="p">(</span><span class="nb">isinstance</span><span class="p">(</span><span class="n">copyright_text</span><span class="p">,</span> <span class="nb">str</span><span class="p">)</span> <span class="ow">and</span> <span class="n">copyright_text</span><span class="o">.</span><span class="n">strip</span><span class="p">()</span> <span class="o">==</span> <span class="s2">&quot;&quot;</span><span class="p">)</span>
@@ -628,7 +639,8 @@
             <span class="k">return</span> <span class="p">[</span>
                 <span class="p">(</span><span class="n">package</span><span class="o">.</span><span class="n">name</span> <span class="ow">or</span> <span class="s2">&quot;&quot;</span><span class="p">,</span> <span class="n">package</span><span class="o">.</span><span class="n">spdx_id</span> <span class="ow">or</span> <span class="s2">&quot;&quot;</span><span class="p">)</span>
                 <span class="k">for</span> <span class="n">package</span> <span class="ow">in</span> <span class="n">packages</span>
-                <span class="k">if</span> <span class="p">(</span>
+                <span class="k">if</span> <span class="n">package</span><span class="o">.</span><span class="n">spdx_id</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">reachable_component_ids</span>
+                <span class="ow">and</span> <span class="p">(</span>
                     <span class="n">package</span><span class="o">.</span><span class="n">spdx_id</span> <span class="ow">is</span> <span class="kc">None</span>
                     <span class="ow">or</span> <span class="p">(</span>
                         <span class="nb">isinstance</span><span class="p">(</span><span class="n">package</span><span class="o">.</span><span class="n">spdx_id</span><span class="p">,</span> <span class="nb">str</span><span class="p">)</span>
@@ -644,7 +656,7 @@
             <span class="k">return</span> <span class="p">[</span>
                 <span class="p">(</span><span class="n">name</span> <span class="ow">or</span> <span class="s2">&quot;&quot;</span><span class="p">,</span> <span class="n">spdx_id</span> <span class="ow">or</span> <span class="s2">&quot;&quot;</span><span class="p">)</span>
                 <span class="k">for</span> <span class="n">name</span><span class="p">,</span> <span class="n">_</span><span class="p">,</span> <span class="n">spdx_id</span> <span class="ow">in</span> <span class="n">iter_objects_with_property</span><span class="p">(</span>
-                    <span class="bp">self</span><span class="o">.</span><span class="n">doc</span><span class="p">,</span> <span class="n">spdx3</span><span class="o">.</span><span class="n">Element</span><span class="p">,</span> <span class="s2">&quot;spdxId&quot;</span>
+                    <span class="bp">self</span><span class="o">.</span><span class="n">doc</span><span class="p">,</span> <span class="n">spdx3</span><span class="o">.</span><span class="n">Element</span><span class="p">,</span> <span class="s2">&quot;spdxId&quot;</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">reachable_component_ids</span>
                 <span class="p">)</span>
                 <span class="k">if</span> <span class="ow">not</span> <span class="n">spdx_id</span> <span class="ow">or</span> <span class="p">(</span><span class="nb">isinstance</span><span class="p">(</span><span class="n">spdx_id</span><span class="p">,</span> <span class="nb">str</span><span class="p">)</span> <span class="ow">and</span> <span class="n">spdx_id</span><span class="o">.</span><span class="n">strip</span><span class="p">()</span> <span class="o">==</span> <span class="s2">&quot;&quot;</span><span class="p">)</span>
             <span class="p">]</span>
@@ -674,7 +686,8 @@
             <span class="k">return</span> <span class="p">[</span>
                 <span class="p">(</span><span class="n">package</span><span class="o">.</span><span class="n">name</span> <span class="ow">or</span> <span class="s2">&quot;&quot;</span><span class="p">,</span> <span class="n">package</span><span class="o">.</span><span class="n">spdx_id</span> <span class="ow">or</span> <span class="s2">&quot;&quot;</span><span class="p">)</span>
                 <span class="k">for</span> <span class="n">package</span> <span class="ow">in</span> <span class="n">packages</span>
-                <span class="k">if</span> <span class="p">(</span>
+                <span class="k">if</span> <span class="n">package</span><span class="o">.</span><span class="n">spdx_id</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">reachable_component_ids</span>
+                <span class="ow">and</span> <span class="p">(</span>
                     <span class="n">package</span><span class="o">.</span><span class="n">name</span> <span class="ow">is</span> <span class="kc">None</span>
                     <span class="ow">or</span> <span class="p">(</span><span class="nb">isinstance</span><span class="p">(</span><span class="n">package</span><span class="o">.</span><span class="n">name</span><span class="p">,</span> <span class="nb">str</span><span class="p">)</span> <span class="ow">and</span> <span class="n">package</span><span class="o">.</span><span class="n">name</span><span class="o">.</span><span class="n">strip</span><span class="p">()</span> <span class="o">==</span> <span class="s2">&quot;&quot;</span><span class="p">)</span>
                 <span class="p">)</span>
@@ -687,7 +700,10 @@
             <span class="k">return</span> <span class="p">[</span>
                 <span class="p">(</span><span class="n">name</span> <span class="ow">or</span> <span class="s2">&quot;&quot;</span><span class="p">,</span> <span class="n">spdx_id</span> <span class="ow">or</span> <span class="s2">&quot;&quot;</span><span class="p">)</span>
                 <span class="k">for</span> <span class="n">_</span><span class="p">,</span> <span class="n">spdx_id</span><span class="p">,</span> <span class="n">name</span> <span class="ow">in</span> <span class="n">iter_objects_with_property</span><span class="p">(</span>
-                    <span class="bp">self</span><span class="o">.</span><span class="n">doc</span><span class="p">,</span> <span class="n">spdx3</span><span class="o">.</span><span class="n">software_Package</span><span class="p">,</span> <span class="s2">&quot;name&quot;</span>
+                    <span class="bp">self</span><span class="o">.</span><span class="n">doc</span><span class="p">,</span>
+                    <span class="n">spdx3</span><span class="o">.</span><span class="n">software_Package</span><span class="p">,</span>
+                    <span class="s2">&quot;name&quot;</span><span class="p">,</span>
+                    <span class="bp">self</span><span class="o">.</span><span class="n">reachable_component_ids</span><span class="p">,</span>
                 <span class="p">)</span>
                 <span class="k">if</span> <span class="ow">not</span> <span class="n">name</span> <span class="ow">or</span> <span class="p">(</span><span class="nb">isinstance</span><span class="p">(</span><span class="n">name</span><span class="p">,</span> <span class="nb">str</span><span class="p">)</span> <span class="ow">and</span> <span class="n">name</span><span class="o">.</span><span class="n">strip</span><span class="p">()</span> <span class="o">==</span> <span class="s2">&quot;&quot;</span><span class="p">)</span>
             <span class="p">]</span>
@@ -717,7 +733,8 @@
             <span class="k">return</span> <span class="p">[</span>
                 <span class="p">(</span><span class="n">package</span><span class="o">.</span><span class="n">name</span> <span class="ow">or</span> <span class="s2">&quot;&quot;</span><span class="p">,</span> <span class="n">package</span><span class="o">.</span><span class="n">spdx_id</span> <span class="ow">or</span> <span class="s2">&quot;&quot;</span><span class="p">)</span>
                 <span class="k">for</span> <span class="n">package</span> <span class="ow">in</span> <span class="n">packages</span>
-                <span class="k">if</span> <span class="p">(</span>
+                <span class="k">if</span> <span class="n">package</span><span class="o">.</span><span class="n">spdx_id</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">reachable_component_ids</span>
+                <span class="ow">and</span> <span class="p">(</span>
                     <span class="n">package</span><span class="o">.</span><span class="n">supplier</span> <span class="ow">is</span> <span class="kc">None</span>
                     <span class="ow">or</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">package</span><span class="o">.</span><span class="n">supplier</span><span class="p">,</span> <span class="n">SpdxNoAssertion</span><span class="p">)</span>
                     <span class="ow">or</span> <span class="p">(</span>
@@ -734,7 +751,10 @@
             <span class="k">return</span> <span class="p">[</span>
                 <span class="p">(</span><span class="n">name</span> <span class="ow">or</span> <span class="s2">&quot;&quot;</span><span class="p">,</span> <span class="n">spdx_id</span> <span class="ow">or</span> <span class="s2">&quot;&quot;</span><span class="p">)</span>
                 <span class="k">for</span> <span class="n">name</span><span class="p">,</span> <span class="n">spdx_id</span><span class="p">,</span> <span class="n">supplier</span> <span class="ow">in</span> <span class="n">iter_objects_with_property</span><span class="p">(</span>
-                    <span class="bp">self</span><span class="o">.</span><span class="n">doc</span><span class="p">,</span> <span class="n">spdx3</span><span class="o">.</span><span class="n">software_Package</span><span class="p">,</span> <span class="s2">&quot;suppliedBy&quot;</span>
+                    <span class="bp">self</span><span class="o">.</span><span class="n">doc</span><span class="p">,</span>
+                    <span class="n">spdx3</span><span class="o">.</span><span class="n">software_Package</span><span class="p">,</span>
+                    <span class="s2">&quot;suppliedBy&quot;</span><span class="p">,</span>
+                    <span class="bp">self</span><span class="o">.</span><span class="n">reachable_component_ids</span><span class="p">,</span>
                 <span class="p">)</span>
                 <span class="k">if</span> <span class="ow">not</span> <span class="n">supplier</span>
                 <span class="ow">or</span> <span class="p">(</span>
@@ -768,7 +788,8 @@
             <span class="k">return</span> <span class="p">[</span>
                 <span class="p">(</span><span class="n">package</span><span class="o">.</span><span class="n">name</span> <span class="ow">or</span> <span class="s2">&quot;&quot;</span><span class="p">,</span> <span class="n">package</span><span class="o">.</span><span class="n">spdx_id</span> <span class="ow">or</span> <span class="s2">&quot;&quot;</span><span class="p">)</span>
                 <span class="k">for</span> <span class="n">package</span> <span class="ow">in</span> <span class="n">packages</span>
-                <span class="k">if</span> <span class="p">(</span>
+                <span class="k">if</span> <span class="n">package</span><span class="o">.</span><span class="n">spdx_id</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">reachable_component_ids</span>
+                <span class="ow">and</span> <span class="p">(</span>
                     <span class="n">package</span><span class="o">.</span><span class="n">version</span> <span class="ow">is</span> <span class="kc">None</span>
                     <span class="ow">or</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">package</span><span class="o">.</span><span class="n">version</span><span class="p">,</span> <span class="n">SpdxNoAssertion</span><span class="p">)</span>
                     <span class="ow">or</span> <span class="p">(</span>
@@ -785,7 +806,10 @@
             <span class="k">return</span> <span class="p">[</span>
                 <span class="p">(</span><span class="n">name</span> <span class="ow">or</span> <span class="s2">&quot;&quot;</span><span class="p">,</span> <span class="n">spdx_id</span> <span class="ow">or</span> <span class="s2">&quot;&quot;</span><span class="p">)</span>
                 <span class="k">for</span> <span class="n">name</span><span class="p">,</span> <span class="n">spdx_id</span><span class="p">,</span> <span class="n">package_version</span> <span class="ow">in</span> <span class="n">iter_objects_with_property</span><span class="p">(</span>
-                    <span class="bp">self</span><span class="o">.</span><span class="n">doc</span><span class="p">,</span> <span class="n">spdx3</span><span class="o">.</span><span class="n">software_Package</span><span class="p">,</span> <span class="s2">&quot;software_packageVersion&quot;</span>
+                    <span class="bp">self</span><span class="o">.</span><span class="n">doc</span><span class="p">,</span>
+                    <span class="n">spdx3</span><span class="o">.</span><span class="n">software_Package</span><span class="p">,</span>
+                    <span class="s2">&quot;software_packageVersion&quot;</span><span class="p">,</span>
+                    <span class="bp">self</span><span class="o">.</span><span class="n">reachable_component_ids</span><span class="p">,</span>
                 <span class="p">)</span>
                 <span class="k">if</span> <span class="ow">not</span> <span class="n">package_version</span>
                 <span class="ow">or</span> <span class="p">(</span><span class="nb">isinstance</span><span class="p">(</span><span class="n">package_version</span><span class="p">,</span> <span class="nb">str</span><span class="p">)</span> <span class="ow">and</span> <span class="n">package_version</span><span class="o">.</span><span class="n">strip</span><span class="p">()</span> <span class="o">==</span> <span class="s2">&quot;&quot;</span><span class="p">)</span>
@@ -1044,7 +1068,30 @@
             <span class="p">}</span>
 
         <span class="k">return</span> <span class="n">result</span></div>
-</div>
+
+
+    <span class="k">def</span><span class="w"> </span><span class="nf">_evaluate_graph_connectivity</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
+<span class="w">        </span><span class="sd">&quot;&quot;&quot;Evaluate graph connectivity to isolate floating nodes and unknown pointers.&quot;&quot;&quot;</span>
+
+        <span class="n">reachable</span><span class="p">,</span> <span class="n">floating</span><span class="p">,</span> <span class="n">_</span><span class="p">,</span> <span class="n">has_unknown_pointers</span> <span class="o">=</span> <span class="n">analyze_graph_connectivity</span><span class="p">(</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">sbom_spec</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">doc</span><span class="p">,</span> <span class="nb">getattr</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="s2">&quot;_BaseChecker__spdx3_doc&quot;</span><span class="p">,</span> <span class="kc">None</span><span class="p">)</span>
+        <span class="p">)</span>
+
+        <span class="bp">self</span><span class="o">.</span><span class="n">reachable_component_ids</span> <span class="o">=</span> <span class="n">reachable</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">floating_component_ids</span> <span class="o">=</span> <span class="n">floating</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">has_unknown_pointers</span> <span class="o">=</span> <span class="n">has_unknown_pointers</span>
+
+        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">floating_component_ids</span><span class="p">:</span>
+            <span class="n">logging</span><span class="o">.</span><span class="n">warning</span><span class="p">(</span>
+                <span class="s2">&quot;Found </span><span class="si">%d</span><span class="s2"> disconnected &#39;floating&#39; elements. They will be ignored for compliance.&quot;</span><span class="p">,</span>
+                <span class="nb">len</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">floating_component_ids</span><span class="p">),</span>
+            <span class="p">)</span>
+
+        <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">has_unknown_pointers</span><span class="p">:</span>
+            <span class="n">logging</span><span class="o">.</span><span class="n">error</span><span class="p">(</span>
+                <span class="s2">&quot;Unknown components detected!&quot;</span>
+                <span class="s2">&quot;A relationship points to a missing element.&quot;</span>
+            <span class="p">)</span></div>
 
 </pre></div>
 

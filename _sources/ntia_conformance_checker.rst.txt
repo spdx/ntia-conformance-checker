@@ -36,6 +36,14 @@ ntia\_conformance\_checker.fsct\_checker module
    :show-inheritance:
    :undoc-members:
 
+ntia\_conformance\_checker.graph\_utils module
+----------------------------------------------
+
+.. automodule:: ntia_conformance_checker.graph_utils
+   :members:
+   :show-inheritance:
+   :undoc-members:
+
 ntia\_conformance\_checker.main module
 --------------------------------------
 
