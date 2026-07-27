@@ -1,0 +1,39 @@
+{
+  "SPDXID": "SPDXRef-DOCUMENT",
+  "spdxVersion": "SPDX-2.3",
+  "name": "SPDX2-Unknown-Component-Dependency-Test",
+  "dataLicense": "CC0-1.0",
+  "documentNamespace": "https://swinslow.net/spdx-examples/spdx2-unknown",
+  "creationInfo": {
+    "comment": "",
+    "creators": [
+      "Person: Induwara"
+    ],
+    "created": "2026-07-01T12:00:00Z"
+  },
+  "packages": [
+    {
+      "name": "Root-Application-Package",
+      "SPDXID": "SPDXRef-Package-A",
+      "versionInfo": "1.0.0",
+      "supplier": "Organization: Test Supplier",
+      "downloadLocation": "NOASSERTION",
+      "filesAnalyzed": false,
+      "licenseConcluded": "CC0-1.0",
+      "licenseDeclared": "CC0-1.0",
+      "copyrightText": "Copyright 2026 Induwara"
+    }
+  ],
+  "relationships": [
+    {
+      "spdxElementId": "SPDXRef-DOCUMENT",
+      "relationshipType": "DESCRIBES",
+      "relatedSpdxElement": "SPDXRef-Package-A"
+    },
+    {
+      "spdxElementId": "SPDXRef-Package-A",
+      "relationshipType": "DEPENDS_ON",
+      "relatedSpdxElement": "SPDXRef-Package-B"
+    }
+  ]
+}

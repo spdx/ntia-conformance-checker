@@ -1,0 +1,103 @@
+{
+  "@context": "https://spdx.org/rdf/3.0.1/spdx-context.jsonld",
+  "@graph": [
+    {
+      "@id": "_:creationInfo_0",
+      "type": "CreationInfo",
+      "specVersion": "3.0.1",
+      "createdBy": [
+        "https://swinslow.net/spdx-examples/SPDXRef-Person1"
+      ],
+      "created": "2026-07-01T12:00:00Z"
+    },
+    {
+      "spdxId": "https://swinslow.net/spdx-examples/document1",
+      "type": "SpdxDocument",
+      "dataLicense": "https://swinslow.net/spdx-examples/SPDXRef-CC0",
+      "rootElement": [
+        "https://swinslow.net/spdx-examples/SPDXRef-Sbom1"
+      ],
+      "name": "Unknown-Component-Dependency-Test-SBOM",
+      "creationInfo": "_:creationInfo_0"
+    },
+    {
+      "spdxId": "https://swinslow.net/spdx-examples/SPDXRef-Person1",
+      "type": "Person",
+      "name": "Induwara",
+      "creationInfo": "_:creationInfo_0"
+    },
+    {
+      "spdxId": "https://swinslow.net/spdx-examples/SPDXRef-CC0",
+      "type": "simplelicensing_LicenseExpression",
+      "simplelicensing_licenseExpression": "CC0-1.0",
+      "creationInfo": "_:creationInfo_0"
+    },
+    {
+      "spdxId": "https://swinslow.net/spdx-examples/SPDXRef-Sbom1",
+      "type": "software_Sbom",
+      "software_sbomType": ["analyzed"],
+      "rootElement": [
+        "https://swinslow.net/spdx-examples/SPDXRef-Package-A"
+      ],
+      "creationInfo": "_:creationInfo_0"
+    },
+    {
+      "spdxId": "https://swinslow.net/spdx-examples/SPDXRef-Package-A",
+      "type": "software_Package",
+      "name": "Root-Application-Package",
+      "suppliedBy": "https://swinslow.net/spdx-examples/SPDXRef-Person1",
+      "software_packageVersion": "1.0.0",
+      "software_copyrightText": "NOASSERTION",
+      "creationInfo": "_:creationInfo_0"
+    },
+    {
+      "spdxId": "https://swinslow.net/spdx-examples/SPDXRef-Package-Decoy",
+      "type": "software_Package",
+      "name": "Decoy-Sub-Package",
+      "suppliedBy": "https://swinslow.net/spdx-examples/SPDXRef-Person1",
+      "software_packageVersion": "1.0.0",
+      "software_copyrightText": "NOASSERTION",
+      "creationInfo": "_:creationInfo_0"
+    },
+    {
+      "spdxId": "https://swinslow.net/spdx-examples/SPDXRef-Rel-License-1",
+      "type": "Relationship",
+      "relationshipType": "hasConcludedLicense",
+      "from": "https://swinslow.net/spdx-examples/SPDXRef-Package-A",
+      "to": [
+        "https://swinslow.net/spdx-examples/SPDXRef-CC0"
+      ],
+      "creationInfo": "_:creationInfo_0"
+    },
+    {
+      "spdxId": "https://swinslow.net/spdx-examples/SPDXRef-Rel-License-2",
+      "type": "Relationship",
+      "relationshipType": "hasConcludedLicense",
+      "from": "https://swinslow.net/spdx-examples/SPDXRef-Package-Decoy",
+      "to": [
+        "https://swinslow.net/spdx-examples/SPDXRef-CC0"
+      ],
+      "creationInfo": "_:creationInfo_0"
+    },
+    {
+      "spdxId": "https://swinslow.net/spdx-examples/SPDXRef-Rel-Valid-Decoy",
+      "type": "Relationship",
+      "relationshipType": "contains",
+      "from": "https://swinslow.net/spdx-examples/SPDXRef-Package-A",
+      "to": [
+        "https://swinslow.net/spdx-examples/SPDXRef-Package-Decoy"
+      ],
+      "creationInfo": "_:creationInfo_0"
+    },
+    {
+      "spdxId": "https://swinslow.net/spdx-examples/SPDXRef-Rel-Dangling",
+      "type": "Relationship",
+      "relationshipType": "contains",
+      "from": "https://swinslow.net/spdx-examples/SPDXRef-Package-A",
+      "to": [
+        "https://swinslow.net/spdx-examples/SPDXRef-Package-B"
+      ],
+      "creationInfo": "_:creationInfo_0"
+    }
+  ]
+}

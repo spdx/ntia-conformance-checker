@@ -237,7 +237,7 @@ def test_sbomchecker_missing_supplier_name(test_file: str) -> None:
     assert not sbom.components_without_versions
     TestCase().assertCountEqual(
         _component_names(sbom.components_without_suppliers),
-        ["glibc", "Jena", "Saxon"],
+        ["glibc", "Saxon"],
     )
     assert not sbom.components_without_identifiers
     assert not sbom.compliant
@@ -647,3 +647,52 @@ def test_deprecation_parsing_error() -> None:
     assert len(caught) == 1
     assert issubclass(caught[0].category, DeprecationWarning)
     assert "parsing_error" in str(caught[0].message)
+
+
+### Test missing relationship target
+
+dirname = os.path.join(
+    os.path.dirname(__file__),
+    "data",
+    "graph_connectivity",
+    "missing_relationship_target",
+)
+test_files_missing_target = [os.path.join(dirname, fn) for fn in os.listdir(dirname)]
+
+
+@pytest.mark.parametrize("test_file", test_files_missing_target)
+def test_missing_relationship_target(test_file: str) -> None:
+    """Test that a relationship node points to an ID that does not exist in the document."""
+    sbom = sbom_checker.SbomChecker(test_file)
+    assert sbom.compliant is False
+
+
+### Test disconnected graph
+
+dirname = os.path.join(
+    os.path.dirname(__file__), "data", "graph_connectivity", "disconnected_component"
+)
+test_files_disconnected = [os.path.join(dirname, fn) for fn in os.listdir(dirname)]
+
+
+@pytest.mark.parametrize("test_file", test_files_disconnected)
+def test_disconnected_component(test_file: str) -> None:
+    """Test that the BFS algorithm successfully isolates floating components."""
+    # Dynamically set the spec based on the filename
+    spec = "spdx3" if "spdx3" in test_file else "spdx2"
+    sbom = sbom_checker.SbomChecker(test_file, sbom_spec=spec)
+
+    # Assert the valid root package was successfully reached
+    assert any(
+        "Package-Valid" in spdx_id for spdx_id in sbom.reachable_component_ids
+    ), "The root package should be in the reachable list."
+
+    # Assert the orphan package was successfully caught as noise
+    assert any(
+        "Package-Orphan" in spdx_id for spdx_id in sbom.floating_component_ids
+    ), "The orphan package should be isolated in the floating list."
+
+    # Assert the orphan package was NOT processed for compliance
+    assert not any(
+        "Package-Orphan" in spdx_id for spdx_id in sbom.reachable_component_ids
+    ), "The orphan package MUST NOT be in the reachable list."

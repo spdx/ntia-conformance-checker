@@ -25,6 +25,7 @@ from spdx_tools.spdx.validation.validation_message import (
 )
 
 from .constants import DEFAULT_SBOM_SPEC
+from .graph_utils import analyze_graph_connectivity
 from .report import (
     ReportContext,
     get_validation_messages_json,
@@ -181,6 +182,10 @@ class BaseChecker(ABC):
         self._validation_messages = []
         self._conformance_messages = []
 
+        self.reachable_component_ids: set[str] = set()
+        self.floating_component_ids: set[str] = set()
+        self.has_unknown_components: bool = False
+
         match sbom_spec:
             case "spdx2":
                 self.doc = self.parse_file()
@@ -200,6 +205,8 @@ class BaseChecker(ABC):
                 raise ValueError(f"Unsupported SBOM specification: {sbom_spec}")
 
         if self.doc:
+            self._evaluate_graph_connectivity()
+
             if validate and sbom_spec == "spdx2":
                 self.doc = cast("Document", self.doc)
                 self._validation_messages = validate_full_spdx_document(self.doc)
@@ -444,7 +451,8 @@ class BaseChecker(ABC):
             return [
                 (package.name or "", package.spdx_id or "")
                 for package in packages
-                if (
+                if package.spdx_id in self.reachable_component_ids
+                and (
                     package.license_concluded is None
                     or isinstance(package.license_concluded, SpdxNoAssertion)
                     or (
@@ -483,6 +491,7 @@ class BaseChecker(ABC):
                     self.doc,
                     spdx3.software_Package,
                     "spdxId",
+                    self.reachable_component_ids,
                 )
                 if spdx_id not in has_concluded_license_ids
             ]
@@ -509,7 +518,8 @@ class BaseChecker(ABC):
             return [
                 (package.name or "", package.spdx_id or "")
                 for package in packages
-                if (
+                if package.spdx_id in self.reachable_component_ids
+                and (
                     package.copyright_text is None
                     or isinstance(package.copyright_text, SpdxNoAssertion)
                     or (
@@ -529,6 +539,7 @@ class BaseChecker(ABC):
                     self.doc,
                     spdx3.software_Package,
                     "software_copyrightText",
+                    self.reachable_component_ids,
                 )
                 if not copyright_text
                 or (isinstance(copyright_text, str) and copyright_text.strip() == "")
@@ -561,7 +572,8 @@ class BaseChecker(ABC):
             return [
                 (package.name or "", package.spdx_id or "")
                 for package in packages
-                if (
+                if package.spdx_id in self.reachable_component_ids
+                and (
                     package.spdx_id is None
                     or (
                         isinstance(package.spdx_id, str)
@@ -577,7 +589,7 @@ class BaseChecker(ABC):
             return [
                 (name or "", spdx_id or "")
                 for name, _, spdx_id in iter_objects_with_property(
-                    self.doc, spdx3.Element, "spdxId"
+                    self.doc, spdx3.Element, "spdxId", self.reachable_component_ids
                 )
                 if not spdx_id or (isinstance(spdx_id, str) and spdx_id.strip() == "")
             ]
@@ -604,7 +616,8 @@ class BaseChecker(ABC):
             return [
                 (package.name or "", package.spdx_id or "")
                 for package in packages
-                if (
+                if package.spdx_id in self.reachable_component_ids
+                and (
                     package.name is None
                     or (isinstance(package.name, str) and package.name.strip() == "")
                 )
@@ -617,7 +630,10 @@ class BaseChecker(ABC):
             return [
                 (name or "", spdx_id or "")
                 for _, spdx_id, name in iter_objects_with_property(
-                    self.doc, spdx3.software_Package, "name"
+                    self.doc,
+                    spdx3.software_Package,
+                    "name",
+                    self.reachable_component_ids,
                 )
                 if not name or (isinstance(name, str) and name.strip() == "")
             ]
@@ -644,7 +660,8 @@ class BaseChecker(ABC):
             return [
                 (package.name or "", package.spdx_id or "")
                 for package in packages
-                if (
+                if package.spdx_id in self.reachable_component_ids
+                and (
                     package.supplier is None
                     or isinstance(package.supplier, SpdxNoAssertion)
                     or (
@@ -661,7 +678,10 @@ class BaseChecker(ABC):
             return [
                 (name or "", spdx_id or "")
                 for name, spdx_id, supplier in iter_objects_with_property(
-                    self.doc, spdx3.software_Package, "suppliedBy"
+                    self.doc,
+                    spdx3.software_Package,
+                    "suppliedBy",
+                    self.reachable_component_ids,
                 )
                 if not supplier
                 or (
@@ -692,7 +712,8 @@ class BaseChecker(ABC):
             return [
                 (package.name or "", package.spdx_id or "")
                 for package in packages
-                if (
+                if package.spdx_id in self.reachable_component_ids
+                and (
                     package.version is None
                     or isinstance(package.version, SpdxNoAssertion)
                     or (
@@ -709,7 +730,10 @@ class BaseChecker(ABC):
             return [
                 (name or "", spdx_id or "")
                 for name, spdx_id, package_version in iter_objects_with_property(
-                    self.doc, spdx3.software_Package, "software_packageVersion"
+                    self.doc,
+                    spdx3.software_Package,
+                    "software_packageVersion",
+                    self.reachable_component_ids,
                 )
                 if not package_version
                 or (isinstance(package_version, str) and package_version.strip() == "")
@@ -947,3 +971,26 @@ class BaseChecker(ABC):
             }
 
         return result
+
+    def _evaluate_graph_connectivity(self) -> None:
+        """Evaluate graph connectivity to isolate floating nodes and unknown pointers."""
+
+        reachable, floating, _, has_unknown_pointers = analyze_graph_connectivity(
+            self.sbom_spec, self.doc, getattr(self, "_BaseChecker__spdx3_doc", None)
+        )
+
+        self.reachable_component_ids = reachable
+        self.floating_component_ids = floating
+        self.has_unknown_pointers = has_unknown_pointers
+
+        if self.floating_component_ids:
+            logging.warning(
+                "Found %d disconnected 'floating' elements. They will be ignored for compliance.",
+                len(self.floating_component_ids),
+            )
+
+        if self.has_unknown_pointers:
+            logging.error(
+                "Unknown components detected!"
+                "A relationship points to a missing element."
+            )
