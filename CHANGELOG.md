@@ -20,7 +20,7 @@ and this project adheres to [Semantic Versioning][semver].
 
 ### Changed
 
-- BREAKING CHANGE: Default log level is now `WARNING` (previously `INFO`);
+- Default log level is now `WARNING` (previously `INFO`);
   use `-v` to restore the old default verbosity ([#406])
 - `--output quiet` renamed to `--output none` (`quiet` still accepted;
   the name is now reserved for log verbosity) ([#406])
