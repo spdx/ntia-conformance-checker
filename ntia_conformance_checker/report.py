@@ -288,7 +288,7 @@ def _generate_graph_html_report(rc: ReportContext) -> list[str]:
         graph_issues_report.append("</ul>")
 
     if rc.floating_component_ids:
-        floating_ids = list(rc.floating_component_ids)
+        floating_ids = sorted(rc.floating_component_ids)
         graph_issues_report.append(
             "<p class='conformance-msg-label' style='margin-top: 15px;'>"
             f"<strong>WARNING:</strong> Found {len(floating_ids)} disconnected "
