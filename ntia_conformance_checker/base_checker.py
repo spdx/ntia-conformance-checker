@@ -185,7 +185,7 @@ class BaseChecker(ABC):
         self.reachable_component_ids: set[str] = set()
         self.floating_component_ids: set[str] = set()
         self.unknown_pointer_edges: dict[str, list[str]] = {}
-        self.has_unknown_components: bool = False
+        self.has_unknown_pointers: bool = False
 
         match sbom_spec:
             case "spdx2":
