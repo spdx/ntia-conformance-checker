@@ -287,7 +287,8 @@ def parse_spdx3_file(file_path: str) -> tuple[spdx3.SHACLObjectSet | None, list[
     Parse SPDX 3 SBOM document.
 
     Returns:
-        spdx3.SHACLObjectSet | None: An SHACLObjectSet if successful, otherwise None.
+        tuple[spdx3.SHACLObjectSet | None, list[str]]: A tuple containing the parsed
+            SHACLObjectSet (or None if parsing failed) and a list of parsing error strings.
     """
     parsing_errors: list[str] = []
 
