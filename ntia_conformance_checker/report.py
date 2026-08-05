@@ -175,7 +175,7 @@ def _generate_graph_text_report(rc: ReportContext) -> list[str]:
                 )
 
     if rc.floating_component_ids:
-        floating_ids = list(rc.floating_component_ids)
+        floating_ids = sorted(rc.floating_component_ids)
         graph_issues_report.append("\n************ WARNING ************")
         graph_issues_report.append(
             f"Found {len(floating_ids)} disconnected 'floating' elements."
