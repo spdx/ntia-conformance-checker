@@ -46,7 +46,7 @@ def analyze_graph_connectivity(
         }
 
     floating_ids = all_doc_ids - reachable_ids
-    has_unknown_pointers = not reachable_ids.issubset(all_doc_ids)
+    has_unknown_pointers = bool(unknown_pointer_edges)
 
     # Find exactly which edges point to unknown nodes
     unknown_pointer_edges: dict[str, list[str]] = {}
