@@ -45,15 +45,15 @@ def analyze_graph_connectivity(
             if isinstance(getattr(obj, "spdxId", None), str)
         }
 
-    floating_ids = all_doc_ids - reachable_ids
-    has_unknown_pointers = bool(unknown_pointer_edges)
-
     # Find exactly which edges point to unknown nodes
     unknown_pointer_edges: dict[str, list[str]] = {}
     for source_id, target_ids in connection_map.items():
         missing_targets = [t for t in target_ids if t not in all_doc_ids]
         if missing_targets:
             unknown_pointer_edges[source_id] = missing_targets
+
+    floating_ids = all_doc_ids - reachable_ids
+    has_unknown_pointers = bool(unknown_pointer_edges)
 
     return reachable_ids, floating_ids, unknown_pointer_edges, has_unknown_pointers
 
