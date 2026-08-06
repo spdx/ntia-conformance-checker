@@ -6,7 +6,6 @@
 
 from typing import TYPE_CHECKING, Any, cast
 
-from spdx_python_model.bindings import v3_0_1 as spdx3
 from spdx_tools.spdx.model.relationship import RelationshipType
 
 from .constants import (
@@ -16,10 +15,11 @@ from .constants import (
 
 if TYPE_CHECKING:
     from spdx_tools.spdx.model.document import Document
+    from spdx_python_model.bindings import v3_0_1 as spdx3_types
 
 
 def analyze_graph_connectivity(
-    sbom_spec: str, parsed_data: Any, spdx3_doc: Any = None
+    sbom_spec: str, parsed_data: Any, spdx3_doc: Any = None, spdx_module: Any = None
 ) -> tuple[set[str], set[str], dict[str, list[str]], bool]:
     """
     Analyzes the graph to find reachable nodes, floating nodes, and unknown pointer edges.
@@ -28,7 +28,7 @@ def analyze_graph_connectivity(
         tuple: (reachable_ids, floating_ids, unknown_pointer_edges, has_unknown_pointers)
     """
     reachable_ids, connection_map = get_reachable_components(
-        sbom_spec, parsed_data, spdx3_doc
+        sbom_spec, parsed_data, spdx3_doc, spdx_module
     )
     all_doc_ids: set[str] = set()
 
@@ -38,7 +38,7 @@ def analyze_graph_connectivity(
             pkg.spdx_id for pkg in spdx2_doc.packages if isinstance(pkg.spdx_id, str)
         }
     elif sbom_spec == "spdx3":
-        spdx3_doc_set = cast("spdx3.SHACLObjectSet", parsed_data)
+        spdx3_doc_set = cast("spdx3_types.SHACLObjectSet", parsed_data)
         all_doc_ids = {
             getattr(obj, "spdxId")
             for obj in spdx3_doc_set.objects
@@ -95,7 +95,7 @@ def _build_spdx2_graph(spdx2_doc: "Document") -> tuple[list[str], dict[str, list
 
 
 def _extract_spdx3_relationship_edges(
-    obj: spdx3.Relationship, graph_connection_map: dict[str, list[str]]
+    obj: spdx3_types.Relationship, graph_connection_map: dict[str, list[str]]
 ) -> None:
     """Helper to extract explicit relationship edges."""
     rel_type_iri = getattr(obj, "relationshipType", "")
@@ -125,7 +125,7 @@ def _extract_spdx3_relationship_edges(
 
 
 def _extract_spdx3_collection_edges(
-    obj: spdx3.ElementCollection, graph_connection_map: dict[str, list[str]]
+    obj: spdx3_types.ElementCollection, graph_connection_map: dict[str, list[str]]
 ) -> None:
     """Helper to extract implicit collection edges (e.g. Sbom, Document)."""
     col_id = getattr(obj, "spdxId", None)
@@ -143,7 +143,9 @@ def _extract_spdx3_collection_edges(
 
 
 def _build_spdx3_graph(
-    object_set: spdx3.SHACLObjectSet, spdx3_doc: spdx3.SpdxDocument | None
+    object_set: spdx3_types.SHACLObjectSet,
+    spdx3_doc: spdx3_types.SpdxDocument | None,
+    spdx_module: Any
 ) -> tuple[list[str], dict[str, list[str]]]:
     """Build the initial queue and connection map for SPDX 3."""
     queue: list[str] = []
@@ -160,7 +162,7 @@ def _build_spdx3_graph(
     # Build the graph connection map
     for obj in object_set.objects:
         # Capture explicit relationships from Relationship objects
-        if isinstance(obj, spdx3.Relationship):
+        if isinstance(obj, spdx_module.Relationship):
             from_ = getattr(obj, "from_", None)
             from_id = (
                 from_ if isinstance(from_, str) else getattr(from_, "spdxId", None)
@@ -180,14 +182,14 @@ def _build_spdx3_graph(
                 _extract_spdx3_relationship_edges(obj, graph_connection_map)
 
         # Capture implicit relationships from Collections (like Sbom, Bom, etc.)
-        if isinstance(obj, spdx3.ElementCollection):
+        if isinstance(obj, spdx_module.ElementCollection):
             _extract_spdx3_collection_edges(obj, graph_connection_map)
 
     return queue, graph_connection_map
 
 
 def get_reachable_components(
-    sbom_spec: str, parsed_data: Any, spdx3_doc: Any = None
+    sbom_spec: str, parsed_data: Any, spdx3_doc: Any = None, spdx_module: Any = None
 ) -> tuple[set[str], dict[str, list[str]]]:
     """
     Get all components connected to the root by using Breadth-First Search.
@@ -210,7 +212,7 @@ def get_reachable_components(
 
     # SPDX 3
     if sbom_spec == "spdx3":
-        queue, graph_connection_map = _build_spdx3_graph(parsed_data, spdx3_doc)
+        queue, graph_connection_map = _build_spdx3_graph(parsed_data, spdx3_doc, spdx_module)
 
     reachable_component_ids: set[str] = set(queue)
 
