@@ -992,7 +992,7 @@ class BaseChecker(ABC):
             self.sbom_spec,
             self.doc,
             getattr(self, "_BaseChecker__spdx3_doc", None),
-            self.spdx_module
+            self.spdx_module,
         )
 
         self.reachable_component_ids = reachable

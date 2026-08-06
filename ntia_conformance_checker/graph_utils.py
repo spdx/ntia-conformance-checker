@@ -14,8 +14,8 @@ from .constants import (
 )
 
 if TYPE_CHECKING:
-    from spdx_tools.spdx.model.document import Document
     from spdx_python_model.bindings import v3_0_1 as spdx3_types
+    from spdx_tools.spdx.model.document import Document
 
 
 def analyze_graph_connectivity(
@@ -145,7 +145,7 @@ def _extract_spdx3_collection_edges(
 def _build_spdx3_graph(
     object_set: spdx3_types.SHACLObjectSet,
     spdx3_doc: spdx3_types.SpdxDocument | None,
-    spdx_module: Any
+    spdx_module: Any,
 ) -> tuple[list[str], dict[str, list[str]]]:
     """Build the initial queue and connection map for SPDX 3."""
     queue: list[str] = []
@@ -212,7 +212,9 @@ def get_reachable_components(
 
     # SPDX 3
     if sbom_spec == "spdx3":
-        queue, graph_connection_map = _build_spdx3_graph(parsed_data, spdx3_doc, spdx_module)
+        queue, graph_connection_map = _build_spdx3_graph(
+            parsed_data, spdx3_doc, spdx_module
+        )
 
     reachable_component_ids: set[str] = set(queue)
 
