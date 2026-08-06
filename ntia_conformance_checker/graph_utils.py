@@ -4,6 +4,8 @@
 
 """Graph utilities for SPDX 2 and SPDX 3."""
 
+from __future__ import annotations
+
 from typing import TYPE_CHECKING, Any, cast
 
 from spdx_tools.spdx.model.relationship import RelationshipType
@@ -179,11 +181,15 @@ def _build_spdx3_graph(
 
             # Normal relationships between packages build the map
             else:
-                _extract_spdx3_relationship_edges(obj, graph_connection_map)
+                _extract_spdx3_relationship_edges(
+                    cast("spdx3_types.Relationship", obj), graph_connection_map
+                )
 
         # Capture implicit relationships from Collections (like Sbom, Bom, etc.)
         if isinstance(obj, spdx_module.ElementCollection):
-            _extract_spdx3_collection_edges(obj, graph_connection_map)
+            _extract_spdx3_collection_edges(
+                cast("spdx3_types.ElementCollection", obj), graph_connection_map
+            )
 
     return queue, graph_connection_map
 
