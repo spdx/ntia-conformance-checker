@@ -572,14 +572,8 @@ class BaseChecker(ABC):
             return [
                 (package.name or "", package.spdx_id or "")
                 for package in packages
-                if package.spdx_id in self.reachable_component_ids
-                and (
-                    package.spdx_id is None
-                    or (
-                        isinstance(package.spdx_id, str)
-                        and package.spdx_id.strip() == ""
-                    )
-                )
+                if package.spdx_id is None
+                or (isinstance(package.spdx_id, str) and package.spdx_id.strip() == "")
             ]
 
         # SPDX 3
@@ -588,8 +582,11 @@ class BaseChecker(ABC):
 
             return [
                 (name or "", spdx_id or "")
-                for name, _, spdx_id in iter_objects_with_property(
-                    self.doc, spdx3.Element, "spdxId", self.reachable_component_ids
+                for name, spdx_id, _ in iter_objects_with_property(
+                    self.doc,
+                    spdx3.software_Package,
+                    "spdxId",
+                    reachable_ids=None,
                 )
                 if not spdx_id or (isinstance(spdx_id, str) and spdx_id.strip() == "")
             ]
