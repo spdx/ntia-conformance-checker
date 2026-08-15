@@ -16,17 +16,14 @@ and this project adheres to [Semantic Versioning][semver].
 ### Fixed
 
 - BREAKING CHANGE:
-  Correct relationship target cardinality (`1..*`) and `ListProxy` unboxing
-  in `iter_relationships_by_type`, changing the return signature to
-  `Iterator[tuple[str, list[str]]]` ([#398])
-- Restrict `BaseChecker.get_total_number_components` in SPDX 3 to count
-  packages and subclasses (`AIPackage`, `DatasetPackage`) instead of all
-  SHACL objects ([#421])
-- Handle `OSError` when writing JSON output file in `print_output` ([#424])
+  Fixed `iter_relationships_by_type` in `spdx3_utils.py`
+  to correctly handle `1..*` cardinality for relationship targets
+  and properly unbox `ListProxy` objects.
+  This changes the return signature to `Iterator[tuple[str, list[str]]]`
+  ([#398])
+- Handle `OSError` when writing JSON output file in `print_output`
 
 [#398]: https://github.com/spdx/ntia-conformance-checker/pull/398
-[#421]: https://github.com/spdx/ntia-conformance-checker/pull/421
-[#424]: https://github.com/spdx/ntia-conformance-checker/pull/424
 
 ## [5.0.3] - 2026-06-02
 
