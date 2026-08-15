@@ -22,9 +22,11 @@ and this project adheres to [Semantic Versioning][semver].
 - Restrict `BaseChecker.get_total_number_components` in SPDX 3 to count
   packages and subclasses (`AIPackage`, `DatasetPackage`) instead of all
   SHACL objects ([#421])
+- Handle `OSError` when writing JSON output file in `print_output` ([#424])
 
 [#398]: https://github.com/spdx/ntia-conformance-checker/pull/398
 [#421]: https://github.com/spdx/ntia-conformance-checker/pull/421
+[#424]: https://github.com/spdx/ntia-conformance-checker/pull/424
 
 ## [5.0.3] - 2026-06-02
 
