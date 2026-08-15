@@ -280,8 +280,11 @@ def print_output(
         case "json":
             result_dict: dict[str, Any] = sbom.output_json()
             if output_file:
-                with open(output_file, "w", encoding="utf-8") as outfile:
-                    json.dump(result_dict, outfile)
+                try:
+                    with open(output_file, "w", encoding="utf-8") as outfile:
+                        json.dump(result_dict, outfile)
+                except OSError as exc:
+                    logging.error("Could not write JSON output file: %s", exc)
             else:
                 print(json.dumps(result_dict, indent=2))
 

@@ -21,11 +21,9 @@ and this project adheres to [Semantic Versioning][semver].
   and properly unbox `ListProxy` objects.
   This changes the return signature to `Iterator[tuple[str, list[str]]]`
   ([#398])
-- Make `get_components_without_identifiers` only return packages
-  for SPDX 3 ([#425])
+- Handle `OSError` when writing JSON output file in `print_output`
 
 [#398]: https://github.com/spdx/ntia-conformance-checker/pull/398
-[#425]: https://github.com/spdx/ntia-conformance-checker/pull/425
 
 ## [5.0.3] - 2026-06-02
 
