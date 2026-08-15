@@ -162,11 +162,14 @@ def get_packages_from_bom(
     if not bom:
         return None
 
-    root_elements: list[spdx3.software_Package] = getattr(bom, "rootElement", [])
-    if not root_elements or len(root_elements) != 1:
+    root_elements: list[Any] = getattr(bom, "rootElement", [])
+    packages: list[spdx3.software_Package] = [
+        elem for elem in root_elements if isinstance(elem, spdx3.software_Package)
+    ]
+    if not packages:
         return None
 
-    return root_elements
+    return packages
 
 
 def iter_objects_with_property(
