@@ -232,7 +232,12 @@ def iter_relationships_by_type(
 
 
 def get_all_packages(object_set: spdx3.SHACLObjectSet) -> set[spdx3.software_Package]:
-    """Retrieve all /Software/Package objects from an SHACLObjectSet."""
+    """
+    Retrieve all /Software/Package objects from an SHACLObjectSet.
+
+    This includes instances of software_Package and its subclasses,
+    such as ai_AIPackage and dataset_DatasetPackage.
+    """
     packages: set[spdx3.software_Package] = set(
         object_set.foreach_type(spdx3.software_Package)
     )

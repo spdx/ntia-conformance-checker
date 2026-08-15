@@ -21,6 +21,9 @@ and this project adheres to [Semantic Versioning][semver].
   and properly unbox `ListProxy` objects.
   This changes the return signature to `Iterator[tuple[str, list[str]]]`
   ([#398])
+- Fixed `BaseChecker.get_total_number_components` for SPDX 3 documents
+  to return the total count of packages (including `Package` and its subclasses
+  such as `AIPackage` and `DatasetPackage`) instead of all SHACL objects.
 
 [#398]: https://github.com/spdx/ntia-conformance-checker/pull/398
 
