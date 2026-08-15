@@ -21,8 +21,6 @@ and this project adheres to [Semantic Versioning][semver].
   and properly unbox `ListProxy` objects.
   This changes the return signature to `Iterator[tuple[str, list[str]]]`
   ([#398])
-- Filter `get_packages_from_bom` and `get_boms_from_spdx_document` to return
-  matching instances (empty list on none) and support multi-root BOMs ([#423])
 - Handle `OSError` when writing JSON output file in `print_output`
 
 [#398]: https://github.com/spdx/ntia-conformance-checker/pull/398
