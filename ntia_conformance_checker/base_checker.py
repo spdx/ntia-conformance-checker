@@ -417,7 +417,7 @@ class BaseChecker(ABC):
             error_msg = (
                 "To have SBOM type (SBOM generation context) information, "
                 "the rootElement of the SpdxDocument shall be of type "
-                "/Software/Sbom."
+                "/Software/Sbom. "
                 f"Found: {type(root_elem).__name__!r}"
             )
             context = ValidationContext(parent_id=doc_id, spdx_id=root_elem_id)
