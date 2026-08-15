@@ -731,7 +731,8 @@ def test_get_all_packages_empty() -> None:
 
 
 def test_get_all_packages_non_packages_only() -> None:
-    """Test get_all_packages ignores non-package elements."""
+    """Test get_all_packages returns empty set for SHACLObjectSet that
+    contains only non-package elements."""
     object_set = spdx3.SHACLObjectSet()
     creation_info = _create_test_spdx3_creation_info()
 
@@ -822,7 +823,7 @@ def test_get_total_number_components_none_or_unknown_spec() -> None:
 
 
 def test_get_total_number_components_spdx2() -> None:
-    """Test get_total_number_components for SPDX 2 documents."""
+    """Test get_total_number_components returns 0 for empty SPDX 2 documents."""
     filepath = os.path.join(
         os.path.dirname(__file__), "data", "other_tests", "SPDXSBOMExample.spdx.yml"
     )
@@ -845,7 +846,7 @@ def test_get_total_number_components_spdx2() -> None:
 
 
 def test_get_total_number_components_spdx3_packages_and_subclasses() -> None:
-    """Test get_total_number_components for SPDX 3 with Package, AIPackage, DatasetPackage."""
+    """Test get_total_number_components returns 3 for SPDX 3 with Package, AIPackage, DatasetPackage."""
     object_set = spdx3.SHACLObjectSet()
     creation_info = _create_test_spdx3_creation_info()
 
