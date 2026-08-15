@@ -22,10 +22,10 @@ and this project adheres to [Semantic Versioning][semver].
   This changes the return signature to `Iterator[tuple[str, list[str]]]`
   ([#398])
 - Filter `get_packages_from_bom` to return only package instances from
-  BOM root elements and support multi-root BOMs ([#422])
+  BOM root elements and support multi-root BOMs ([#423])
 
 [#398]: https://github.com/spdx/ntia-conformance-checker/pull/398
-[#422]: https://github.com/spdx/ntia-conformance-checker/pull/422
+[#423]: https://github.com/spdx/ntia-conformance-checker/pull/423
 
 ## [5.0.3] - 2026-06-02
 
