@@ -846,7 +846,8 @@ def test_get_total_number_components_spdx2() -> None:
 
 
 def test_get_total_number_components_spdx3_packages_and_subclasses() -> None:
-    """Test get_total_number_components returns 3 for SPDX 3 with Package, AIPackage, DatasetPackage."""
+    """Test get_total_number_components returns 3
+    for SPDX 3 with Package, AIPackage, DatasetPackage."""
     object_set = spdx3.SHACLObjectSet()
     creation_info = _create_test_spdx3_creation_info()
 
