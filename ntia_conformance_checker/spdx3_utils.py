@@ -127,7 +127,7 @@ def validate_spdx3_data(
 
 def get_boms_from_spdx_document(
     spdx_doc: spdx3.SpdxDocument | None,
-) -> list[spdx3.Bom] | None:
+) -> list[spdx3.Bom]:
     """
     Retrieve the BOMs that are rootElements of an SPDX 3 SpdxDocument.
 
@@ -135,21 +135,18 @@ def get_boms_from_spdx_document(
         spdx_doc (spdx3.SpdxDocument | None): The SPDX 3 SpdxDocument.
 
     Returns:
-        list[spdx3.Bom] | None: A list of BOMs if found, otherwise None.
+        list[spdx3.Bom]: A list of BOMs if found, otherwise an empty list.
     """
     if not spdx_doc:
-        return None
+        return []
 
-    root_elements: list[spdx3.Bom] = getattr(spdx_doc, "rootElement", [])
-    if not root_elements:
-        return None
-
-    return root_elements
+    root_elements: list[Any] = getattr(spdx_doc, "rootElement", [])
+    return [elem for elem in root_elements if isinstance(elem, spdx3.Bom)]
 
 
 def get_packages_from_bom(
     bom: spdx3.Bom | None,
-) -> list[spdx3.software_Package] | None:
+) -> list[spdx3.software_Package]:
     """
     Retrieve the /Software/Packages that are rootElements of an SPDX 3 BOM.
 
@@ -157,19 +154,13 @@ def get_packages_from_bom(
         bom (spdx3.Bom | None): The SPDX 3 Bom.
 
     Returns:
-        list[spdx3.software_Package] | None: A list of packages if found, otherwise None.
+        list[spdx3.software_Package]: A list of packages if found, otherwise an empty list.
     """
     if not bom:
-        return None
+        return []
 
     root_elements: list[Any] = getattr(bom, "rootElement", [])
-    packages: list[spdx3.software_Package] = [
-        elem for elem in root_elements if isinstance(elem, spdx3.software_Package)
-    ]
-    if not packages:
-        return None
-
-    return packages
+    return [elem for elem in root_elements if isinstance(elem, spdx3.software_Package)]
 
 
 def iter_objects_with_property(

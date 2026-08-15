@@ -718,8 +718,8 @@ def _create_test_spdx3_creation_info(
 
 
 def test_get_packages_from_bom_none_or_empty() -> None:
-    """Test get_packages_from_bom returns None for None or empty rootElement."""
-    assert get_packages_from_bom(None) is None
+    """Test get_packages_from_bom returns empty list for None or empty rootElement."""
+    assert not get_packages_from_bom(None)
 
     creation_info = _create_test_spdx3_creation_info()
     bom_empty = spdx3.software_Sbom(
@@ -727,11 +727,11 @@ def test_get_packages_from_bom_none_or_empty() -> None:
         creationInfo=creation_info,
         name="bom-empty",
     )
-    assert get_packages_from_bom(bom_empty) is None
+    assert not get_packages_from_bom(bom_empty)
 
 
 def test_get_packages_from_bom_non_packages_only() -> None:
-    """Test get_packages_from_bom returns None when rootElements contain no packages."""
+    """Test get_packages_from_bom returns empty list when rootElements contain no packages."""
     creation_info = _create_test_spdx3_creation_info()
     file = spdx3.software_File(
         _id="http://example.com/spdx3/file1",
@@ -744,7 +744,7 @@ def test_get_packages_from_bom_non_packages_only() -> None:
         name="bom",
         rootElement=[file],
     )
-    assert get_packages_from_bom(bom) is None
+    assert not get_packages_from_bom(bom)
 
 
 def test_get_packages_from_bom_filters_only_packages_and_subclasses() -> None:
@@ -778,14 +778,13 @@ def test_get_packages_from_bom_filters_only_packages_and_subclasses() -> None:
     )
 
     packages = get_packages_from_bom(bom)
-    assert packages is not None
     assert len(packages) == 3
     assert packages == [pkg, ai_pkg, data_pkg]
 
 
 def test_get_boms_from_spdx_document() -> None:
     """Test get_boms_from_spdx_document retrieves rootElements of SpdxDocument."""
-    assert get_boms_from_spdx_document(None) is None
+    assert not get_boms_from_spdx_document(None)
 
     creation_info = _create_test_spdx3_creation_info()
     doc_empty = spdx3.SpdxDocument(
@@ -793,7 +792,7 @@ def test_get_boms_from_spdx_document() -> None:
         creationInfo=creation_info,
         name="doc-empty",
     )
-    assert get_boms_from_spdx_document(doc_empty) is None
+    assert not get_boms_from_spdx_document(doc_empty)
 
     bom = spdx3.software_Sbom(
         _id="http://example.com/spdx3/bom1",
@@ -807,5 +806,5 @@ def test_get_boms_from_spdx_document() -> None:
         rootElement=[bom],
     )
     boms = get_boms_from_spdx_document(doc_with_bom)
-    assert boms is not None
+    assert boms
     assert boms == [bom]
