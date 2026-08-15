@@ -21,8 +21,10 @@ and this project adheres to [Semantic Versioning][semver].
   and properly unbox `ListProxy` objects.
   This changes the return signature to `Iterator[tuple[str, list[str]]]`
   ([#398])
+- Updated graph connectivity analysis and identifier checks ([#426])
 
 [#398]: https://github.com/spdx/ntia-conformance-checker/pull/398
+[#426]: https://github.com/spdx/ntia-conformance-checker/pull/426
 
 ## [5.0.3] - 2026-06-02
 
