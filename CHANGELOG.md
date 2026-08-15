@@ -23,9 +23,11 @@ and this project adheres to [Semantic Versioning][semver].
   ([#398])
 - Filter `get_packages_from_bom` and `get_boms_from_spdx_document` to return
   matching instances (empty list on none) and support multi-root BOMs ([#423])
+- Handle `OSError` when writing JSON output file in `print_output` ([#424])
 
 [#398]: https://github.com/spdx/ntia-conformance-checker/pull/398
 [#423]: https://github.com/spdx/ntia-conformance-checker/pull/423
+[#424]: https://github.com/spdx/ntia-conformance-checker/pull/424
 
 ## [5.0.3] - 2026-06-02
 
