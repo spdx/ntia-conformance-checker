@@ -1,0 +1,61 @@
+{
+  "@context": "https://spdx.org/rdf/3.0.1/spdx-context.jsonld",
+  "@graph": [
+    {
+      "type": "CreationInfo",
+      "@id": "_:creationinfo",
+      "specVersion": "3.0.1",
+      "createdBy": ["https://example.com/spdx/person-01"],
+      "created": "2026-08-16T04:00:00Z"
+    },
+    {
+      "type": "SpdxDocument",
+      "spdxId": "https://example.com/spdx/doc-01",
+      "creationInfo": "_:creationinfo",
+      "name": "Missing Filename Doc",
+      "rootElement": ["https://example.com/spdx/package-01"],
+      "element": [
+        "https://example.com/spdx/person-01",
+        "https://example.com/spdx/package-01",
+        "https://example.com/spdx/license-01",
+        "https://example.com/spdx/rel-02"
+      ]
+    },
+    {
+      "type": "Person",
+      "spdxId": "https://example.com/spdx/person-01",
+      "creationInfo": "_:creationinfo",
+      "name": "Author",
+      "externalIdentifier": [
+        {
+          "type": "ExternalIdentifier",
+          "externalIdentifierType": "email",
+          "identifier": "author@example.com"
+        }
+      ]
+    },
+    {
+      "type": "software_Package",
+      "spdxId": "https://example.com/spdx/package-01",
+      "creationInfo": "_:creationinfo",
+      "name": "example-component",
+      "software_packageVersion": "1.0.0",
+      "originatedBy": ["https://example.com/spdx/person-01"]
+    },
+    {
+      "type": "simplelicensing_LicenseExpression",
+      "spdxId": "https://example.com/spdx/license-01",
+      "creationInfo": "_:creationinfo",
+      "simplelicensing_licenseExpression": "Apache-2.0"
+    },
+    {
+      "type": "Relationship",
+      "spdxId": "https://example.com/spdx/rel-02",
+      "creationInfo": "_:creationinfo",
+      "from": "https://example.com/spdx/package-01",
+      "relationshipType": "hasConcludedLicense",
+      "to": ["https://example.com/spdx/license-01"],
+      "completeness": "complete"
+    }
+  ]
+}
