@@ -5,6 +5,7 @@
 """BSI Minimum Elements checking functionality."""
 
 from __future__ import annotations
+
 from typing import Any
 
 from spdx_python_model.bindings import v3_0_1 as spdx3
@@ -17,6 +18,7 @@ from .spdx3_utils import (
     iter_objects_with_property,
     iter_relationships_by_type,
 )
+
 
 # pylint: disable=too-many-instance-attributes
 class BSIChecker(BaseChecker):
@@ -112,7 +114,9 @@ class BSIChecker(BaseChecker):
         self.doc_uri: bool = False
         self.dependency_completeness: bool = False
 
-        super().__init__(file=file, validate=validate, compliance=compliance, sbom_spec=sbom_spec)
+        super().__init__(
+            file=file, validate=validate, compliance=compliance, sbom_spec=sbom_spec
+        )
 
         if self.doc:
             self.compliant = self.check_compliance()
@@ -194,26 +198,44 @@ class BSIChecker(BaseChecker):
         )
         self.components_without_creators = self.get_components_without_creators()
         self.components_without_filenames = self.get_components_without_filenames()
-        self.components_without_executable_prop = self.get_components_without_executable_prop()
-        self.components_without_archive_prop = self.get_components_without_archive_prop()
-        self.components_without_structured_prop = self.get_components_without_structured_prop()
-        self.components_without_sha512_hashes = self.get_components_without_sha512_hashes()
+        self.components_without_executable_prop = (
+            self.get_components_without_executable_prop()
+        )
+        self.components_without_archive_prop = (
+            self.get_components_without_archive_prop()
+        )
+        self.components_without_structured_prop = (
+            self.get_components_without_structured_prop()
+        )
+        self.components_without_sha512_hashes = (
+            self.get_components_without_sha512_hashes()
+        )
 
         # Run Additional/Optional checks
-        self.components_without_source_code_uris = self.get_components_without_source_code_uris()
-        self.components_without_deployable_uris = self.get_components_without_deployable_uris()
+        self.components_without_source_code_uris = (
+            self.get_components_without_source_code_uris()
+        )
+        self.components_without_deployable_uris = (
+            self.get_components_without_deployable_uris()
+        )
         self.components_without_unique_identifiers = (
             self.get_components_without_unique_identifiers()
         )
-        self.components_without_original_licenses = self.get_components_without_original_licenses()
+        self.components_without_original_licenses = (
+            self.get_components_without_original_licenses()
+        )
         self.components_without_effective_licenses = (
             self.get_components_without_effective_licenses()
         )
         self.components_without_source_code_hashes = (
             self.get_components_without_source_code_hashes()
         )
-        self.components_without_security_txt = self.get_components_without_security_txt()
-        self.components_without_bom_references = self.get_components_without_bom_references()
+        self.components_without_security_txt = (
+            self.get_components_without_security_txt()
+        )
+        self.components_without_bom_references = (
+            self.get_components_without_bom_references()
+        )
 
         # Refresh the aggregated tracking list used by the base class reporter
         self.all_components_without_info = self._get_all_components_without_info()
@@ -228,13 +250,14 @@ class BSIChecker(BaseChecker):
             ]
         )
 
-
     @staticmethod
     def _is_valid_creator(
         creator: Any, doc: spdx3.SHACLObjectSet, url_id_types: tuple[str, ...]
     ) -> bool:
         """Validate if a creator object has a valid email or URL identifier."""
-        creator_obj = creator if not isinstance(creator, str) else doc.find_by_id(creator)
+        creator_obj = (
+            creator if not isinstance(creator, str) else doc.find_by_id(creator)
+        )
         if not isinstance(creator_obj, (spdx3.Person, spdx3.Organization)):
             return False
 
@@ -252,7 +275,6 @@ class BSIChecker(BaseChecker):
                 return True
 
         return False
-
 
     def check_doc_creator(self) -> bool:
         """
@@ -274,7 +296,8 @@ class BSIChecker(BaseChecker):
             return False
 
         return any(
-            self._is_valid_creator(c, self.doc, ("urlscheme", "other")) for c in creators
+            self._is_valid_creator(c, self.doc, ("urlscheme", "other"))
+            for c in creators
         )
 
     def check_sbom_uri(self) -> bool:
@@ -380,13 +403,19 @@ class BSIChecker(BaseChecker):
             return missing
 
         valid_license_ids = set()
-        for from_id, to_ids in iter_relationships_by_type(self.doc, "hasConcludedLicense"):
+        for from_id, to_ids in iter_relationships_by_type(
+            self.doc, "hasConcludedLicense"
+        ):
             has_valid_expression = False
             for target_id in to_ids:
                 obj = self.doc.find_by_id(target_id)
                 if obj and isinstance(obj, spdx3.simplelicensing_LicenseExpression):
                     expr = getattr(obj, "simplelicensing_licenseExpression", "")
-                    if expr and isinstance(expr, str) and expr.strip() != "NoAssertionLicense":
+                    if (
+                        expr
+                        and isinstance(expr, str)
+                        and expr.strip() != "NoAssertionLicense"
+                    ):
                         has_valid_expression = True
                         break
 
@@ -509,7 +538,9 @@ class BSIChecker(BaseChecker):
                 raw_purpose = getattr(obj, "software_primaryPurpose", None) or getattr(
                     obj, "primaryPurpose", None
                 )
-                purposes = raw_purpose if isinstance(raw_purpose, list) else [raw_purpose]
+                purposes = (
+                    raw_purpose if isinstance(raw_purpose, list) else [raw_purpose]
+                )
                 purposes_str = [str(p).lower() for p in purposes]
 
                 if any("source" in p for p in purposes_str):
@@ -584,7 +615,7 @@ class BSIChecker(BaseChecker):
                 for ext_id in ext_ids:
                     id_type = str(getattr(ext_id, "externalIdentifierType", "")).lower()
                     # Extract the base type name from the IRI/Enum
-                    id_type_clean = id_type.rsplit('/', maxsplit=1)[-1]
+                    id_type_clean = id_type.rsplit("/", maxsplit=1)[-1]
 
                     if id_type_clean in valid_types:
                         has_valid_id = True
@@ -606,13 +637,19 @@ class BSIChecker(BaseChecker):
 
         valid_license_ids = set()
 
-        for from_id, to_ids in iter_relationships_by_type(self.doc, "hasDeclaredLicense"):
+        for from_id, to_ids in iter_relationships_by_type(
+            self.doc, "hasDeclaredLicense"
+        ):
             has_valid_expression = False
             for target_id in to_ids:
                 obj = self.doc.find_by_id(target_id)
                 if obj and isinstance(obj, spdx3.simplelicensing_LicenseExpression):
                     expr = getattr(obj, "simplelicensing_licenseExpression", "")
-                    if expr and isinstance(expr, str) and expr.strip() != "NoAssertionLicense":
+                    if (
+                        expr
+                        and isinstance(expr, str)
+                        and expr.strip() != "NoAssertionLicense"
+                    ):
                         has_valid_expression = True
                         break
 
@@ -641,13 +678,18 @@ class BSIChecker(BaseChecker):
         for rel in self.doc.foreach_type(spdx3.Relationship):
             rel_type = getattr(rel, "relationshipType", "")
 
-            if rel_type and str(rel_type).rsplit('/', maxsplit=1)[-1].lower() == "other":
+            if (
+                rel_type
+                and str(rel_type).rsplit("/", maxsplit=1)[-1].lower() == "other"
+            ):
                 comment = getattr(rel, "comment", "")
 
                 if comment and "hasEffectiveLicense" in str(comment):
                     from_obj = getattr(rel, "from_", None)
                     from_id = (
-                        from_obj if isinstance(from_obj, str) else getattr(from_obj, "spdxId", "")
+                        from_obj
+                        if isinstance(from_obj, str)
+                        else getattr(from_obj, "spdxId", "")
                     )
 
                     if from_id:
@@ -686,7 +728,9 @@ class BSIChecker(BaseChecker):
                 raw_purpose = getattr(obj, "software_primaryPurpose", None) or getattr(
                     obj, "primaryPurpose", None
                 )
-                purposes = raw_purpose if isinstance(raw_purpose, list) else [raw_purpose]
+                purposes = (
+                    raw_purpose if isinstance(raw_purpose, list) else [raw_purpose]
+                )
                 purposes_str = [str(p).lower() for p in purposes]
 
                 if any("source" in p for p in purposes_str):
