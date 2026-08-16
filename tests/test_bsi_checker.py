@@ -17,7 +17,10 @@ def _component_names(tuples_list: list[tuple[str, str]]) -> list[str]:
     Extract first element from list of tuples,
     or second if first is None or empty.
     """
-    return [t[0] if t and t[0] not in (None, "") else (t[1] if t else "") for t in tuples_list]
+    return [
+        t[0] if t and t[0] not in (None, "") else (t[1] if t else "")
+        for t in tuples_list
+    ]
 
 
 BSI_DATA_DIR = os.path.join(os.path.dirname(__file__), "data", "bsi")
@@ -25,7 +28,7 @@ BSI_DATA_DIR = os.path.join(os.path.dirname(__file__), "data", "bsi")
 
 def test_bsichecker_compliant_spdx3() -> None:
     """
-    Test that a perfectly formatted BSI SPDX 3 document passes compliance and 
+    Test that a perfectly formatted BSI SPDX 3 document passes compliance and
     triggers no warnings.
     """
     test_file = os.path.join(BSI_DATA_DIR, "compliant_bsi_spdx3.json")

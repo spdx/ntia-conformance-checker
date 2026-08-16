@@ -52,7 +52,9 @@ def validate_spdx3_data(
     doc: spdx3.SpdxDocument | None = None
     validation_messages: list[ValidationMessage] = []
 
-    spdx_documents: list[spdx3.SpdxDocument] = list(object_set.foreach_type(spdx3.SpdxDocument))
+    spdx_documents: list[spdx3.SpdxDocument] = list(
+        object_set.foreach_type(spdx3.SpdxDocument)
+    )
 
     # == SPDX 3 JSON serialization constraint =====
 
@@ -219,7 +221,9 @@ def iter_relationships_by_type(
         from_id = from_ if isinstance(from_, str) else getattr(from_, "spdxId", "")
         to_ids = []
         for to_item in to_elements:
-            to_id = to_item if isinstance(to_item, str) else getattr(to_item, "spdxId", "")
+            to_id = (
+                to_item if isinstance(to_item, str) else getattr(to_item, "spdxId", "")
+            )
             if to_id:
                 to_ids.append(to_id)
 
@@ -229,7 +233,9 @@ def iter_relationships_by_type(
 
 def get_all_packages(object_set: spdx3.SHACLObjectSet) -> set[spdx3.software_Package]:
     """Retrieve all /Software/Package objects from an SHACLObjectSet."""
-    packages: set[spdx3.software_Package] = set(object_set.foreach_type(spdx3.software_Package))
+    packages: set[spdx3.software_Package] = set(
+        object_set.foreach_type(spdx3.software_Package)
+    )
     return packages
 
 
@@ -280,7 +286,7 @@ def get_distribution_artifacts_map(
     Create a mapping of package spdxId to their linked software_File distribution artifacts.
 
     Returns:
-        dict[str, list[spdx3.software_File]]: A dictionary mapping package spdxId to a list of 
+        dict[str, list[spdx3.software_File]]: A dictionary mapping package spdxId to a list of
         linked software_File objects.
     """
     artifact_map: dict[str, list[spdx3.software_File]] = {}
@@ -291,7 +297,9 @@ def get_distribution_artifacts_map(
         if file_id:
             file_map[file_id] = file_obj
 
-    for from_id, to_ids in iter_relationships_by_type(object_set, "hasDistributionArtifact"):
+    for from_id, to_ids in iter_relationships_by_type(
+        object_set, "hasDistributionArtifact"
+    ):
         files = [file_map[to_id] for to_id in to_ids if to_id in file_map]
         if files:
             artifact_map.setdefault(from_id, []).extend(files)
@@ -319,11 +327,11 @@ def get_dependency_relationships_completeness(
     object_set: spdx3.SHACLObjectSet,
 ) -> dict[str, list[str]]:
     """
-    Extract the completeness attribute for all dependency 
+    Extract the completeness attribute for all dependency
     relationships ('contains', 'dependsOn') in the SPDX 3 document.
 
     Returns:
-        dict[str, list[str]]: A dictionary mapping all relationship's 
+        dict[str, list[str]]: A dictionary mapping all relationship's
         from_id to a list of all completeness attributes.
     """
     completeness_map: dict[str, list[str]] = {}
@@ -343,9 +351,12 @@ def get_dependency_relationships_completeness(
                 completeness_iri = getattr(obj, "completeness", None)
                 completeness_val = (
                     str(completeness_iri).rsplit("/", maxsplit=1)[-1]
-                    if completeness_iri else "noAssertion"
+                    if completeness_iri
+                    else "noAssertion"
                 )
                 if completeness_val:
-                    completeness_map.setdefault(from_id, []).append(str(completeness_val))
+                    completeness_map.setdefault(from_id, []).append(
+                        str(completeness_val)
+                    )
 
     return completeness_map

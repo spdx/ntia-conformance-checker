@@ -25,12 +25,12 @@
       "type": "Person",
       "spdxId": "https://example.com/spdx/person-01",
       "creationInfo": "_:creationinfo",
-      "name": "Author",
+      "name": "Induwara",
       "externalIdentifier": [
         {
           "type": "ExternalIdentifier",
           "externalIdentifierType": "email",
-          "identifier": "author@example.com"
+          "identifier": "induwara@example.com"
         }
       ]
     },
