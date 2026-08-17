@@ -19,6 +19,8 @@ from spdx_python_model.bindings import v3_0_1 as spdx3
 import ntia_conformance_checker.sbom_checker as sbom_checker
 from ntia_conformance_checker import FSCT3Checker, NTIAChecker
 from ntia_conformance_checker.spdx3_utils import (
+    get_boms_from_spdx_document,
+    get_packages_from_bom,
     has_package_dependency_relationship,
     validate_spdx3_data,
 )
@@ -700,74 +702,110 @@ def test_disconnected_component(test_file: str) -> None:
     ), "The orphan package MUST NOT be in the reachable list."
 
 
-def test_get_components_without_identifiers_spdx3() -> None:
-    """Test get_components_without_identifiers with SPDX 3 object sets."""
-    creation_info = spdx3.CreationInfo(
-        _id="http://example.com/spdx3/creation-info",
+### Test get_packages_from_bom and get_boms_from_spdx_document
+
+
+def _create_test_spdx3_creation_info(
+    base_iri: str = "http://example.com/spdx3",
+) -> spdx3.CreationInfo:
+    """Create a minimal valid SPDX 3 CreationInfo instance for testing."""
+    return spdx3.CreationInfo(
+        _id=f"{base_iri}/creation-info",
         specVersion="3.0.1",
         created=datetime.now(timezone.utc),
-        createdBy=["http://example.com/spdx3/actor1"],
-        createdUsing=["http://example.com/spdx3/tool1"],
+        createdBy=[f"{base_iri}/actor1"],
+        createdUsing=[f"{base_iri}/tool1"],
     )
 
-    doc_set = spdx3.SHACLObjectSet()
-    pkg_valid = spdx3.software_Package(
-        _id="http://example.com/spdx3/pkg-valid",
+
+def test_get_packages_from_bom_none_or_empty() -> None:
+    """Test get_packages_from_bom returns empty list for None or empty rootElement."""
+    assert not get_packages_from_bom(None)
+
+    creation_info = _create_test_spdx3_creation_info()
+    bom_empty = spdx3.software_Sbom(
+        _id="http://example.com/spdx3/bom-empty",
         creationInfo=creation_info,
-        name="pkg-valid",
+        name="bom-empty",
     )
-    doc_set.add(pkg_valid)
+    assert not get_packages_from_bom(bom_empty)
 
-    # Non-package element that should not be evaluated as a component
-    agent = spdx3.Agent(
-        _id="http://example.com/spdx3/agent1",
+
+def test_get_packages_from_bom_non_packages_only() -> None:
+    """Test get_packages_from_bom returns empty list when rootElements contain no packages."""
+    creation_info = _create_test_spdx3_creation_info()
+    file = spdx3.software_File(
+        _id="http://example.com/spdx3/file1",
         creationInfo=creation_info,
-        name="agent1",
+        name="file1",
     )
-    doc_set.add(agent)
-
-    checker = sbom_checker.SbomChecker("", validate=False, sbom_spec="spdx3")
-    checker.doc = doc_set
-    checker.reachable_component_ids = {
-        "http://example.com/spdx3/pkg-valid",
-        "http://example.com/spdx3/agent1",
-    }
-
-    # All packages have valid identifiers
-    assert checker.get_components_without_identifiers() == []
-
-    # Package with empty identifier
-    pkg_no_id = MagicMock(spec=spdx3.software_Package)
-    pkg_no_id.name = "pkg-no-id"
-    pkg_no_id.spdxId = ""
-    doc_set.add(pkg_no_id)
-    # reachable_component_ids does NOT contain empty id
-    checker.reachable_component_ids = {"http://example.com/spdx3/pkg-valid"}
-
-    assert checker.get_components_without_identifiers() == [("pkg-no-id", "")]
+    bom = spdx3.software_Sbom(
+        _id="http://example.com/spdx3/bom",
+        creationInfo=creation_info,
+        name="bom",
+        rootElement=[file],
+    )
+    assert not get_packages_from_bom(bom)
 
 
-def test_get_components_without_identifiers_spdx2() -> None:
-    """Test get_components_without_identifiers with SPDX 2 documents."""
-    checker = sbom_checker.SbomChecker("", validate=False, sbom_spec="spdx2")
-    doc = MagicMock()
-    pkg1 = MagicMock()
-    pkg1.name = "pkg1"
-    pkg1.spdx_id = "SPDXRef-Package1"
+def test_get_packages_from_bom_filters_only_packages_and_subclasses() -> None:
+    """Test get_packages_from_bom returns only software_Package and its subclasses."""
+    creation_info = _create_test_spdx3_creation_info()
+    pkg = spdx3.software_Package(
+        _id="http://example.com/spdx3/pkg1",
+        creationInfo=creation_info,
+        name="pkg1",
+    )
+    ai_pkg = spdx3.ai_AIPackage(
+        _id="http://example.com/spdx3/ai-pkg1",
+        creationInfo=creation_info,
+        name="ai-pkg1",
+    )
+    data_pkg = spdx3.dataset_DatasetPackage(
+        _id="http://example.com/spdx3/data-pkg1",
+        creationInfo=creation_info,
+        name="data-pkg1",
+    )
+    file = spdx3.software_File(
+        _id="http://example.com/spdx3/file1",
+        creationInfo=creation_info,
+        name="file1",
+    )
+    bom = spdx3.software_Sbom(
+        _id="http://example.com/spdx3/bom",
+        creationInfo=creation_info,
+        name="bom",
+        rootElement=[pkg, ai_pkg, data_pkg, file],
+    )
 
-    pkg_no_id = MagicMock()
-    pkg_no_id.name = "pkg-no-id"
-    pkg_no_id.spdx_id = None
+    packages = get_packages_from_bom(bom)
+    assert len(packages) == 3
+    assert packages == [pkg, ai_pkg, data_pkg]
 
-    pkg_empty_id = MagicMock()
-    pkg_empty_id.name = "pkg-empty-id"
-    pkg_empty_id.spdx_id = "   "
 
-    doc.packages = [pkg1, pkg_no_id, pkg_empty_id]
-    checker.doc = doc
-    checker.reachable_component_ids = {"SPDXRef-Package1"}
+def test_get_boms_from_spdx_document() -> None:
+    """Test get_boms_from_spdx_document retrieves rootElements of SpdxDocument."""
+    assert not get_boms_from_spdx_document(None)
 
-    assert checker.get_components_without_identifiers() == [
-        ("pkg-no-id", ""),
-        ("pkg-empty-id", "   "),
-    ]
+    creation_info = _create_test_spdx3_creation_info()
+    doc_empty = spdx3.SpdxDocument(
+        _id="http://example.com/spdx3/doc-empty",
+        creationInfo=creation_info,
+        name="doc-empty",
+    )
+    assert not get_boms_from_spdx_document(doc_empty)
+
+    bom = spdx3.software_Sbom(
+        _id="http://example.com/spdx3/bom1",
+        creationInfo=creation_info,
+        name="bom1",
+    )
+    doc_with_bom = spdx3.SpdxDocument(
+        _id="http://example.com/spdx3/doc-with-bom",
+        creationInfo=creation_info,
+        name="doc-with-bom",
+        rootElement=[bom],
+    )
+    boms = get_boms_from_spdx_document(doc_with_bom)
+    assert boms
+    assert boms == [bom]
