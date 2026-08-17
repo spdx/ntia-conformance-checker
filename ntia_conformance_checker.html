@@ -288,6 +288,9 @@ preferred value (name or SPDX ID) as needed.</p>
 <dt class="sig sig-object py" id="ntia_conformance_checker.base_checker.BaseChecker.get_total_number_components">
 <span class="sig-name descname"><span class="pre">get_total_number_components</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">int</span></span></span><a class="reference internal" href="_modules/ntia_conformance_checker/base_checker.html#BaseChecker.get_total_number_components"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#ntia_conformance_checker.base_checker.BaseChecker.get_total_number_components" title="Link to this definition">¶</a></dt>
 <dd><p>Retrieve total number of components.</p>
+<p>For SPDX 2, this returns the total count of packages.
+For SPDX 3, this returns the total count of packages and package
+subclasses (including AIPackage and DatasetPackage).</p>
 <dl class="field-list simple">
 <dt class="field-odd">Returns<span class="colon">:</span></dt>
 <dd class="field-odd"><p>The total number of components.</p>
@@ -796,6 +799,8 @@ during instantiation.</p>
 <dt class="sig sig-object py" id="ntia_conformance_checker.spdx3_utils.get_all_packages">
 <span class="sig-prename descclassname"><span class="pre">ntia_conformance_checker.spdx3_utils.</span></span><span class="sig-name descname"><span class="pre">get_all_packages</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">object_set</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">SHACLObjectSet</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">set</span><span class="p"><span class="pre">[</span></span><span class="pre">software_Package</span><span class="p"><span class="pre">]</span></span></span></span><a class="reference internal" href="_modules/ntia_conformance_checker/spdx3_utils.html#get_all_packages"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#ntia_conformance_checker.spdx3_utils.get_all_packages" title="Link to this definition">¶</a></dt>
 <dd><p>Retrieve all /Software/Package objects from an SHACLObjectSet.</p>
+<p>This includes instances of software_Package and its subclasses,
+such as ai_AIPackage and dataset_DatasetPackage.</p>
 </dd></dl>
 
 <dl class="py function">
@@ -1148,6 +1153,9 @@ preferred value (name or SPDX ID) as needed.</p>
 <dt class="sig sig-object py" id="ntia_conformance_checker.BaseChecker.get_total_number_components">
 <span class="sig-name descname"><span class="pre">get_total_number_components</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">int</span></span></span><a class="reference internal" href="_modules/ntia_conformance_checker/base_checker.html#BaseChecker.get_total_number_components"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#ntia_conformance_checker.BaseChecker.get_total_number_components" title="Link to this definition">¶</a></dt>
 <dd><p>Retrieve total number of components.</p>
+<p>For SPDX 2, this returns the total count of packages.
+For SPDX 3, this returns the total count of packages and package
+subclasses (including AIPackage and DatasetPackage).</p>
 <dl class="field-list simple">
 <dt class="field-odd">Returns<span class="colon">:</span></dt>
 <dd class="field-odd"><p>The total number of components.</p>

@@ -276,7 +276,12 @@
 <div class="viewcode-block" id="get_all_packages">
 <a class="viewcode-back" href="../../ntia_conformance_checker.html#ntia_conformance_checker.spdx3_utils.get_all_packages">[docs]</a>
 <span class="k">def</span><span class="w"> </span><span class="nf">get_all_packages</span><span class="p">(</span><span class="n">object_set</span><span class="p">:</span> <span class="n">spdx3</span><span class="o">.</span><span class="n">SHACLObjectSet</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">set</span><span class="p">[</span><span class="n">spdx3</span><span class="o">.</span><span class="n">software_Package</span><span class="p">]:</span>
-<span class="w">    </span><span class="sd">"""Retrieve all /Software/Package objects from an SHACLObjectSet."""</span>
+<span class="w">    </span><span class="sd">"""</span>
+<span class="sd">    Retrieve all /Software/Package objects from an SHACLObjectSet.</span>
+
+<span class="sd">    This includes instances of software_Package and its subclasses,</span>
+<span class="sd">    such as ai_AIPackage and dataset_DatasetPackage.</span>
+<span class="sd">    """</span>
     <span class="n">packages</span><span class="p">:</span> <span class="nb">set</span><span class="p">[</span><span class="n">spdx3</span><span class="o">.</span><span class="n">software_Package</span><span class="p">]</span> <span class="o">=</span> <span class="nb">set</span><span class="p">(</span>
         <span class="n">object_set</span><span class="o">.</span><span class="n">foreach_type</span><span class="p">(</span><span class="n">spdx3</span><span class="o">.</span><span class="n">software_Package</span><span class="p">)</span>
     <span class="p">)</span>
