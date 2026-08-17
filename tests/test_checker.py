@@ -8,6 +8,7 @@
 
 import os
 import warnings
+from datetime import datetime, timezone
 from pathlib import Path
 from unittest import TestCase
 
@@ -22,6 +23,8 @@ from ntia_conformance_checker.report import (
     _generate_graph_text_report,
 )
 from ntia_conformance_checker.spdx3_utils import (
+    get_boms_from_spdx_document,
+    get_packages_from_bom,
     has_package_dependency_relationship,
     validate_spdx3_data,
 )
@@ -846,3 +849,111 @@ def test_generate_graph_html_report_empty() -> None:
 
     got_list = _generate_graph_html_report(rc)
     assert not got_list
+
+### Test get_packages_from_bom and get_boms_from_spdx_document
+
+
+def _create_test_spdx3_creation_info(
+    base_iri: str = "http://example.com/spdx3",
+) -> spdx3.CreationInfo:
+    """Create a minimal valid SPDX 3 CreationInfo instance for testing."""
+    return spdx3.CreationInfo(
+        _id=f"{base_iri}/creation-info",
+        specVersion="3.0.1",
+        created=datetime.now(timezone.utc),
+        createdBy=[f"{base_iri}/actor1"],
+        createdUsing=[f"{base_iri}/tool1"],
+    )
+
+
+def test_get_packages_from_bom_none_or_empty() -> None:
+    """Test get_packages_from_bom returns empty list for None or empty rootElement."""
+    assert not get_packages_from_bom(None)
+
+    creation_info = _create_test_spdx3_creation_info()
+    bom_empty = spdx3.software_Sbom(
+        _id="http://example.com/spdx3/bom-empty",
+        creationInfo=creation_info,
+        name="bom-empty",
+    )
+    assert not get_packages_from_bom(bom_empty)
+
+
+def test_get_packages_from_bom_non_packages_only() -> None:
+    """Test get_packages_from_bom returns empty list when rootElements contain no packages."""
+    creation_info = _create_test_spdx3_creation_info()
+    file = spdx3.software_File(
+        _id="http://example.com/spdx3/file1",
+        creationInfo=creation_info,
+        name="file1",
+    )
+    bom = spdx3.software_Sbom(
+        _id="http://example.com/spdx3/bom",
+        creationInfo=creation_info,
+        name="bom",
+        rootElement=[file],
+    )
+    assert not get_packages_from_bom(bom)
+
+
+def test_get_packages_from_bom_filters_only_packages_and_subclasses() -> None:
+    """Test get_packages_from_bom returns only software_Package and its subclasses."""
+    creation_info = _create_test_spdx3_creation_info()
+    pkg = spdx3.software_Package(
+        _id="http://example.com/spdx3/pkg1",
+        creationInfo=creation_info,
+        name="pkg1",
+    )
+    ai_pkg = spdx3.ai_AIPackage(
+        _id="http://example.com/spdx3/ai-pkg1",
+        creationInfo=creation_info,
+        name="ai-pkg1",
+    )
+    data_pkg = spdx3.dataset_DatasetPackage(
+        _id="http://example.com/spdx3/data-pkg1",
+        creationInfo=creation_info,
+        name="data-pkg1",
+    )
+    file = spdx3.software_File(
+        _id="http://example.com/spdx3/file1",
+        creationInfo=creation_info,
+        name="file1",
+    )
+    bom = spdx3.software_Sbom(
+        _id="http://example.com/spdx3/bom",
+        creationInfo=creation_info,
+        name="bom",
+        rootElement=[pkg, ai_pkg, data_pkg, file],
+    )
+
+    packages = get_packages_from_bom(bom)
+    assert len(packages) == 3
+    assert packages == [pkg, ai_pkg, data_pkg]
+
+
+def test_get_boms_from_spdx_document() -> None:
+    """Test get_boms_from_spdx_document retrieves rootElements of SpdxDocument."""
+    assert not get_boms_from_spdx_document(None)
+
+    creation_info = _create_test_spdx3_creation_info()
+    doc_empty = spdx3.SpdxDocument(
+        _id="http://example.com/spdx3/doc-empty",
+        creationInfo=creation_info,
+        name="doc-empty",
+    )
+    assert not get_boms_from_spdx_document(doc_empty)
+
+    bom = spdx3.software_Sbom(
+        _id="http://example.com/spdx3/bom1",
+        creationInfo=creation_info,
+        name="bom1",
+    )
+    doc_with_bom = spdx3.SpdxDocument(
+        _id="http://example.com/spdx3/doc-with-bom",
+        creationInfo=creation_info,
+        name="doc-with-bom",
+        rootElement=[bom],
+    )
+    boms = get_boms_from_spdx_document(doc_with_bom)
+    assert boms
+    assert boms == [bom]

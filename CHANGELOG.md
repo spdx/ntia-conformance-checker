@@ -21,6 +21,7 @@ and this project adheres to [Semantic Versioning][semver].
   and properly unbox `ListProxy` objects.
   This changes the return signature to `Iterator[tuple[str, list[str]]]`
   ([#398])
+- Handle `OSError` when writing JSON output file in `print_output`
 
 [#398]: https://github.com/spdx/ntia-conformance-checker/pull/398
 

@@ -32,6 +32,7 @@ from .report import (
     report_text,
 )
 from .spdx3_utils import (
+    get_all_packages,
     has_package_dependency_relationship,
     iter_objects_with_property,
     iter_relationships_by_type,
@@ -420,7 +421,7 @@ class BaseChecker(ABC):
             error_msg = (
                 "To have SBOM type (SBOM generation context) information, "
                 "the rootElement of the SpdxDocument shall be of type "
-                "/Software/Sbom."
+                "/Software/Sbom. "
                 f"Found: {type(root_elem).__name__!r}"
             )
             context = ValidationContext(parent_id=doc_id, spdx_id=root_elem_id)
@@ -767,6 +768,10 @@ class BaseChecker(ABC):
         """
         Retrieve total number of components.
 
+        For SPDX 2, this returns the total count of packages.
+        For SPDX 3, this returns the total count of packages and package
+        subclasses (including AIPackage and DatasetPackage).
+
         Returns:
             int: The total number of components.
         """
@@ -783,8 +788,7 @@ class BaseChecker(ABC):
         # SPDX 3
         if self.sbom_spec == "spdx3":
             self.doc = cast("spdx3.SHACLObjectSet", self.doc)
-            objects: set[spdx3.SHACLObject] = getattr(self.doc, "objects", set())
-            return len(objects)
+            return len(get_all_packages(self.doc))
 
         return 0
 
