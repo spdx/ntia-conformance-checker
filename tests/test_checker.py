@@ -14,17 +14,12 @@ from unittest import TestCase
 
 import pytest
 from spdx_python_model.bindings import v3_0_1 as spdx3
-from spdx_tools.spdx.model.document import (
-    CreationInfo as SPDX2CreationInfo,
-)
-from spdx_tools.spdx.model.document import (
-    Document,
-)
 
 import ntia_conformance_checker.sbom_checker as sbom_checker
 from ntia_conformance_checker import FSCT3Checker, NTIAChecker
 from ntia_conformance_checker.spdx3_utils import (
-    get_all_packages,
+    get_boms_from_spdx_document,
+    get_packages_from_bom,
     has_package_dependency_relationship,
     validate_spdx3_data,
 )
@@ -706,7 +701,7 @@ def test_disconnected_component(test_file: str) -> None:
     ), "The orphan package MUST NOT be in the reachable list."
 
 
-### Test get_all_packages and get_total_number_components
+### Test get_packages_from_bom and get_boms_from_spdx_document
 
 
 def _create_test_spdx3_creation_info(
@@ -722,188 +717,94 @@ def _create_test_spdx3_creation_info(
     )
 
 
-def test_get_all_packages_empty() -> None:
-    """Test get_all_packages returns empty set for empty SHACLObjectSet."""
-    object_set = spdx3.SHACLObjectSet()
-    packages = get_all_packages(object_set)
-    assert packages == set()
-    assert len(packages) == 0
+def test_get_packages_from_bom_none_or_empty() -> None:
+    """Test get_packages_from_bom returns empty list for None or empty rootElement."""
+    assert not get_packages_from_bom(None)
 
-
-def test_get_all_packages_non_packages_only() -> None:
-    """Test get_all_packages returns empty set for SHACLObjectSet that
-    contains only non-package elements."""
-    object_set = spdx3.SHACLObjectSet()
     creation_info = _create_test_spdx3_creation_info()
+    bom_empty = spdx3.software_Sbom(
+        _id="http://example.com/spdx3/bom-empty",
+        creationInfo=creation_info,
+        name="bom-empty",
+    )
+    assert not get_packages_from_bom(bom_empty)
 
-    doc = spdx3.SpdxDocument(
-        _id="http://example.com/spdx3/doc",
-        creationInfo=creation_info,
-        name="test-doc",
-    )
-    sbom = spdx3.software_Sbom(
-        _id="http://example.com/spdx3/sbom",
-        creationInfo=creation_info,
-        name="test-sbom",
-    )
+
+def test_get_packages_from_bom_non_packages_only() -> None:
+    """Test get_packages_from_bom returns empty list when rootElements contain no packages."""
+    creation_info = _create_test_spdx3_creation_info()
     file = spdx3.software_File(
-        _id="http://example.com/spdx3/file",
+        _id="http://example.com/spdx3/file1",
         creationInfo=creation_info,
-        name="test-file",
+        name="file1",
     )
-    agent = spdx3.Agent(
-        _id="http://example.com/spdx3/agent",
+    bom = spdx3.software_Sbom(
+        _id="http://example.com/spdx3/bom",
         creationInfo=creation_info,
-        name="test-agent",
+        name="bom",
+        rootElement=[file],
     )
-    rel = spdx3.Relationship(
-        _id="http://example.com/spdx3/rel",
-        creationInfo=creation_info,
-        relationshipType=f"{SPDX3_RELATIONSHIP_TYPE_BASE}/contains",
-        from_="http://example.com/spdx3/doc",
-        to=["http://example.com/spdx3/file"],
-    )
-
-    object_set.add(doc)
-    object_set.add(sbom)
-    object_set.add(file)
-    object_set.add(agent)
-    object_set.add(rel)
-
-    packages = get_all_packages(object_set)
-    assert packages == set()
+    assert not get_packages_from_bom(bom)
 
 
-def test_get_all_packages_with_package_and_subclasses() -> None:
-    """Test get_all_packages retrieves Package, AIPackage, and DatasetPackage."""
-    object_set = spdx3.SHACLObjectSet()
+def test_get_packages_from_bom_filters_only_packages_and_subclasses() -> None:
+    """Test get_packages_from_bom returns only software_Package and its subclasses."""
     creation_info = _create_test_spdx3_creation_info()
-
     pkg = spdx3.software_Package(
         _id="http://example.com/spdx3/pkg1",
         creationInfo=creation_info,
-        name="regular-package",
+        name="pkg1",
     )
     ai_pkg = spdx3.ai_AIPackage(
         _id="http://example.com/spdx3/ai-pkg1",
         creationInfo=creation_info,
-        name="ai-package",
+        name="ai-pkg1",
     )
     data_pkg = spdx3.dataset_DatasetPackage(
         _id="http://example.com/spdx3/data-pkg1",
         creationInfo=creation_info,
-        name="dataset-package",
+        name="data-pkg1",
     )
     file = spdx3.software_File(
         _id="http://example.com/spdx3/file1",
         creationInfo=creation_info,
         name="file1",
     )
+    bom = spdx3.software_Sbom(
+        _id="http://example.com/spdx3/bom",
+        creationInfo=creation_info,
+        name="bom",
+        rootElement=[pkg, ai_pkg, data_pkg, file],
+    )
 
-    object_set.add(pkg)
-    object_set.add(ai_pkg)
-    object_set.add(data_pkg)
-    object_set.add(file)
-
-    packages = get_all_packages(object_set)
+    packages = get_packages_from_bom(bom)
     assert len(packages) == 3
-    package_names = {getattr(p, "name") for p in packages}
-    assert package_names == {"regular-package", "ai-package", "dataset-package"}
+    assert packages == [pkg, ai_pkg, data_pkg]
 
 
-def test_get_total_number_components_none_or_unknown_spec() -> None:
-    """Test get_total_number_components when doc is None or unknown spec."""
-    checker = sbom_checker.SbomChecker(test_files[0])
-    checker.doc = None
-    assert checker.get_total_number_components() == 0
+def test_get_boms_from_spdx_document() -> None:
+    """Test get_boms_from_spdx_document retrieves rootElements of SpdxDocument."""
+    assert not get_boms_from_spdx_document(None)
 
-    checker.doc = spdx3.SHACLObjectSet()
-    checker.sbom_spec = "unknown_spec"
-    assert checker.get_total_number_components() == 0
-
-
-def test_get_total_number_components_spdx2() -> None:
-    """Test get_total_number_components returns 0 for empty SPDX 2 documents."""
-    filepath = os.path.join(
-        os.path.dirname(__file__), "data", "other_tests", "SPDXSBOMExample.spdx.yml"
-    )
-    sbom = sbom_checker.SbomChecker(filepath)
-    assert sbom.get_total_number_components() == 3
-
-    creation_info = SPDX2CreationInfo(
-        spdx_version="SPDX-2.3",
-        spdx_id="SPDXRef-DOCUMENT",
-        name="empty-doc",
-        document_namespace="https://example.com/spdx/doc",
-        created=datetime.now(timezone.utc),
-        creators=[],
-    )
-    doc_empty = Document(creation_info=creation_info, packages=[])
-    checker = sbom_checker.SbomChecker(filepath)
-    checker.doc = doc_empty
-    checker.sbom_spec = "spdx2"
-    assert checker.get_total_number_components() == 0
-
-
-def test_get_total_number_components_spdx3_packages_and_subclasses() -> None:
-    """Test get_total_number_components returns 3
-    for SPDX 3 with Package, AIPackage, DatasetPackage."""
-    object_set = spdx3.SHACLObjectSet()
     creation_info = _create_test_spdx3_creation_info()
-
-    doc = spdx3.SpdxDocument(
-        _id="http://example.com/spdx3/doc",
+    doc_empty = spdx3.SpdxDocument(
+        _id="http://example.com/spdx3/doc-empty",
         creationInfo=creation_info,
-        name="test-spdx3-doc",
+        name="doc-empty",
     )
-    pkg = spdx3.software_Package(
-        _id="http://example.com/spdx3/pkg",
+    assert not get_boms_from_spdx_document(doc_empty)
+
+    bom = spdx3.software_Sbom(
+        _id="http://example.com/spdx3/bom1",
         creationInfo=creation_info,
-        name="pkg",
+        name="bom1",
     )
-    ai_pkg = spdx3.ai_AIPackage(
-        _id="http://example.com/spdx3/aipkg",
+    doc_with_bom = spdx3.SpdxDocument(
+        _id="http://example.com/spdx3/doc-with-bom",
         creationInfo=creation_info,
-        name="aipkg",
+        name="doc-with-bom",
+        rootElement=[bom],
     )
-    dataset_pkg = spdx3.dataset_DatasetPackage(
-        _id="http://example.com/spdx3/datasetpkg",
-        creationInfo=creation_info,
-        name="datasetpkg",
-    )
-    file = spdx3.software_File(
-        _id="http://example.com/spdx3/file",
-        creationInfo=creation_info,
-        name="file",
-    )
-
-    object_set.add(doc)
-    object_set.add(pkg)
-    object_set.add(ai_pkg)
-    object_set.add(dataset_pkg)
-    object_set.add(file)
-
-    test_file = Path(__file__).parent / "data" / "spdx3" / "has_sbom.json"
-    checker = sbom_checker.SbomChecker(str(test_file), sbom_spec="spdx3")
-    checker.doc = object_set
-    assert checker.get_total_number_components() == 3
-
-
-def test_get_total_number_components_spdx3_files() -> None:
-    """Test get_total_number_components with real SPDX 3 test files."""
-    spdx3_files_expected = [
-        ("has_sbom.json", 4),
-        ("has_no_sbom.json", 1),
-        ("no_elements_missing.json", 1),
-        ("missing_supplier_name.json", 1),
-        ("missing_version.json", 1),
-        ("package_dependency_relationship.json", 2),
-    ]
-
-    for filename, expected_count in spdx3_files_expected:
-        test_file = Path(__file__).parent / "data" / "spdx3" / filename
-        sbom = sbom_checker.SbomChecker(str(test_file), sbom_spec="spdx3")
-        assert sbom.get_total_number_components() == expected_count, (
-            f"Expected {expected_count} components in {filename}, "
-            f"got {sbom.get_total_number_components()}"
-        )
+    boms = get_boms_from_spdx_document(doc_with_bom)
+    assert boms
+    assert boms == [bom]
