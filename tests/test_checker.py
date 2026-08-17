@@ -850,6 +850,7 @@ def test_generate_graph_html_report_empty() -> None:
     got_list = _generate_graph_html_report(rc)
     assert not got_list
 
+
 ### Test get_packages_from_bom and get_boms_from_spdx_document
 
 
