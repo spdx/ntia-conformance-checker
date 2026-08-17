@@ -35,7 +35,7 @@
 <span class="c1"># SPDX-FileType: SOURCE</span>
 <span class="c1"># SPDX-License-Identifier: Apache-2.0</span>
 
-<span class="sd">&quot;&quot;&quot;NTIA Minimum Elements checking functionality.&quot;&quot;&quot;</span>
+<span class="sd">"""NTIA Minimum Elements checking functionality."""</span>
 
 <span class="kn">from</span><span class="w"> </span><span class="nn">__future__</span><span class="w"> </span><span class="kn">import</span> <span class="n">annotations</span>
 
@@ -47,23 +47,23 @@
 <div class="viewcode-block" id="NTIAChecker">
 <a class="viewcode-back" href="../../ntia_conformance_checker.html#ntia_conformance_checker.ntia_checker.NTIAChecker">[docs]</a>
 <span class="k">class</span><span class="w"> </span><span class="nc">NTIAChecker</span><span class="p">(</span><span class="n">BaseChecker</span><span class="p">):</span>
-<span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="w">    </span><span class="sd">"""</span>
 <span class="sd">    NTIA Minimum Elements check.</span>
 
 <span class="sd">    See:</span>
 <span class="sd">        https://www.ntia.gov/report/2021/minimum-elements-software-bill-materials-sbom</span>
-<span class="sd">    &quot;&quot;&quot;</span>
+<span class="sd">    """</span>
 
-    <span class="n">MIN_ELEMENTS</span> <span class="o">=</span> <span class="p">[</span><span class="s2">&quot;name&quot;</span><span class="p">,</span> <span class="s2">&quot;version&quot;</span><span class="p">,</span> <span class="s2">&quot;identifier&quot;</span><span class="p">,</span> <span class="s2">&quot;supplier&quot;</span><span class="p">]</span>
+    <span class="n">MIN_ELEMENTS</span> <span class="o">=</span> <span class="p">[</span><span class="s2">"name"</span><span class="p">,</span> <span class="s2">"version"</span><span class="p">,</span> <span class="s2">"identifier"</span><span class="p">,</span> <span class="s2">"supplier"</span><span class="p">]</span>
 
     <span class="k">def</span><span class="w"> </span><span class="fm">__init__</span><span class="p">(</span>
         <span class="bp">self</span><span class="p">,</span>
         <span class="n">file</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span>
         <span class="n">validate</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">True</span><span class="p">,</span>
-        <span class="n">compliance</span><span class="p">:</span> <span class="nb">str</span> <span class="o">=</span> <span class="s2">&quot;ntia&quot;</span><span class="p">,</span>
-        <span class="n">sbom_spec</span><span class="p">:</span> <span class="nb">str</span> <span class="o">=</span> <span class="s2">&quot;spdx2&quot;</span><span class="p">,</span>
+        <span class="n">compliance</span><span class="p">:</span> <span class="nb">str</span> <span class="o">=</span> <span class="s2">"ntia"</span><span class="p">,</span>
+        <span class="n">sbom_spec</span><span class="p">:</span> <span class="nb">str</span> <span class="o">=</span> <span class="s2">"spdx2"</span><span class="p">,</span>
     <span class="p">):</span>
-<span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="w">        </span><span class="sd">"""</span>
 <span class="sd">        Initialize the NTIA Minimum Element Checker.</span>
 
 <span class="sd">        Args:</span>
@@ -71,40 +71,40 @@
 <span class="sd">            validate (bool): Whether to validate the file.</span>
 <span class="sd">            compliance (str): The compliance standard to be used.</span>
 <span class="sd">            sbom_spec (str): The SBOM specification to be used.</span>
-<span class="sd">        &quot;&quot;&quot;</span>
+<span class="sd">        """</span>
         <span class="nb">super</span><span class="p">()</span><span class="o">.</span><span class="fm">__init__</span><span class="p">(</span>
             <span class="n">file</span><span class="o">=</span><span class="n">file</span><span class="p">,</span> <span class="n">validate</span><span class="o">=</span><span class="n">validate</span><span class="p">,</span> <span class="n">compliance</span><span class="o">=</span><span class="n">compliance</span><span class="p">,</span> <span class="n">sbom_spec</span><span class="o">=</span><span class="n">sbom_spec</span>
         <span class="p">)</span>
 
-        <span class="k">if</span> <span class="n">compliance</span> <span class="ow">not</span> <span class="ow">in</span> <span class="p">{</span><span class="s2">&quot;ntia&quot;</span><span class="p">}:</span>
-            <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="s2">&quot;Only NTIA Minimum Element compliance is supported.&quot;</span><span class="p">)</span>
+        <span class="k">if</span> <span class="n">compliance</span> <span class="ow">not</span> <span class="ow">in</span> <span class="p">{</span><span class="s2">"ntia"</span><span class="p">}:</span>
+            <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="s2">"Only NTIA Minimum Element compliance is supported."</span><span class="p">)</span>
 
         <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">doc</span><span class="p">:</span>
             <span class="bp">self</span><span class="o">.</span><span class="n">compliant</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">check_compliance</span><span class="p">()</span>
 
         <span class="bp">self</span><span class="o">.</span><span class="n">table_elements</span> <span class="o">=</span> <span class="p">[</span>
-            <span class="p">(</span><span class="s2">&quot;All component names provided?&quot;</span><span class="p">,</span> <span class="ow">not</span> <span class="bp">self</span><span class="o">.</span><span class="n">components_without_names</span><span class="p">),</span>
+            <span class="p">(</span><span class="s2">"All component names provided?"</span><span class="p">,</span> <span class="ow">not</span> <span class="bp">self</span><span class="o">.</span><span class="n">components_without_names</span><span class="p">),</span>
             <span class="p">(</span>
-                <span class="s2">&quot;All component versions provided?&quot;</span><span class="p">,</span>
+                <span class="s2">"All component versions provided?"</span><span class="p">,</span>
                 <span class="ow">not</span> <span class="bp">self</span><span class="o">.</span><span class="n">components_without_versions</span><span class="p">,</span>
             <span class="p">),</span>
             <span class="p">(</span>
-                <span class="s2">&quot;All component identifiers provided?&quot;</span><span class="p">,</span>
+                <span class="s2">"All component identifiers provided?"</span><span class="p">,</span>
                 <span class="ow">not</span> <span class="bp">self</span><span class="o">.</span><span class="n">components_without_identifiers</span><span class="p">,</span>
             <span class="p">),</span>
             <span class="p">(</span>
-                <span class="s2">&quot;All component suppliers provided?&quot;</span><span class="p">,</span>
+                <span class="s2">"All component suppliers provided?"</span><span class="p">,</span>
                 <span class="ow">not</span> <span class="bp">self</span><span class="o">.</span><span class="n">components_without_suppliers</span><span class="p">,</span>
             <span class="p">),</span>
-            <span class="p">(</span><span class="s2">&quot;SBOM author name provided?&quot;</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">doc_author</span><span class="p">),</span>
-            <span class="p">(</span><span class="s2">&quot;SBOM creation timestamp provided?&quot;</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">doc_timestamp</span><span class="p">),</span>
-            <span class="p">(</span><span class="s2">&quot;Dependency relationships provided?&quot;</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">dependency_relationships</span><span class="p">),</span>
+            <span class="p">(</span><span class="s2">"SBOM author name provided?"</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">doc_author</span><span class="p">),</span>
+            <span class="p">(</span><span class="s2">"SBOM creation timestamp provided?"</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">doc_timestamp</span><span class="p">),</span>
+            <span class="p">(</span><span class="s2">"Dependency relationships provided?"</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">dependency_relationships</span><span class="p">),</span>
         <span class="p">]</span>
 
 <div class="viewcode-block" id="NTIAChecker.check_compliance">
 <a class="viewcode-back" href="../../ntia_conformance_checker.html#ntia_conformance_checker.ntia_checker.NTIAChecker.check_compliance">[docs]</a>
     <span class="k">def</span><span class="w"> </span><span class="nf">check_compliance</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">bool</span><span class="p">:</span>
-<span class="w">        </span><span class="sd">&quot;&quot;&quot;Check overall compliance with NTIA minimum elements.&quot;&quot;&quot;</span>
+<span class="w">        </span><span class="sd">"""Check overall compliance with NTIA minimum elements."""</span>
         <span class="k">return</span> <span class="nb">all</span><span class="p">(</span>
             <span class="p">[</span>
                 <span class="bp">self</span><span class="o">.</span><span class="n">doc_author</span><span class="p">,</span>
@@ -122,13 +122,13 @@
 <div class="viewcode-block" id="NTIAChecker.check_ntia_minimum_elements_compliance">
 <a class="viewcode-back" href="../../ntia_conformance_checker.html#ntia_conformance_checker.ntia_checker.NTIAChecker.check_ntia_minimum_elements_compliance">[docs]</a>
     <span class="k">def</span><span class="w"> </span><span class="nf">check_ntia_minimum_elements_compliance</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">bool</span><span class="p">:</span>
-<span class="w">        </span><span class="sd">&quot;&quot;&quot;Check overall compliance with NTIA minimum elements.</span>
+<span class="w">        </span><span class="sd">"""Check overall compliance with NTIA minimum elements.</span>
 
 <span class="sd">        This method is kept for backward compatibility.</span>
-<span class="sd">        Please consider using check_compliance() instead.&quot;&quot;&quot;</span>
+<span class="sd">        Please consider using check_compliance() instead."""</span>
         <span class="n">warnings</span><span class="o">.</span><span class="n">warn</span><span class="p">(</span>
-            <span class="s2">&quot;NTIAChecker.check_ntia_minimum_elements_compliance is deprecated; &quot;</span>
-            <span class="s2">&quot;use check_compliance() instead.&quot;</span><span class="p">,</span>
+            <span class="s2">"NTIAChecker.check_ntia_minimum_elements_compliance is deprecated; "</span>
+            <span class="s2">"use check_compliance() instead."</span><span class="p">,</span>
             <span class="ne">DeprecationWarning</span><span class="p">,</span>
             <span class="n">stacklevel</span><span class="o">=</span><span class="mi">2</span><span class="p">,</span>
         <span class="p">)</span>

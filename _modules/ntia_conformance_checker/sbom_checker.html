@@ -35,7 +35,7 @@
 <span class="c1"># SPDX-FileType: SOURCE</span>
 <span class="c1"># SPDX-License-Identifier: Apache-2.0</span>
 
-<span class="sd">&quot;&quot;&quot;Main checking functionality.&quot;&quot;&quot;</span>
+<span class="sd">"""Main checking functionality."""</span>
 
 <span class="kn">from</span><span class="w"> </span><span class="nn">__future__</span><span class="w"> </span><span class="kn">import</span> <span class="n">annotations</span>
 
@@ -49,24 +49,24 @@
 <a class="viewcode-back" href="../../ntia_conformance_checker.html#ntia_conformance_checker.sbom_checker.SbomChecker">[docs]</a>
 <span class="nd">@final</span>
 <span class="k">class</span><span class="w"> </span><span class="nc">SbomChecker</span><span class="p">(</span><span class="n">BaseChecker</span><span class="p">):</span>
-<span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="w">    </span><span class="sd">"""</span>
 <span class="sd">    SBOM checker factory - do not subclass this class.</span>
 
 <span class="sd">    Subclass BaseChecker instead to implement a new compliance checker.</span>
 
 <span class="sd">    Post-v3.0.2, SbomChecker acts like a factory that returns</span>
-<span class="sd">    a subclass of BaseChecker based on the given &quot;compliance&quot; argument</span>
+<span class="sd">    a subclass of BaseChecker based on the given "compliance" argument</span>
 <span class="sd">    during instantiation.</span>
 
 <span class="sd">    Currently there are two compliance standards available:</span>
 
-<span class="sd">    - **&quot;ntia&quot; (default)**, returns an instance of NTIAChecker</span>
+<span class="sd">    - **"ntia" (default)**, returns an instance of NTIAChecker</span>
 <span class="sd">      - NTIAChecker has the same behavior as the original SbomChecker</span>
-<span class="sd">    - **&quot;fsct3-min&quot;**, returns an instance of FSCT3Checker</span>
+<span class="sd">    - **"fsct3-min"**, returns an instance of FSCT3Checker</span>
 <span class="sd">      - FSCT3Checker is a checker for FSCT 3rd Edition Baseline Attributes</span>
 
-<span class="sd">    If &quot;compliance&quot; is not recognized, SbomChecker raises a ValueError.</span>
-<span class="sd">    &quot;&quot;&quot;</span>
+<span class="sd">    If "compliance" is not recognized, SbomChecker raises a ValueError.</span>
+<span class="sd">    """</span>
 
     <span class="c1"># Note that all NTIA-specific functionalities are moved to</span>
     <span class="c1"># .ntia_checker.NTIAChecker, and common functionalities that can be shared</span>
@@ -77,48 +77,48 @@
         <span class="bp">cls</span><span class="p">,</span>
         <span class="n">file</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span>
         <span class="n">validate</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">True</span><span class="p">,</span>
-        <span class="n">compliance</span><span class="p">:</span> <span class="nb">str</span> <span class="o">=</span> <span class="s2">&quot;ntia&quot;</span><span class="p">,</span>
-        <span class="n">sbom_spec</span><span class="p">:</span> <span class="nb">str</span> <span class="o">=</span> <span class="s2">&quot;spdx2&quot;</span><span class="p">,</span>
+        <span class="n">compliance</span><span class="p">:</span> <span class="nb">str</span> <span class="o">=</span> <span class="s2">"ntia"</span><span class="p">,</span>
+        <span class="n">sbom_spec</span><span class="p">:</span> <span class="nb">str</span> <span class="o">=</span> <span class="s2">"spdx2"</span><span class="p">,</span>
     <span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Any</span><span class="p">:</span>
-<span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="w">        </span><span class="sd">"""</span>
 <span class="sd">        Returns an instance of a specific compliance checker.</span>
 
 <span class="sd">        Args:</span>
 <span class="sd">            file (str): The name of the file to be checked.</span>
 <span class="sd">            validate (bool): Whether to validate the file.</span>
-<span class="sd">            compliance (str): The compliance standard to be used. Defaults to &quot;ntia&quot;.</span>
-<span class="sd">            sbom_spec (str): The SBOM specification to be used. Defaults to &quot;spdx2&quot;.</span>
+<span class="sd">            compliance (str): The compliance standard to be used. Defaults to "ntia".</span>
+<span class="sd">            sbom_spec (str): The SBOM specification to be used. Defaults to "spdx2".</span>
 
 <span class="sd">        Returns:</span>
 <span class="sd">            BaseChecker: An instance of a specific compliance checker.</span>
-<span class="sd">        &quot;&quot;&quot;</span>
+<span class="sd">        """</span>
         <span class="k">if</span> <span class="n">sbom_spec</span> <span class="ow">not</span> <span class="ow">in</span> <span class="n">SUPPORTED_SBOM_SPECS</span><span class="p">:</span>
-            <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;Unsupported SBOM specification: </span><span class="si">{</span><span class="n">sbom_spec</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
+            <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="sa">f</span><span class="s2">"Unsupported SBOM specification: </span><span class="si">{</span><span class="n">sbom_spec</span><span class="si">}</span><span class="s2">"</span><span class="p">)</span>
 
-        <span class="k">if</span> <span class="n">compliance</span> <span class="o">==</span> <span class="s2">&quot;ntia&quot;</span><span class="p">:</span>
+        <span class="k">if</span> <span class="n">compliance</span> <span class="o">==</span> <span class="s2">"ntia"</span><span class="p">:</span>
             <span class="c1"># pylint: disable=import-outside-toplevel</span>
             <span class="kn">from</span><span class="w"> </span><span class="nn">.ntia_checker</span><span class="w"> </span><span class="kn">import</span> <span class="n">NTIAChecker</span>
 
             <span class="k">return</span> <span class="n">NTIAChecker</span><span class="p">(</span><span class="n">file</span><span class="p">,</span> <span class="n">validate</span><span class="p">,</span> <span class="n">sbom_spec</span><span class="o">=</span><span class="n">sbom_spec</span><span class="p">)</span>
 
-        <span class="k">if</span> <span class="n">compliance</span><span class="o">.</span><span class="n">startswith</span><span class="p">(</span><span class="s2">&quot;fsct3&quot;</span><span class="p">):</span>
+        <span class="k">if</span> <span class="n">compliance</span><span class="o">.</span><span class="n">startswith</span><span class="p">(</span><span class="s2">"fsct3"</span><span class="p">):</span>
             <span class="c1"># pylint: disable=import-outside-toplevel</span>
             <span class="kn">from</span><span class="w"> </span><span class="nn">.fsct_checker</span><span class="w"> </span><span class="kn">import</span> <span class="n">FSCT3Checker</span>
 
             <span class="k">return</span> <span class="n">FSCT3Checker</span><span class="p">(</span><span class="n">file</span><span class="p">,</span> <span class="n">validate</span><span class="p">,</span> <span class="n">sbom_spec</span><span class="o">=</span><span class="n">sbom_spec</span><span class="p">)</span>
 
-        <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;Unknown compliance standard: </span><span class="si">{</span><span class="n">compliance</span><span class="si">}</span><span class="s2">&quot;</span><span class="p">)</span>
+        <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="sa">f</span><span class="s2">"Unknown compliance standard: </span><span class="si">{</span><span class="n">compliance</span><span class="si">}</span><span class="s2">"</span><span class="p">)</span>
 
     <span class="k">def</span><span class="w"> </span><span class="nf">__init_subclass__</span><span class="p">(</span><span class="bp">cls</span><span class="p">,</span> <span class="o">/</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>  <span class="c1"># prevent subclassing</span>
         <span class="k">raise</span> <span class="ne">TypeError</span><span class="p">(</span>
-            <span class="s2">&quot;SbomChecker is a factory/dispatcher and must not be subclassed. &quot;</span>
-            <span class="s2">&quot;Please subclass BaseChecker to implement custom checkers.&quot;</span>
+            <span class="s2">"SbomChecker is a factory/dispatcher and must not be subclassed. "</span>
+            <span class="s2">"Please subclass BaseChecker to implement custom checkers."</span>
         <span class="p">)</span>
 
 <div class="viewcode-block" id="SbomChecker.check_compliance">
 <a class="viewcode-back" href="../../ntia_conformance_checker.html#ntia_conformance_checker.sbom_checker.SbomChecker.check_compliance">[docs]</a>
     <span class="k">def</span><span class="w"> </span><span class="nf">check_compliance</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">bool</span><span class="p">:</span>
-        <span class="k">raise</span> <span class="ne">NotImplementedError</span><span class="p">(</span><span class="s2">&quot;This method is not implemented by SbomChecker.&quot;</span><span class="p">)</span></div>
+        <span class="k">raise</span> <span class="ne">NotImplementedError</span><span class="p">(</span><span class="s2">"This method is not implemented by SbomChecker."</span><span class="p">)</span></div>
 </div>
 
 </pre></div>

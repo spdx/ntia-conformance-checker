@@ -35,7 +35,7 @@
 <span class="c1"># SPDX-FileType: SOURCE</span>
 <span class="c1"># SPDX-License-Identifier: Apache-2.0</span>
 
-<span class="sd">&quot;&quot;&quot;Entrypoint for CLI.&quot;&quot;&quot;</span>
+<span class="sd">"""Entrypoint for CLI."""</span>
 
 <span class="kn">from</span><span class="w"> </span><span class="nn">__future__</span><span class="w"> </span><span class="kn">import</span> <span class="n">annotations</span>
 
@@ -49,18 +49,18 @@
 <div class="viewcode-block" id="main">
 <a class="viewcode-back" href="../../ntia_conformance_checker.html#ntia_conformance_checker.main.main">[docs]</a>
 <span class="k">def</span><span class="w"> </span><span class="nf">main</span><span class="p">()</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
-<span class="w">    </span><span class="sd">&quot;&quot;&quot;Entrypoint for CLI application.&quot;&quot;&quot;</span>
+<span class="w">    </span><span class="sd">"""Entrypoint for CLI application."""</span>
 
     <span class="n">args</span> <span class="o">=</span> <span class="n">get_parsed_args</span><span class="p">()</span>
 
     <span class="n">log_level</span> <span class="o">=</span> <span class="n">logging</span><span class="o">.</span><span class="n">DEBUG</span> <span class="k">if</span> <span class="n">args</span><span class="o">.</span><span class="n">verbose</span> <span class="k">else</span> <span class="n">logging</span><span class="o">.</span><span class="n">INFO</span>
-    <span class="n">logging</span><span class="o">.</span><span class="n">basicConfig</span><span class="p">(</span><span class="n">level</span><span class="o">=</span><span class="n">log_level</span><span class="p">,</span> <span class="nb">format</span><span class="o">=</span><span class="s2">&quot;</span><span class="si">%(levelname)s</span><span class="s2">: </span><span class="si">%(message)s</span><span class="s2">&quot;</span><span class="p">)</span>
+    <span class="n">logging</span><span class="o">.</span><span class="n">basicConfig</span><span class="p">(</span><span class="n">level</span><span class="o">=</span><span class="n">log_level</span><span class="p">,</span> <span class="nb">format</span><span class="o">=</span><span class="s2">"</span><span class="si">%(levelname)s</span><span class="s2">: </span><span class="si">%(message)s</span><span class="s2">"</span><span class="p">)</span>
 
-    <span class="n">logging</span><span class="o">.</span><span class="n">debug</span><span class="p">(</span><span class="s2">&quot;Checking SBOM: </span><span class="si">%s</span><span class="s2">&quot;</span><span class="p">,</span> <span class="n">args</span><span class="o">.</span><span class="n">file</span><span class="p">)</span>
-    <span class="n">logging</span><span class="o">.</span><span class="n">debug</span><span class="p">(</span><span class="s2">&quot;SBOM specification: </span><span class="si">%s</span><span class="s2">&quot;</span><span class="p">,</span> <span class="n">args</span><span class="o">.</span><span class="n">sbom_spec</span><span class="p">)</span>
-    <span class="n">logging</span><span class="o">.</span><span class="n">debug</span><span class="p">(</span><span class="s2">&quot;Compliance standard: </span><span class="si">%s</span><span class="s2">&quot;</span><span class="p">,</span> <span class="n">args</span><span class="o">.</span><span class="n">comply</span><span class="p">)</span>
+    <span class="n">logging</span><span class="o">.</span><span class="n">debug</span><span class="p">(</span><span class="s2">"Checking SBOM: </span><span class="si">%s</span><span class="s2">"</span><span class="p">,</span> <span class="n">args</span><span class="o">.</span><span class="n">file</span><span class="p">)</span>
+    <span class="n">logging</span><span class="o">.</span><span class="n">debug</span><span class="p">(</span><span class="s2">"SBOM specification: </span><span class="si">%s</span><span class="s2">"</span><span class="p">,</span> <span class="n">args</span><span class="o">.</span><span class="n">sbom_spec</span><span class="p">)</span>
+    <span class="n">logging</span><span class="o">.</span><span class="n">debug</span><span class="p">(</span><span class="s2">"Compliance standard: </span><span class="si">%s</span><span class="s2">"</span><span class="p">,</span> <span class="n">args</span><span class="o">.</span><span class="n">comply</span><span class="p">)</span>
     <span class="n">logging</span><span class="o">.</span><span class="n">debug</span><span class="p">(</span>
-        <span class="s2">&quot;SPDX validation: </span><span class="si">%s</span><span class="s2">&quot;</span><span class="p">,</span> <span class="s2">&quot;enabled&quot;</span> <span class="k">if</span> <span class="ow">not</span> <span class="n">args</span><span class="o">.</span><span class="n">skip_validation</span> <span class="k">else</span> <span class="s2">&quot;disabled&quot;</span>
+        <span class="s2">"SPDX validation: </span><span class="si">%s</span><span class="s2">"</span><span class="p">,</span> <span class="s2">"enabled"</span> <span class="k">if</span> <span class="ow">not</span> <span class="n">args</span><span class="o">.</span><span class="n">skip_validation</span> <span class="k">else</span> <span class="s2">"disabled"</span>
     <span class="p">)</span>
 
     <span class="n">detected_sbom_spec</span> <span class="o">=</span> <span class="n">get_sbom_spec</span><span class="p">(</span><span class="n">file</span><span class="o">=</span><span class="n">args</span><span class="o">.</span><span class="n">file</span><span class="p">,</span> <span class="n">sbom_spec</span><span class="o">=</span><span class="n">args</span><span class="o">.</span><span class="n">sbom_spec</span><span class="p">)</span>
@@ -74,15 +74,15 @@
         <span class="n">sbom_spec</span><span class="o">=</span><span class="n">detected_sbom_spec</span><span class="p">,</span>
     <span class="p">)</span>
 
-    <span class="n">logging</span><span class="o">.</span><span class="n">debug</span><span class="p">(</span><span class="s2">&quot;Parsing: </span><span class="si">%s</span><span class="s2">&quot;</span><span class="p">,</span> <span class="s2">&quot;OK&quot;</span> <span class="k">if</span> <span class="ow">not</span> <span class="n">sbom</span><span class="o">.</span><span class="n">parsing_errors</span> <span class="k">else</span> <span class="s2">&quot;Failed&quot;</span><span class="p">)</span>
+    <span class="n">logging</span><span class="o">.</span><span class="n">debug</span><span class="p">(</span><span class="s2">"Parsing: </span><span class="si">%s</span><span class="s2">"</span><span class="p">,</span> <span class="s2">"OK"</span> <span class="k">if</span> <span class="ow">not</span> <span class="n">sbom</span><span class="o">.</span><span class="n">parsing_errors</span> <span class="k">else</span> <span class="s2">"Failed"</span><span class="p">)</span>
     <span class="k">if</span> <span class="ow">not</span> <span class="n">sbom</span><span class="o">.</span><span class="n">parsing_errors</span><span class="p">:</span>
         <span class="k">if</span> <span class="n">args</span><span class="o">.</span><span class="n">skip_validation</span><span class="p">:</span>
-            <span class="n">logging</span><span class="o">.</span><span class="n">debug</span><span class="p">(</span><span class="s2">&quot;Validation: skipped&quot;</span><span class="p">)</span>
+            <span class="n">logging</span><span class="o">.</span><span class="n">debug</span><span class="p">(</span><span class="s2">"Validation: skipped"</span><span class="p">)</span>
         <span class="k">else</span><span class="p">:</span>
             <span class="n">logging</span><span class="o">.</span><span class="n">debug</span><span class="p">(</span>
-                <span class="s2">&quot;Validation: </span><span class="si">%s</span><span class="s2">&quot;</span><span class="p">,</span> <span class="s2">&quot;OK&quot;</span> <span class="k">if</span> <span class="ow">not</span> <span class="n">sbom</span><span class="o">.</span><span class="n">validation_messages</span> <span class="k">else</span> <span class="s2">&quot;Failed&quot;</span>
+                <span class="s2">"Validation: </span><span class="si">%s</span><span class="s2">"</span><span class="p">,</span> <span class="s2">"OK"</span> <span class="k">if</span> <span class="ow">not</span> <span class="n">sbom</span><span class="o">.</span><span class="n">validation_messages</span> <span class="k">else</span> <span class="s2">"Failed"</span>
             <span class="p">)</span>
-        <span class="n">logging</span><span class="o">.</span><span class="n">debug</span><span class="p">(</span><span class="s2">&quot;SBOM name: </span><span class="si">%s</span><span class="s2">&quot;</span><span class="p">,</span> <span class="n">sbom</span><span class="o">.</span><span class="n">sbom_name</span><span class="p">)</span>
+        <span class="n">logging</span><span class="o">.</span><span class="n">debug</span><span class="p">(</span><span class="s2">"SBOM name: </span><span class="si">%s</span><span class="s2">"</span><span class="p">,</span> <span class="n">sbom</span><span class="o">.</span><span class="n">sbom_name</span><span class="p">)</span>
 
     <span class="n">print_output</span><span class="p">(</span>
         <span class="n">sbom</span><span class="p">,</span>
@@ -95,7 +95,7 @@
 
 
 
-<span class="k">if</span> <span class="vm">__name__</span> <span class="o">==</span> <span class="s2">&quot;__main__&quot;</span><span class="p">:</span>
+<span class="k">if</span> <span class="vm">__name__</span> <span class="o">==</span> <span class="s2">"__main__"</span><span class="p">:</span>
     <span class="n">main</span><span class="p">()</span>
 </pre></div>
 

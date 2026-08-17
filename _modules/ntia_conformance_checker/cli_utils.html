@@ -35,7 +35,7 @@
 <span class="c1"># SPDX-FileType: SOURCE</span>
 <span class="c1"># SPDX-License-Identifier: Apache-2.0</span>
 
-<span class="sd">&quot;&quot;&quot;Utilities for CLI.&quot;&quot;&quot;</span>
+<span class="sd">"""Utilities for CLI."""</span>
 
 <span class="kn">from</span><span class="w"> </span><span class="nn">__future__</span><span class="w"> </span><span class="kn">import</span> <span class="n">annotations</span>
 
@@ -64,123 +64,123 @@
     <span class="kn">from</span><span class="w"> </span><span class="nn">.base_checker</span><span class="w"> </span><span class="kn">import</span> <span class="n">BaseChecker</span>
 
 <span class="n">_OUTPUT_CHOICES</span> <span class="o">=</span> <span class="p">{</span>
-    <span class="s2">&quot;print&quot;</span><span class="p">:</span> <span class="s2">&quot;Print report to console&quot;</span><span class="p">,</span>
-    <span class="s2">&quot;json&quot;</span><span class="p">:</span> <span class="s2">&quot;Report in JSON format&quot;</span><span class="p">,</span>
-    <span class="s2">&quot;html&quot;</span><span class="p">:</span> <span class="s2">&quot;Report in HTML format&quot;</span><span class="p">,</span>
-    <span class="s2">&quot;quiet&quot;</span><span class="p">:</span> <span class="s2">&quot;No output unless there are errors&quot;</span><span class="p">,</span>
+    <span class="s2">"print"</span><span class="p">:</span> <span class="s2">"Print report to console"</span><span class="p">,</span>
+    <span class="s2">"json"</span><span class="p">:</span> <span class="s2">"Report in JSON format"</span><span class="p">,</span>
+    <span class="s2">"html"</span><span class="p">:</span> <span class="s2">"Report in HTML format"</span><span class="p">,</span>
+    <span class="s2">"quiet"</span><span class="p">:</span> <span class="s2">"No output unless there are errors"</span><span class="p">,</span>
 <span class="p">}</span>
 
 
 <div class="viewcode-block" id="get_parsed_args">
 <a class="viewcode-back" href="../../ntia_conformance_checker.html#ntia_conformance_checker.cli_utils.get_parsed_args">[docs]</a>
 <span class="k">def</span><span class="w"> </span><span class="nf">get_parsed_args</span><span class="p">()</span> <span class="o">-&gt;</span> <span class="n">argparse</span><span class="o">.</span><span class="n">Namespace</span><span class="p">:</span>
-<span class="w">    </span><span class="sd">&quot;&quot;&quot;Parse command line arguments.&quot;&quot;&quot;</span>
+<span class="w">    </span><span class="sd">"""Parse command line arguments."""</span>
 
     <span class="n">epilog_text</span> <span class="o">=</span> <span class="p">(</span>
-        <span class="s2">&quot;choices:</span><span class="se">\n</span><span class="s2">&quot;</span>
-        <span class="s2">&quot;  SBOM specifications (for --sbom-spec):</span><span class="se">\n</span><span class="s2">&quot;</span>
-        <span class="o">+</span> <span class="s2">&quot;</span><span class="se">\n</span><span class="s2">&quot;</span><span class="o">.</span><span class="n">join</span><span class="p">(</span>
-            <span class="sa">f</span><span class="s2">&quot;    </span><span class="si">{</span><span class="n">k</span><span class="si">:</span><span class="s2">&lt;11</span><span class="si">}</span><span class="s2"> </span><span class="si">{</span><span class="n">v</span><span class="si">}</span><span class="s2">&quot;</span> <span class="k">for</span> <span class="n">k</span><span class="p">,</span> <span class="n">v</span> <span class="ow">in</span> <span class="nb">sorted</span><span class="p">(</span><span class="n">SUPPORTED_SBOM_SPECS_DESC</span><span class="o">.</span><span class="n">items</span><span class="p">())</span>
+        <span class="s2">"choices:</span><span class="se">\n</span><span class="s2">"</span>
+        <span class="s2">"  SBOM specifications (for --sbom-spec):</span><span class="se">\n</span><span class="s2">"</span>
+        <span class="o">+</span> <span class="s2">"</span><span class="se">\n</span><span class="s2">"</span><span class="o">.</span><span class="n">join</span><span class="p">(</span>
+            <span class="sa">f</span><span class="s2">"    </span><span class="si">{</span><span class="n">k</span><span class="si">:</span><span class="s2">&lt;11</span><span class="si">}</span><span class="s2"> </span><span class="si">{</span><span class="n">v</span><span class="si">}</span><span class="s2">"</span> <span class="k">for</span> <span class="n">k</span><span class="p">,</span> <span class="n">v</span> <span class="ow">in</span> <span class="nb">sorted</span><span class="p">(</span><span class="n">SUPPORTED_SBOM_SPECS_DESC</span><span class="o">.</span><span class="n">items</span><span class="p">())</span>
         <span class="p">)</span>
-        <span class="o">+</span> <span class="s2">&quot;</span><span class="se">\n\n</span><span class="s2">&quot;</span>
-        <span class="s2">&quot;  Compliance standards (for --comply):</span><span class="se">\n</span><span class="s2">&quot;</span>
-        <span class="o">+</span> <span class="s2">&quot;</span><span class="se">\n</span><span class="s2">&quot;</span><span class="o">.</span><span class="n">join</span><span class="p">(</span>
-            <span class="sa">f</span><span class="s2">&quot;    </span><span class="si">{</span><span class="n">k</span><span class="si">:</span><span class="s2">&lt;11</span><span class="si">}</span><span class="s2"> </span><span class="si">{</span><span class="n">v</span><span class="si">}</span><span class="s2">&quot;</span>
+        <span class="o">+</span> <span class="s2">"</span><span class="se">\n\n</span><span class="s2">"</span>
+        <span class="s2">"  Compliance standards (for --comply):</span><span class="se">\n</span><span class="s2">"</span>
+        <span class="o">+</span> <span class="s2">"</span><span class="se">\n</span><span class="s2">"</span><span class="o">.</span><span class="n">join</span><span class="p">(</span>
+            <span class="sa">f</span><span class="s2">"    </span><span class="si">{</span><span class="n">k</span><span class="si">:</span><span class="s2">&lt;11</span><span class="si">}</span><span class="s2"> </span><span class="si">{</span><span class="n">v</span><span class="si">}</span><span class="s2">"</span>
             <span class="k">for</span> <span class="n">k</span><span class="p">,</span> <span class="n">v</span> <span class="ow">in</span> <span class="nb">sorted</span><span class="p">(</span><span class="n">SUPPORTED_COMPLIANCE_STANDARDS_DESC</span><span class="o">.</span><span class="n">items</span><span class="p">())</span>
         <span class="p">)</span>
-        <span class="o">+</span> <span class="s2">&quot;</span><span class="se">\n\n</span><span class="s2">&quot;</span>
-        <span class="s2">&quot;  Report output types (for --output):</span><span class="se">\n</span><span class="s2">&quot;</span>
-        <span class="o">+</span> <span class="s2">&quot;</span><span class="se">\n</span><span class="s2">&quot;</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;    </span><span class="si">{</span><span class="n">k</span><span class="si">:</span><span class="s2">&lt;11</span><span class="si">}</span><span class="s2"> </span><span class="si">{</span><span class="n">v</span><span class="si">}</span><span class="s2">&quot;</span> <span class="k">for</span> <span class="n">k</span><span class="p">,</span> <span class="n">v</span> <span class="ow">in</span> <span class="nb">sorted</span><span class="p">(</span><span class="n">_OUTPUT_CHOICES</span><span class="o">.</span><span class="n">items</span><span class="p">()))</span>
-        <span class="o">+</span> <span class="s2">&quot;</span><span class="se">\n\n</span><span class="s2">&quot;</span>
-        <span class="s2">&quot;Examples:</span><span class="se">\n</span><span class="s2">&quot;</span>
-        <span class="s2">&quot;  sbomcheck sbom.spdx</span><span class="se">\n</span><span class="s2">&quot;</span>
-        <span class="s2">&quot;  sbomcheck -s spdx3 -c fsct3-min -v sbom.json</span><span class="se">\n</span><span class="s2">&quot;</span>
-        <span class="s2">&quot;  sbomcheck sbom.yaml --output json --output-file report.json</span><span class="se">\n</span><span class="s2">&quot;</span>
+        <span class="o">+</span> <span class="s2">"</span><span class="se">\n\n</span><span class="s2">"</span>
+        <span class="s2">"  Report output types (for --output):</span><span class="se">\n</span><span class="s2">"</span>
+        <span class="o">+</span> <span class="s2">"</span><span class="se">\n</span><span class="s2">"</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="sa">f</span><span class="s2">"    </span><span class="si">{</span><span class="n">k</span><span class="si">:</span><span class="s2">&lt;11</span><span class="si">}</span><span class="s2"> </span><span class="si">{</span><span class="n">v</span><span class="si">}</span><span class="s2">"</span> <span class="k">for</span> <span class="n">k</span><span class="p">,</span> <span class="n">v</span> <span class="ow">in</span> <span class="nb">sorted</span><span class="p">(</span><span class="n">_OUTPUT_CHOICES</span><span class="o">.</span><span class="n">items</span><span class="p">()))</span>
+        <span class="o">+</span> <span class="s2">"</span><span class="se">\n\n</span><span class="s2">"</span>
+        <span class="s2">"Examples:</span><span class="se">\n</span><span class="s2">"</span>
+        <span class="s2">"  sbomcheck sbom.spdx</span><span class="se">\n</span><span class="s2">"</span>
+        <span class="s2">"  sbomcheck -s spdx3 -c fsct3-min -v sbom.json</span><span class="se">\n</span><span class="s2">"</span>
+        <span class="s2">"  sbomcheck sbom.yaml --output json --output-file report.json</span><span class="se">\n</span><span class="s2">"</span>
     <span class="p">)</span>
 
     <span class="n">parser</span> <span class="o">=</span> <span class="n">argparse</span><span class="o">.</span><span class="n">ArgumentParser</span><span class="p">(</span>
-        <span class="n">description</span><span class="o">=</span><span class="s2">&quot;Check if an SPDX SBOM complies with a compliance standard.&quot;</span><span class="p">,</span>
+        <span class="n">description</span><span class="o">=</span><span class="s2">"Check if an SPDX SBOM complies with a compliance standard."</span><span class="p">,</span>
         <span class="n">formatter_class</span><span class="o">=</span><span class="n">argparse</span><span class="o">.</span><span class="n">RawDescriptionHelpFormatter</span><span class="p">,</span>
         <span class="n">epilog</span><span class="o">=</span><span class="n">epilog_text</span><span class="p">,</span>
     <span class="p">)</span>
     <span class="n">parser</span><span class="o">.</span><span class="n">add_argument</span><span class="p">(</span>
-        <span class="s2">&quot;file&quot;</span><span class="p">,</span> <span class="n">metavar</span><span class="o">=</span><span class="s2">&quot;PATH&quot;</span><span class="p">,</span> <span class="n">nargs</span><span class="o">=</span><span class="s2">&quot;?&quot;</span><span class="p">,</span> <span class="n">help</span><span class="o">=</span><span class="s2">&quot;Filepath for SBOM input&quot;</span>
+        <span class="s2">"file"</span><span class="p">,</span> <span class="n">metavar</span><span class="o">=</span><span class="s2">"PATH"</span><span class="p">,</span> <span class="n">nargs</span><span class="o">=</span><span class="s2">"?"</span><span class="p">,</span> <span class="n">help</span><span class="o">=</span><span class="s2">"Filepath for SBOM input"</span>
     <span class="p">)</span>
     <span class="n">parser</span><span class="o">.</span><span class="n">add_argument</span><span class="p">(</span>
-        <span class="s2">&quot;--file&quot;</span><span class="p">,</span>  <span class="c1"># for backward compatibility</span>
-        <span class="n">dest</span><span class="o">=</span><span class="s2">&quot;file_opt&quot;</span><span class="p">,</span>
+        <span class="s2">"--file"</span><span class="p">,</span>  <span class="c1"># for backward compatibility</span>
+        <span class="n">dest</span><span class="o">=</span><span class="s2">"file_opt"</span><span class="p">,</span>
         <span class="n">help</span><span class="o">=</span><span class="n">argparse</span><span class="o">.</span><span class="n">SUPPRESS</span><span class="p">,</span>  <span class="c1"># hide from help</span>
     <span class="p">)</span>
     <span class="n">parser</span><span class="o">.</span><span class="n">add_argument</span><span class="p">(</span>
-        <span class="s2">&quot;-s&quot;</span><span class="p">,</span>
-        <span class="s2">&quot;--sbom-spec&quot;</span><span class="p">,</span>
+        <span class="s2">"-s"</span><span class="p">,</span>
+        <span class="s2">"--sbom-spec"</span><span class="p">,</span>
         <span class="n">choices</span><span class="o">=</span><span class="nb">sorted</span><span class="p">(</span><span class="n">SUPPORTED_SBOM_SPECS</span><span class="p">),</span>
         <span class="n">default</span><span class="o">=</span><span class="n">DEFAULT_SBOM_SPEC</span><span class="p">,</span>
         <span class="n">help</span><span class="o">=</span><span class="p">(</span>
-            <span class="s2">&quot;SBOM specification of the input file; see below for details &quot;</span>
-            <span class="sa">f</span><span class="s2">&quot;[default: </span><span class="si">{</span><span class="n">DEFAULT_SBOM_SPEC</span><span class="si">}</span><span class="s2">]&quot;</span>
+            <span class="s2">"SBOM specification of the input file; see below for details "</span>
+            <span class="sa">f</span><span class="s2">"[default: </span><span class="si">{</span><span class="n">DEFAULT_SBOM_SPEC</span><span class="si">}</span><span class="s2">]"</span>
         <span class="p">),</span>
     <span class="p">)</span>
     <span class="n">parser</span><span class="o">.</span><span class="n">add_argument</span><span class="p">(</span>
-        <span class="s2">&quot;-c&quot;</span><span class="p">,</span>
-        <span class="s2">&quot;--comply&quot;</span><span class="p">,</span>
+        <span class="s2">"-c"</span><span class="p">,</span>
+        <span class="s2">"--comply"</span><span class="p">,</span>
         <span class="n">choices</span><span class="o">=</span><span class="nb">sorted</span><span class="p">(</span><span class="n">SUPPORTED_COMPLIANCE_STANDARDS</span><span class="p">),</span>
         <span class="n">default</span><span class="o">=</span><span class="n">DEFAULT_COMPLIANCE_STANDARD</span><span class="p">,</span>
         <span class="n">help</span><span class="o">=</span><span class="p">(</span>
-            <span class="s2">&quot;Compliance standards to check against; see below for details &quot;</span>
-            <span class="sa">f</span><span class="s2">&quot;[default: </span><span class="si">{</span><span class="n">DEFAULT_COMPLIANCE_STANDARD</span><span class="si">}</span><span class="s2">]&quot;</span>
+            <span class="s2">"Compliance standards to check against; see below for details "</span>
+            <span class="sa">f</span><span class="s2">"[default: </span><span class="si">{</span><span class="n">DEFAULT_COMPLIANCE_STANDARD</span><span class="si">}</span><span class="s2">]"</span>
         <span class="p">),</span>
     <span class="p">)</span>
     <span class="n">parser</span><span class="o">.</span><span class="n">add_argument</span><span class="p">(</span>
-        <span class="s2">&quot;--conform&quot;</span><span class="p">,</span>  <span class="c1"># alias of --comply</span>
-        <span class="n">dest</span><span class="o">=</span><span class="s2">&quot;comply&quot;</span><span class="p">,</span>
+        <span class="s2">"--conform"</span><span class="p">,</span>  <span class="c1"># alias of --comply</span>
+        <span class="n">dest</span><span class="o">=</span><span class="s2">"comply"</span><span class="p">,</span>
         <span class="n">help</span><span class="o">=</span><span class="n">argparse</span><span class="o">.</span><span class="n">SUPPRESS</span><span class="p">,</span>  <span class="c1"># hide from help</span>
     <span class="p">)</span>
     <span class="n">parser</span><span class="o">.</span><span class="n">add_argument</span><span class="p">(</span>
-        <span class="s2">&quot;--skip-validation&quot;</span><span class="p">,</span>
-        <span class="n">action</span><span class="o">=</span><span class="s2">&quot;store_true&quot;</span><span class="p">,</span>
+        <span class="s2">"--skip-validation"</span><span class="p">,</span>
+        <span class="n">action</span><span class="o">=</span><span class="s2">"store_true"</span><span class="p">,</span>
         <span class="n">default</span><span class="o">=</span><span class="kc">False</span><span class="p">,</span>
-        <span class="n">help</span><span class="o">=</span><span class="s2">&quot;Skip validation&quot;</span><span class="p">,</span>
+        <span class="n">help</span><span class="o">=</span><span class="s2">"Skip validation"</span><span class="p">,</span>
     <span class="p">)</span>
     <span class="n">parser</span><span class="o">.</span><span class="n">add_argument</span><span class="p">(</span>
-        <span class="s2">&quot;-r&quot;</span><span class="p">,</span>
-        <span class="s2">&quot;--output&quot;</span><span class="p">,</span>
+        <span class="s2">"-r"</span><span class="p">,</span>
+        <span class="s2">"--output"</span><span class="p">,</span>
         <span class="n">choices</span><span class="o">=</span><span class="nb">sorted</span><span class="p">(</span><span class="n">_OUTPUT_CHOICES</span><span class="p">),</span>
-        <span class="n">default</span><span class="o">=</span><span class="s2">&quot;print&quot;</span><span class="p">,</span>
-        <span class="n">help</span><span class="o">=</span><span class="s2">&quot;Report output type; see below for details [default: print]&quot;</span><span class="p">,</span>
+        <span class="n">default</span><span class="o">=</span><span class="s2">"print"</span><span class="p">,</span>
+        <span class="n">help</span><span class="o">=</span><span class="s2">"Report output type; see below for details [default: print]"</span><span class="p">,</span>
     <span class="p">)</span>
     <span class="n">parser</span><span class="o">.</span><span class="n">add_argument</span><span class="p">(</span>
-        <span class="s2">&quot;-o&quot;</span><span class="p">,</span>
-        <span class="s2">&quot;--output-file&quot;</span><span class="p">,</span>
-        <span class="n">metavar</span><span class="o">=</span><span class="s2">&quot;PATH&quot;</span><span class="p">,</span>
-        <span class="n">help</span><span class="o">=</span><span class="s2">&quot;Filepath for report output; if omitted, prints to console&quot;</span><span class="p">,</span>
+        <span class="s2">"-o"</span><span class="p">,</span>
+        <span class="s2">"--output-file"</span><span class="p">,</span>
+        <span class="n">metavar</span><span class="o">=</span><span class="s2">"PATH"</span><span class="p">,</span>
+        <span class="n">help</span><span class="o">=</span><span class="s2">"Filepath for report output; if omitted, prints to console"</span><span class="p">,</span>
     <span class="p">)</span>
     <span class="n">parser</span><span class="o">.</span><span class="n">add_argument</span><span class="p">(</span>
-        <span class="s2">&quot;--output_path&quot;</span><span class="p">,</span>  <span class="c1"># for backward compatibility</span>
-        <span class="n">dest</span><span class="o">=</span><span class="s2">&quot;output_file&quot;</span><span class="p">,</span>
+        <span class="s2">"--output_path"</span><span class="p">,</span>  <span class="c1"># for backward compatibility</span>
+        <span class="n">dest</span><span class="o">=</span><span class="s2">"output_file"</span><span class="p">,</span>
         <span class="n">help</span><span class="o">=</span><span class="n">argparse</span><span class="o">.</span><span class="n">SUPPRESS</span><span class="p">,</span>  <span class="c1"># hide from help</span>
     <span class="p">)</span>
     <span class="n">parser</span><span class="o">.</span><span class="n">add_argument</span><span class="p">(</span>
-        <span class="s2">&quot;-v&quot;</span><span class="p">,</span>
-        <span class="s2">&quot;--verbose&quot;</span><span class="p">,</span>
-        <span class="n">action</span><span class="o">=</span><span class="s2">&quot;store_true&quot;</span><span class="p">,</span>
-        <span class="n">help</span><span class="o">=</span><span class="s2">&quot;Print more information (debug)&quot;</span><span class="p">,</span>
+        <span class="s2">"-v"</span><span class="p">,</span>
+        <span class="s2">"--verbose"</span><span class="p">,</span>
+        <span class="n">action</span><span class="o">=</span><span class="s2">"store_true"</span><span class="p">,</span>
+        <span class="n">help</span><span class="o">=</span><span class="s2">"Print more information (debug)"</span><span class="p">,</span>
     <span class="p">)</span>
     <span class="n">parser</span><span class="o">.</span><span class="n">add_argument</span><span class="p">(</span>
-        <span class="s2">&quot;-V&quot;</span><span class="p">,</span>
-        <span class="s2">&quot;--version&quot;</span><span class="p">,</span>
-        <span class="n">action</span><span class="o">=</span><span class="s2">&quot;store_true&quot;</span><span class="p">,</span>
-        <span class="n">help</span><span class="o">=</span><span class="s2">&quot;Display version of sbomcheck&quot;</span><span class="p">,</span>
+        <span class="s2">"-V"</span><span class="p">,</span>
+        <span class="s2">"--version"</span><span class="p">,</span>
+        <span class="n">action</span><span class="o">=</span><span class="s2">"store_true"</span><span class="p">,</span>
+        <span class="n">help</span><span class="o">=</span><span class="s2">"Display version of sbomcheck"</span><span class="p">,</span>
     <span class="p">)</span>
 
     <span class="n">args</span> <span class="o">=</span> <span class="n">parser</span><span class="o">.</span><span class="n">parse_args</span><span class="p">()</span>
 
-    <span class="k">if</span> <span class="nb">getattr</span><span class="p">(</span><span class="n">args</span><span class="p">,</span> <span class="s2">&quot;file_opt&quot;</span><span class="p">,</span> <span class="kc">None</span><span class="p">):</span>
+    <span class="k">if</span> <span class="nb">getattr</span><span class="p">(</span><span class="n">args</span><span class="p">,</span> <span class="s2">"file_opt"</span><span class="p">,</span> <span class="kc">None</span><span class="p">):</span>
         <span class="n">args</span><span class="o">.</span><span class="n">file</span> <span class="o">=</span> <span class="n">args</span><span class="o">.</span><span class="n">file_opt</span>
 
     <span class="k">if</span> <span class="ow">not</span> <span class="n">args</span><span class="o">.</span><span class="n">file</span><span class="p">:</span>
         <span class="k">if</span> <span class="n">args</span><span class="o">.</span><span class="n">version</span><span class="p">:</span>
-            <span class="nb">print</span><span class="p">(</span><span class="n">version</span><span class="p">(</span><span class="s2">&quot;ntia-conformance-checker&quot;</span><span class="p">))</span>
+            <span class="nb">print</span><span class="p">(</span><span class="n">version</span><span class="p">(</span><span class="s2">"ntia-conformance-checker"</span><span class="p">))</span>
             <span class="n">sys</span><span class="o">.</span><span class="n">exit</span><span class="p">(</span><span class="mi">0</span><span class="p">)</span>
         <span class="n">parser</span><span class="o">.</span><span class="n">print_help</span><span class="p">()</span>
         <span class="n">sys</span><span class="o">.</span><span class="n">exit</span><span class="p">(</span><span class="mi">0</span><span class="p">)</span>
@@ -191,8 +191,8 @@
 
 <div class="viewcode-block" id="get_spdx_version">
 <a class="viewcode-back" href="../../ntia_conformance_checker.html#ntia_conformance_checker.cli_utils.get_spdx_version">[docs]</a>
-<span class="k">def</span><span class="w"> </span><span class="nf">get_spdx_version</span><span class="p">(</span><span class="n">file</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span> <span class="n">sbom_spec</span><span class="p">:</span> <span class="nb">str</span> <span class="o">=</span> <span class="s2">&quot;spdx2&quot;</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">tuple</span><span class="p">[</span><span class="nb">int</span><span class="p">,</span> <span class="nb">int</span><span class="p">]</span> <span class="o">|</span> <span class="kc">None</span><span class="p">:</span>
-<span class="w">    </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="k">def</span><span class="w"> </span><span class="nf">get_spdx_version</span><span class="p">(</span><span class="n">file</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span> <span class="n">sbom_spec</span><span class="p">:</span> <span class="nb">str</span> <span class="o">=</span> <span class="s2">"spdx2"</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">tuple</span><span class="p">[</span><span class="nb">int</span><span class="p">,</span> <span class="nb">int</span><span class="p">]</span> <span class="o">|</span> <span class="kc">None</span><span class="p">:</span>
+<span class="w">    </span><span class="sd">"""</span>
 <span class="sd">    Detect the SPDX version of the SBOM file.</span>
 
 <span class="sd">    XLS file format is not supported.</span>
@@ -206,58 +206,58 @@
 <span class="sd">        tuple[int, int] | None: The SPDX major.minor version of the SBOM.</span>
 <span class="sd">                                E.g. (2, 3) for version 2.3.</span>
 <span class="sd">                                Returns None if the version cannot be determined.</span>
-<span class="sd">    &quot;&quot;&quot;</span>
-    <span class="k">if</span> <span class="n">file</span><span class="o">.</span><span class="n">lower</span><span class="p">()</span><span class="o">.</span><span class="n">endswith</span><span class="p">((</span><span class="s2">&quot;.xls&quot;</span><span class="p">,</span> <span class="s2">&quot;.xlsx&quot;</span><span class="p">)):</span>
-        <span class="n">logging</span><span class="o">.</span><span class="n">debug</span><span class="p">(</span><span class="s2">&quot;Detect SPDX version: Excel file format is not supported&quot;</span><span class="p">)</span>
+<span class="sd">    """</span>
+    <span class="k">if</span> <span class="n">file</span><span class="o">.</span><span class="n">lower</span><span class="p">()</span><span class="o">.</span><span class="n">endswith</span><span class="p">((</span><span class="s2">".xls"</span><span class="p">,</span> <span class="s2">".xlsx"</span><span class="p">)):</span>
+        <span class="n">logging</span><span class="o">.</span><span class="n">debug</span><span class="p">(</span><span class="s2">"Detect SPDX version: Excel file format is not supported"</span><span class="p">)</span>
         <span class="k">return</span> <span class="kc">None</span>
 
     <span class="c1"># Try parsing the file with spdx_tools first</span>
-    <span class="k">if</span> <span class="n">sbom_spec</span> <span class="o">==</span> <span class="s2">&quot;spdx2&quot;</span><span class="p">:</span>
+    <span class="k">if</span> <span class="n">sbom_spec</span> <span class="o">==</span> <span class="s2">"spdx2"</span><span class="p">:</span>
         <span class="k">try</span><span class="p">:</span>
             <span class="n">doc</span> <span class="o">=</span> <span class="n">parse_spdx2_file</span><span class="p">(</span><span class="n">file</span><span class="p">)</span>
-            <span class="n">ver</span> <span class="o">=</span> <span class="nb">getattr</span><span class="p">(</span><span class="n">doc</span><span class="o">.</span><span class="n">creation_info</span><span class="p">,</span> <span class="s2">&quot;spdx_version&quot;</span><span class="p">,</span> <span class="kc">None</span><span class="p">)</span>
-            <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">ver</span><span class="p">,</span> <span class="nb">str</span><span class="p">)</span> <span class="ow">and</span> <span class="p">(</span><span class="n">m</span> <span class="o">:=</span> <span class="n">re</span><span class="o">.</span><span class="n">search</span><span class="p">(</span><span class="sa">r</span><span class="s2">&quot;SPDX-(\d+)\.(\d+)&quot;</span><span class="p">,</span> <span class="n">ver</span><span class="p">)):</span>
+            <span class="n">ver</span> <span class="o">=</span> <span class="nb">getattr</span><span class="p">(</span><span class="n">doc</span><span class="o">.</span><span class="n">creation_info</span><span class="p">,</span> <span class="s2">"spdx_version"</span><span class="p">,</span> <span class="kc">None</span><span class="p">)</span>
+            <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">ver</span><span class="p">,</span> <span class="nb">str</span><span class="p">)</span> <span class="ow">and</span> <span class="p">(</span><span class="n">m</span> <span class="o">:=</span> <span class="n">re</span><span class="o">.</span><span class="n">search</span><span class="p">(</span><span class="sa">r</span><span class="s2">"SPDX-(\d+)\.(\d+)"</span><span class="p">,</span> <span class="n">ver</span><span class="p">)):</span>
                 <span class="k">return</span> <span class="nb">int</span><span class="p">(</span><span class="n">m</span><span class="o">.</span><span class="n">group</span><span class="p">(</span><span class="mi">1</span><span class="p">)),</span> <span class="nb">int</span><span class="p">(</span><span class="n">m</span><span class="o">.</span><span class="n">group</span><span class="p">(</span><span class="mi">2</span><span class="p">))</span>
         <span class="k">except</span> <span class="p">(</span><span class="n">SPDXParsingError</span><span class="p">,</span> <span class="ne">ValueError</span><span class="p">,</span> <span class="ne">TypeError</span><span class="p">,</span> <span class="ne">OSError</span><span class="p">)</span> <span class="k">as</span> <span class="n">exc</span><span class="p">:</span>
-            <span class="n">logging</span><span class="o">.</span><span class="n">debug</span><span class="p">(</span><span class="s2">&quot;Detect SPDX version: spdx_tools parser failed: </span><span class="si">%s</span><span class="s2">&quot;</span><span class="p">,</span> <span class="n">exc</span><span class="p">)</span>
+            <span class="n">logging</span><span class="o">.</span><span class="n">debug</span><span class="p">(</span><span class="s2">"Detect SPDX version: spdx_tools parser failed: </span><span class="si">%s</span><span class="s2">"</span><span class="p">,</span> <span class="n">exc</span><span class="p">)</span>
         <span class="k">except</span> <span class="ne">Exception</span> <span class="k">as</span> <span class="n">exc</span><span class="p">:</span>  <span class="c1"># pylint: disable=broad-except</span>
             <span class="n">logging</span><span class="o">.</span><span class="n">debug</span><span class="p">(</span>
-                <span class="s2">&quot;Detect SPDX version: spdx_tools parser unexpected error: </span><span class="si">%s</span><span class="s2">&quot;</span><span class="p">,</span> <span class="n">exc</span>
+                <span class="s2">"Detect SPDX version: spdx_tools parser unexpected error: </span><span class="si">%s</span><span class="s2">"</span><span class="p">,</span> <span class="n">exc</span>
             <span class="p">)</span>
 
     <span class="c1"># Fallback to inspecting file content</span>
     <span class="k">try</span><span class="p">:</span>
-        <span class="k">with</span> <span class="nb">open</span><span class="p">(</span><span class="n">file</span><span class="p">,</span> <span class="s2">&quot;r&quot;</span><span class="p">,</span> <span class="n">encoding</span><span class="o">=</span><span class="s2">&quot;utf-8&quot;</span><span class="p">)</span> <span class="k">as</span> <span class="n">f</span><span class="p">:</span>
+        <span class="k">with</span> <span class="nb">open</span><span class="p">(</span><span class="n">file</span><span class="p">,</span> <span class="s2">"r"</span><span class="p">,</span> <span class="n">encoding</span><span class="o">=</span><span class="s2">"utf-8"</span><span class="p">)</span> <span class="k">as</span> <span class="n">f</span><span class="p">:</span>
             <span class="n">content</span> <span class="o">=</span> <span class="n">f</span><span class="o">.</span><span class="n">read</span><span class="p">()</span>
             <span class="k">return</span> <span class="n">_parse_spdx_version_from_content</span><span class="p">(</span><span class="n">content</span><span class="p">)</span>
     <span class="k">except</span> <span class="p">(</span><span class="ne">OSError</span><span class="p">,</span> <span class="ne">UnicodeDecodeError</span><span class="p">)</span> <span class="k">as</span> <span class="n">exc</span><span class="p">:</span>
-        <span class="n">logging</span><span class="o">.</span><span class="n">debug</span><span class="p">(</span><span class="s2">&quot;Detect SPDX version: Could not read file: </span><span class="si">%s</span><span class="s2">&quot;</span><span class="p">,</span> <span class="n">exc</span><span class="p">)</span>
+        <span class="n">logging</span><span class="o">.</span><span class="n">debug</span><span class="p">(</span><span class="s2">"Detect SPDX version: Could not read file: </span><span class="si">%s</span><span class="s2">"</span><span class="p">,</span> <span class="n">exc</span><span class="p">)</span>
         <span class="k">return</span> <span class="kc">None</span></div>
 
 
 
 <span class="k">def</span><span class="w"> </span><span class="nf">_parse_spdx_version_from_content</span><span class="p">(</span><span class="n">content</span><span class="p">:</span> <span class="nb">str</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">tuple</span><span class="p">[</span><span class="nb">int</span><span class="p">,</span> <span class="nb">int</span><span class="p">]</span> <span class="o">|</span> <span class="kc">None</span><span class="p">:</span>
-<span class="w">    </span><span class="sd">&quot;&quot;&quot;Parse SPDX version from file content using regular expressions.&quot;&quot;&quot;</span>
+<span class="w">    </span><span class="sd">"""Parse SPDX version from file content using regular expressions."""</span>
     <span class="c1"># Match MAJOR.MINOR.PATCH version</span>
     <span class="n">patterns</span> <span class="o">=</span> <span class="p">[</span>
         <span class="n">re</span><span class="o">.</span><span class="n">compile</span><span class="p">(</span>
-            <span class="sa">r</span><span class="s2">&quot;^\s*SPDXVersion\s*:\s*SPDX-(\d+)\.(\d+)(\.(\d+))?&quot;</span><span class="p">,</span> <span class="n">re</span><span class="o">.</span><span class="n">MULTILINE</span>
+            <span class="sa">r</span><span class="s2">"^\s*SPDXVersion\s*:\s*SPDX-(\d+)\.(\d+)(\.(\d+))?"</span><span class="p">,</span> <span class="n">re</span><span class="o">.</span><span class="n">MULTILINE</span>
         <span class="p">),</span>  <span class="c1"># SPDX 2 tag:value # SPDXVersion: SPDX-2.2</span>
         <span class="n">re</span><span class="o">.</span><span class="n">compile</span><span class="p">(</span>
-            <span class="sa">r</span><span class="s2">&quot;[&#39;</span><span class="se">\&quot;</span><span class="s2">]spdxVersion[&#39;</span><span class="se">\&quot;</span><span class="s2">]\s*:\s*[&#39;</span><span class="se">\&quot;</span><span class="s2">]SPDX-(\d+)\.(\d+)(\.(\d+))?&quot;</span>
-        <span class="p">),</span>  <span class="c1"># SPDX 2 JSON # &quot;spdxVersion&quot;: &quot;SPDX-2.2.1&quot;</span>
+            <span class="sa">r</span><span class="s2">"['</span><span class="se">\"</span><span class="s2">]spdxVersion['</span><span class="se">\"</span><span class="s2">]\s*:\s*['</span><span class="se">\"</span><span class="s2">]SPDX-(\d+)\.(\d+)(\.(\d+))?"</span>
+        <span class="p">),</span>  <span class="c1"># SPDX 2 JSON # "spdxVersion": "SPDX-2.2.1"</span>
         <span class="n">re</span><span class="o">.</span><span class="n">compile</span><span class="p">(</span>
-            <span class="sa">r</span><span class="s2">&quot;^\s*spdxVersion\s*:\s*[&#39;</span><span class="se">\&quot;</span><span class="s2">]?SPDX-(\d+)\.(\d+)(\.(\d+))?&quot;</span><span class="p">,</span> <span class="n">re</span><span class="o">.</span><span class="n">MULTILINE</span>
-        <span class="p">),</span>  <span class="c1"># SPDX 2 YAML # spdxVersion: &#39;SPDX-2.2&#39; or spdxVersion: SPDX-2.2</span>
+            <span class="sa">r</span><span class="s2">"^\s*spdxVersion\s*:\s*['</span><span class="se">\"</span><span class="s2">]?SPDX-(\d+)\.(\d+)(\.(\d+))?"</span><span class="p">,</span> <span class="n">re</span><span class="o">.</span><span class="n">MULTILINE</span>
+        <span class="p">),</span>  <span class="c1"># SPDX 2 YAML # spdxVersion: 'SPDX-2.2' or spdxVersion: SPDX-2.2</span>
         <span class="n">re</span><span class="o">.</span><span class="n">compile</span><span class="p">(</span>
-            <span class="sa">r</span><span class="s2">&quot;&lt;spdxVersion&gt;\s*SPDX-(\d+)\.(\d+)(\.(\d+))?\s*&lt;/spdxVersion&gt;&quot;</span>
+            <span class="sa">r</span><span class="s2">"&lt;spdxVersion&gt;\s*SPDX-(\d+)\.(\d+)(\.(\d+))?\s*&lt;/spdxVersion&gt;"</span>
         <span class="p">),</span>  <span class="c1"># SPDX 2 XML # &lt;spdxVersion&gt;SPDX-2.2&lt;/spdxVersion&gt;</span>
         <span class="n">re</span><span class="o">.</span><span class="n">compile</span><span class="p">(</span>
-            <span class="sa">r</span><span class="s2">&quot;[:&lt;]specVersion&gt;\s*SPDX-(\d+)\.(\d+)(\.(\d+))?\s*&lt;&quot;</span>
+            <span class="sa">r</span><span class="s2">"[:&lt;]specVersion&gt;\s*SPDX-(\d+)\.(\d+)(\.(\d+))?\s*&lt;"</span>
         <span class="p">),</span>  <span class="c1"># SPDX 2 RDF XML # &lt;spdx:specVersion&gt;SPDX-2.2&lt;/spdx:specVersion&gt;</span>
         <span class="n">re</span><span class="o">.</span><span class="n">compile</span><span class="p">(</span>
-            <span class="sa">r</span><span class="s2">&quot;[\&#39;</span><span class="se">\&quot;</span><span class="s2">]@context[\&#39;</span><span class="se">\&quot;</span><span class="s2">]\s*:\s*[\&#39;</span><span class="se">\&quot;</span><span class="s2">]https?://spdx\.org/rdf/(\d+)\.(\d+)(\.(\d+))?/&quot;</span>
-        <span class="p">),</span>  <span class="c1"># SPDX 3 JSON-LD # &quot;@context&quot;: &quot;https://spdx.org/rdf/3.0/spdx-context.jsonld&quot;</span>
+            <span class="sa">r</span><span class="s2">"[\'</span><span class="se">\"</span><span class="s2">]@context[\'</span><span class="se">\"</span><span class="s2">]\s*:\s*[\'</span><span class="se">\"</span><span class="s2">]https?://spdx\.org/rdf/(\d+)\.(\d+)(\.(\d+))?/"</span>
+        <span class="p">),</span>  <span class="c1"># SPDX 3 JSON-LD # "@context": "https://spdx.org/rdf/3.0/spdx-context.jsonld"</span>
     <span class="p">]</span>
     <span class="k">for</span> <span class="n">pat</span> <span class="ow">in</span> <span class="n">patterns</span><span class="p">:</span>
         <span class="k">if</span> <span class="n">m</span> <span class="o">:=</span> <span class="n">pat</span><span class="o">.</span><span class="n">search</span><span class="p">(</span><span class="n">content</span><span class="p">):</span>
@@ -268,42 +268,42 @@
 <div class="viewcode-block" id="get_sbom_spec">
 <a class="viewcode-back" href="../../ntia_conformance_checker.html#ntia_conformance_checker.cli_utils.get_sbom_spec">[docs]</a>
 <span class="k">def</span><span class="w"> </span><span class="nf">get_sbom_spec</span><span class="p">(</span><span class="n">file</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span> <span class="n">sbom_spec</span><span class="p">:</span> <span class="nb">str</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">str</span><span class="p">:</span>
-<span class="w">    </span><span class="sd">&quot;&quot;&quot;Detect SBOM specification from file content.&quot;&quot;&quot;</span>
-    <span class="n">detected_sbom_spec</span><span class="p">:</span> <span class="nb">str</span> <span class="o">=</span> <span class="s2">&quot;&quot;</span>
+<span class="w">    </span><span class="sd">"""Detect SBOM specification from file content."""</span>
+    <span class="n">detected_sbom_spec</span><span class="p">:</span> <span class="nb">str</span> <span class="o">=</span> <span class="s2">""</span>
 
     <span class="k">if</span> <span class="n">sbom_spec</span> <span class="ow">not</span> <span class="ow">in</span> <span class="n">SUPPORTED_SBOM_SPECS</span><span class="p">:</span>
         <span class="n">logging</span><span class="o">.</span><span class="n">error</span><span class="p">(</span>
-            <span class="s2">&quot;Unsupported SBOM specification: </span><span class="si">%s</span><span class="s2">. Supported: </span><span class="si">%s</span><span class="s2">&quot;</span><span class="p">,</span>
+            <span class="s2">"Unsupported SBOM specification: </span><span class="si">%s</span><span class="s2">. Supported: </span><span class="si">%s</span><span class="s2">"</span><span class="p">,</span>
             <span class="n">sbom_spec</span><span class="p">,</span>
-            <span class="s2">&quot;, &quot;</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="nb">sorted</span><span class="p">(</span><span class="n">SUPPORTED_SBOM_SPECS</span><span class="p">)),</span>
+            <span class="s2">", "</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="nb">sorted</span><span class="p">(</span><span class="n">SUPPORTED_SBOM_SPECS</span><span class="p">)),</span>
         <span class="p">)</span>
-        <span class="k">return</span> <span class="s2">&quot;&quot;</span>
+        <span class="k">return</span> <span class="s2">""</span>
 
-    <span class="k">if</span> <span class="n">sbom_spec</span><span class="o">.</span><span class="n">startswith</span><span class="p">(</span><span class="s2">&quot;spdx&quot;</span><span class="p">):</span>
+    <span class="k">if</span> <span class="n">sbom_spec</span><span class="o">.</span><span class="n">startswith</span><span class="p">(</span><span class="s2">"spdx"</span><span class="p">):</span>
         <span class="n">spdx_version</span><span class="p">:</span> <span class="nb">tuple</span><span class="p">[</span><span class="nb">int</span><span class="p">,</span> <span class="nb">int</span><span class="p">]</span> <span class="o">|</span> <span class="kc">None</span> <span class="o">=</span> <span class="n">get_spdx_version</span><span class="p">(</span>
             <span class="n">file</span><span class="p">,</span> <span class="n">sbom_spec</span><span class="o">=</span><span class="n">sbom_spec</span>
         <span class="p">)</span>
         <span class="k">if</span> <span class="ow">not</span> <span class="n">spdx_version</span><span class="p">:</span>
-            <span class="n">logging</span><span class="o">.</span><span class="n">error</span><span class="p">(</span><span class="s2">&quot;Could not determine SPDX version from SBOM.&quot;</span><span class="p">)</span>
-            <span class="k">return</span> <span class="s2">&quot;&quot;</span>
-        <span class="n">logging</span><span class="o">.</span><span class="n">debug</span><span class="p">(</span><span class="s2">&quot;Detected SPDX version: </span><span class="si">%d</span><span class="s2">.</span><span class="si">%d</span><span class="s2">&quot;</span><span class="p">,</span> <span class="n">spdx_version</span><span class="p">[</span><span class="mi">0</span><span class="p">],</span> <span class="n">spdx_version</span><span class="p">[</span><span class="mi">1</span><span class="p">])</span>
+            <span class="n">logging</span><span class="o">.</span><span class="n">error</span><span class="p">(</span><span class="s2">"Could not determine SPDX version from SBOM."</span><span class="p">)</span>
+            <span class="k">return</span> <span class="s2">""</span>
+        <span class="n">logging</span><span class="o">.</span><span class="n">debug</span><span class="p">(</span><span class="s2">"Detected SPDX version: </span><span class="si">%d</span><span class="s2">.</span><span class="si">%d</span><span class="s2">"</span><span class="p">,</span> <span class="n">spdx_version</span><span class="p">[</span><span class="mi">0</span><span class="p">],</span> <span class="n">spdx_version</span><span class="p">[</span><span class="mi">1</span><span class="p">])</span>
 
         <span class="k">if</span> <span class="n">spdx_version</span> <span class="ow">not</span> <span class="ow">in</span> <span class="n">SUPPORTED_SPDX_VERSIONS</span><span class="p">:</span>
             <span class="n">logging</span><span class="o">.</span><span class="n">error</span><span class="p">(</span>
-                <span class="s2">&quot;Unsupported SPDX version: </span><span class="si">%d</span><span class="s2">.</span><span class="si">%d</span><span class="s2">. Supported: </span><span class="si">%s</span><span class="s2">&quot;</span><span class="p">,</span>
+                <span class="s2">"Unsupported SPDX version: </span><span class="si">%d</span><span class="s2">.</span><span class="si">%d</span><span class="s2">. Supported: </span><span class="si">%s</span><span class="s2">"</span><span class="p">,</span>
                 <span class="n">spdx_version</span><span class="p">[</span><span class="mi">0</span><span class="p">],</span>
                 <span class="n">spdx_version</span><span class="p">[</span><span class="mi">1</span><span class="p">],</span>
-                <span class="s2">&quot;, &quot;</span><span class="o">.</span><span class="n">join</span><span class="p">(</span>
-                    <span class="sa">f</span><span class="s2">&quot;</span><span class="si">{</span><span class="n">maj</span><span class="si">}</span><span class="s2">.</span><span class="si">{</span><span class="nb">min</span><span class="si">}</span><span class="s2">&quot;</span> <span class="k">for</span> <span class="n">maj</span><span class="p">,</span> <span class="nb">min</span> <span class="ow">in</span> <span class="nb">sorted</span><span class="p">(</span><span class="n">SUPPORTED_SPDX_VERSIONS</span><span class="p">)</span>
+                <span class="s2">", "</span><span class="o">.</span><span class="n">join</span><span class="p">(</span>
+                    <span class="sa">f</span><span class="s2">"</span><span class="si">{</span><span class="n">maj</span><span class="si">}</span><span class="s2">.</span><span class="si">{</span><span class="nb">min</span><span class="si">}</span><span class="s2">"</span> <span class="k">for</span> <span class="n">maj</span><span class="p">,</span> <span class="nb">min</span> <span class="ow">in</span> <span class="nb">sorted</span><span class="p">(</span><span class="n">SUPPORTED_SPDX_VERSIONS</span><span class="p">)</span>
                 <span class="p">),</span>
             <span class="p">)</span>
-            <span class="k">return</span> <span class="s2">&quot;&quot;</span>
+            <span class="k">return</span> <span class="s2">""</span>
 
         <span class="k">match</span> <span class="n">spdx_version</span><span class="p">[</span><span class="mi">0</span><span class="p">]:</span>
             <span class="k">case</span> <span class="mi">3</span><span class="p">:</span>
-                <span class="n">detected_sbom_spec</span> <span class="o">=</span> <span class="s2">&quot;spdx3&quot;</span>
+                <span class="n">detected_sbom_spec</span> <span class="o">=</span> <span class="s2">"spdx3"</span>
             <span class="k">case</span> <span class="mi">2</span><span class="p">:</span>
-                <span class="n">detected_sbom_spec</span> <span class="o">=</span> <span class="s2">&quot;spdx2&quot;</span>
+                <span class="n">detected_sbom_spec</span> <span class="o">=</span> <span class="s2">"spdx2"</span>
 
     <span class="k">return</span> <span class="n">detected_sbom_spec</span></div>
 
@@ -314,50 +314,50 @@
 <span class="k">def</span><span class="w"> </span><span class="nf">print_output</span><span class="p">(</span>
     <span class="n">sbom</span><span class="p">:</span> <span class="n">BaseChecker</span><span class="p">,</span> <span class="o">*</span><span class="p">,</span> <span class="n">output_type</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span> <span class="n">output_file</span><span class="p">:</span> <span class="nb">str</span> <span class="o">|</span> <span class="kc">None</span><span class="p">,</span> <span class="n">verbose</span><span class="p">:</span> <span class="nb">bool</span>
 <span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
-<span class="w">    </span><span class="sd">&quot;&quot;&quot;Print or save the output report.&quot;&quot;&quot;</span>
+<span class="w">    </span><span class="sd">"""Print or save the output report."""</span>
     <span class="k">match</span> <span class="n">output_type</span><span class="p">:</span>
-        <span class="k">case</span> <span class="s2">&quot;print&quot;</span><span class="p">:</span>
+        <span class="k">case</span> <span class="s2">"print"</span><span class="p">:</span>
             <span class="n">sbom</span><span class="o">.</span><span class="n">print_table_output</span><span class="p">(</span><span class="n">verbose</span><span class="o">=</span><span class="n">verbose</span><span class="p">)</span>
             <span class="k">if</span> <span class="n">verbose</span><span class="p">:</span>
                 <span class="n">sbom</span><span class="o">.</span><span class="n">print_components_missing_info</span><span class="p">()</span>
 
-        <span class="k">case</span> <span class="s2">&quot;json&quot;</span><span class="p">:</span>
+        <span class="k">case</span> <span class="s2">"json"</span><span class="p">:</span>
             <span class="n">result_dict</span><span class="p">:</span> <span class="nb">dict</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="n">Any</span><span class="p">]</span> <span class="o">=</span> <span class="n">sbom</span><span class="o">.</span><span class="n">output_json</span><span class="p">()</span>
             <span class="k">if</span> <span class="n">output_file</span><span class="p">:</span>
                 <span class="k">try</span><span class="p">:</span>
-                    <span class="k">with</span> <span class="nb">open</span><span class="p">(</span><span class="n">output_file</span><span class="p">,</span> <span class="s2">&quot;w&quot;</span><span class="p">,</span> <span class="n">encoding</span><span class="o">=</span><span class="s2">&quot;utf-8&quot;</span><span class="p">)</span> <span class="k">as</span> <span class="n">outfile</span><span class="p">:</span>
+                    <span class="k">with</span> <span class="nb">open</span><span class="p">(</span><span class="n">output_file</span><span class="p">,</span> <span class="s2">"w"</span><span class="p">,</span> <span class="n">encoding</span><span class="o">=</span><span class="s2">"utf-8"</span><span class="p">)</span> <span class="k">as</span> <span class="n">outfile</span><span class="p">:</span>
                         <span class="n">json</span><span class="o">.</span><span class="n">dump</span><span class="p">(</span><span class="n">result_dict</span><span class="p">,</span> <span class="n">outfile</span><span class="p">)</span>
                 <span class="k">except</span> <span class="ne">OSError</span> <span class="k">as</span> <span class="n">exc</span><span class="p">:</span>
-                    <span class="n">logging</span><span class="o">.</span><span class="n">error</span><span class="p">(</span><span class="s2">&quot;Could not write JSON output file: </span><span class="si">%s</span><span class="s2">&quot;</span><span class="p">,</span> <span class="n">exc</span><span class="p">)</span>
+                    <span class="n">logging</span><span class="o">.</span><span class="n">error</span><span class="p">(</span><span class="s2">"Could not write JSON output file: </span><span class="si">%s</span><span class="s2">"</span><span class="p">,</span> <span class="n">exc</span><span class="p">)</span>
             <span class="k">else</span><span class="p">:</span>
                 <span class="nb">print</span><span class="p">(</span><span class="n">json</span><span class="o">.</span><span class="n">dumps</span><span class="p">(</span><span class="n">result_dict</span><span class="p">,</span> <span class="n">indent</span><span class="o">=</span><span class="mi">2</span><span class="p">))</span>
 
-        <span class="k">case</span> <span class="s2">&quot;html&quot;</span><span class="p">:</span>
+        <span class="k">case</span> <span class="s2">"html"</span><span class="p">:</span>
             <span class="n">html_output</span> <span class="o">=</span> <span class="n">sbom</span><span class="o">.</span><span class="n">output_html</span><span class="p">()</span>
             <span class="k">if</span> <span class="n">output_file</span><span class="p">:</span>
                 <span class="k">try</span><span class="p">:</span>
-                    <span class="k">with</span> <span class="nb">open</span><span class="p">(</span><span class="n">output_file</span><span class="p">,</span> <span class="s2">&quot;w&quot;</span><span class="p">,</span> <span class="n">encoding</span><span class="o">=</span><span class="s2">&quot;utf-8&quot;</span><span class="p">)</span> <span class="k">as</span> <span class="n">outfile</span><span class="p">:</span>
+                    <span class="k">with</span> <span class="nb">open</span><span class="p">(</span><span class="n">output_file</span><span class="p">,</span> <span class="s2">"w"</span><span class="p">,</span> <span class="n">encoding</span><span class="o">=</span><span class="s2">"utf-8"</span><span class="p">)</span> <span class="k">as</span> <span class="n">outfile</span><span class="p">:</span>
                         <span class="c1"># Put a simple HTML wrapper around the HTML report snippet</span>
                         <span class="n">outfile</span><span class="o">.</span><span class="n">write</span><span class="p">(</span>
-                            <span class="s2">&quot;&lt;!DOCTYPE html&gt;</span><span class="se">\n</span><span class="s2">&quot;</span>
-                            <span class="s2">&quot;&lt;html&gt;</span><span class="se">\n</span><span class="s2">&quot;</span>
-                            <span class="s2">&quot;&lt;head&gt;</span><span class="se">\n</span><span class="s2">&quot;</span>
-                            <span class="s2">&quot;  &lt;title&gt;SBOM Conformance Report&lt;/title&gt;</span><span class="se">\n</span><span class="s2">&quot;</span>
-                            <span class="s1">&#39;  &lt;meta charset=&quot;utf-8&quot; /&gt;</span><span class="se">\n</span><span class="s1">&#39;</span>
-                            <span class="s2">&quot;&lt;/head&gt;</span><span class="se">\n</span><span class="s2">&quot;</span>
-                            <span class="s2">&quot;&lt;body&gt;</span><span class="se">\n</span><span class="s2">&quot;</span>
-                            <span class="s2">&quot;&lt;h1&gt;SBOM Conformance Report&lt;/h1&gt;</span><span class="se">\n</span><span class="s2">&quot;</span>
+                            <span class="s2">"&lt;!DOCTYPE html&gt;</span><span class="se">\n</span><span class="s2">"</span>
+                            <span class="s2">"&lt;html&gt;</span><span class="se">\n</span><span class="s2">"</span>
+                            <span class="s2">"&lt;head&gt;</span><span class="se">\n</span><span class="s2">"</span>
+                            <span class="s2">"  &lt;title&gt;SBOM Conformance Report&lt;/title&gt;</span><span class="se">\n</span><span class="s2">"</span>
+                            <span class="s1">'  &lt;meta charset="utf-8" /&gt;</span><span class="se">\n</span><span class="s1">'</span>
+                            <span class="s2">"&lt;/head&gt;</span><span class="se">\n</span><span class="s2">"</span>
+                            <span class="s2">"&lt;body&gt;</span><span class="se">\n</span><span class="s2">"</span>
+                            <span class="s2">"&lt;h1&gt;SBOM Conformance Report&lt;/h1&gt;</span><span class="se">\n</span><span class="s2">"</span>
                         <span class="p">)</span>
-                        <span class="n">outfile</span><span class="o">.</span><span class="n">write</span><span class="p">(</span><span class="sa">f</span><span class="s2">&quot;&lt;p&gt;Filename: </span><span class="si">{</span><span class="n">sbom</span><span class="o">.</span><span class="n">file</span><span class="si">}</span><span class="s2">&lt;/p&gt;</span><span class="se">\n</span><span class="s2">&quot;</span><span class="p">)</span>
+                        <span class="n">outfile</span><span class="o">.</span><span class="n">write</span><span class="p">(</span><span class="sa">f</span><span class="s2">"&lt;p&gt;Filename: </span><span class="si">{</span><span class="n">sbom</span><span class="o">.</span><span class="n">file</span><span class="si">}</span><span class="s2">&lt;/p&gt;</span><span class="se">\n</span><span class="s2">"</span><span class="p">)</span>
                         <span class="n">outfile</span><span class="o">.</span><span class="n">write</span><span class="p">(</span><span class="n">html_output</span><span class="p">)</span>
-                        <span class="n">outfile</span><span class="o">.</span><span class="n">write</span><span class="p">(</span><span class="s2">&quot;</span><span class="se">\n</span><span class="s2">&lt;/body&gt;</span><span class="se">\n</span><span class="s2">&lt;/html&gt;</span><span class="se">\n</span><span class="s2">&quot;</span><span class="p">)</span>
+                        <span class="n">outfile</span><span class="o">.</span><span class="n">write</span><span class="p">(</span><span class="s2">"</span><span class="se">\n</span><span class="s2">&lt;/body&gt;</span><span class="se">\n</span><span class="s2">&lt;/html&gt;</span><span class="se">\n</span><span class="s2">"</span><span class="p">)</span>
                 <span class="k">except</span> <span class="ne">OSError</span> <span class="k">as</span> <span class="n">exc</span><span class="p">:</span>
-                    <span class="n">logging</span><span class="o">.</span><span class="n">error</span><span class="p">(</span><span class="s2">&quot;Could not write HTML output file: </span><span class="si">%s</span><span class="s2">&quot;</span><span class="p">,</span> <span class="n">exc</span><span class="p">)</span>
+                    <span class="n">logging</span><span class="o">.</span><span class="n">error</span><span class="p">(</span><span class="s2">"Could not write HTML output file: </span><span class="si">%s</span><span class="s2">"</span><span class="p">,</span> <span class="n">exc</span><span class="p">)</span>
             <span class="k">else</span><span class="p">:</span>
                 <span class="nb">print</span><span class="p">(</span><span class="n">html_output</span><span class="p">)</span></div>
 
 
-    <span class="c1"># do nothing if output_type is &quot;quiet&quot; or unrecognized</span>
+    <span class="c1"># do nothing if output_type is "quiet" or unrecognized</span>
 </pre></div>
 
           </div>

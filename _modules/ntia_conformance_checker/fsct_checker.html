@@ -35,7 +35,7 @@
 <span class="c1"># SPDX-FileType: SOURCE</span>
 <span class="c1"># SPDX-License-Identifier: Apache-2.0</span>
 
-<span class="sd">&quot;&quot;&quot;FSCT Common BOM checking functionality.&quot;&quot;&quot;</span>
+<span class="sd">"""FSCT Common BOM checking functionality."""</span>
 
 <span class="kn">from</span><span class="w"> </span><span class="nn">__future__</span><span class="w"> </span><span class="kn">import</span> <span class="n">annotations</span>
 
@@ -45,7 +45,7 @@
 <div class="viewcode-block" id="FSCT3Checker">
 <a class="viewcode-back" href="../../ntia_conformance_checker.html#ntia_conformance_checker.fsct_checker.FSCT3Checker">[docs]</a>
 <span class="k">class</span><span class="w"> </span><span class="nc">FSCT3Checker</span><span class="p">(</span><span class="n">BaseChecker</span><span class="p">):</span>
-<span class="w">    </span><span class="sd">&quot;&quot;&quot;FSCTv3 checker.</span>
+<span class="w">    </span><span class="sd">"""FSCTv3 checker.</span>
 
 <span class="sd">    A set of Baseline Attributes is defined in Section 2.2 of</span>
 <span class="sd">    Framing Software Component Transparency:</span>
@@ -58,25 +58,25 @@
 
 <span class="sd">    See:</span>
 <span class="sd">        https://www.cisa.gov/resources-tools/resources/framing-software-component-transparency-2024</span>
-<span class="sd">    &quot;&quot;&quot;</span>
+<span class="sd">    """</span>
 
     <span class="n">MIN_ELEMENTS</span> <span class="o">=</span> <span class="p">[</span>
-        <span class="s2">&quot;name&quot;</span><span class="p">,</span>
-        <span class="s2">&quot;version&quot;</span><span class="p">,</span>
-        <span class="s2">&quot;identifier&quot;</span><span class="p">,</span>
-        <span class="s2">&quot;supplier&quot;</span><span class="p">,</span>
-        <span class="s2">&quot;concluded_license&quot;</span><span class="p">,</span>
-        <span class="s2">&quot;copyright_text&quot;</span><span class="p">,</span>
+        <span class="s2">"name"</span><span class="p">,</span>
+        <span class="s2">"version"</span><span class="p">,</span>
+        <span class="s2">"identifier"</span><span class="p">,</span>
+        <span class="s2">"supplier"</span><span class="p">,</span>
+        <span class="s2">"concluded_license"</span><span class="p">,</span>
+        <span class="s2">"copyright_text"</span><span class="p">,</span>
     <span class="p">]</span>
 
     <span class="k">def</span><span class="w"> </span><span class="fm">__init__</span><span class="p">(</span>
         <span class="bp">self</span><span class="p">,</span>
         <span class="n">file</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span>
         <span class="n">validate</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">True</span><span class="p">,</span>
-        <span class="n">compliance</span><span class="p">:</span> <span class="nb">str</span> <span class="o">=</span> <span class="s2">&quot;fsct3-min&quot;</span><span class="p">,</span>
-        <span class="n">sbom_spec</span><span class="p">:</span> <span class="nb">str</span> <span class="o">=</span> <span class="s2">&quot;spdx2&quot;</span><span class="p">,</span>
+        <span class="n">compliance</span><span class="p">:</span> <span class="nb">str</span> <span class="o">=</span> <span class="s2">"fsct3-min"</span><span class="p">,</span>
+        <span class="n">sbom_spec</span><span class="p">:</span> <span class="nb">str</span> <span class="o">=</span> <span class="s2">"spdx2"</span><span class="p">,</span>
     <span class="p">):</span>
-<span class="w">        </span><span class="sd">&quot;&quot;&quot;</span>
+<span class="w">        </span><span class="sd">"""</span>
 <span class="sd">        Initialize the FSCTv3 checker.</span>
 
 <span class="sd">        Args:</span>
@@ -84,52 +84,52 @@
 <span class="sd">            validate (bool): Whether to validate the file.</span>
 <span class="sd">            compliance (str): The compliance standard to be used.</span>
 <span class="sd">            sbom_spec (str): The SBOM specification to be used.</span>
-<span class="sd">        &quot;&quot;&quot;</span>
+<span class="sd">        """</span>
         <span class="nb">super</span><span class="p">()</span><span class="o">.</span><span class="fm">__init__</span><span class="p">(</span>
             <span class="n">file</span><span class="o">=</span><span class="n">file</span><span class="p">,</span> <span class="n">validate</span><span class="o">=</span><span class="n">validate</span><span class="p">,</span> <span class="n">compliance</span><span class="o">=</span><span class="n">compliance</span><span class="p">,</span> <span class="n">sbom_spec</span><span class="o">=</span><span class="n">sbom_spec</span>
         <span class="p">)</span>
 
-        <span class="k">if</span> <span class="n">compliance</span> <span class="ow">not</span> <span class="ow">in</span> <span class="p">{</span><span class="s2">&quot;fsct3-min&quot;</span><span class="p">}:</span>
-            <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="s2">&quot;Only FSCTv3 Minimum Expected compliance is supported.&quot;</span><span class="p">)</span>
+        <span class="k">if</span> <span class="n">compliance</span> <span class="ow">not</span> <span class="ow">in</span> <span class="p">{</span><span class="s2">"fsct3-min"</span><span class="p">}:</span>
+            <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="s2">"Only FSCTv3 Minimum Expected compliance is supported."</span><span class="p">)</span>
 
         <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">doc</span><span class="p">:</span>
             <span class="bp">self</span><span class="o">.</span><span class="n">compliant</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">check_compliance</span><span class="p">()</span>
 
         <span class="bp">self</span><span class="o">.</span><span class="n">table_elements</span> <span class="o">=</span> <span class="p">[</span>
-            <span class="p">(</span><span class="s2">&quot;All component names provided?&quot;</span><span class="p">,</span> <span class="ow">not</span> <span class="bp">self</span><span class="o">.</span><span class="n">components_without_names</span><span class="p">),</span>
+            <span class="p">(</span><span class="s2">"All component names provided?"</span><span class="p">,</span> <span class="ow">not</span> <span class="bp">self</span><span class="o">.</span><span class="n">components_without_names</span><span class="p">),</span>
             <span class="p">(</span>
-                <span class="s2">&quot;All component versions provided?&quot;</span><span class="p">,</span>
+                <span class="s2">"All component versions provided?"</span><span class="p">,</span>
                 <span class="ow">not</span> <span class="bp">self</span><span class="o">.</span><span class="n">components_without_versions</span><span class="p">,</span>
             <span class="p">),</span>
             <span class="p">(</span>
-                <span class="s2">&quot;All component identifiers provided?&quot;</span><span class="p">,</span>
+                <span class="s2">"All component identifiers provided?"</span><span class="p">,</span>
                 <span class="ow">not</span> <span class="bp">self</span><span class="o">.</span><span class="n">components_without_identifiers</span><span class="p">,</span>
             <span class="p">),</span>
             <span class="p">(</span>
-                <span class="s2">&quot;All component suppliers provided?&quot;</span><span class="p">,</span>
+                <span class="s2">"All component suppliers provided?"</span><span class="p">,</span>
                 <span class="ow">not</span> <span class="bp">self</span><span class="o">.</span><span class="n">components_without_suppliers</span><span class="p">,</span>
             <span class="p">),</span>
             <span class="p">(</span>
-                <span class="s2">&quot;All component concluded license provided?&quot;</span><span class="p">,</span>
+                <span class="s2">"All component concluded license provided?"</span><span class="p">,</span>
                 <span class="ow">not</span> <span class="bp">self</span><span class="o">.</span><span class="n">components_without_concluded_licenses</span><span class="p">,</span>
             <span class="p">),</span>
             <span class="p">(</span>
-                <span class="s2">&quot;All component copyright notice provided?&quot;</span><span class="p">,</span>
+                <span class="s2">"All component copyright notice provided?"</span><span class="p">,</span>
                 <span class="ow">not</span> <span class="bp">self</span><span class="o">.</span><span class="n">components_without_copyright_texts</span><span class="p">,</span>
             <span class="p">),</span>
-            <span class="p">(</span><span class="s2">&quot;SBOM author name provided?&quot;</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">doc_author</span><span class="p">),</span>
-            <span class="p">(</span><span class="s2">&quot;SBOM creation timestamp provided?&quot;</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">doc_timestamp</span><span class="p">),</span>
+            <span class="p">(</span><span class="s2">"SBOM author name provided?"</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">doc_author</span><span class="p">),</span>
+            <span class="p">(</span><span class="s2">"SBOM creation timestamp provided?"</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">doc_timestamp</span><span class="p">),</span>
             <span class="p">(</span>
-                <span class="s2">&quot;SBOM generation context (SBOM type) provided?&quot;</span><span class="p">,</span>
+                <span class="s2">"SBOM generation context (SBOM type) provided?"</span><span class="p">,</span>
                 <span class="nb">bool</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">sbom_gen_context</span><span class="p">),</span>
             <span class="p">),</span>
-            <span class="p">(</span><span class="s2">&quot;Dependency relationships provided?&quot;</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">dependency_relationships</span><span class="p">),</span>
+            <span class="p">(</span><span class="s2">"Dependency relationships provided?"</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">dependency_relationships</span><span class="p">),</span>
         <span class="p">]</span>
 
 <div class="viewcode-block" id="FSCT3Checker.check_compliance">
 <a class="viewcode-back" href="../../ntia_conformance_checker.html#ntia_conformance_checker.fsct_checker.FSCT3Checker.check_compliance">[docs]</a>
     <span class="k">def</span><span class="w"> </span><span class="nf">check_compliance</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">bool</span><span class="p">:</span>
-<span class="w">        </span><span class="sd">&quot;&quot;&quot;Check overall compliance with FSCTv3 Minimum Expected&quot;&quot;&quot;</span>
+<span class="w">        </span><span class="sd">"""Check overall compliance with FSCTv3 Minimum Expected"""</span>
         <span class="k">return</span> <span class="nb">all</span><span class="p">(</span>
             <span class="p">[</span>
                 <span class="bp">self</span><span class="o">.</span><span class="n">doc_author</span><span class="p">,</span>

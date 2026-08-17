@@ -800,34 +800,34 @@ during instantiation.</p>
 
 <dl class="py function">
 <dt class="sig sig-object py" id="ntia_conformance_checker.spdx3_utils.get_boms_from_spdx_document">
-<span class="sig-prename descclassname"><span class="pre">ntia_conformance_checker.spdx3_utils.</span></span><span class="sig-name descname"><span class="pre">get_boms_from_spdx_document</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">spdx_doc</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">SpdxDocument</span><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><span class="pre">None</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">list</span><span class="p"><span class="pre">[</span></span><span class="pre">Bom</span><span class="p"><span class="pre">]</span></span><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><span class="pre">None</span></span></span><a class="reference internal" href="_modules/ntia_conformance_checker/spdx3_utils.html#get_boms_from_spdx_document"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#ntia_conformance_checker.spdx3_utils.get_boms_from_spdx_document" title="Link to this definition">¶</a></dt>
+<span class="sig-prename descclassname"><span class="pre">ntia_conformance_checker.spdx3_utils.</span></span><span class="sig-name descname"><span class="pre">get_boms_from_spdx_document</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">spdx_doc</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">SpdxDocument</span><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><span class="pre">None</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">list</span><span class="p"><span class="pre">[</span></span><span class="pre">Bom</span><span class="p"><span class="pre">]</span></span></span></span><a class="reference internal" href="_modules/ntia_conformance_checker/spdx3_utils.html#get_boms_from_spdx_document"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#ntia_conformance_checker.spdx3_utils.get_boms_from_spdx_document" title="Link to this definition">¶</a></dt>
 <dd><p>Retrieve the BOMs that are rootElements of an SPDX 3 SpdxDocument.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters<span class="colon">:</span></dt>
 <dd class="field-odd"><p><strong>spdx_doc</strong> (<em>spdx3.SpdxDocument</em><em> | </em><em>None</em>) – The SPDX 3 SpdxDocument.</p>
 </dd>
 <dt class="field-even">Returns<span class="colon">:</span></dt>
-<dd class="field-even"><p>A list of BOMs if found, otherwise None.</p>
+<dd class="field-even"><p>A list of BOMs if found, otherwise an empty list.</p>
 </dd>
 <dt class="field-odd">Return type<span class="colon">:</span></dt>
-<dd class="field-odd"><p>list[spdx3.Bom] | None</p>
+<dd class="field-odd"><p>list[spdx3.Bom]</p>
 </dd>
 </dl>
 </dd></dl>
 
 <dl class="py function">
 <dt class="sig sig-object py" id="ntia_conformance_checker.spdx3_utils.get_packages_from_bom">
-<span class="sig-prename descclassname"><span class="pre">ntia_conformance_checker.spdx3_utils.</span></span><span class="sig-name descname"><span class="pre">get_packages_from_bom</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">bom</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Bom</span><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><span class="pre">None</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">list</span><span class="p"><span class="pre">[</span></span><span class="pre">software_Package</span><span class="p"><span class="pre">]</span></span><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><span class="pre">None</span></span></span><a class="reference internal" href="_modules/ntia_conformance_checker/spdx3_utils.html#get_packages_from_bom"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#ntia_conformance_checker.spdx3_utils.get_packages_from_bom" title="Link to this definition">¶</a></dt>
+<span class="sig-prename descclassname"><span class="pre">ntia_conformance_checker.spdx3_utils.</span></span><span class="sig-name descname"><span class="pre">get_packages_from_bom</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">bom</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Bom</span><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><span class="pre">None</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">list</span><span class="p"><span class="pre">[</span></span><span class="pre">software_Package</span><span class="p"><span class="pre">]</span></span></span></span><a class="reference internal" href="_modules/ntia_conformance_checker/spdx3_utils.html#get_packages_from_bom"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#ntia_conformance_checker.spdx3_utils.get_packages_from_bom" title="Link to this definition">¶</a></dt>
 <dd><p>Retrieve the /Software/Packages that are rootElements of an SPDX 3 BOM.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Parameters<span class="colon">:</span></dt>
 <dd class="field-odd"><p><strong>bom</strong> (<em>spdx3.Bom</em><em> | </em><em>None</em>) – The SPDX 3 Bom.</p>
 </dd>
 <dt class="field-even">Returns<span class="colon">:</span></dt>
-<dd class="field-even"><p>A list of packages if found, otherwise None.</p>
+<dd class="field-even"><p>A list of packages if found, otherwise an empty list.</p>
 </dd>
 <dt class="field-odd">Return type<span class="colon">:</span></dt>
-<dd class="field-odd"><p>list[spdx3.software_Package] | None</p>
+<dd class="field-odd"><p>list[spdx3.software_Package]</p>
 </dd>
 </dl>
 </dd></dl>
