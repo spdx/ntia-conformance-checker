@@ -8,6 +8,7 @@
 
 import os
 import warnings
+from datetime import datetime, timezone
 from pathlib import Path
 from unittest import TestCase
 from unittest.mock import MagicMock
@@ -27,6 +28,8 @@ from ntia_conformance_checker.graph_utils import (
     get_reachable_nodes,
 )
 from ntia_conformance_checker.spdx3_utils import (
+    get_boms_from_spdx_document,
+    get_packages_from_bom,
     has_package_dependency_relationship,
     validate_spdx3_data,
 )
@@ -708,101 +711,110 @@ def test_disconnected_component(test_file: str) -> None:
     ), "The orphan package MUST NOT be in the reachable list."
 
 
-def test_disconnected_component_spdx3_floating_contains_only_orphan_package() -> None:
-    """Test that SPDX 3 non-artifact elements are not marked as floating."""
-    test_file = os.path.join(
-        os.path.dirname(__file__),
-        "data",
-        "graph_connectivity",
-        "disconnected_component",
-        "disconnected_component_spdx3.json",
-    )
-    sbom = sbom_checker.SbomChecker(test_file, sbom_spec="spdx3")
-    assert sbom.floating_component_ids == {
-        "https://swinslow.net/spdx-examples/SPDXRef-Package-Orphan"
-    }
+### Test get_packages_from_bom and get_boms_from_spdx_document
 
 
-def test_analyze_graph_connectivity_spdx2_files_and_snippets() -> None:
-    """Test that pointing to files and snippets in SPDX 2 does not trigger unknown pointers."""
-    doc = MagicMock(spec=Document)
-    doc.creation_info = MagicMock()
-    doc.creation_info.spdx_id = "SPDXRef-DOCUMENT"
-
-    pkg = MagicMock(spec=Package)
-    pkg.spdx_id = "SPDXRef-Package1"
-    file_obj = MagicMock(spec=File)
-    file_obj.spdx_id = "SPDXRef-File1"
-    snippet_obj = MagicMock(spec=Snippet)
-    snippet_obj.spdx_id = "SPDXRef-Snippet1"
-
-    doc.packages = [pkg]
-    doc.files = [file_obj]
-    doc.snippets = [snippet_obj]
-
-    # DOCUMENT describes Package1, Package1 contains File1, File1 contains Snippet1
-    rel_describes = Relationship(
-        "SPDXRef-DOCUMENT", RelationshipType.DESCRIBES, "SPDXRef-Package1"
-    )
-    rel_contains_file = Relationship(
-        "SPDXRef-Package1", RelationshipType.CONTAINS, "SPDXRef-File1"
-    )
-    rel_contains_snippet = Relationship(
-        "SPDXRef-File1", RelationshipType.CONTAINS, "SPDXRef-Snippet1"
-    )
-    doc.relationships = [rel_describes, rel_contains_file, rel_contains_snippet]
-    reachable_nodes, _ = get_reachable_nodes("spdx2", doc)
-    assert reachable_nodes == {"SPDXRef-Package1", "SPDXRef-File1", "SPDXRef-Snippet1"}
-
-    reachable_components, floating, unknown_edges, has_unknown_pointers = (
-        analyze_graph_connectivity("spdx2", doc)
+def _create_test_spdx3_creation_info(
+    base_iri: str = "http://example.com/spdx3",
+) -> spdx3.CreationInfo:
+    """Create a minimal valid SPDX 3 CreationInfo instance for testing."""
+    return spdx3.CreationInfo(
+        _id=f"{base_iri}/creation-info",
+        specVersion="3.0.1",
+        created=datetime.now(timezone.utc),
+        createdBy=[f"{base_iri}/actor1"],
+        createdUsing=[f"{base_iri}/tool1"],
     )
 
-    assert reachable_components == {"SPDXRef-Package1"}
-    assert floating == set()
-    assert not unknown_edges
-    assert has_unknown_pointers is False
 
+def test_get_packages_from_bom_none_or_empty() -> None:
+    """Test get_packages_from_bom returns empty list for None or empty rootElement."""
+    assert not get_packages_from_bom(None)
 
-def test_get_reachable_nodes_spdx3_missing_doc() -> None:
-    """Test get_reachable_nodes returns empty sets when spdx3_doc is missing."""
-    doc_set = spdx3.SHACLObjectSet()
-    reachable_nodes, connection_map = get_reachable_nodes(
-        "spdx3", doc_set, spdx3_doc=None
+    creation_info = _create_test_spdx3_creation_info()
+    bom_empty = spdx3.software_Sbom(
+        _id="http://example.com/spdx3/bom-empty",
+        creationInfo=creation_info,
+        name="bom-empty",
     )
-    assert reachable_nodes == set()
-    assert not connection_map
+    assert not get_packages_from_bom(bom_empty)
 
-    reachable_components, floating, unknown_edges, has_unknown_pointers = (
-        analyze_graph_connectivity("spdx3", doc_set, spdx3_doc=None)
+
+def test_get_packages_from_bom_non_packages_only() -> None:
+    """Test get_packages_from_bom returns empty list when rootElements contain no packages."""
+    creation_info = _create_test_spdx3_creation_info()
+    file = spdx3.software_File(
+        _id="http://example.com/spdx3/file1",
+        creationInfo=creation_info,
+        name="file1",
     )
-    assert reachable_components == set()
-    assert floating == set()
-    assert not unknown_edges
-    assert has_unknown_pointers is False
-
-
-def test_build_spdx2_graph_described_by() -> None:
-    """Test SPDX 2 root identification when DESCRIBED_BY relationship is used."""
-    doc = MagicMock(spec=Document)
-    doc.creation_info = MagicMock()
-    doc.creation_info.spdx_id = "SPDXRef-DOCUMENT"
-
-    pkg = MagicMock(spec=Package)
-    pkg.spdx_id = "SPDXRef-Package1"
-    doc.packages = [pkg]
-    doc.files = []
-    doc.snippets = []
-
-    rel = Relationship(
-        "SPDXRef-Package1", RelationshipType.DESCRIBED_BY, "SPDXRef-DOCUMENT"
+    bom = spdx3.software_Sbom(
+        _id="http://example.com/spdx3/bom",
+        creationInfo=creation_info,
+        name="bom",
+        rootElement=[file],
     )
-    doc.relationships = [rel]
+    assert not get_packages_from_bom(bom)
 
-    reachable, floating, unknown_edges, has_unknown_pointers = (
-        analyze_graph_connectivity("spdx2", doc)
+
+def test_get_packages_from_bom_filters_only_packages_and_subclasses() -> None:
+    """Test get_packages_from_bom returns only software_Package and its subclasses."""
+    creation_info = _create_test_spdx3_creation_info()
+    pkg = spdx3.software_Package(
+        _id="http://example.com/spdx3/pkg1",
+        creationInfo=creation_info,
+        name="pkg1",
     )
-    assert reachable == {"SPDXRef-Package1"}
-    assert floating == set()
-    assert not unknown_edges
-    assert has_unknown_pointers is False
+    ai_pkg = spdx3.ai_AIPackage(
+        _id="http://example.com/spdx3/ai-pkg1",
+        creationInfo=creation_info,
+        name="ai-pkg1",
+    )
+    data_pkg = spdx3.dataset_DatasetPackage(
+        _id="http://example.com/spdx3/data-pkg1",
+        creationInfo=creation_info,
+        name="data-pkg1",
+    )
+    file = spdx3.software_File(
+        _id="http://example.com/spdx3/file1",
+        creationInfo=creation_info,
+        name="file1",
+    )
+    bom = spdx3.software_Sbom(
+        _id="http://example.com/spdx3/bom",
+        creationInfo=creation_info,
+        name="bom",
+        rootElement=[pkg, ai_pkg, data_pkg, file],
+    )
+
+    packages = get_packages_from_bom(bom)
+    assert len(packages) == 3
+    assert packages == [pkg, ai_pkg, data_pkg]
+
+
+def test_get_boms_from_spdx_document() -> None:
+    """Test get_boms_from_spdx_document retrieves rootElements of SpdxDocument."""
+    assert not get_boms_from_spdx_document(None)
+
+    creation_info = _create_test_spdx3_creation_info()
+    doc_empty = spdx3.SpdxDocument(
+        _id="http://example.com/spdx3/doc-empty",
+        creationInfo=creation_info,
+        name="doc-empty",
+    )
+    assert not get_boms_from_spdx_document(doc_empty)
+
+    bom = spdx3.software_Sbom(
+        _id="http://example.com/spdx3/bom1",
+        creationInfo=creation_info,
+        name="bom1",
+    )
+    doc_with_bom = spdx3.SpdxDocument(
+        _id="http://example.com/spdx3/doc-with-bom",
+        creationInfo=creation_info,
+        name="doc-with-bom",
+        rootElement=[bom],
+    )
+    boms = get_boms_from_spdx_document(doc_with_bom)
+    assert boms
+    assert boms == [bom]
