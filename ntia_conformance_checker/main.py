@@ -18,8 +18,23 @@ def main() -> None:
 
     args = get_parsed_args()
 
-    log_level = logging.DEBUG if args.verbose else logging.INFO
+    # Log floor on the shared severity scale error > warning > note > none:
+    #   -q/--quiet  -> error   (errors only)
+    #   (default)   -> warning (errors + warnings)
+    #   -v          -> note    (+ info)        [logging.INFO]
+    #   -vv/--debug -> none    (everything)    [logging.DEBUG]
+    if args.quiet:
+        log_level = logging.ERROR
+    elif args.debug or args.verbose >= 2:
+        log_level = logging.DEBUG
+    elif args.verbose >= 1:
+        log_level = logging.INFO
+    else:
+        log_level = logging.WARNING
     logging.basicConfig(level=log_level, format="%(levelname)s: %(message)s")
+
+    # Reports show extra detail (per-component misses) at -v or higher.
+    verbose = log_level <= logging.INFO
 
     logging.debug("Checking SBOM: %s", args.file)
     logging.debug("SBOM specification: %s", args.sbom_spec)
@@ -53,7 +68,7 @@ def main() -> None:
         sbom,
         output_type=args.output,
         output_file=args.output_file,
-        verbose=args.verbose,
+        verbose=verbose,
     )
 
     sys.exit(0 if sbom.compliant else 1)  # 0 indicates success
