@@ -11,7 +11,6 @@ import warnings
 from datetime import datetime, timezone
 from pathlib import Path
 from unittest import TestCase
-from unittest.mock import MagicMock
 
 import pytest
 from spdx_python_model.bindings import v3_0_1 as spdx3
