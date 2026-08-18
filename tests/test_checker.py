@@ -11,22 +11,12 @@ import warnings
 from datetime import datetime, timezone
 from pathlib import Path
 from unittest import TestCase
-from unittest.mock import MagicMock
 
 import pytest
 from spdx_python_model.bindings import v3_0_1 as spdx3
-from spdx_tools.spdx.model.document import Document
-from spdx_tools.spdx.model.file import File
-from spdx_tools.spdx.model.package import Package
-from spdx_tools.spdx.model.relationship import Relationship, RelationshipType
-from spdx_tools.spdx.model.snippet import Snippet
 
 import ntia_conformance_checker.sbom_checker as sbom_checker
 from ntia_conformance_checker import FSCT3Checker, NTIAChecker
-from ntia_conformance_checker.graph_utils import (
-    analyze_graph_connectivity,
-    get_reachable_nodes,
-)
 from ntia_conformance_checker.spdx3_utils import (
     get_boms_from_spdx_document,
     get_packages_from_bom,
