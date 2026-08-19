@@ -185,7 +185,8 @@ class BaseChecker(ABC):
 
         self.reachable_component_ids: set[str] = set()
         self.floating_component_ids: set[str] = set()
-        self.has_unknown_components: bool = False
+        # "Pointers" refers to relationship edges targeting unknown/missing elements in the graph.
+        self.has_unknown_pointers: bool = False
 
         match sbom_spec:
             case "spdx2":
