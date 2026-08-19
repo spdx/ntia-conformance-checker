@@ -18,6 +18,14 @@ if TYPE_CHECKING:
     from collections.abc import Iterator
 
 
+SPDX3_PACKAGE_DEPENDENCY_RELATIONSHIP_TYPES = (
+    "contains",
+    "dependsOn",
+    "hasDynamicLink",
+    "hasStaticLink",
+)
+
+
 def validate_spdx3_data(
     object_set: spdx3.SHACLObjectSet,
 ) -> tuple[spdx3.SpdxDocument | None, list[ValidationMessage]]:
@@ -119,7 +127,7 @@ def validate_spdx3_data(
 
 def get_boms_from_spdx_document(
     spdx_doc: spdx3.SpdxDocument | None,
-) -> list[spdx3.Bom] | None:
+) -> list[spdx3.Bom]:
     """
     Retrieve the BOMs that are rootElements of an SPDX 3 SpdxDocument.
 
@@ -127,21 +135,18 @@ def get_boms_from_spdx_document(
         spdx_doc (spdx3.SpdxDocument | None): The SPDX 3 SpdxDocument.
 
     Returns:
-        list[spdx3.Bom] | None: A list of BOMs if found, otherwise None.
+        list[spdx3.Bom]: A list of BOMs if found, otherwise an empty list.
     """
     if not spdx_doc:
-        return None
+        return []
 
-    root_elements: list[spdx3.Bom] = getattr(spdx_doc, "rootElement", [])
-    if not root_elements:
-        return None
-
-    return root_elements
+    root_elements: list[Any] = getattr(spdx_doc, "rootElement", [])
+    return [elem for elem in root_elements if isinstance(elem, spdx3.Bom)]
 
 
 def get_packages_from_bom(
     bom: spdx3.Bom | None,
-) -> list[spdx3.software_Package] | None:
+) -> list[spdx3.software_Package]:
     """
     Retrieve the /Software/Packages that are rootElements of an SPDX 3 BOM.
 
@@ -149,22 +154,20 @@ def get_packages_from_bom(
         bom (spdx3.Bom | None): The SPDX 3 Bom.
 
     Returns:
-        list[spdx3.software_Package] | None: A list of packages if found, otherwise None.
+        list[spdx3.software_Package]: A list of packages if found, otherwise an empty list.
     """
     if not bom:
-        return None
+        return []
 
-    root_elements: list[spdx3.software_Package] = getattr(bom, "rootElement", [])
-    if not root_elements or len(root_elements) != 1:
-        return None
-
-    return root_elements
+    root_elements: list[Any] = getattr(bom, "rootElement", [])
+    return [elem for elem in root_elements if isinstance(elem, spdx3.software_Package)]
 
 
 def iter_objects_with_property(
     object_set: spdx3.SHACLObjectSet,
     typ: type[spdx3.SHACLObject] = spdx3.Artifact,
     property_name: str = "spdxId",
+    reachable_ids: set[str] | None = None,
 ) -> Iterator[tuple[str, str, Any]]:
     """
     Yield (name, spdxId, property) for each SPDX 3 object.
@@ -173,6 +176,7 @@ def iter_objects_with_property(
         object_set (spdx3.SHACLObjectSet): The SHACLObjectSet to iterate over.
         typ (type[spdx3.SHACLObject]): The type of SPDX3 object
         property_name (str): The property name to retrieve.
+        reachable_ids (set[str] | None): A set of reachable SPDX IDs from root.
 
     Yields:
         Iterator[tuple[str, str, Any]]: A tuple containing the name,
@@ -182,6 +186,10 @@ def iter_objects_with_property(
     for obj in object_set.foreach_type(typ):
         name = (getattr(obj, "name", "") or "").strip()
         spdx_id = (getattr(obj, "spdxId", "") or "").strip()
+
+        if reachable_ids is not None and spdx_id not in reachable_ids:
+            continue
+
         property_ = getattr(obj, property_name, None)
         yield name, spdx_id, property_
 
@@ -218,8 +226,53 @@ def iter_relationships_by_type(
 
 
 def get_all_packages(object_set: spdx3.SHACLObjectSet) -> set[spdx3.software_Package]:
-    """Retrieve all /Software/Package objects from an SHACLObjectSet."""
+    """
+    Retrieve all /Software/Package objects from an SHACLObjectSet.
+
+    This includes instances of software_Package and its subclasses,
+    such as ai_AIPackage and dataset_DatasetPackage.
+    """
     packages: set[spdx3.software_Package] = set(
         object_set.foreach_type(spdx3.software_Package)
     )
     return packages
+
+
+def get_all_package_ids(
+    object_set: spdx3.SHACLObjectSet, reachable_ids: set[str] | None = None
+) -> set[str]:
+    """Retrieve spdxId for all /Software/Package objects from an SHACLObjectSet."""
+    return {
+        spdx_id
+        for _name, spdx_id, _ in iter_objects_with_property(
+            object_set, spdx3.software_Package, "spdxId", reachable_ids
+        )
+        if spdx_id
+    }
+
+
+def get_all_element_ids(
+    object_set: spdx3.SHACLObjectSet, reachable_ids: set[str] | None = None
+) -> set[str]:
+    """Retrieve spdxId for all SPDX 3 Element objects from an SHACLObjectSet."""
+    return {
+        spdx_id
+        for _name, spdx_id, _ in iter_objects_with_property(
+            object_set, spdx3.Element, "spdxId", reachable_ids
+        )
+        if spdx_id
+    }
+
+
+def has_package_dependency_relationship(object_set: spdx3.SHACLObjectSet) -> bool:
+    """Return True if a dependency relationship connects SPDX 3 Elements."""
+    element_ids = get_all_element_ids(object_set)
+    if len(element_ids) < 2:
+        return False
+
+    for rel_type in SPDX3_PACKAGE_DEPENDENCY_RELATIONSHIP_TYPES:
+        for from_id, to_ids in iter_relationships_by_type(object_set, rel_type):
+            if from_id in element_ids and any(to_id in element_ids for to_id in to_ids):
+                return True
+
+    return False

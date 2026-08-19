@@ -4,6 +4,10 @@ on:
   pull_request:
     branches: [ "main" ]
 
+concurrency:
+  group: ${{ github.workflow }}-${{ github.event.pull_request.number || github.ref }}
+  cancel-in-progress: true
+
 permissions:
   actions: read
   contents: read
@@ -22,17 +26,17 @@ jobs:
 
     steps:
     - name: Checkout repository
-      uses: actions/checkout@9c091bb21b7c1c1d1991bb908d89e4e9dddfe3e0  # v7.0.0
+      uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1  # v7.0.1
 
     - name: Initialize CodeQL
-      uses: github/codeql-action/init@7e3036b9cd87fc26dd06747b7aa4b96c27aaef3a  # v2.20.3
+      uses: github/codeql-action/init@ff2f1c621b7f889edc0d3c761ac2e6a3f8cdb0dd  # v4.37.7
       with:
         languages: ${{ matrix.language }}
 
     - name: Autobuild
-      uses: github/codeql-action/autobuild@7e3036b9cd87fc26dd06747b7aa4b96c27aaef3a  # v2.20.3
+      uses: github/codeql-action/autobuild@ff2f1c621b7f889edc0d3c761ac2e6a3f8cdb0dd  # v4.37.7
 
     - name: Perform CodeQL Analysis
-      uses: github/codeql-action/analyze@7e3036b9cd87fc26dd06747b7aa4b96c27aaef3a  # v2.20.3
+      uses: github/codeql-action/analyze@ff2f1c621b7f889edc0d3c761ac2e6a3f8cdb0dd  # v4.37.7
       with:
         category: "/language:${{matrix.language}}"

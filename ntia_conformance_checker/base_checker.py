@@ -25,6 +25,7 @@ from spdx_tools.spdx.validation.validation_message import (
 )
 
 from .constants import DEFAULT_SBOM_SPEC
+from .graph_utils import analyze_graph_connectivity
 from .report import (
     ReportContext,
     get_validation_messages_json,
@@ -32,8 +33,8 @@ from .report import (
     report_text,
 )
 from .spdx3_utils import (
-    get_boms_from_spdx_document,
-    get_packages_from_bom,
+    get_all_packages,
+    has_package_dependency_relationship,
     iter_objects_with_property,
     iter_relationships_by_type,
     validate_spdx3_data,
@@ -108,7 +109,7 @@ class BaseChecker(ABC):
     doc_version: bool = False  # Has SPDX document version?
     doc_author: bool = False  # Has SPDX document author?
     doc_timestamp: bool = False  # Has SPDX document creation timestamp?
-    dependency_relationships: bool = False  # Has DESCRIBES relationship?
+    dependency_relationships: bool = False  # Has dependency relationship?
     # See https://github.com/spdx/ntia-conformance-checker/issues/392
     # for discussion on dependency relationships and DESCRIBES.
 
@@ -182,6 +183,11 @@ class BaseChecker(ABC):
         self._validation_messages = []
         self._conformance_messages = []
 
+        self.reachable_component_ids: set[str] = set()
+        self.floating_component_ids: set[str] = set()
+        # "Pointers" refers to relationship edges targeting unknown/missing elements in the graph.
+        self.has_unknown_pointers: bool = False
+
         match sbom_spec:
             case "spdx2":
                 self.doc = self.parse_file()
@@ -201,6 +207,8 @@ class BaseChecker(ABC):
                 raise ValueError(f"Unsupported SBOM specification: {sbom_spec}")
 
         if self.doc:
+            self._evaluate_graph_connectivity()
+
             if validate and sbom_spec == "spdx2":
                 self.doc = cast("Document", self.doc)
                 self._validation_messages = validate_full_spdx_document(self.doc)
@@ -270,11 +278,10 @@ class BaseChecker(ABC):
         return False
 
     def check_dependency_relationships(self) -> bool:
-        """Check if the SBOM document describes at least one package.
+        """Check if the SBOM document declares dependency information.
 
         For SPDX 2 this checks for a DESCRIBES relationship; for SPDX 3 it
-        checks that a /Software/Sbom element lists at least one package in its
-        ``rootElement``.
+        checks package-level dependency relationships.
         """
         if not self.doc:
             return False
@@ -304,29 +311,8 @@ class BaseChecker(ABC):
 
         # SPDX 3
         if self.sbom_spec == "spdx3":
-            # We will assume here that the SpdxDocument's rootElement is
-            # either /Core/Bom or /Software/Sbom.
-            #
-            # If the rootElement is a /Software/Package
-            # (or its subclass),
-            # it is considered to have a DESCRIBES relationship.
-            #
-            # Note that if there is neither /Software/Package(s) nor /Core/Bom,
-            # a DESCRIBES relationship is not needed;
-            # however, this method may still return False,
-            # since it is factually considered as "no relationship".
-            #
-            # See https://github.com/spdx/ntia-conformance-checker/issues/392
-            # for discussion on dependency relationships and DESCRIBES.
-
-            # There is a BOM/SBOM and an /Software/Package,
-            # check if there is at least one package listed in any BOM/SBOM
-            boms = get_boms_from_spdx_document(self.__spdx3_doc)
-            if boms:
-                for bom in boms:
-                    packages = get_packages_from_bom(bom)
-                    if packages:
-                        return True
+            self.doc = cast("spdx3.SHACLObjectSet", self.doc)
+            return has_package_dependency_relationship(self.doc)
 
         return False
 
@@ -433,7 +419,7 @@ class BaseChecker(ABC):
             error_msg = (
                 "To have SBOM type (SBOM generation context) information, "
                 "the rootElement of the SpdxDocument shall be of type "
-                "/Software/Sbom."
+                "/Software/Sbom. "
                 f"Found: {type(root_elem).__name__!r}"
             )
             context = ValidationContext(parent_id=doc_id, spdx_id=root_elem_id)
@@ -467,7 +453,8 @@ class BaseChecker(ABC):
             return [
                 (package.name or "", package.spdx_id or "")
                 for package in packages
-                if (
+                if package.spdx_id in self.reachable_component_ids
+                and (
                     package.license_concluded is None
                     or isinstance(package.license_concluded, SpdxNoAssertion)
                     or (
@@ -506,6 +493,7 @@ class BaseChecker(ABC):
                     self.doc,
                     spdx3.software_Package,
                     "spdxId",
+                    self.reachable_component_ids,
                 )
                 if spdx_id not in has_concluded_license_ids
             ]
@@ -532,7 +520,8 @@ class BaseChecker(ABC):
             return [
                 (package.name or "", package.spdx_id or "")
                 for package in packages
-                if (
+                if package.spdx_id in self.reachable_component_ids
+                and (
                     package.copyright_text is None
                     or isinstance(package.copyright_text, SpdxNoAssertion)
                     or (
@@ -552,6 +541,7 @@ class BaseChecker(ABC):
                     self.doc,
                     spdx3.software_Package,
                     "software_copyrightText",
+                    self.reachable_component_ids,
                 )
                 if not copyright_text
                 or (isinstance(copyright_text, str) and copyright_text.strip() == "")
@@ -584,13 +574,8 @@ class BaseChecker(ABC):
             return [
                 (package.name or "", package.spdx_id or "")
                 for package in packages
-                if (
-                    package.spdx_id is None
-                    or (
-                        isinstance(package.spdx_id, str)
-                        and package.spdx_id.strip() == ""
-                    )
-                )
+                if package.spdx_id is None
+                or (isinstance(package.spdx_id, str) and package.spdx_id.strip() == "")
             ]
 
         # SPDX 3
@@ -599,8 +584,11 @@ class BaseChecker(ABC):
 
             return [
                 (name or "", spdx_id or "")
-                for name, _, spdx_id in iter_objects_with_property(
-                    self.doc, spdx3.Element, "spdxId"
+                for name, spdx_id, _ in iter_objects_with_property(
+                    self.doc,
+                    spdx3.software_Package,
+                    "spdxId",
+                    reachable_ids=None,
                 )
                 if not spdx_id or (isinstance(spdx_id, str) and spdx_id.strip() == "")
             ]
@@ -627,7 +615,8 @@ class BaseChecker(ABC):
             return [
                 (package.name or "", package.spdx_id or "")
                 for package in packages
-                if (
+                if package.spdx_id in self.reachable_component_ids
+                and (
                     package.name is None
                     or (isinstance(package.name, str) and package.name.strip() == "")
                 )
@@ -640,7 +629,10 @@ class BaseChecker(ABC):
             return [
                 (name or "", spdx_id or "")
                 for _, spdx_id, name in iter_objects_with_property(
-                    self.doc, spdx3.software_Package, "name"
+                    self.doc,
+                    spdx3.software_Package,
+                    "name",
+                    self.reachable_component_ids,
                 )
                 if not name or (isinstance(name, str) and name.strip() == "")
             ]
@@ -667,7 +659,8 @@ class BaseChecker(ABC):
             return [
                 (package.name or "", package.spdx_id or "")
                 for package in packages
-                if (
+                if package.spdx_id in self.reachable_component_ids
+                and (
                     package.supplier is None
                     or isinstance(package.supplier, SpdxNoAssertion)
                     or (
@@ -684,7 +677,10 @@ class BaseChecker(ABC):
             return [
                 (name or "", spdx_id or "")
                 for name, spdx_id, supplier in iter_objects_with_property(
-                    self.doc, spdx3.software_Package, "suppliedBy"
+                    self.doc,
+                    spdx3.software_Package,
+                    "suppliedBy",
+                    self.reachable_component_ids,
                 )
                 if not supplier
                 or (
@@ -715,7 +711,8 @@ class BaseChecker(ABC):
             return [
                 (package.name or "", package.spdx_id or "")
                 for package in packages
-                if (
+                if package.spdx_id in self.reachable_component_ids
+                and (
                     package.version is None
                     or isinstance(package.version, SpdxNoAssertion)
                     or (
@@ -732,7 +729,10 @@ class BaseChecker(ABC):
             return [
                 (name or "", spdx_id or "")
                 for name, spdx_id, package_version in iter_objects_with_property(
-                    self.doc, spdx3.software_Package, "software_packageVersion"
+                    self.doc,
+                    spdx3.software_Package,
+                    "software_packageVersion",
+                    self.reachable_component_ids,
                 )
                 if not package_version
                 or (isinstance(package_version, str) and package_version.strip() == "")
@@ -763,6 +763,10 @@ class BaseChecker(ABC):
         """
         Retrieve total number of components.
 
+        For SPDX 2, this returns the total count of packages.
+        For SPDX 3, this returns the total count of packages and package
+        subclasses (including AIPackage and DatasetPackage).
+
         Returns:
             int: The total number of components.
         """
@@ -779,8 +783,7 @@ class BaseChecker(ABC):
         # SPDX 3
         if self.sbom_spec == "spdx3":
             self.doc = cast("spdx3.SHACLObjectSet", self.doc)
-            objects: set[spdx3.SHACLObject] = getattr(self.doc, "objects", set())
-            return len(objects)
+            return len(get_all_packages(self.doc))
 
         return 0
 
@@ -970,3 +973,26 @@ class BaseChecker(ABC):
             }
 
         return result
+
+    def _evaluate_graph_connectivity(self) -> None:
+        """Evaluate graph connectivity to isolate floating nodes and unknown pointers."""
+
+        reachable, floating, _, has_unknown_pointers = analyze_graph_connectivity(
+            self.sbom_spec, self.doc, getattr(self, "_BaseChecker__spdx3_doc", None)
+        )
+
+        self.reachable_component_ids = reachable
+        self.floating_component_ids = floating
+        self.has_unknown_pointers = has_unknown_pointers
+
+        if self.floating_component_ids:
+            logging.warning(
+                "Found %d disconnected 'floating' elements. They will be ignored for compliance.",
+                len(self.floating_component_ids),
+            )
+
+        if self.has_unknown_pointers:
+            logging.error(
+                "Unknown components detected!"
+                "A relationship points to a missing element."
+            )

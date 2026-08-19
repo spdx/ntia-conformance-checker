@@ -8,6 +8,7 @@
 
 import os
 import warnings
+from datetime import datetime, timezone
 from pathlib import Path
 from unittest import TestCase
 
@@ -16,7 +17,12 @@ from spdx_python_model.bindings import v3_0_1 as spdx3
 
 import ntia_conformance_checker.sbom_checker as sbom_checker
 from ntia_conformance_checker import FSCT3Checker, NTIAChecker
-from ntia_conformance_checker.spdx3_utils import validate_spdx3_data
+from ntia_conformance_checker.spdx3_utils import (
+    get_boms_from_spdx_document,
+    get_packages_from_bom,
+    has_package_dependency_relationship,
+    validate_spdx3_data,
+)
 
 
 def _component_names(tuples_list: list[tuple[str, str]]) -> list[str]:
@@ -28,6 +34,22 @@ def _component_names(tuples_list: list[tuple[str, str]]) -> list[str]:
         t[0] if t and t[0] not in (None, "") else (t[1] if t else "")
         for t in tuples_list
     ]
+
+
+SPDX3_RELATIONSHIP_TYPE_BASE = "https://spdx.org/rdf/3.0.1/terms/Core/RelationshipType"
+
+
+def _spdx3_package_dependency_object_set() -> spdx3.SHACLObjectSet:
+    test_file = (
+        Path(__file__).parent
+        / "data"
+        / "spdx3"
+        / "package_dependency_relationship.json"
+    )
+    sbom = sbom_checker.SbomChecker(str(test_file), sbom_spec="spdx3")
+    assert sbom.doc is not None
+    assert isinstance(sbom.doc, spdx3.SHACLObjectSet)
+    return sbom.doc
 
 
 ### Test no element missing
@@ -218,7 +240,7 @@ def test_sbomchecker_missing_supplier_name(test_file: str) -> None:
     assert not sbom.components_without_versions
     TestCase().assertCountEqual(
         _component_names(sbom.components_without_suppliers),
-        ["glibc", "Jena", "Saxon"],
+        ["glibc", "Saxon"],
     )
     assert not sbom.components_without_identifiers
     assert not sbom.compliant
@@ -347,6 +369,7 @@ def test_sbomchecker_spdx3_no_elements_missing() -> None:
     assert sbom.doc_author
     assert sbom.doc_timestamp
     assert sbom.sbom_gen_context
+    assert sbom.dependency_relationships
     assert sbom.compliant
 
 
@@ -357,8 +380,58 @@ def test_sbomchecker_fsct3_spdx3_no_elements_missing() -> None:
     )
     assert sbom.doc is not None
     assert isinstance(sbom.doc, spdx3.SHACLObjectSet)
+    assert sbom.dependency_relationships
     assert sbom.compliant
     assert len(sbom.validation_messages) == 0
+
+
+def test_sbomchecker_spdx3_package_dependency_relationship() -> None:
+    test_file = (
+        Path(__file__).parent
+        / "data"
+        / "spdx3"
+        / "package_dependency_relationship.json"
+    )
+    sbom = sbom_checker.SbomChecker(str(test_file), sbom_spec="spdx3")
+    assert sbom.doc is not None
+    assert isinstance(sbom.doc, spdx3.SHACLObjectSet)
+    assert len(sbom.validation_messages) == 0
+    assert sbom.dependency_relationships
+    assert sbom.compliant
+
+
+@pytest.mark.parametrize(
+    ("relationship_type", "expected"),
+    [
+        ("dependsOn", True),
+        ("hasDynamicLink", True),
+        ("hasStaticLink", True),
+        ("contains", True),
+    ],
+)
+def test_spdx3_dependency_relationship_types(
+    relationship_type: str, expected: bool
+) -> None:
+    object_set = _spdx3_package_dependency_object_set()
+    relationship = next(object_set.foreach_type(spdx3.Relationship))
+    relationship.relationshipType = (
+        f"{SPDX3_RELATIONSHIP_TYPE_BASE}/{relationship_type}"
+    )
+    assert has_package_dependency_relationship(object_set) is expected
+
+
+def test_spdx3_dependency_relationship_accepts_element_endpoints() -> None:
+    object_set = _spdx3_package_dependency_object_set()
+    relationship = next(object_set.foreach_type(spdx3.Relationship))
+    sbom = object_set.find_by_id("https://spdx.org/spdxdocs/SBOM-package-dependency")
+    package = object_set.find_by_id("https://spdx.org/spdxdocs/Package-library")
+    assert isinstance(sbom, spdx3.Element)
+    assert isinstance(package, spdx3.Element)
+
+    relationship.from_ = sbom
+    relationship.to = [package]
+
+    assert has_package_dependency_relationship(object_set)
 
 
 def test_sbomchecker_spdx3_missing_supplier_name() -> None:
@@ -577,3 +650,161 @@ def test_deprecation_parsing_error() -> None:
     assert len(caught) == 1
     assert issubclass(caught[0].category, DeprecationWarning)
     assert "parsing_error" in str(caught[0].message)
+
+
+### Test missing relationship target
+
+dirname = os.path.join(
+    os.path.dirname(__file__),
+    "data",
+    "graph_connectivity",
+    "missing_relationship_target",
+)
+test_files_missing_target = [os.path.join(dirname, fn) for fn in os.listdir(dirname)]
+
+
+@pytest.mark.parametrize("test_file", test_files_missing_target)
+def test_missing_relationship_target(test_file: str) -> None:
+    """Test that a relationship node points to an ID that does not exist in the document."""
+    sbom = sbom_checker.SbomChecker(test_file)
+    assert sbom.compliant is False
+
+
+### Test disconnected graph
+
+dirname = os.path.join(
+    os.path.dirname(__file__), "data", "graph_connectivity", "disconnected_component"
+)
+test_files_disconnected = [os.path.join(dirname, fn) for fn in os.listdir(dirname)]
+
+
+@pytest.mark.parametrize("test_file", test_files_disconnected)
+def test_disconnected_component(test_file: str) -> None:
+    """Test that the BFS algorithm successfully isolates floating components."""
+    # Dynamically set the spec based on the filename
+    spec = "spdx3" if "spdx3" in test_file else "spdx2"
+    sbom = sbom_checker.SbomChecker(test_file, sbom_spec=spec)
+
+    # Assert the valid root package was successfully reached
+    assert any(
+        "Package-Valid" in spdx_id for spdx_id in sbom.reachable_component_ids
+    ), "The root package should be in the reachable list."
+
+    # Assert the orphan package was successfully caught as noise
+    assert any(
+        "Package-Orphan" in spdx_id for spdx_id in sbom.floating_component_ids
+    ), "The orphan package should be isolated in the floating list."
+
+    # Assert the orphan package was NOT processed for compliance
+    assert not any(
+        "Package-Orphan" in spdx_id for spdx_id in sbom.reachable_component_ids
+    ), "The orphan package MUST NOT be in the reachable list."
+
+
+### Test get_packages_from_bom and get_boms_from_spdx_document
+
+
+def _create_test_spdx3_creation_info(
+    base_iri: str = "http://example.com/spdx3",
+) -> spdx3.CreationInfo:
+    """Create a minimal valid SPDX 3 CreationInfo instance for testing."""
+    return spdx3.CreationInfo(
+        _id=f"{base_iri}/creation-info",
+        specVersion="3.0.1",
+        created=datetime.now(timezone.utc),
+        createdBy=[f"{base_iri}/actor1"],
+        createdUsing=[f"{base_iri}/tool1"],
+    )
+
+
+def test_get_packages_from_bom_none_or_empty() -> None:
+    """Test get_packages_from_bom returns empty list for None or empty rootElement."""
+    assert not get_packages_from_bom(None)
+
+    creation_info = _create_test_spdx3_creation_info()
+    bom_empty = spdx3.software_Sbom(
+        _id="http://example.com/spdx3/bom-empty",
+        creationInfo=creation_info,
+        name="bom-empty",
+    )
+    assert not get_packages_from_bom(bom_empty)
+
+
+def test_get_packages_from_bom_non_packages_only() -> None:
+    """Test get_packages_from_bom returns empty list when rootElements contain no packages."""
+    creation_info = _create_test_spdx3_creation_info()
+    file = spdx3.software_File(
+        _id="http://example.com/spdx3/file1",
+        creationInfo=creation_info,
+        name="file1",
+    )
+    bom = spdx3.software_Sbom(
+        _id="http://example.com/spdx3/bom",
+        creationInfo=creation_info,
+        name="bom",
+        rootElement=[file],
+    )
+    assert not get_packages_from_bom(bom)
+
+
+def test_get_packages_from_bom_filters_only_packages_and_subclasses() -> None:
+    """Test get_packages_from_bom returns only software_Package and its subclasses."""
+    creation_info = _create_test_spdx3_creation_info()
+    pkg = spdx3.software_Package(
+        _id="http://example.com/spdx3/pkg1",
+        creationInfo=creation_info,
+        name="pkg1",
+    )
+    ai_pkg = spdx3.ai_AIPackage(
+        _id="http://example.com/spdx3/ai-pkg1",
+        creationInfo=creation_info,
+        name="ai-pkg1",
+    )
+    data_pkg = spdx3.dataset_DatasetPackage(
+        _id="http://example.com/spdx3/data-pkg1",
+        creationInfo=creation_info,
+        name="data-pkg1",
+    )
+    file = spdx3.software_File(
+        _id="http://example.com/spdx3/file1",
+        creationInfo=creation_info,
+        name="file1",
+    )
+    bom = spdx3.software_Sbom(
+        _id="http://example.com/spdx3/bom",
+        creationInfo=creation_info,
+        name="bom",
+        rootElement=[pkg, ai_pkg, data_pkg, file],
+    )
+
+    packages = get_packages_from_bom(bom)
+    assert len(packages) == 3
+    assert packages == [pkg, ai_pkg, data_pkg]
+
+
+def test_get_boms_from_spdx_document() -> None:
+    """Test get_boms_from_spdx_document retrieves rootElements of SpdxDocument."""
+    assert not get_boms_from_spdx_document(None)
+
+    creation_info = _create_test_spdx3_creation_info()
+    doc_empty = spdx3.SpdxDocument(
+        _id="http://example.com/spdx3/doc-empty",
+        creationInfo=creation_info,
+        name="doc-empty",
+    )
+    assert not get_boms_from_spdx_document(doc_empty)
+
+    bom = spdx3.software_Sbom(
+        _id="http://example.com/spdx3/bom1",
+        creationInfo=creation_info,
+        name="bom1",
+    )
+    doc_with_bom = spdx3.SpdxDocument(
+        _id="http://example.com/spdx3/doc-with-bom",
+        creationInfo=creation_info,
+        name="doc-with-bom",
+        rootElement=[bom],
+    )
+    boms = get_boms_from_spdx_document(doc_with_bom)
+    assert boms
+    assert boms == [bom]

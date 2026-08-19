@@ -1,0 +1,104 @@
+{
+  "@context": "https://spdx.org/rdf/3.0.1/spdx-context.jsonld",
+  "@graph": [
+    {
+      "type": "CreationInfo",
+      "@id": "_:creationinfo",
+      "specVersion": "3.0.1",
+      "createdBy": [
+        "https://swinslow.net/spdx-examples/SPDXRef-Person1"
+      ],
+      "created": "2026-07-01T12:00:00Z"
+    },
+    {
+      "type": "Person",
+      "spdxId": "https://swinslow.net/spdx-examples/SPDXRef-Person1",
+      "creationInfo": "_:creationinfo",
+      "name": "Induwara"
+    },
+    {
+      "type": "Organization",
+      "spdxId": "https://swinslow.net/spdx-examples/SPDXRef-Supplier",
+      "creationInfo": "_:creationinfo",
+      "name": "Test Supplier"
+    },
+    {
+      "type": "simplelicensing_LicenseExpression",
+      "spdxId": "https://swinslow.net/spdx-examples/SPDXRef-CC0",
+      "creationInfo": "_:creationinfo",
+      "simplelicensing_licenseExpression": "CC0-1.0"
+    },
+    {
+      "type": "SpdxDocument",
+      "spdxId": "https://swinslow.net/spdx-examples/document1",
+      "creationInfo": "_:creationinfo",
+      "profileConformance": [
+        "core",
+        "software"
+      ],
+      "dataLicense": "https://swinslow.net/spdx-examples/SPDXRef-CC0",
+      "rootElement": [
+        "https://swinslow.net/spdx-examples/SBOM1"
+      ],
+      "name": "Orphan-Component-Test-SBOM"
+    },
+    {
+      "type": "software_Sbom",
+      "spdxId": "https://swinslow.net/spdx-examples/SBOM1",
+      "creationInfo": "_:creationinfo",
+      "profileConformance": [
+        "core",
+        "software"
+      ],
+      "rootElement": [
+        "https://swinslow.net/spdx-examples/SPDXRef-Package-Valid"
+      ],
+      "software_sbomType": [
+        "analyzed"
+      ]
+    },
+    {
+      "type": "software_Package",
+      "spdxId": "https://swinslow.net/spdx-examples/SPDXRef-Package-Valid",
+      "creationInfo": "_:creationinfo",
+      "name": "Valid-Root-Package",
+      "software_packageVersion": "1.0.0",
+      "suppliedBy": "https://swinslow.net/spdx-examples/SPDXRef-Supplier"
+    },
+    {
+      "type": "software_Package",
+      "spdxId": "https://swinslow.net/spdx-examples/SPDXRef-Package-Orphan",
+      "creationInfo": "_:creationinfo",
+      "name": "",
+      "software_packageVersion": "9.9.9"
+    },
+    {
+      "type": "software_Package",
+      "spdxId": "https://swinslow.net/spdx-examples/SPDXRef-Package-Sub",
+      "name": "Valid-Sub-Package",
+      "software_packageVersion": "2.0",
+      "suppliedBy": "https://swinslow.net/spdx-examples/SPDXRef-Supplier",
+      "creationInfo": "_:creationinfo"
+    },
+    {
+      "type": "Relationship",
+      "spdxId": "https://swinslow.net/spdx-examples/SPDXRef-RelValid-1",
+      "relationshipType": "contains",
+      "from": "https://swinslow.net/spdx-examples/SPDXRef-Package-Valid",
+      "to": [
+        "https://swinslow.net/spdx-examples/SPDXRef-Package-Sub"
+      ],
+      "creationInfo": "_:creationinfo"
+    },
+    {
+      "type": "Relationship",
+      "spdxId": "https://swinslow.net/spdx-examples/SPDXRef-RelValid-2",
+      "creationInfo": "_:creationinfo",
+      "relationshipType": "describes",
+      "from": "https://swinslow.net/spdx-examples/document1",
+      "to": [
+        "https://swinslow.net/spdx-examples/SPDXRef-Package-Valid"
+      ]
+    }
+  ]
+}
