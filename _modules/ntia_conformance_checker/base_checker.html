@@ -223,7 +223,8 @@
 
         <span class="bp">self</span><span class="o">.</span><span class="n">reachable_component_ids</span><span class="p">:</span> <span class="nb">set</span><span class="p">[</span><span class="nb">str</span><span class="p">]</span> <span class="o">=</span> <span class="nb">set</span><span class="p">()</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">floating_component_ids</span><span class="p">:</span> <span class="nb">set</span><span class="p">[</span><span class="nb">str</span><span class="p">]</span> <span class="o">=</span> <span class="nb">set</span><span class="p">()</span>
-        <span class="bp">self</span><span class="o">.</span><span class="n">has_unknown_components</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">False</span>
+        <span class="c1"># "Pointers" refers to relationship edges targeting unknown/missing elements in the graph.</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">has_unknown_pointers</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">False</span>
 
         <span class="k">match</span> <span class="n">sbom_spec</span><span class="p">:</span>
             <span class="k">case</span> <span class="s2">"spdx2"</span><span class="p">:</span>
@@ -640,14 +641,8 @@
             <span class="k">return</span> <span class="p">[</span>
                 <span class="p">(</span><span class="n">package</span><span class="o">.</span><span class="n">name</span> <span class="ow">or</span> <span class="s2">""</span><span class="p">,</span> <span class="n">package</span><span class="o">.</span><span class="n">spdx_id</span> <span class="ow">or</span> <span class="s2">""</span><span class="p">)</span>
                 <span class="k">for</span> <span class="n">package</span> <span class="ow">in</span> <span class="n">packages</span>
-                <span class="k">if</span> <span class="n">package</span><span class="o">.</span><span class="n">spdx_id</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">reachable_component_ids</span>
-                <span class="ow">and</span> <span class="p">(</span>
-                    <span class="n">package</span><span class="o">.</span><span class="n">spdx_id</span> <span class="ow">is</span> <span class="kc">None</span>
-                    <span class="ow">or</span> <span class="p">(</span>
-                        <span class="nb">isinstance</span><span class="p">(</span><span class="n">package</span><span class="o">.</span><span class="n">spdx_id</span><span class="p">,</span> <span class="nb">str</span><span class="p">)</span>
-                        <span class="ow">and</span> <span class="n">package</span><span class="o">.</span><span class="n">spdx_id</span><span class="o">.</span><span class="n">strip</span><span class="p">()</span> <span class="o">==</span> <span class="s2">""</span>
-                    <span class="p">)</span>
-                <span class="p">)</span>
+                <span class="k">if</span> <span class="n">package</span><span class="o">.</span><span class="n">spdx_id</span> <span class="ow">is</span> <span class="kc">None</span>
+                <span class="ow">or</span> <span class="p">(</span><span class="nb">isinstance</span><span class="p">(</span><span class="n">package</span><span class="o">.</span><span class="n">spdx_id</span><span class="p">,</span> <span class="nb">str</span><span class="p">)</span> <span class="ow">and</span> <span class="n">package</span><span class="o">.</span><span class="n">spdx_id</span><span class="o">.</span><span class="n">strip</span><span class="p">()</span> <span class="o">==</span> <span class="s2">""</span><span class="p">)</span>
             <span class="p">]</span>
 
         <span class="c1"># SPDX 3</span>
@@ -656,8 +651,11 @@
 
             <span class="k">return</span> <span class="p">[</span>
                 <span class="p">(</span><span class="n">name</span> <span class="ow">or</span> <span class="s2">""</span><span class="p">,</span> <span class="n">spdx_id</span> <span class="ow">or</span> <span class="s2">""</span><span class="p">)</span>
-                <span class="k">for</span> <span class="n">name</span><span class="p">,</span> <span class="n">_</span><span class="p">,</span> <span class="n">spdx_id</span> <span class="ow">in</span> <span class="n">iter_objects_with_property</span><span class="p">(</span>
-                    <span class="bp">self</span><span class="o">.</span><span class="n">doc</span><span class="p">,</span> <span class="n">spdx3</span><span class="o">.</span><span class="n">Element</span><span class="p">,</span> <span class="s2">"spdxId"</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">reachable_component_ids</span>
+                <span class="k">for</span> <span class="n">name</span><span class="p">,</span> <span class="n">spdx_id</span><span class="p">,</span> <span class="n">_</span> <span class="ow">in</span> <span class="n">iter_objects_with_property</span><span class="p">(</span>
+                    <span class="bp">self</span><span class="o">.</span><span class="n">doc</span><span class="p">,</span>
+                    <span class="n">spdx3</span><span class="o">.</span><span class="n">software_Package</span><span class="p">,</span>
+                    <span class="s2">"spdxId"</span><span class="p">,</span>
+                    <span class="n">reachable_ids</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span>
                 <span class="p">)</span>
                 <span class="k">if</span> <span class="ow">not</span> <span class="n">spdx_id</span> <span class="ow">or</span> <span class="p">(</span><span class="nb">isinstance</span><span class="p">(</span><span class="n">spdx_id</span><span class="p">,</span> <span class="nb">str</span><span class="p">)</span> <span class="ow">and</span> <span class="n">spdx_id</span><span class="o">.</span><span class="n">strip</span><span class="p">()</span> <span class="o">==</span> <span class="s2">""</span><span class="p">)</span>
             <span class="p">]</span>
