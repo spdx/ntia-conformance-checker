@@ -4,6 +4,7 @@
 
 """Graph utilities for SPDX 2 and SPDX 3."""
 
+import logging
 from typing import TYPE_CHECKING, Any, cast
 
 from spdx_python_model.bindings import v3_0_1 as spdx3
@@ -116,6 +117,12 @@ def analyze_graph_connectivity(
 
     floating_component_ids = all_package_ids - reachable_component_ids
     has_unknown_pointers = bool(unknown_pointer_edges)
+
+    if not reachable_node_ids.issubset(all_known_ids) and not has_unknown_pointers:
+        logging.error(
+            "Traversal bug: BFS reached a node absent from all_known_ids, "
+            "but unknown_pointer_edges did not record it."
+        )
 
     return (
         reachable_component_ids,
