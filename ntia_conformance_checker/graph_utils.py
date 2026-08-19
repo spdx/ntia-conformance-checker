@@ -135,11 +135,10 @@ def _extract_spdx3_collection_edges(
     if col_id not in graph_connection_map:
         graph_connection_map[col_id] = []
 
-    for attr in ("rootElement", "element"):
-        for elem in getattr(obj, attr, []):
-            e_id = elem if isinstance(elem, str) else getattr(elem, "spdxId", "")
-            if e_id:
-                graph_connection_map[col_id].append(e_id)
+    for elem in getattr(obj, "rootElement", []):
+        e_id = elem if isinstance(elem, str) else getattr(elem, "spdxId", "")
+        if e_id:
+            graph_connection_map[col_id].append(e_id)
 
 
 def _build_spdx3_graph(
