@@ -30,12 +30,17 @@ from .constants import (
 if TYPE_CHECKING:
     from .base_checker import BaseChecker
 
+# Advertised report output types (shown in --help / README).
 _OUTPUT_CHOICES = {
-    "print": "Print report to console",
+    "print": "Report in regular text format",
     "json": "Report in JSON format",
     "html": "Report in HTML format",
-    "quiet": "No output unless there are errors",
+    "none": "No report",
 }
+
+# Undocumented alias for backward compatibility. Not in _OUTPUT_CHOICES
+# because "quiet" is the log-verbosity flag (-q/--quiet).
+_OUTPUT_ALIASES = {"quiet": "none"}
 
 
 def get_parsed_args() -> argparse.Namespace:
@@ -102,6 +107,7 @@ def get_parsed_args() -> argparse.Namespace:
         help=argparse.SUPPRESS,  # hide from help
     )
     parser.add_argument(
+        "-k",
         "--skip-validation",
         action="store_true",
         default=False,
@@ -110,7 +116,7 @@ def get_parsed_args() -> argparse.Namespace:
     parser.add_argument(
         "-r",
         "--output",
-        choices=sorted(_OUTPUT_CHOICES),
+        metavar="TYPE",
         default="print",
         help="Report output type; see below for details [default: print]",
     )
@@ -128,8 +134,22 @@ def get_parsed_args() -> argparse.Namespace:
     parser.add_argument(
         "-v",
         "--verbose",
+        action="count",
+        default=0,
+        help="Increase log verbosity: -v = info, -vv = debug",
+    )
+    parser.add_argument(
+        "--debug",
         action="store_true",
-        help="Print more information (debug)",
+        default=False,
+        help="Set log verbosity to debug (same as -vv)",
+    )
+    parser.add_argument(
+        "-q",
+        "--quiet",
+        action="store_true",
+        default=False,
+        help="Quiet logs: show errors only",
     )
     parser.add_argument(
         "-V",
@@ -139,6 +159,15 @@ def get_parsed_args() -> argparse.Namespace:
     )
 
     args = parser.parse_args()
+
+    # Normalise the report output type: map undocumented aliases and validate.
+    if args.output in _OUTPUT_ALIASES:
+        args.output = _OUTPUT_ALIASES[args.output]
+    if args.output not in _OUTPUT_CHOICES:
+        parser.error(
+            f"argument -r/--output: invalid choice: {args.output!r} "
+            f"(choose from {', '.join(sorted(_OUTPUT_CHOICES))})"
+        )
 
     if getattr(args, "file_opt", None):
         args.file = args.file_opt
@@ -312,4 +341,4 @@ def print_output(
             else:
                 print(html_output)
 
-    # do nothing if output_type is "quiet" or unrecognized
+    # "none" (and its alias "quiet") emit no report.
