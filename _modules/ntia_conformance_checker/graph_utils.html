@@ -31,12 +31,13 @@
           <div class="body" role="main">
             
   <h1>Source code for ntia_conformance_checker.graph_utils</h1><div class="highlight"><pre>
-<span></span><span class="c1"># SPDX-FileCopyrightText: 2025 SPDX contributors</span>
+<span></span><span class="c1"># SPDX-FileCopyrightText: 2026 SPDX contributors</span>
 <span class="c1"># SPDX-FileType: SOURCE</span>
 <span class="c1"># SPDX-License-Identifier: Apache-2.0</span>
 
 <span class="sd">"""Graph utilities for SPDX 2 and SPDX 3."""</span>
 
+<span class="kn">import</span><span class="w"> </span><span class="nn">logging</span>
 <span class="kn">from</span><span class="w"> </span><span class="nn">typing</span><span class="w"> </span><span class="kn">import</span> <span class="n">TYPE_CHECKING</span><span class="p">,</span> <span class="n">Any</span><span class="p">,</span> <span class="n">cast</span>
 
 <span class="kn">from</span><span class="w"> </span><span class="nn">spdx_python_model.bindings</span><span class="w"> </span><span class="kn">import</span> <span class="n">v3_0_1</span> <span class="k">as</span> <span class="n">spdx3</span>
@@ -141,8 +142,6 @@
         <span class="p">)</span>
 
     <span class="n">reachable_component_ids</span> <span class="o">=</span> <span class="n">reachable_node_ids</span> <span class="o">&amp;</span> <span class="n">all_package_ids</span>
-    <span class="n">floating_component_ids</span> <span class="o">=</span> <span class="n">all_package_ids</span> <span class="o">-</span> <span class="n">reachable_component_ids</span>
-    <span class="n">has_unknown_pointers</span> <span class="o">=</span> <span class="ow">not</span> <span class="n">reachable_node_ids</span><span class="o">.</span><span class="n">issubset</span><span class="p">(</span><span class="n">all_known_ids</span><span class="p">)</span>
 
     <span class="c1"># Find exactly which edges point to unknown nodes</span>
     <span class="n">unknown_pointer_edges</span><span class="p">:</span> <span class="nb">dict</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="nb">list</span><span class="p">[</span><span class="nb">str</span><span class="p">]]</span> <span class="o">=</span> <span class="p">{}</span>
@@ -150,6 +149,15 @@
         <span class="n">missing_targets</span> <span class="o">=</span> <span class="p">[</span><span class="n">t</span> <span class="k">for</span> <span class="n">t</span> <span class="ow">in</span> <span class="n">target_ids</span> <span class="k">if</span> <span class="n">t</span> <span class="ow">not</span> <span class="ow">in</span> <span class="n">all_known_ids</span><span class="p">]</span>
         <span class="k">if</span> <span class="n">missing_targets</span><span class="p">:</span>
             <span class="n">unknown_pointer_edges</span><span class="p">[</span><span class="n">source_id</span><span class="p">]</span> <span class="o">=</span> <span class="n">missing_targets</span>
+
+    <span class="n">floating_component_ids</span> <span class="o">=</span> <span class="n">all_package_ids</span> <span class="o">-</span> <span class="n">reachable_component_ids</span>
+    <span class="n">has_unknown_pointers</span> <span class="o">=</span> <span class="nb">bool</span><span class="p">(</span><span class="n">unknown_pointer_edges</span><span class="p">)</span>
+
+    <span class="k">if</span> <span class="ow">not</span> <span class="n">reachable_node_ids</span><span class="o">.</span><span class="n">issubset</span><span class="p">(</span><span class="n">all_known_ids</span><span class="p">)</span> <span class="ow">and</span> <span class="ow">not</span> <span class="n">has_unknown_pointers</span><span class="p">:</span>
+        <span class="n">logging</span><span class="o">.</span><span class="n">error</span><span class="p">(</span>
+            <span class="s2">"Traversal bug: BFS reached a node absent from all_known_ids, "</span>
+            <span class="s2">"but unknown_pointer_edges did not record it."</span>
+        <span class="p">)</span>
 
     <span class="k">return</span> <span class="p">(</span>
         <span class="n">reachable_component_ids</span><span class="p">,</span>
@@ -243,11 +251,10 @@
     <span class="k">if</span> <span class="n">col_id</span> <span class="ow">not</span> <span class="ow">in</span> <span class="n">graph_connection_map</span><span class="p">:</span>
         <span class="n">graph_connection_map</span><span class="p">[</span><span class="n">col_id</span><span class="p">]</span> <span class="o">=</span> <span class="p">[]</span>
 
-    <span class="k">for</span> <span class="n">attr</span> <span class="ow">in</span> <span class="p">(</span><span class="s2">"rootElement"</span><span class="p">,</span> <span class="s2">"element"</span><span class="p">):</span>
-        <span class="k">for</span> <span class="n">elem</span> <span class="ow">in</span> <span class="nb">getattr</span><span class="p">(</span><span class="n">obj</span><span class="p">,</span> <span class="n">attr</span><span class="p">,</span> <span class="p">[]):</span>
-            <span class="n">e_id</span> <span class="o">=</span> <span class="n">elem</span> <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">elem</span><span class="p">,</span> <span class="nb">str</span><span class="p">)</span> <span class="k">else</span> <span class="nb">getattr</span><span class="p">(</span><span class="n">elem</span><span class="p">,</span> <span class="s2">"spdxId"</span><span class="p">,</span> <span class="s2">""</span><span class="p">)</span>
-            <span class="k">if</span> <span class="n">e_id</span><span class="p">:</span>
-                <span class="n">graph_connection_map</span><span class="p">[</span><span class="n">col_id</span><span class="p">]</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">e_id</span><span class="p">)</span>
+    <span class="k">for</span> <span class="n">elem</span> <span class="ow">in</span> <span class="nb">getattr</span><span class="p">(</span><span class="n">obj</span><span class="p">,</span> <span class="s2">"rootElement"</span><span class="p">,</span> <span class="p">[]):</span>
+        <span class="n">e_id</span> <span class="o">=</span> <span class="n">elem</span> <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">elem</span><span class="p">,</span> <span class="nb">str</span><span class="p">)</span> <span class="k">else</span> <span class="nb">getattr</span><span class="p">(</span><span class="n">elem</span><span class="p">,</span> <span class="s2">"spdxId"</span><span class="p">,</span> <span class="s2">""</span><span class="p">)</span>
+        <span class="k">if</span> <span class="n">e_id</span><span class="p">:</span>
+            <span class="n">graph_connection_map</span><span class="p">[</span><span class="n">col_id</span><span class="p">]</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">e_id</span><span class="p">)</span>
 
 
 <span class="k">def</span><span class="w"> </span><span class="nf">_build_spdx3_graph</span><span class="p">(</span>

@@ -39,7 +39,6 @@
 
 <span class="kn">from</span><span class="w"> </span><span class="nn">__future__</span><span class="w"> </span><span class="kn">import</span> <span class="n">annotations</span>
 
-<span class="kn">import</span><span class="w"> </span><span class="nn">json</span>
 <span class="kn">import</span><span class="w"> </span><span class="nn">logging</span>
 <span class="kn">import</span><span class="w"> </span><span class="nn">os</span>
 <span class="kn">import</span><span class="w"> </span><span class="nn">warnings</span>
@@ -70,6 +69,7 @@
     <span class="n">has_package_dependency_relationship</span><span class="p">,</span>
     <span class="n">iter_objects_with_property</span><span class="p">,</span>
     <span class="n">iter_relationships_by_type</span><span class="p">,</span>
+    <span class="n">parse_spdx3_file</span><span class="p">,</span>
     <span class="n">validate_spdx3_data</span><span class="p">,</span>
 <span class="p">)</span>
 
@@ -223,6 +223,8 @@
 
         <span class="bp">self</span><span class="o">.</span><span class="n">reachable_component_ids</span><span class="p">:</span> <span class="nb">set</span><span class="p">[</span><span class="nb">str</span><span class="p">]</span> <span class="o">=</span> <span class="nb">set</span><span class="p">()</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">floating_component_ids</span><span class="p">:</span> <span class="nb">set</span><span class="p">[</span><span class="nb">str</span><span class="p">]</span> <span class="o">=</span> <span class="nb">set</span><span class="p">()</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">unknown_pointer_edges</span><span class="p">:</span> <span class="nb">dict</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="nb">list</span><span class="p">[</span><span class="nb">str</span><span class="p">]]</span> <span class="o">=</span> <span class="p">{}</span>
+
         <span class="c1"># "Pointers" refers to relationship edges targeting unknown/missing elements in the graph.</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">has_unknown_pointers</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">False</span>
 
@@ -230,7 +232,9 @@
             <span class="k">case</span> <span class="s2">"spdx2"</span><span class="p">:</span>
                 <span class="bp">self</span><span class="o">.</span><span class="n">doc</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">parse_file</span><span class="p">()</span>
             <span class="k">case</span> <span class="s2">"spdx3"</span><span class="p">:</span>
-                <span class="n">object_set</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">parse_spdx3_file</span><span class="p">()</span>
+                <span class="n">object_set</span><span class="p">,</span> <span class="n">parsing_errors</span> <span class="o">=</span> <span class="n">parse_spdx3_file</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">file</span><span class="p">)</span>
+                <span class="bp">self</span><span class="o">.</span><span class="n">_parsing_errors</span><span class="o">.</span><span class="n">extend</span><span class="p">(</span><span class="n">parsing_errors</span><span class="p">)</span>
+
                 <span class="k">if</span> <span class="ow">not</span> <span class="n">object_set</span><span class="p">:</span>
                     <span class="n">logging</span><span class="o">.</span><span class="n">error</span><span class="p">(</span><span class="s2">"Failed to parse the SPDX 3 file."</span><span class="p">)</span>
                 <span class="k">else</span><span class="p">:</span>
@@ -909,35 +913,6 @@
         <span class="k">return</span> <span class="n">cast</span><span class="p">(</span><span class="s2">"Document"</span><span class="p">,</span> <span class="n">doc</span><span class="p">)</span></div>
 
 
-<div class="viewcode-block" id="BaseChecker.parse_spdx3_file">
-<a class="viewcode-back" href="../../ntia_conformance_checker.html#ntia_conformance_checker.base_checker.BaseChecker.parse_spdx3_file">[docs]</a>
-    <span class="k">def</span><span class="w"> </span><span class="nf">parse_spdx3_file</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">spdx3</span><span class="o">.</span><span class="n">SHACLObjectSet</span> <span class="o">|</span> <span class="kc">None</span><span class="p">:</span>
-<span class="w">        </span><span class="sd">"""</span>
-<span class="sd">        Parse SPDX 3 SBOM document.</span>
-
-<span class="sd">        Returns:</span>
-<span class="sd">            spdx3.SHACLObjectSet | None: An SHACLObjectSet if successful, otherwise None.</span>
-<span class="sd">        """</span>
-        <span class="k">if</span> <span class="ow">not</span> <span class="bp">self</span><span class="o">.</span><span class="n">file</span> <span class="ow">or</span> <span class="nb">str</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">file</span><span class="p">)</span><span class="o">.</span><span class="n">strip</span><span class="p">()</span> <span class="o">==</span> <span class="s2">""</span><span class="p">:</span>
-            <span class="n">logging</span><span class="o">.</span><span class="n">error</span><span class="p">(</span><span class="s2">"No file path provided."</span><span class="p">)</span>
-            <span class="k">return</span> <span class="kc">None</span>
-
-        <span class="k">if</span> <span class="ow">not</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">exists</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">file</span><span class="p">):</span>
-            <span class="n">logging</span><span class="o">.</span><span class="n">error</span><span class="p">(</span><span class="s2">"File not found: </span><span class="si">%s</span><span class="s2">"</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">file</span><span class="p">)</span>
-            <span class="k">return</span> <span class="kc">None</span>
-
-        <span class="n">object_set</span><span class="p">:</span> <span class="n">spdx3</span><span class="o">.</span><span class="n">SHACLObjectSet</span> <span class="o">=</span> <span class="n">spdx3</span><span class="o">.</span><span class="n">SHACLObjectSet</span><span class="p">()</span>
-        <span class="k">try</span><span class="p">:</span>
-            <span class="k">with</span> <span class="nb">open</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">file</span><span class="p">,</span> <span class="s2">"rb"</span><span class="p">)</span> <span class="k">as</span> <span class="n">f</span><span class="p">:</span>
-                <span class="n">spdx3</span><span class="o">.</span><span class="n">JSONLDDeserializer</span><span class="p">()</span><span class="o">.</span><span class="n">read</span><span class="p">(</span><span class="n">f</span><span class="p">,</span> <span class="n">object_set</span><span class="p">)</span>
-        <span class="k">except</span> <span class="p">(</span><span class="ne">OSError</span><span class="p">,</span> <span class="n">json</span><span class="o">.</span><span class="n">JSONDecodeError</span><span class="p">)</span> <span class="k">as</span> <span class="n">err</span><span class="p">:</span>
-            <span class="n">logging</span><span class="o">.</span><span class="n">warning</span><span class="p">(</span><span class="s2">"SPDX3 deserialization failed: </span><span class="si">%s</span><span class="s2">"</span><span class="p">,</span> <span class="n">err</span><span class="p">)</span>
-            <span class="bp">self</span><span class="o">.</span><span class="n">_parsing_errors</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="nb">str</span><span class="p">(</span><span class="n">err</span><span class="p">))</span>
-            <span class="k">return</span> <span class="kc">None</span>
-
-        <span class="k">return</span> <span class="n">object_set</span></div>
-
-
 <div class="viewcode-block" id="BaseChecker.print_components_missing_info">
 <a class="viewcode-back" href="../../ntia_conformance_checker.html#ntia_conformance_checker.base_checker.BaseChecker.print_components_missing_info">[docs]</a>
     <span class="k">def</span><span class="w"> </span><span class="nf">print_components_missing_info</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
@@ -986,6 +961,8 @@
             <span class="n">validation_messages</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">_validation_messages</span><span class="p">,</span>
             <span class="n">conformance_messages</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">_conformance_messages</span><span class="p">,</span>
             <span class="n">parsing_errors</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">_parsing_errors</span><span class="p">,</span>
+            <span class="n">unknown_pointer_edges</span><span class="o">=</span><span class="nb">getattr</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="s2">"unknown_pointer_edges"</span><span class="p">,</span> <span class="p">{}),</span>
+            <span class="n">floating_component_ids</span><span class="o">=</span><span class="nb">getattr</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="s2">"floating_component_ids"</span><span class="p">,</span> <span class="nb">set</span><span class="p">()),</span>
         <span class="p">)</span>
 
         <span class="nb">print</span><span class="p">(</span><span class="n">report_text</span><span class="p">(</span><span class="n">report_context</span><span class="p">,</span> <span class="n">verbose</span><span class="p">))</span></div>
@@ -1009,6 +986,8 @@
             <span class="n">validation_messages</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">_validation_messages</span><span class="p">,</span>
             <span class="n">conformance_messages</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">_conformance_messages</span><span class="p">,</span>
             <span class="n">parsing_errors</span><span class="o">=</span><span class="bp">self</span><span class="o">.</span><span class="n">_parsing_errors</span><span class="p">,</span>
+            <span class="n">unknown_pointer_edges</span><span class="o">=</span><span class="nb">getattr</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="s2">"unknown_pointer_edges"</span><span class="p">,</span> <span class="p">{}),</span>
+            <span class="n">floating_component_ids</span><span class="o">=</span><span class="nb">getattr</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="s2">"floating_component_ids"</span><span class="p">,</span> <span class="nb">set</span><span class="p">()),</span>
         <span class="p">)</span>
 
         <span class="k">return</span> <span class="n">report_html</span><span class="p">(</span><span class="n">report_context</span><span class="p">,</span> <span class="n">verbose</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span></div>
@@ -1044,6 +1023,20 @@
                 <span class="bp">self</span><span class="p">,</span> <span class="s2">"dependency_relationships"</span><span class="p">,</span> <span class="kc">False</span>
             <span class="p">),</span>
             <span class="s2">"totalNumberComponents"</span><span class="p">:</span> <span class="bp">self</span><span class="o">.</span><span class="n">get_total_number_components</span><span class="p">(),</span>
+            <span class="s2">"graphValidation"</span><span class="p">:</span> <span class="p">{</span>
+                <span class="s2">"unknownPointers"</span><span class="p">:</span> <span class="p">{</span>
+                    <span class="s2">"hasUnknownPointers"</span><span class="p">:</span> <span class="nb">getattr</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="s2">"has_unknown_pointers"</span><span class="p">,</span> <span class="kc">False</span><span class="p">),</span>
+                    <span class="s2">"unknownPointerEdges"</span><span class="p">:</span> <span class="nb">getattr</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="s2">"unknown_pointer_edges"</span><span class="p">,</span> <span class="p">{}),</span>
+                <span class="p">},</span>
+                <span class="s2">"floatingComponents"</span><span class="p">:</span> <span class="p">{</span>
+                    <span class="s2">"floatingComponentCount"</span><span class="p">:</span> <span class="nb">len</span><span class="p">(</span>
+                        <span class="nb">getattr</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="s2">"floating_component_ids"</span><span class="p">,</span> <span class="nb">set</span><span class="p">())</span>
+                    <span class="p">),</span>
+                    <span class="s2">"floatingComponentIds"</span><span class="p">:</span> <span class="nb">list</span><span class="p">(</span>
+                        <span class="nb">getattr</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="s2">"floating_component_ids"</span><span class="p">,</span> <span class="nb">set</span><span class="p">())</span>
+                    <span class="p">),</span>
+                <span class="p">},</span>
+            <span class="p">},</span>
         <span class="p">}</span>
 
         <span class="n">_groups</span> <span class="o">=</span> <span class="p">{</span>
@@ -1075,12 +1068,15 @@
     <span class="k">def</span><span class="w"> </span><span class="nf">_evaluate_graph_connectivity</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
 <span class="w">        </span><span class="sd">"""Evaluate graph connectivity to isolate floating nodes and unknown pointers."""</span>
 
-        <span class="n">reachable</span><span class="p">,</span> <span class="n">floating</span><span class="p">,</span> <span class="n">_</span><span class="p">,</span> <span class="n">has_unknown_pointers</span> <span class="o">=</span> <span class="n">analyze_graph_connectivity</span><span class="p">(</span>
-            <span class="bp">self</span><span class="o">.</span><span class="n">sbom_spec</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">doc</span><span class="p">,</span> <span class="nb">getattr</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="s2">"_BaseChecker__spdx3_doc"</span><span class="p">,</span> <span class="kc">None</span><span class="p">)</span>
+        <span class="n">reachable</span><span class="p">,</span> <span class="n">floating</span><span class="p">,</span> <span class="n">unknown_pointer_edges</span><span class="p">,</span> <span class="n">has_unknown_pointers</span> <span class="o">=</span> <span class="p">(</span>
+            <span class="n">analyze_graph_connectivity</span><span class="p">(</span>
+                <span class="bp">self</span><span class="o">.</span><span class="n">sbom_spec</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">doc</span><span class="p">,</span> <span class="nb">getattr</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="s2">"_BaseChecker__spdx3_doc"</span><span class="p">,</span> <span class="kc">None</span><span class="p">)</span>
+            <span class="p">)</span>
         <span class="p">)</span>
 
         <span class="bp">self</span><span class="o">.</span><span class="n">reachable_component_ids</span> <span class="o">=</span> <span class="n">reachable</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">floating_component_ids</span> <span class="o">=</span> <span class="n">floating</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">unknown_pointer_edges</span> <span class="o">=</span> <span class="n">unknown_pointer_edges</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">has_unknown_pointers</span> <span class="o">=</span> <span class="n">has_unknown_pointers</span>
 
         <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">floating_component_ids</span><span class="p">:</span>
@@ -1092,7 +1088,7 @@
         <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">has_unknown_pointers</span><span class="p">:</span>
             <span class="n">logging</span><span class="o">.</span><span class="n">error</span><span class="p">(</span>
                 <span class="s2">"Unknown components detected!"</span>
-                <span class="s2">"A relationship points to a missing element."</span>
+                <span class="s2">" A relationship points to a missing element."</span>
             <span class="p">)</span></div>
 
 </pre></div>

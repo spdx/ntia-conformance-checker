@@ -69,7 +69,9 @@
     <span class="n">components_without_info</span><span class="p">:</span> <span class="nb">list</span><span class="p">[</span><span class="nb">tuple</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="nb">list</span><span class="p">[</span><span class="nb">tuple</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="nb">str</span><span class="p">]]]]</span> <span class="o">|</span> <span class="kc">None</span> <span class="o">=</span> <span class="kc">None</span>
     <span class="n">validation_messages</span><span class="p">:</span> <span class="nb">list</span><span class="p">[</span><span class="n">ValidationMessage</span><span class="p">]</span> <span class="o">|</span> <span class="kc">None</span> <span class="o">=</span> <span class="kc">None</span>
     <span class="n">conformance_messages</span><span class="p">:</span> <span class="nb">list</span><span class="p">[</span><span class="n">ValidationMessage</span><span class="p">]</span> <span class="o">|</span> <span class="kc">None</span> <span class="o">=</span> <span class="kc">None</span>
-    <span class="n">parsing_errors</span><span class="p">:</span> <span class="nb">list</span><span class="p">[</span><span class="nb">str</span><span class="p">]</span> <span class="o">|</span> <span class="kc">None</span> <span class="o">=</span> <span class="kc">None</span></div>
+    <span class="n">parsing_errors</span><span class="p">:</span> <span class="nb">list</span><span class="p">[</span><span class="nb">str</span><span class="p">]</span> <span class="o">|</span> <span class="kc">None</span> <span class="o">=</span> <span class="kc">None</span>
+    <span class="n">unknown_pointer_edges</span><span class="p">:</span> <span class="nb">dict</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="nb">list</span><span class="p">[</span><span class="nb">str</span><span class="p">]]</span> <span class="o">|</span> <span class="kc">None</span> <span class="o">=</span> <span class="kc">None</span>
+    <span class="n">floating_component_ids</span><span class="p">:</span> <span class="nb">set</span><span class="p">[</span><span class="nb">str</span><span class="p">]</span> <span class="o">|</span> <span class="kc">None</span> <span class="o">=</span> <span class="kc">None</span></div>
 
 
 
@@ -197,6 +199,54 @@
 
 
 
+<span class="k">def</span><span class="w"> </span><span class="nf">_generate_graph_text_report</span><span class="p">(</span><span class="n">rc</span><span class="p">:</span> <span class="n">ReportContext</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">list</span><span class="p">[</span><span class="nb">str</span><span class="p">]:</span>
+<span class="w">    </span><span class="sd">"""Generates a text report for graph structural issues."""</span>
+    <span class="n">graph_issues_report</span><span class="p">:</span> <span class="nb">list</span><span class="p">[</span><span class="nb">str</span><span class="p">]</span> <span class="o">=</span> <span class="p">[]</span>
+
+    <span class="k">if</span> <span class="ow">not</span> <span class="n">rc</span><span class="o">.</span><span class="n">unknown_pointer_edges</span> <span class="ow">and</span> <span class="ow">not</span> <span class="n">rc</span><span class="o">.</span><span class="n">floating_component_ids</span><span class="p">:</span>
+        <span class="k">return</span> <span class="n">graph_issues_report</span>
+
+    <span class="n">graph_issues_report</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="s2">"</span><span class="se">\n</span><span class="s2">"</span> <span class="o">+</span> <span class="s2">"="</span> <span class="o">*</span> <span class="mi">55</span><span class="p">)</span>
+    <span class="n">graph_issues_report</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="s2">"Structural Graph Issues "</span><span class="o">.</span><span class="n">center</span><span class="p">(</span><span class="mi">55</span><span class="p">))</span>
+    <span class="n">graph_issues_report</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="s2">"="</span> <span class="o">*</span> <span class="mi">55</span><span class="p">)</span>
+
+    <span class="k">if</span> <span class="n">rc</span><span class="o">.</span><span class="n">unknown_pointer_edges</span><span class="p">:</span>
+        <span class="n">graph_issues_report</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="s2">"</span><span class="se">\n</span><span class="s2">************* ERROR *************"</span><span class="p">)</span>
+        <span class="n">graph_issues_report</span><span class="o">.</span><span class="n">append</span><span class="p">(</span>
+            <span class="s2">"Unknown components detected! A relationship points to a missing element."</span>
+        <span class="p">)</span>
+        <span class="n">graph_issues_report</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="s2">"  -&gt; Broken dependency linkages found:"</span><span class="p">)</span>
+        <span class="k">for</span> <span class="n">source</span><span class="p">,</span> <span class="n">targets</span> <span class="ow">in</span> <span class="n">rc</span><span class="o">.</span><span class="n">unknown_pointer_edges</span><span class="o">.</span><span class="n">items</span><span class="p">():</span>
+            <span class="k">for</span> <span class="n">target</span> <span class="ow">in</span> <span class="n">targets</span><span class="p">:</span>
+                <span class="n">graph_issues_report</span><span class="o">.</span><span class="n">append</span><span class="p">(</span>
+                    <span class="sa">f</span><span class="s2">"    * Component '</span><span class="si">{</span><span class="n">source</span><span class="si">}</span><span class="s2">' links to missing element '</span><span class="si">{</span><span class="n">target</span><span class="si">}</span><span class="s2">'"</span>
+                <span class="p">)</span>
+
+    <span class="k">if</span> <span class="n">rc</span><span class="o">.</span><span class="n">floating_component_ids</span><span class="p">:</span>
+        <span class="n">floating_ids</span> <span class="o">=</span> <span class="nb">sorted</span><span class="p">(</span><span class="n">rc</span><span class="o">.</span><span class="n">floating_component_ids</span><span class="p">)</span>
+        <span class="n">graph_issues_report</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="s2">"</span><span class="se">\n</span><span class="s2">************ WARNING ************"</span><span class="p">)</span>
+        <span class="n">graph_issues_report</span><span class="o">.</span><span class="n">append</span><span class="p">(</span>
+            <span class="sa">f</span><span class="s2">"Found </span><span class="si">{</span><span class="nb">len</span><span class="p">(</span><span class="n">floating_ids</span><span class="p">)</span><span class="si">}</span><span class="s2"> disconnected 'floating' elements."</span>
+        <span class="p">)</span>
+        <span class="n">graph_issues_report</span><span class="o">.</span><span class="n">append</span><span class="p">(</span>
+            <span class="s2">"  -&gt; These elements are not attached to the primary software tree"</span>
+        <span class="p">)</span>
+        <span class="n">graph_issues_report</span><span class="o">.</span><span class="n">append</span><span class="p">(</span>
+            <span class="s2">"     and were ignored during the compliance check.</span><span class="se">\n</span><span class="s2">"</span>
+        <span class="p">)</span>
+
+        <span class="k">for</span> <span class="n">spdx_id</span> <span class="ow">in</span> <span class="n">floating_ids</span><span class="p">[:</span><span class="mi">10</span><span class="p">]:</span>
+            <span class="n">graph_issues_report</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="sa">f</span><span class="s2">"    * </span><span class="si">{</span><span class="n">spdx_id</span><span class="si">}</span><span class="s2">"</span><span class="p">)</span>
+
+        <span class="k">if</span> <span class="nb">len</span><span class="p">(</span><span class="n">floating_ids</span><span class="p">)</span> <span class="o">&gt;</span> <span class="mi">10</span><span class="p">:</span>
+            <span class="n">graph_issues_report</span><span class="o">.</span><span class="n">append</span><span class="p">(</span>
+                <span class="sa">f</span><span class="s2">"    * ... and </span><span class="si">{</span><span class="nb">len</span><span class="p">(</span><span class="n">floating_ids</span><span class="p">)</span><span class="w"> </span><span class="o">-</span><span class="w"> </span><span class="mi">10</span><span class="si">}</span><span class="s2"> more items."</span>
+            <span class="p">)</span>
+
+    <span class="n">graph_issues_report</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="s2">"</span><span class="se">\n</span><span class="s2">"</span> <span class="o">+</span> <span class="s2">"-"</span> <span class="o">*</span> <span class="mi">55</span><span class="p">)</span>
+    <span class="k">return</span> <span class="n">graph_issues_report</span>
+
+
 <div class="viewcode-block" id="report_text">
 <a class="viewcode-back" href="../../ntia_conformance_checker.html#ntia_conformance_checker.report.report_text">[docs]</a>
 <span class="k">def</span><span class="w"> </span><span class="nf">report_text</span><span class="p">(</span>
@@ -253,8 +303,60 @@
         <span class="n">report</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="s2">"The following conformance issues were found:</span><span class="se">\n</span><span class="s2">"</span><span class="p">)</span>
         <span class="n">report</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">get_validation_messages_text</span><span class="p">(</span><span class="n">rc</span><span class="o">.</span><span class="n">conformance_messages</span><span class="p">,</span> <span class="n">verbose</span><span class="p">))</span>
 
+    <span class="c1"># structural graph issues</span>
+    <span class="n">graph_issues_report</span> <span class="o">=</span> <span class="n">_generate_graph_text_report</span><span class="p">(</span><span class="n">rc</span><span class="p">)</span>
+    <span class="k">if</span> <span class="n">graph_issues_report</span><span class="p">:</span>
+        <span class="n">report</span><span class="o">.</span><span class="n">extend</span><span class="p">(</span><span class="n">graph_issues_report</span><span class="p">)</span>
+
     <span class="k">return</span> <span class="s2">"</span><span class="se">\n</span><span class="s2">"</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">report</span><span class="p">)</span></div>
 
+
+
+<span class="k">def</span><span class="w"> </span><span class="nf">_generate_graph_html_report</span><span class="p">(</span><span class="n">rc</span><span class="p">:</span> <span class="n">ReportContext</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">list</span><span class="p">[</span><span class="nb">str</span><span class="p">]:</span>
+<span class="w">    </span><span class="sd">"""Generates an HTML report for graph structural issues."""</span>
+    <span class="n">graph_issues_report</span><span class="p">:</span> <span class="nb">list</span><span class="p">[</span><span class="nb">str</span><span class="p">]</span> <span class="o">=</span> <span class="p">[]</span>
+
+    <span class="k">if</span> <span class="ow">not</span> <span class="n">rc</span><span class="o">.</span><span class="n">unknown_pointer_edges</span> <span class="ow">and</span> <span class="ow">not</span> <span class="n">rc</span><span class="o">.</span><span class="n">floating_component_ids</span><span class="p">:</span>
+        <span class="k">return</span> <span class="n">graph_issues_report</span>
+
+    <span class="n">graph_issues_report</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="s2">"&lt;div class='conformance-graph'&gt;"</span><span class="p">)</span>
+    <span class="n">graph_issues_report</span><span class="o">.</span><span class="n">append</span><span class="p">(</span>
+        <span class="s2">"&lt;h2 class='conformance-res-title'&gt;Structural Graph Issues&lt;/h2&gt;"</span>
+    <span class="p">)</span>
+
+    <span class="k">if</span> <span class="n">rc</span><span class="o">.</span><span class="n">unknown_pointer_edges</span><span class="p">:</span>
+        <span class="n">graph_issues_report</span><span class="o">.</span><span class="n">append</span><span class="p">(</span>
+            <span class="s2">"&lt;p class='conformance-err-label'&gt;&lt;strong&gt;ERROR:&lt;/strong&gt;"</span>
+            <span class="s2">" Unknown components detected! A relationship points to a missing element.&lt;/p&gt;"</span>
+        <span class="p">)</span>
+        <span class="n">graph_issues_report</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="s2">"&lt;ul class='conformance-err-list'&gt;"</span><span class="p">)</span>
+        <span class="k">for</span> <span class="n">source</span><span class="p">,</span> <span class="n">targets</span> <span class="ow">in</span> <span class="n">rc</span><span class="o">.</span><span class="n">unknown_pointer_edges</span><span class="o">.</span><span class="n">items</span><span class="p">():</span>
+            <span class="k">for</span> <span class="n">target</span> <span class="ow">in</span> <span class="n">targets</span><span class="p">:</span>
+                <span class="n">graph_issues_report</span><span class="o">.</span><span class="n">append</span><span class="p">(</span>
+                    <span class="sa">f</span><span class="s2">"&lt;li&gt;Component '&lt;b&gt;</span><span class="si">{</span><span class="n">source</span><span class="si">}</span><span class="s2">&lt;/b&gt;' links to missing element "</span>
+                    <span class="sa">f</span><span class="s2">"'&lt;b&gt;</span><span class="si">{</span><span class="n">target</span><span class="si">}</span><span class="s2">&lt;/b&gt;'&lt;/li&gt;"</span>
+                <span class="p">)</span>
+        <span class="n">graph_issues_report</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="s2">"&lt;/ul&gt;"</span><span class="p">)</span>
+
+    <span class="k">if</span> <span class="n">rc</span><span class="o">.</span><span class="n">floating_component_ids</span><span class="p">:</span>
+        <span class="n">floating_ids</span> <span class="o">=</span> <span class="nb">sorted</span><span class="p">(</span><span class="n">rc</span><span class="o">.</span><span class="n">floating_component_ids</span><span class="p">)</span>
+        <span class="n">graph_issues_report</span><span class="o">.</span><span class="n">append</span><span class="p">(</span>
+            <span class="s2">"&lt;p class='conformance-msg-label' style='margin-top: 15px;'&gt;"</span>
+            <span class="sa">f</span><span class="s2">"&lt;strong&gt;WARNING:&lt;/strong&gt; Found </span><span class="si">{</span><span class="nb">len</span><span class="p">(</span><span class="n">floating_ids</span><span class="p">)</span><span class="si">}</span><span class="s2"> disconnected "</span>
+            <span class="s2">"'floating' elements ignored during compliance.&lt;/p&gt;"</span>
+        <span class="p">)</span>
+        <span class="n">graph_issues_report</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="s2">"&lt;ul class='conformance-msg-list'&gt;"</span><span class="p">)</span>
+        <span class="k">for</span> <span class="n">spdx_id</span> <span class="ow">in</span> <span class="n">floating_ids</span><span class="p">[:</span><span class="mi">10</span><span class="p">]:</span>
+            <span class="n">graph_issues_report</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="sa">f</span><span class="s2">"&lt;li&gt;</span><span class="si">{</span><span class="n">spdx_id</span><span class="si">}</span><span class="s2">&lt;/li&gt;"</span><span class="p">)</span>
+        <span class="k">if</span> <span class="nb">len</span><span class="p">(</span><span class="n">floating_ids</span><span class="p">)</span> <span class="o">&gt;</span> <span class="mi">10</span><span class="p">:</span>
+            <span class="n">graph_issues_report</span><span class="o">.</span><span class="n">append</span><span class="p">(</span>
+                <span class="sa">f</span><span class="s2">"&lt;li&gt;... and </span><span class="si">{</span><span class="nb">len</span><span class="p">(</span><span class="n">floating_ids</span><span class="p">)</span><span class="w"> </span><span class="o">-</span><span class="w"> </span><span class="mi">10</span><span class="si">}</span><span class="s2"> more items.&lt;/li&gt;"</span>
+            <span class="p">)</span>
+        <span class="n">graph_issues_report</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="s2">"&lt;/ul&gt;"</span><span class="p">)</span>
+
+    <span class="n">graph_issues_report</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="s2">"&lt;/div&gt;"</span><span class="p">)</span>
+
+    <span class="k">return</span> <span class="n">graph_issues_report</span>
 
 
 <div class="viewcode-block" id="report_html">
@@ -375,6 +477,11 @@
             <span class="n">get_validation_messages_html</span><span class="p">(</span><span class="n">rc</span><span class="o">.</span><span class="n">conformance_messages</span><span class="p">,</span> <span class="n">verbose</span><span class="o">=</span><span class="n">verbose</span><span class="p">)</span>
         <span class="p">)</span>
         <span class="n">report</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="s2">"&lt;/div&gt;"</span><span class="p">)</span>
+
+    <span class="c1"># structural graph issues</span>
+    <span class="n">graph_issues_report</span> <span class="o">=</span> <span class="n">_generate_graph_html_report</span><span class="p">(</span><span class="n">rc</span><span class="p">)</span>
+    <span class="k">if</span> <span class="n">graph_issues_report</span><span class="p">:</span>
+        <span class="n">report</span><span class="o">.</span><span class="n">extend</span><span class="p">(</span><span class="n">graph_issues_report</span><span class="p">)</span>
 
     <span class="k">return</span> <span class="s2">"</span><span class="se">\n</span><span class="s2">"</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">report</span><span class="p">)</span></div>
 
