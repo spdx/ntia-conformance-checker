@@ -19,6 +19,7 @@ from spdx_tools.spdx.model.document import (
 )
 
 import ntia_conformance_checker.sbom_checker as sbom_checker
+from ntia_conformance_checker.adapters import Spdx2Adapter, Spdx3Adapter
 from ntia_conformance_checker.spdx3_utils import get_all_packages
 
 SPDX3_RELATIONSHIP_TYPE_BASE = "https://spdx.org/rdf/3.0.1/terms/Core/RelationshipType"
@@ -133,6 +134,7 @@ def test_get_total_number_components_none_or_unknown_spec() -> None:
     """Test get_total_number_components when doc is None or unknown spec."""
     checker = sbom_checker.SbomChecker(test_files[0])
     checker.doc = None
+    checker.adapter = None
     assert checker.get_total_number_components() == 0
 
     checker.doc = spdx3.SHACLObjectSet()
@@ -158,8 +160,7 @@ def test_get_total_number_components_spdx2() -> None:
     )
     doc_empty = Document(creation_info=creation_info, packages=[])
     checker = sbom_checker.SbomChecker(filepath)
-    checker.doc = doc_empty
-    checker.sbom_spec = "spdx2"
+    checker.adapter = Spdx2Adapter(doc_empty)
     assert checker.get_total_number_components() == 0
 
 
@@ -203,7 +204,7 @@ def test_get_total_number_components_spdx3_packages_and_subclasses() -> None:
 
     test_file = Path(__file__).parent / "data" / "spdx3" / "has_sbom.json"
     checker = sbom_checker.SbomChecker(str(test_file), sbom_spec="spdx3")
-    checker.doc = object_set
+    checker.adapter = Spdx3Adapter(object_set, doc)
     assert checker.get_total_number_components() == 3
 
 
