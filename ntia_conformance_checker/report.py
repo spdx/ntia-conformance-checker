@@ -11,7 +11,7 @@ Some of the code here was originally in the BaseChecker class.
 from __future__ import annotations
 
 from dataclasses import dataclass
-from typing import TYPE_CHECKING
+from typing import TYPE_CHECKING, Any
 
 from .constants import (
     SUPPORTED_COMPLIANCE_STANDARDS,
@@ -20,6 +20,8 @@ from .constants import (
 
 if TYPE_CHECKING:
     from spdx_tools.spdx.validation.validation_message import ValidationMessage
+
+    from .base_checker import BaseChecker
 
 
 # pylint: disable=too-many-instance-attributes
@@ -324,3 +326,55 @@ def report_html(
         report.append("</div>")
 
     return "\n".join(report)
+
+
+def report_json(checker_instance: "BaseChecker") -> dict[str, Any]:
+    """Build the JSON output dictionary."""
+    result: dict[str, Any] = {
+        "isConformant": getattr(checker_instance, "compliant", False),
+        "isNtiaConformant": getattr(
+            checker_instance, "compliant", False
+        ),  # backward compatibility
+        "complianceStandard": getattr(checker_instance, "compliance_standard", ""),
+        "sbomSpec": getattr(checker_instance, "sbom_spec", ""),
+        "validationMessages": get_validation_messages_json(
+            checker_instance.validation_messages
+        ),
+        "conformanceMessages": get_validation_messages_json(
+            checker_instance.conformance_messages
+        ),
+        "parsingError": checker_instance.parsing_errors,
+        "sbomName": getattr(checker_instance, "sbom_name", ""),
+        "specVersionProvided": getattr(checker_instance, "doc_version", False),
+        "authorNameProvided": getattr(checker_instance, "doc_author", False),
+        "timestampProvided": getattr(checker_instance, "doc_timestamp", False),
+        "dependencyRelationshipsProvided": getattr(
+            checker_instance, "dependency_relationships", False
+        ),
+        "totalNumberComponents": checker_instance.get_total_number_components(),
+    }
+
+    _groups = {
+        "componentNames": "components_without_names",
+        "componentVersions": "components_without_versions",
+        "componentIdentifiers": "components_without_identifiers",
+        "componentSuppliers": "components_without_suppliers",
+        "componentConcludedLicenses": "components_without_concluded_licenses",
+        "componentCopyrightTexts": "components_without_copyright_texts",
+    }
+
+    for key_, attr in _groups.items():
+        components_without_info = getattr(checker_instance, attr, [])
+        # components_without_info is a list[tuple[name, spdx_id]];
+        # prefer the human-readable name and fall back to SPDX ID.
+        nonconformant = [
+            (name if name not in (None, "") else spdx_id)
+            for name, spdx_id in components_without_info
+        ]
+
+        result[key_] = {
+            "nonconformantComponents": nonconformant,
+            "allProvided": not bool(nonconformant),
+        }
+
+    return result
