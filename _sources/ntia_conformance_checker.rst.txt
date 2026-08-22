@@ -12,6 +12,14 @@ ntia\_conformance\_checker.base\_checker module
    :show-inheritance:
    :undoc-members:
 
+ntia\_conformance\_checker.bsi\_checker module
+----------------------------------------------
+
+.. automodule:: ntia_conformance_checker.bsi_checker
+   :members:
+   :show-inheritance:
+   :undoc-members:
+
 ntia\_conformance\_checker.cli\_utils module
 --------------------------------------------
 

@@ -41,6 +41,8 @@
 
 <span class="kn">from</span><span class="w"> </span><span class="nn">typing</span><span class="w"> </span><span class="kn">import</span> <span class="n">Any</span><span class="p">,</span> <span class="n">final</span>
 
+<span class="kn">from</span><span class="w"> </span><span class="nn">ntia_conformance_checker.bsi_checker</span><span class="w"> </span><span class="kn">import</span> <span class="n">BSIChecker</span>
+
 <span class="kn">from</span><span class="w"> </span><span class="nn">.base_checker</span><span class="w"> </span><span class="kn">import</span> <span class="n">BaseChecker</span>
 <span class="kn">from</span><span class="w"> </span><span class="nn">.constants</span><span class="w"> </span><span class="kn">import</span> <span class="n">SUPPORTED_SBOM_SPECS</span>
 
@@ -106,6 +108,9 @@
             <span class="kn">from</span><span class="w"> </span><span class="nn">.fsct_checker</span><span class="w"> </span><span class="kn">import</span> <span class="n">FSCT3Checker</span>
 
             <span class="k">return</span> <span class="n">FSCT3Checker</span><span class="p">(</span><span class="n">file</span><span class="p">,</span> <span class="n">validate</span><span class="p">,</span> <span class="n">sbom_spec</span><span class="o">=</span><span class="n">sbom_spec</span><span class="p">)</span>
+
+        <span class="k">if</span> <span class="n">compliance</span> <span class="o">==</span> <span class="s2">"bsi"</span><span class="p">:</span>
+            <span class="k">return</span> <span class="n">BSIChecker</span><span class="p">(</span><span class="n">file</span><span class="p">,</span> <span class="n">validate</span><span class="p">,</span> <span class="n">sbom_spec</span><span class="o">=</span><span class="n">sbom_spec</span><span class="p">)</span>
 
         <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="sa">f</span><span class="s2">"Unknown compliance standard: </span><span class="si">{</span><span class="n">compliance</span><span class="si">}</span><span class="s2">"</span><span class="p">)</span>
 

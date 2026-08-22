@@ -410,6 +410,155 @@ Subclasses may override this method to provide custom behavior.</p>
 </dd></dl>
 
 </section>
+<section id="module-ntia_conformance_checker.bsi_checker">
+<span id="ntia-conformance-checker-bsi-checker-module"></span><h2>ntia_conformance_checker.bsi_checker module<a class="headerlink" href="#module-ntia_conformance_checker.bsi_checker" title="Link to this heading">¶</a></h2>
+<p>BSI Minimum Elements checking functionality.</p>
+<dl class="py class">
+<dt class="sig sig-object py" id="ntia_conformance_checker.bsi_checker.BSIChecker">
+<span class="property"><span class="k"><span class="pre">class</span></span><span class="w"> </span></span><span class="sig-prename descclassname"><span class="pre">ntia_conformance_checker.bsi_checker.</span></span><span class="sig-name descname"><span class="pre">BSIChecker</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">file</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">validate</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">bool</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">True</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">compliance</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">'bsi'</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">sbom_spec</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">'spdx3'</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/ntia_conformance_checker/bsi_checker.html#BSIChecker"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#ntia_conformance_checker.bsi_checker.BSIChecker" title="Link to this definition">¶</a></dt>
+<dd><p>Bases: <a class="reference internal" href="#ntia_conformance_checker.base_checker.BaseChecker" title="ntia_conformance_checker.base_checker.BaseChecker"><code class="xref py py-class docutils literal notranslate"><span class="pre">BaseChecker</span></code></a></p>
+<p>BSI Minimum Elements check according to BSI TR-03183-2 v2.1.0.</p>
+<dl class="simple">
+<dt>See:</dt><dd><p><a class="reference external" href="https://www.bsi.bund.de/SharedDocs/Downloads/EN/BSI/Publications/TechGuidelines/TR03183/BSI-TR-03183-2_v2_1_0.html">https://www.bsi.bund.de/SharedDocs/Downloads/EN/BSI/Publications/TechGuidelines/TR03183/BSI-TR-03183-2_v2_1_0.html</a></p>
+</dd>
+</dl>
+<dl class="py attribute">
+<dt class="sig sig-object py" id="ntia_conformance_checker.bsi_checker.BSIChecker.MIN_ELEMENTS">
+<span class="sig-name descname"><span class="pre">MIN_ELEMENTS</span></span><span class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">['creator',</span> <span class="pre">'name',</span> <span class="pre">'version',</span> <span class="pre">'filename',</span> <span class="pre">'distribution_licenses',</span> <span class="pre">'sha512_hash',</span> <span class="pre">'executable_property',</span> <span class="pre">'archive_property',</span> <span class="pre">'structured_property']</span></span><a class="headerlink" href="#ntia_conformance_checker.bsi_checker.BSIChecker.MIN_ELEMENTS" title="Link to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="ntia_conformance_checker.bsi_checker.BSIChecker.check_compliance">
+<span class="sig-name descname"><span class="pre">check_compliance</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">bool</span></span></span><a class="reference internal" href="_modules/ntia_conformance_checker/bsi_checker.html#BSIChecker.check_compliance"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#ntia_conformance_checker.bsi_checker.BSIChecker.check_compliance" title="Link to this definition">¶</a></dt>
+<dd><p>Check overall compliance with BSI minimum elements.</p>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="ntia_conformance_checker.bsi_checker.BSIChecker.check_dependency_completeness">
+<span class="sig-name descname"><span class="pre">check_dependency_completeness</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">bool</span></span></span><a class="reference internal" href="_modules/ntia_conformance_checker/bsi_checker.html#BSIChecker.check_dependency_completeness"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#ntia_conformance_checker.bsi_checker.BSIChecker.check_dependency_completeness" title="Link to this definition">¶</a></dt>
+<dd><p>Check if dependency enumerations clearly indicate their completeness.</p>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="ntia_conformance_checker.bsi_checker.BSIChecker.check_doc_creator">
+<span class="sig-name descname"><span class="pre">check_doc_creator</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">bool</span></span></span><a class="reference internal" href="_modules/ntia_conformance_checker/bsi_checker.html#BSIChecker.check_doc_creator"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#ntia_conformance_checker.bsi_checker.BSIChecker.check_doc_creator" title="Link to this definition">¶</a></dt>
+<dd><p>Check if the document creator has a valid email or URL.</p>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="ntia_conformance_checker.bsi_checker.BSIChecker.check_sbom_uri">
+<span class="sig-name descname"><span class="pre">check_sbom_uri</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">bool</span></span></span><a class="reference internal" href="_modules/ntia_conformance_checker/bsi_checker.html#BSIChecker.check_sbom_uri"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#ntia_conformance_checker.bsi_checker.BSIChecker.check_sbom_uri" title="Link to this definition">¶</a></dt>
+<dd><p>Check if the SBOM-URI exists.</p>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="ntia_conformance_checker.bsi_checker.BSIChecker.get_components_without_archive_prop">
+<span class="sig-name descname"><span class="pre">get_components_without_archive_prop</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">list</span><span class="p"><span class="pre">[</span></span><span class="pre">tuple</span><span class="p"><span class="pre">[</span></span><span class="pre">str</span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="pre">str</span><span class="p"><span class="pre">]</span></span><span class="p"><span class="pre">]</span></span></span></span><a class="reference internal" href="_modules/ntia_conformance_checker/bsi_checker.html#BSIChecker.get_components_without_archive_prop"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#ntia_conformance_checker.bsi_checker.BSIChecker.get_components_without_archive_prop" title="Link to this definition">¶</a></dt>
+<dd><p>BSI Requirement: Omit ‘archive’ if non-archive.
+Since omission represents ‘False’, a static checker cannot fail a component
+for missing this tag. Always compliant.</p>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="ntia_conformance_checker.bsi_checker.BSIChecker.get_components_without_bom_references">
+<span class="sig-name descname"><span class="pre">get_components_without_bom_references</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">list</span><span class="p"><span class="pre">[</span></span><span class="pre">tuple</span><span class="p"><span class="pre">[</span></span><span class="pre">str</span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="pre">str</span><span class="p"><span class="pre">]</span></span><span class="p"><span class="pre">]</span></span></span></span><a class="reference internal" href="_modules/ntia_conformance_checker/bsi_checker.html#BSIChecker.get_components_without_bom_references"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#ntia_conformance_checker.bsi_checker.BSIChecker.get_components_without_bom_references" title="Link to this definition">¶</a></dt>
+<dd><p>Check if the component references another BOM.
+BSI Requirement: MAY be included (Optional Data Field).</p>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="ntia_conformance_checker.bsi_checker.BSIChecker.get_components_without_concluded_licenses">
+<span class="sig-name descname"><span class="pre">get_components_without_concluded_licenses</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">list</span><span class="p"><span class="pre">[</span></span><span class="pre">tuple</span><span class="p"><span class="pre">[</span></span><span class="pre">str</span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="pre">str</span><span class="p"><span class="pre">]</span></span><span class="p"><span class="pre">]</span></span></span></span><a class="reference internal" href="_modules/ntia_conformance_checker/bsi_checker.html#BSIChecker.get_components_without_concluded_licenses"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#ntia_conformance_checker.bsi_checker.BSIChecker.get_components_without_concluded_licenses" title="Link to this definition">¶</a></dt>
+<dd><p>Overrides BaseChecker to enforce BSI document Table 9 and Section 6.1 rules:
+1. Target MUST be simplelicensing_LicenseExpression.
+2. Must use valid SPDX license expressions, Scancode, or custom LicenseRefs.</p>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="ntia_conformance_checker.bsi_checker.BSIChecker.get_components_without_creators">
+<span class="sig-name descname"><span class="pre">get_components_without_creators</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">list</span><span class="p"><span class="pre">[</span></span><span class="pre">tuple</span><span class="p"><span class="pre">[</span></span><span class="pre">str</span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="pre">str</span><span class="p"><span class="pre">]</span></span><span class="p"><span class="pre">]</span></span></span></span><a class="reference internal" href="_modules/ntia_conformance_checker/bsi_checker.html#BSIChecker.get_components_without_creators"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#ntia_conformance_checker.bsi_checker.BSIChecker.get_components_without_creators" title="Link to this definition">¶</a></dt>
+<dd><p>Check if each component creator has a valid email or URL.</p>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="ntia_conformance_checker.bsi_checker.BSIChecker.get_components_without_deployable_uris">
+<span class="sig-name descname"><span class="pre">get_components_without_deployable_uris</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">list</span><span class="p"><span class="pre">[</span></span><span class="pre">tuple</span><span class="p"><span class="pre">[</span></span><span class="pre">str</span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="pre">str</span><span class="p"><span class="pre">]</span></span><span class="p"><span class="pre">]</span></span></span></span><a class="reference internal" href="_modules/ntia_conformance_checker/bsi_checker.html#BSIChecker.get_components_without_deployable_uris"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#ntia_conformance_checker.bsi_checker.BSIChecker.get_components_without_deployable_uris" title="Link to this definition">¶</a></dt>
+<dd><p>Check if the component has a URI of the deployable form.
+BSI Requirement: MUST be included IF it exists (Additional Data Field).</p>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="ntia_conformance_checker.bsi_checker.BSIChecker.get_components_without_effective_licenses">
+<span class="sig-name descname"><span class="pre">get_components_without_effective_licenses</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">list</span><span class="p"><span class="pre">[</span></span><span class="pre">tuple</span><span class="p"><span class="pre">[</span></span><span class="pre">str</span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="pre">str</span><span class="p"><span class="pre">]</span></span><span class="p"><span class="pre">]</span></span></span></span><a class="reference internal" href="_modules/ntia_conformance_checker/bsi_checker.html#BSIChecker.get_components_without_effective_licenses"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#ntia_conformance_checker.bsi_checker.BSIChecker.get_components_without_effective_licenses" title="Link to this definition">¶</a></dt>
+<dd><p>Check if the effective licence is included.
+BSI Requirement: MAY be included (Optional Data Field).</p>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="ntia_conformance_checker.bsi_checker.BSIChecker.get_components_without_executable_prop">
+<span class="sig-name descname"><span class="pre">get_components_without_executable_prop</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">list</span><span class="p"><span class="pre">[</span></span><span class="pre">tuple</span><span class="p"><span class="pre">[</span></span><span class="pre">str</span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="pre">str</span><span class="p"><span class="pre">]</span></span><span class="p"><span class="pre">]</span></span></span></span><a class="reference internal" href="_modules/ntia_conformance_checker/bsi_checker.html#BSIChecker.get_components_without_executable_prop"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#ntia_conformance_checker.bsi_checker.BSIChecker.get_components_without_executable_prop" title="Link to this definition">¶</a></dt>
+<dd><p>BSI Requirement: Omit ‘executable’ if non-executable.
+Since omission represents ‘False’, a static checker cannot fail a component
+for missing this tag. Always compliant.</p>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="ntia_conformance_checker.bsi_checker.BSIChecker.get_components_without_filenames">
+<span class="sig-name descname"><span class="pre">get_components_without_filenames</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">list</span><span class="p"><span class="pre">[</span></span><span class="pre">tuple</span><span class="p"><span class="pre">[</span></span><span class="pre">str</span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="pre">str</span><span class="p"><span class="pre">]</span></span><span class="p"><span class="pre">]</span></span></span></span><a class="reference internal" href="_modules/ntia_conformance_checker/bsi_checker.html#BSIChecker.get_components_without_filenames"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#ntia_conformance_checker.bsi_checker.BSIChecker.get_components_without_filenames" title="Link to this definition">¶</a></dt>
+<dd><p>Check if each package has a linked software_File with a valid name.</p>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="ntia_conformance_checker.bsi_checker.BSIChecker.get_components_without_original_licenses">
+<span class="sig-name descname"><span class="pre">get_components_without_original_licenses</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">list</span><span class="p"><span class="pre">[</span></span><span class="pre">tuple</span><span class="p"><span class="pre">[</span></span><span class="pre">str</span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="pre">str</span><span class="p"><span class="pre">]</span></span><span class="p"><span class="pre">]</span></span></span></span><a class="reference internal" href="_modules/ntia_conformance_checker/bsi_checker.html#BSIChecker.get_components_without_original_licenses"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#ntia_conformance_checker.bsi_checker.BSIChecker.get_components_without_original_licenses" title="Link to this definition">¶</a></dt>
+<dd><p>Check if original licences are included.
+BSI Requirement: MUST be included IF they exist (Additional Data Field).</p>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="ntia_conformance_checker.bsi_checker.BSIChecker.get_components_without_security_txt">
+<span class="sig-name descname"><span class="pre">get_components_without_security_txt</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">list</span><span class="p"><span class="pre">[</span></span><span class="pre">tuple</span><span class="p"><span class="pre">[</span></span><span class="pre">str</span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="pre">str</span><span class="p"><span class="pre">]</span></span><span class="p"><span class="pre">]</span></span></span></span><a class="reference internal" href="_modules/ntia_conformance_checker/bsi_checker.html#BSIChecker.get_components_without_security_txt"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#ntia_conformance_checker.bsi_checker.BSIChecker.get_components_without_security_txt" title="Link to this definition">¶</a></dt>
+<dd><p>Check if the component contains a URL to security.txt.
+BSI Requirement: MAY be included (Optional Data Field).</p>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="ntia_conformance_checker.bsi_checker.BSIChecker.get_components_without_sha512_hashes">
+<span class="sig-name descname"><span class="pre">get_components_without_sha512_hashes</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">list</span><span class="p"><span class="pre">[</span></span><span class="pre">tuple</span><span class="p"><span class="pre">[</span></span><span class="pre">str</span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="pre">str</span><span class="p"><span class="pre">]</span></span><span class="p"><span class="pre">]</span></span></span></span><a class="reference internal" href="_modules/ntia_conformance_checker/bsi_checker.html#BSIChecker.get_components_without_sha512_hashes"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#ntia_conformance_checker.bsi_checker.BSIChecker.get_components_without_sha512_hashes" title="Link to this definition">¶</a></dt>
+<dd><p>Check if the deployable component has a SHA-512 hash.</p>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="ntia_conformance_checker.bsi_checker.BSIChecker.get_components_without_source_code_hashes">
+<span class="sig-name descname"><span class="pre">get_components_without_source_code_hashes</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">list</span><span class="p"><span class="pre">[</span></span><span class="pre">tuple</span><span class="p"><span class="pre">[</span></span><span class="pre">str</span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="pre">str</span><span class="p"><span class="pre">]</span></span><span class="p"><span class="pre">]</span></span></span></span><a class="reference internal" href="_modules/ntia_conformance_checker/bsi_checker.html#BSIChecker.get_components_without_source_code_hashes"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#ntia_conformance_checker.bsi_checker.BSIChecker.get_components_without_source_code_hashes" title="Link to this definition">¶</a></dt>
+<dd><p>Check if the source code of the component has a SHA-512 hash.
+BSI Requirement: MAY be included (Optional Data Field).</p>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="ntia_conformance_checker.bsi_checker.BSIChecker.get_components_without_source_code_uris">
+<span class="sig-name descname"><span class="pre">get_components_without_source_code_uris</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">list</span><span class="p"><span class="pre">[</span></span><span class="pre">tuple</span><span class="p"><span class="pre">[</span></span><span class="pre">str</span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="pre">str</span><span class="p"><span class="pre">]</span></span><span class="p"><span class="pre">]</span></span></span></span><a class="reference internal" href="_modules/ntia_conformance_checker/bsi_checker.html#BSIChecker.get_components_without_source_code_uris"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#ntia_conformance_checker.bsi_checker.BSIChecker.get_components_without_source_code_uris" title="Link to this definition">¶</a></dt>
+<dd><p>Check if the component has a Source code URI.
+BSI Requirement: MUST be included IF it exists (Additional Data Field).</p>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="ntia_conformance_checker.bsi_checker.BSIChecker.get_components_without_structured_prop">
+<span class="sig-name descname"><span class="pre">get_components_without_structured_prop</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">list</span><span class="p"><span class="pre">[</span></span><span class="pre">tuple</span><span class="p"><span class="pre">[</span></span><span class="pre">str</span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="pre">str</span><span class="p"><span class="pre">]</span></span><span class="p"><span class="pre">]</span></span></span></span><a class="reference internal" href="_modules/ntia_conformance_checker/bsi_checker.html#BSIChecker.get_components_without_structured_prop"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#ntia_conformance_checker.bsi_checker.BSIChecker.get_components_without_structured_prop" title="Link to this definition">¶</a></dt>
+<dd><p>Check if the component declares a structured property.
+BSI Requirement: MUST indicate ‘container’ (structured) or ‘firmware’ (unstructured).</p>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="ntia_conformance_checker.bsi_checker.BSIChecker.get_components_without_unique_identifiers">
+<span class="sig-name descname"><span class="pre">get_components_without_unique_identifiers</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">list</span><span class="p"><span class="pre">[</span></span><span class="pre">tuple</span><span class="p"><span class="pre">[</span></span><span class="pre">str</span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="pre">str</span><span class="p"><span class="pre">]</span></span><span class="p"><span class="pre">]</span></span></span></span><a class="reference internal" href="_modules/ntia_conformance_checker/bsi_checker.html#BSIChecker.get_components_without_unique_identifiers"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#ntia_conformance_checker.bsi_checker.BSIChecker.get_components_without_unique_identifiers" title="Link to this definition">¶</a></dt>
+<dd><p>Check if the component has additional unique identifiers (CPE, SWID, PURL).
+BSI Requirement: MUST be included IF they exist (Additional Data Field).</p>
+</dd></dl>
+
+</dd></dl>
+
+</section>
 <section id="module-ntia_conformance_checker.cli_utils">
 <span id="ntia-conformance-checker-cli-utils-module"></span><h2>ntia_conformance_checker.cli_utils module<a class="headerlink" href="#module-ntia_conformance_checker.cli_utils" title="Link to this heading">¶</a></h2>
 <p>Utilities for CLI.</p>
@@ -824,6 +973,37 @@ such as ai_AIPackage and dataset_DatasetPackage.</p>
 </dd></dl>
 
 <dl class="py function">
+<dt class="sig sig-object py" id="ntia_conformance_checker.spdx3_utils.get_dependency_relationships_completeness">
+<span class="sig-prename descclassname"><span class="pre">ntia_conformance_checker.spdx3_utils.</span></span><span class="sig-name descname"><span class="pre">get_dependency_relationships_completeness</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">object_set</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">SHACLObjectSet</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">dict</span><span class="p"><span class="pre">[</span></span><span class="pre">str</span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="pre">list</span><span class="p"><span class="pre">[</span></span><span class="pre">str</span><span class="p"><span class="pre">]</span></span><span class="p"><span class="pre">]</span></span></span></span><a class="reference internal" href="_modules/ntia_conformance_checker/spdx3_utils.html#get_dependency_relationships_completeness"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#ntia_conformance_checker.spdx3_utils.get_dependency_relationships_completeness" title="Link to this definition">¶</a></dt>
+<dd><p>Extract the completeness attribute for all dependency
+relationships (‘contains’, ‘dependsOn’) in the SPDX 3 document.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Returns<span class="colon">:</span></dt>
+<dd class="field-odd"><p>A dictionary mapping all relationship’s
+from_id to a list of all completeness attributes.</p>
+</dd>
+<dt class="field-even">Return type<span class="colon">:</span></dt>
+<dd class="field-even"><p>dict[str, list[str]]</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="ntia_conformance_checker.spdx3_utils.get_distribution_artifacts_map">
+<span class="sig-prename descclassname"><span class="pre">ntia_conformance_checker.spdx3_utils.</span></span><span class="sig-name descname"><span class="pre">get_distribution_artifacts_map</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">object_set</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">SHACLObjectSet</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">dict</span><span class="p"><span class="pre">[</span></span><span class="pre">str</span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="pre">list</span><span class="p"><span class="pre">[</span></span><span class="pre">software_File</span><span class="p"><span class="pre">]</span></span><span class="p"><span class="pre">]</span></span></span></span><a class="reference internal" href="_modules/ntia_conformance_checker/spdx3_utils.html#get_distribution_artifacts_map"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#ntia_conformance_checker.spdx3_utils.get_distribution_artifacts_map" title="Link to this definition">¶</a></dt>
+<dd><p>Create a mapping of package spdxId to their linked software_File distribution artifacts.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Returns<span class="colon">:</span></dt>
+<dd class="field-odd"><p>A dictionary mapping package spdxId to a list of
+linked software_File objects.</p>
+</dd>
+<dt class="field-even">Return type<span class="colon">:</span></dt>
+<dd class="field-even"><p>dict[str, list[spdx3.software_File]]</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py function">
 <dt class="sig sig-object py" id="ntia_conformance_checker.spdx3_utils.get_packages_from_bom">
 <span class="sig-prename descclassname"><span class="pre">ntia_conformance_checker.spdx3_utils.</span></span><span class="sig-name descname"><span class="pre">get_packages_from_bom</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">bom</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Bom</span><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><span class="pre">None</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">list</span><span class="p"><span class="pre">[</span></span><span class="pre">software_Package</span><span class="p"><span class="pre">]</span></span></span></span><a class="reference internal" href="_modules/ntia_conformance_checker/spdx3_utils.html#get_packages_from_bom"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#ntia_conformance_checker.spdx3_utils.get_packages_from_bom" title="Link to this definition">¶</a></dt>
 <dd><p>Retrieve the /Software/Packages that are rootElements of an SPDX 3 BOM.</p>
@@ -844,6 +1024,12 @@ such as ai_AIPackage and dataset_DatasetPackage.</p>
 <dt class="sig sig-object py" id="ntia_conformance_checker.spdx3_utils.has_package_dependency_relationship">
 <span class="sig-prename descclassname"><span class="pre">ntia_conformance_checker.spdx3_utils.</span></span><span class="sig-name descname"><span class="pre">has_package_dependency_relationship</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">object_set</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">SHACLObjectSet</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">bool</span></span></span><a class="reference internal" href="_modules/ntia_conformance_checker/spdx3_utils.html#has_package_dependency_relationship"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#ntia_conformance_checker.spdx3_utils.has_package_dependency_relationship" title="Link to this definition">¶</a></dt>
 <dd><p>Return True if a dependency relationship connects SPDX 3 Elements.</p>
+</dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="ntia_conformance_checker.spdx3_utils.has_sha512_hash">
+<span class="sig-prename descclassname"><span class="pre">ntia_conformance_checker.spdx3_utils.</span></span><span class="sig-name descname"><span class="pre">has_sha512_hash</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">file_obj</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">SHACLObject</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">bool</span></span></span><a class="reference internal" href="_modules/ntia_conformance_checker/spdx3_utils.html#has_sha512_hash"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#ntia_conformance_checker.spdx3_utils.has_sha512_hash" title="Link to this definition">¶</a></dt>
+<dd><p>Check if a software_File has a SHA-512 hash declared in its verifiedUsing property.</p>
 </dd></dl>
 
 <dl class="py function">
@@ -916,6 +1102,236 @@ list[ValidationMessage]: A list of validation messages. Empty if no errors.</p>
 <section id="module-ntia_conformance_checker">
 <span id="module-contents"></span><h2>Module contents<a class="headerlink" href="#module-ntia_conformance_checker" title="Link to this heading">¶</a></h2>
 <p>Export functions for usage as library.</p>
+<dl class="py class">
+<dt class="sig sig-object py" id="ntia_conformance_checker.BSIChecker">
+<span class="property"><span class="k"><span class="pre">class</span></span><span class="w"> </span></span><span class="sig-prename descclassname"><span class="pre">ntia_conformance_checker.</span></span><span class="sig-name descname"><span class="pre">BSIChecker</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">file</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">validate</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">bool</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">True</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">compliance</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">'bsi'</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">sbom_spec</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">'spdx3'</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/ntia_conformance_checker/bsi_checker.html#BSIChecker"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#ntia_conformance_checker.BSIChecker" title="Link to this definition">¶</a></dt>
+<dd><p>Bases: <a class="reference internal" href="#ntia_conformance_checker.base_checker.BaseChecker" title="ntia_conformance_checker.base_checker.BaseChecker"><code class="xref py py-class docutils literal notranslate"><span class="pre">BaseChecker</span></code></a></p>
+<p>BSI Minimum Elements check according to BSI TR-03183-2 v2.1.0.</p>
+<dl class="simple">
+<dt>See:</dt><dd><p><a class="reference external" href="https://www.bsi.bund.de/SharedDocs/Downloads/EN/BSI/Publications/TechGuidelines/TR03183/BSI-TR-03183-2_v2_1_0.html">https://www.bsi.bund.de/SharedDocs/Downloads/EN/BSI/Publications/TechGuidelines/TR03183/BSI-TR-03183-2_v2_1_0.html</a></p>
+</dd>
+</dl>
+<dl class="py attribute">
+<dt class="sig sig-object py" id="ntia_conformance_checker.BSIChecker.MIN_ELEMENTS">
+<span class="sig-name descname"><span class="pre">MIN_ELEMENTS</span></span><span class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">['creator',</span> <span class="pre">'name',</span> <span class="pre">'version',</span> <span class="pre">'filename',</span> <span class="pre">'distribution_licenses',</span> <span class="pre">'sha512_hash',</span> <span class="pre">'executable_property',</span> <span class="pre">'archive_property',</span> <span class="pre">'structured_property']</span></span><a class="headerlink" href="#ntia_conformance_checker.BSIChecker.MIN_ELEMENTS" title="Link to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="ntia_conformance_checker.BSIChecker.check_compliance">
+<span class="sig-name descname"><span class="pre">check_compliance</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">bool</span></span></span><a class="reference internal" href="_modules/ntia_conformance_checker/bsi_checker.html#BSIChecker.check_compliance"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#ntia_conformance_checker.BSIChecker.check_compliance" title="Link to this definition">¶</a></dt>
+<dd><p>Check overall compliance with BSI minimum elements.</p>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="ntia_conformance_checker.BSIChecker.check_dependency_completeness">
+<span class="sig-name descname"><span class="pre">check_dependency_completeness</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">bool</span></span></span><a class="reference internal" href="_modules/ntia_conformance_checker/bsi_checker.html#BSIChecker.check_dependency_completeness"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#ntia_conformance_checker.BSIChecker.check_dependency_completeness" title="Link to this definition">¶</a></dt>
+<dd><p>Check if dependency enumerations clearly indicate their completeness.</p>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="ntia_conformance_checker.BSIChecker.check_doc_creator">
+<span class="sig-name descname"><span class="pre">check_doc_creator</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">bool</span></span></span><a class="reference internal" href="_modules/ntia_conformance_checker/bsi_checker.html#BSIChecker.check_doc_creator"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#ntia_conformance_checker.BSIChecker.check_doc_creator" title="Link to this definition">¶</a></dt>
+<dd><p>Check if the document creator has a valid email or URL.</p>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="ntia_conformance_checker.BSIChecker.check_sbom_uri">
+<span class="sig-name descname"><span class="pre">check_sbom_uri</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">bool</span></span></span><a class="reference internal" href="_modules/ntia_conformance_checker/bsi_checker.html#BSIChecker.check_sbom_uri"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#ntia_conformance_checker.BSIChecker.check_sbom_uri" title="Link to this definition">¶</a></dt>
+<dd><p>Check if the SBOM-URI exists.</p>
+</dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="ntia_conformance_checker.BSIChecker.components_without_archive_prop">
+<span class="sig-name descname"><span class="pre">components_without_archive_prop</span></span><span class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="pre">list</span><span class="p"><span class="pre">[</span></span><span class="pre">tuple</span><span class="p"><span class="pre">[</span></span><span class="pre">str</span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="pre">str</span><span class="p"><span class="pre">]</span></span><span class="p"><span class="pre">]</span></span></span><a class="headerlink" href="#ntia_conformance_checker.BSIChecker.components_without_archive_prop" title="Link to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="ntia_conformance_checker.BSIChecker.components_without_bom_references">
+<span class="sig-name descname"><span class="pre">components_without_bom_references</span></span><span class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="pre">list</span><span class="p"><span class="pre">[</span></span><span class="pre">tuple</span><span class="p"><span class="pre">[</span></span><span class="pre">str</span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="pre">str</span><span class="p"><span class="pre">]</span></span><span class="p"><span class="pre">]</span></span></span><a class="headerlink" href="#ntia_conformance_checker.BSIChecker.components_without_bom_references" title="Link to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="ntia_conformance_checker.BSIChecker.components_without_creators">
+<span class="sig-name descname"><span class="pre">components_without_creators</span></span><span class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="pre">list</span><span class="p"><span class="pre">[</span></span><span class="pre">tuple</span><span class="p"><span class="pre">[</span></span><span class="pre">str</span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="pre">str</span><span class="p"><span class="pre">]</span></span><span class="p"><span class="pre">]</span></span></span><a class="headerlink" href="#ntia_conformance_checker.BSIChecker.components_without_creators" title="Link to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="ntia_conformance_checker.BSIChecker.components_without_deployable_uris">
+<span class="sig-name descname"><span class="pre">components_without_deployable_uris</span></span><span class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="pre">list</span><span class="p"><span class="pre">[</span></span><span class="pre">tuple</span><span class="p"><span class="pre">[</span></span><span class="pre">str</span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="pre">str</span><span class="p"><span class="pre">]</span></span><span class="p"><span class="pre">]</span></span></span><a class="headerlink" href="#ntia_conformance_checker.BSIChecker.components_without_deployable_uris" title="Link to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="ntia_conformance_checker.BSIChecker.components_without_effective_licenses">
+<span class="sig-name descname"><span class="pre">components_without_effective_licenses</span></span><span class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="pre">list</span><span class="p"><span class="pre">[</span></span><span class="pre">tuple</span><span class="p"><span class="pre">[</span></span><span class="pre">str</span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="pre">str</span><span class="p"><span class="pre">]</span></span><span class="p"><span class="pre">]</span></span></span><a class="headerlink" href="#ntia_conformance_checker.BSIChecker.components_without_effective_licenses" title="Link to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="ntia_conformance_checker.BSIChecker.components_without_executable_prop">
+<span class="sig-name descname"><span class="pre">components_without_executable_prop</span></span><span class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="pre">list</span><span class="p"><span class="pre">[</span></span><span class="pre">tuple</span><span class="p"><span class="pre">[</span></span><span class="pre">str</span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="pre">str</span><span class="p"><span class="pre">]</span></span><span class="p"><span class="pre">]</span></span></span><a class="headerlink" href="#ntia_conformance_checker.BSIChecker.components_without_executable_prop" title="Link to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="ntia_conformance_checker.BSIChecker.components_without_filenames">
+<span class="sig-name descname"><span class="pre">components_without_filenames</span></span><span class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="pre">list</span><span class="p"><span class="pre">[</span></span><span class="pre">tuple</span><span class="p"><span class="pre">[</span></span><span class="pre">str</span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="pre">str</span><span class="p"><span class="pre">]</span></span><span class="p"><span class="pre">]</span></span></span><a class="headerlink" href="#ntia_conformance_checker.BSIChecker.components_without_filenames" title="Link to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="ntia_conformance_checker.BSIChecker.components_without_original_licenses">
+<span class="sig-name descname"><span class="pre">components_without_original_licenses</span></span><span class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="pre">list</span><span class="p"><span class="pre">[</span></span><span class="pre">tuple</span><span class="p"><span class="pre">[</span></span><span class="pre">str</span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="pre">str</span><span class="p"><span class="pre">]</span></span><span class="p"><span class="pre">]</span></span></span><a class="headerlink" href="#ntia_conformance_checker.BSIChecker.components_without_original_licenses" title="Link to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="ntia_conformance_checker.BSIChecker.components_without_security_txt">
+<span class="sig-name descname"><span class="pre">components_without_security_txt</span></span><span class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="pre">list</span><span class="p"><span class="pre">[</span></span><span class="pre">tuple</span><span class="p"><span class="pre">[</span></span><span class="pre">str</span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="pre">str</span><span class="p"><span class="pre">]</span></span><span class="p"><span class="pre">]</span></span></span><a class="headerlink" href="#ntia_conformance_checker.BSIChecker.components_without_security_txt" title="Link to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="ntia_conformance_checker.BSIChecker.components_without_sha512_hashes">
+<span class="sig-name descname"><span class="pre">components_without_sha512_hashes</span></span><span class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="pre">list</span><span class="p"><span class="pre">[</span></span><span class="pre">tuple</span><span class="p"><span class="pre">[</span></span><span class="pre">str</span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="pre">str</span><span class="p"><span class="pre">]</span></span><span class="p"><span class="pre">]</span></span></span><a class="headerlink" href="#ntia_conformance_checker.BSIChecker.components_without_sha512_hashes" title="Link to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="ntia_conformance_checker.BSIChecker.components_without_source_code_hashes">
+<span class="sig-name descname"><span class="pre">components_without_source_code_hashes</span></span><span class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="pre">list</span><span class="p"><span class="pre">[</span></span><span class="pre">tuple</span><span class="p"><span class="pre">[</span></span><span class="pre">str</span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="pre">str</span><span class="p"><span class="pre">]</span></span><span class="p"><span class="pre">]</span></span></span><a class="headerlink" href="#ntia_conformance_checker.BSIChecker.components_without_source_code_hashes" title="Link to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="ntia_conformance_checker.BSIChecker.components_without_source_code_uris">
+<span class="sig-name descname"><span class="pre">components_without_source_code_uris</span></span><span class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="pre">list</span><span class="p"><span class="pre">[</span></span><span class="pre">tuple</span><span class="p"><span class="pre">[</span></span><span class="pre">str</span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="pre">str</span><span class="p"><span class="pre">]</span></span><span class="p"><span class="pre">]</span></span></span><a class="headerlink" href="#ntia_conformance_checker.BSIChecker.components_without_source_code_uris" title="Link to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="ntia_conformance_checker.BSIChecker.components_without_structured_prop">
+<span class="sig-name descname"><span class="pre">components_without_structured_prop</span></span><span class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="pre">list</span><span class="p"><span class="pre">[</span></span><span class="pre">tuple</span><span class="p"><span class="pre">[</span></span><span class="pre">str</span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="pre">str</span><span class="p"><span class="pre">]</span></span><span class="p"><span class="pre">]</span></span></span><a class="headerlink" href="#ntia_conformance_checker.BSIChecker.components_without_structured_prop" title="Link to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="ntia_conformance_checker.BSIChecker.components_without_unique_identifiers">
+<span class="sig-name descname"><span class="pre">components_without_unique_identifiers</span></span><span class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="pre">list</span><span class="p"><span class="pre">[</span></span><span class="pre">tuple</span><span class="p"><span class="pre">[</span></span><span class="pre">str</span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="pre">str</span><span class="p"><span class="pre">]</span></span><span class="p"><span class="pre">]</span></span></span><a class="headerlink" href="#ntia_conformance_checker.BSIChecker.components_without_unique_identifiers" title="Link to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="ntia_conformance_checker.BSIChecker.dependency_completeness">
+<span class="sig-name descname"><span class="pre">dependency_completeness</span></span><span class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="pre">bool</span></span><a class="headerlink" href="#ntia_conformance_checker.BSIChecker.dependency_completeness" title="Link to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="ntia_conformance_checker.BSIChecker.doc_creator">
+<span class="sig-name descname"><span class="pre">doc_creator</span></span><span class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="pre">bool</span></span><a class="headerlink" href="#ntia_conformance_checker.BSIChecker.doc_creator" title="Link to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="ntia_conformance_checker.BSIChecker.doc_uri">
+<span class="sig-name descname"><span class="pre">doc_uri</span></span><span class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="pre">bool</span></span><a class="headerlink" href="#ntia_conformance_checker.BSIChecker.doc_uri" title="Link to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="ntia_conformance_checker.BSIChecker.get_components_without_archive_prop">
+<span class="sig-name descname"><span class="pre">get_components_without_archive_prop</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">list</span><span class="p"><span class="pre">[</span></span><span class="pre">tuple</span><span class="p"><span class="pre">[</span></span><span class="pre">str</span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="pre">str</span><span class="p"><span class="pre">]</span></span><span class="p"><span class="pre">]</span></span></span></span><a class="reference internal" href="_modules/ntia_conformance_checker/bsi_checker.html#BSIChecker.get_components_without_archive_prop"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#ntia_conformance_checker.BSIChecker.get_components_without_archive_prop" title="Link to this definition">¶</a></dt>
+<dd><p>BSI Requirement: Omit ‘archive’ if non-archive.
+Since omission represents ‘False’, a static checker cannot fail a component
+for missing this tag. Always compliant.</p>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="ntia_conformance_checker.BSIChecker.get_components_without_bom_references">
+<span class="sig-name descname"><span class="pre">get_components_without_bom_references</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">list</span><span class="p"><span class="pre">[</span></span><span class="pre">tuple</span><span class="p"><span class="pre">[</span></span><span class="pre">str</span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="pre">str</span><span class="p"><span class="pre">]</span></span><span class="p"><span class="pre">]</span></span></span></span><a class="reference internal" href="_modules/ntia_conformance_checker/bsi_checker.html#BSIChecker.get_components_without_bom_references"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#ntia_conformance_checker.BSIChecker.get_components_without_bom_references" title="Link to this definition">¶</a></dt>
+<dd><p>Check if the component references another BOM.
+BSI Requirement: MAY be included (Optional Data Field).</p>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="ntia_conformance_checker.BSIChecker.get_components_without_concluded_licenses">
+<span class="sig-name descname"><span class="pre">get_components_without_concluded_licenses</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">list</span><span class="p"><span class="pre">[</span></span><span class="pre">tuple</span><span class="p"><span class="pre">[</span></span><span class="pre">str</span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="pre">str</span><span class="p"><span class="pre">]</span></span><span class="p"><span class="pre">]</span></span></span></span><a class="reference internal" href="_modules/ntia_conformance_checker/bsi_checker.html#BSIChecker.get_components_without_concluded_licenses"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#ntia_conformance_checker.BSIChecker.get_components_without_concluded_licenses" title="Link to this definition">¶</a></dt>
+<dd><p>Overrides BaseChecker to enforce BSI document Table 9 and Section 6.1 rules:
+1. Target MUST be simplelicensing_LicenseExpression.
+2. Must use valid SPDX license expressions, Scancode, or custom LicenseRefs.</p>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="ntia_conformance_checker.BSIChecker.get_components_without_creators">
+<span class="sig-name descname"><span class="pre">get_components_without_creators</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">list</span><span class="p"><span class="pre">[</span></span><span class="pre">tuple</span><span class="p"><span class="pre">[</span></span><span class="pre">str</span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="pre">str</span><span class="p"><span class="pre">]</span></span><span class="p"><span class="pre">]</span></span></span></span><a class="reference internal" href="_modules/ntia_conformance_checker/bsi_checker.html#BSIChecker.get_components_without_creators"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#ntia_conformance_checker.BSIChecker.get_components_without_creators" title="Link to this definition">¶</a></dt>
+<dd><p>Check if each component creator has a valid email or URL.</p>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="ntia_conformance_checker.BSIChecker.get_components_without_deployable_uris">
+<span class="sig-name descname"><span class="pre">get_components_without_deployable_uris</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">list</span><span class="p"><span class="pre">[</span></span><span class="pre">tuple</span><span class="p"><span class="pre">[</span></span><span class="pre">str</span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="pre">str</span><span class="p"><span class="pre">]</span></span><span class="p"><span class="pre">]</span></span></span></span><a class="reference internal" href="_modules/ntia_conformance_checker/bsi_checker.html#BSIChecker.get_components_without_deployable_uris"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#ntia_conformance_checker.BSIChecker.get_components_without_deployable_uris" title="Link to this definition">¶</a></dt>
+<dd><p>Check if the component has a URI of the deployable form.
+BSI Requirement: MUST be included IF it exists (Additional Data Field).</p>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="ntia_conformance_checker.BSIChecker.get_components_without_effective_licenses">
+<span class="sig-name descname"><span class="pre">get_components_without_effective_licenses</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">list</span><span class="p"><span class="pre">[</span></span><span class="pre">tuple</span><span class="p"><span class="pre">[</span></span><span class="pre">str</span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="pre">str</span><span class="p"><span class="pre">]</span></span><span class="p"><span class="pre">]</span></span></span></span><a class="reference internal" href="_modules/ntia_conformance_checker/bsi_checker.html#BSIChecker.get_components_without_effective_licenses"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#ntia_conformance_checker.BSIChecker.get_components_without_effective_licenses" title="Link to this definition">¶</a></dt>
+<dd><p>Check if the effective licence is included.
+BSI Requirement: MAY be included (Optional Data Field).</p>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="ntia_conformance_checker.BSIChecker.get_components_without_executable_prop">
+<span class="sig-name descname"><span class="pre">get_components_without_executable_prop</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">list</span><span class="p"><span class="pre">[</span></span><span class="pre">tuple</span><span class="p"><span class="pre">[</span></span><span class="pre">str</span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="pre">str</span><span class="p"><span class="pre">]</span></span><span class="p"><span class="pre">]</span></span></span></span><a class="reference internal" href="_modules/ntia_conformance_checker/bsi_checker.html#BSIChecker.get_components_without_executable_prop"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#ntia_conformance_checker.BSIChecker.get_components_without_executable_prop" title="Link to this definition">¶</a></dt>
+<dd><p>BSI Requirement: Omit ‘executable’ if non-executable.
+Since omission represents ‘False’, a static checker cannot fail a component
+for missing this tag. Always compliant.</p>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="ntia_conformance_checker.BSIChecker.get_components_without_filenames">
+<span class="sig-name descname"><span class="pre">get_components_without_filenames</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">list</span><span class="p"><span class="pre">[</span></span><span class="pre">tuple</span><span class="p"><span class="pre">[</span></span><span class="pre">str</span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="pre">str</span><span class="p"><span class="pre">]</span></span><span class="p"><span class="pre">]</span></span></span></span><a class="reference internal" href="_modules/ntia_conformance_checker/bsi_checker.html#BSIChecker.get_components_without_filenames"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#ntia_conformance_checker.BSIChecker.get_components_without_filenames" title="Link to this definition">¶</a></dt>
+<dd><p>Check if each package has a linked software_File with a valid name.</p>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="ntia_conformance_checker.BSIChecker.get_components_without_original_licenses">
+<span class="sig-name descname"><span class="pre">get_components_without_original_licenses</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">list</span><span class="p"><span class="pre">[</span></span><span class="pre">tuple</span><span class="p"><span class="pre">[</span></span><span class="pre">str</span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="pre">str</span><span class="p"><span class="pre">]</span></span><span class="p"><span class="pre">]</span></span></span></span><a class="reference internal" href="_modules/ntia_conformance_checker/bsi_checker.html#BSIChecker.get_components_without_original_licenses"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#ntia_conformance_checker.BSIChecker.get_components_without_original_licenses" title="Link to this definition">¶</a></dt>
+<dd><p>Check if original licences are included.
+BSI Requirement: MUST be included IF they exist (Additional Data Field).</p>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="ntia_conformance_checker.BSIChecker.get_components_without_security_txt">
+<span class="sig-name descname"><span class="pre">get_components_without_security_txt</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">list</span><span class="p"><span class="pre">[</span></span><span class="pre">tuple</span><span class="p"><span class="pre">[</span></span><span class="pre">str</span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="pre">str</span><span class="p"><span class="pre">]</span></span><span class="p"><span class="pre">]</span></span></span></span><a class="reference internal" href="_modules/ntia_conformance_checker/bsi_checker.html#BSIChecker.get_components_without_security_txt"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#ntia_conformance_checker.BSIChecker.get_components_without_security_txt" title="Link to this definition">¶</a></dt>
+<dd><p>Check if the component contains a URL to security.txt.
+BSI Requirement: MAY be included (Optional Data Field).</p>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="ntia_conformance_checker.BSIChecker.get_components_without_sha512_hashes">
+<span class="sig-name descname"><span class="pre">get_components_without_sha512_hashes</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">list</span><span class="p"><span class="pre">[</span></span><span class="pre">tuple</span><span class="p"><span class="pre">[</span></span><span class="pre">str</span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="pre">str</span><span class="p"><span class="pre">]</span></span><span class="p"><span class="pre">]</span></span></span></span><a class="reference internal" href="_modules/ntia_conformance_checker/bsi_checker.html#BSIChecker.get_components_without_sha512_hashes"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#ntia_conformance_checker.BSIChecker.get_components_without_sha512_hashes" title="Link to this definition">¶</a></dt>
+<dd><p>Check if the deployable component has a SHA-512 hash.</p>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="ntia_conformance_checker.BSIChecker.get_components_without_source_code_hashes">
+<span class="sig-name descname"><span class="pre">get_components_without_source_code_hashes</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">list</span><span class="p"><span class="pre">[</span></span><span class="pre">tuple</span><span class="p"><span class="pre">[</span></span><span class="pre">str</span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="pre">str</span><span class="p"><span class="pre">]</span></span><span class="p"><span class="pre">]</span></span></span></span><a class="reference internal" href="_modules/ntia_conformance_checker/bsi_checker.html#BSIChecker.get_components_without_source_code_hashes"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#ntia_conformance_checker.BSIChecker.get_components_without_source_code_hashes" title="Link to this definition">¶</a></dt>
+<dd><p>Check if the source code of the component has a SHA-512 hash.
+BSI Requirement: MAY be included (Optional Data Field).</p>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="ntia_conformance_checker.BSIChecker.get_components_without_source_code_uris">
+<span class="sig-name descname"><span class="pre">get_components_without_source_code_uris</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">list</span><span class="p"><span class="pre">[</span></span><span class="pre">tuple</span><span class="p"><span class="pre">[</span></span><span class="pre">str</span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="pre">str</span><span class="p"><span class="pre">]</span></span><span class="p"><span class="pre">]</span></span></span></span><a class="reference internal" href="_modules/ntia_conformance_checker/bsi_checker.html#BSIChecker.get_components_without_source_code_uris"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#ntia_conformance_checker.BSIChecker.get_components_without_source_code_uris" title="Link to this definition">¶</a></dt>
+<dd><p>Check if the component has a Source code URI.
+BSI Requirement: MUST be included IF it exists (Additional Data Field).</p>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="ntia_conformance_checker.BSIChecker.get_components_without_structured_prop">
+<span class="sig-name descname"><span class="pre">get_components_without_structured_prop</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">list</span><span class="p"><span class="pre">[</span></span><span class="pre">tuple</span><span class="p"><span class="pre">[</span></span><span class="pre">str</span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="pre">str</span><span class="p"><span class="pre">]</span></span><span class="p"><span class="pre">]</span></span></span></span><a class="reference internal" href="_modules/ntia_conformance_checker/bsi_checker.html#BSIChecker.get_components_without_structured_prop"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#ntia_conformance_checker.BSIChecker.get_components_without_structured_prop" title="Link to this definition">¶</a></dt>
+<dd><p>Check if the component declares a structured property.
+BSI Requirement: MUST indicate ‘container’ (structured) or ‘firmware’ (unstructured).</p>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="ntia_conformance_checker.BSIChecker.get_components_without_unique_identifiers">
+<span class="sig-name descname"><span class="pre">get_components_without_unique_identifiers</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">list</span><span class="p"><span class="pre">[</span></span><span class="pre">tuple</span><span class="p"><span class="pre">[</span></span><span class="pre">str</span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="pre">str</span><span class="p"><span class="pre">]</span></span><span class="p"><span class="pre">]</span></span></span></span><a class="reference internal" href="_modules/ntia_conformance_checker/bsi_checker.html#BSIChecker.get_components_without_unique_identifiers"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#ntia_conformance_checker.BSIChecker.get_components_without_unique_identifiers" title="Link to this definition">¶</a></dt>
+<dd><p>Check if the component has additional unique identifiers (CPE, SWID, PURL).
+BSI Requirement: MUST be included IF they exist (Additional Data Field).</p>
+</dd></dl>
+
+</dd></dl>
+
 <dl class="py class">
 <dt class="sig sig-object py" id="ntia_conformance_checker.BaseChecker">
 <span class="property"><span class="k"><span class="pre">class</span></span><span class="w"> </span></span><span class="sig-prename descclassname"><span class="pre">ntia_conformance_checker.</span></span><span class="sig-name descname"><span class="pre">BaseChecker</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">file</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">validate</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">bool</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">True</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">compliance</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">''</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">sbom_spec</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">'spdx2'</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/ntia_conformance_checker/base_checker.html#BaseChecker"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#ntia_conformance_checker.BaseChecker" title="Link to this definition">¶</a></dt>
