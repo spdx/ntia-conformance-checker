@@ -173,11 +173,13 @@ print(sbom_checker.compliant)
 See the API documentation at:
 <https://spdx.github.io/ntia-conformance-checker/>
 
-Additional properties and methods can be found in `BaseChecker` class
-at [`base_checker.py`](ntia_conformance_checker/base_checker.py).
-Specific properties and methods for a particular specification can be found
-at the checker for that specification. For example, `NTIAChecker` class
-at [`ntia_checker.py`](ntia_conformance_checker/ntia_checker.py).
+Additional orchestrating properties and methods can be found in
+the `BaseChecker` class at `base_checker.py`.
+Format-specific data extraction has been decoupled using the Adapter Pattern;
+if you need to access direct extraction methods for a specific specification,
+you can reference the `adapters` package (e.g., `Spdx2Adapter` or `Spdx3Adapter`).
+Specific compliance standard logic can be found in their respective classes,
+such as the `NTIAChecker` class at [`ntia_checker.py`](ntia_conformance_checker/ntia_checker.py).
 
 ## Online usage
 
@@ -195,6 +197,7 @@ each with a specific CSS class for easy styling and targeting:
 - Conformance results: `<div class="conformance-res">`
 - Components missing required information: `<div class="conformance-mis">`
 - Detailed validation information: `<div class="conformance-val">`
+- Graph structural issues: `<div class="conformance-graph">`
 
 ## History
 
