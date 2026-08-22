@@ -461,8 +461,12 @@ def report_json(checker_instance: "BaseChecker") -> dict[str, Any]:
         "totalNumberComponents": checker_instance.get_total_number_components(),
         "graphValidation": {
             "unknownPointers": {
-                "hasUnknownPointers": getattr(checker_instance, "has_unknown_pointers", False),
-                "unknownPointerEdges": getattr(checker_instance, "unknown_pointer_edges", {}),
+                "hasUnknownPointers": getattr(
+                    checker_instance, "has_unknown_pointers", False
+                ),
+                "unknownPointerEdges": getattr(
+                    checker_instance, "unknown_pointer_edges", {}
+                ),
             },
             "floatingComponents": {
                 "floatingComponentCount": len(

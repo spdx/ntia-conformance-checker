@@ -27,7 +27,6 @@ from .report import (
     report_json,
     report_text,
 )
-
 from .spdx3_utils import (
     parse_spdx3_file,
     validate_spdx3_data,
