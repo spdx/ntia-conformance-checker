@@ -6,7 +6,6 @@
 
 from __future__ import annotations
 
-import json
 import logging
 import os
 import warnings
@@ -33,9 +32,11 @@ from .report import (
     report_text,
 )
 from .spdx3_utils import (
+    get_all_packages,
     has_package_dependency_relationship,
     iter_objects_with_property,
     iter_relationships_by_type,
+    parse_spdx3_file,
     validate_spdx3_data,
 )
 
@@ -184,13 +185,18 @@ class BaseChecker(ABC):
 
         self.reachable_component_ids: set[str] = set()
         self.floating_component_ids: set[str] = set()
-        self.has_unknown_components: bool = False
+        self.unknown_pointer_edges: dict[str, list[str]] = {}
+
+        # "Pointers" refers to relationship edges targeting unknown/missing elements in the graph.
+        self.has_unknown_pointers: bool = False
 
         match sbom_spec:
             case "spdx2":
                 self.doc = self.parse_file()
             case "spdx3":
-                object_set = self.parse_spdx3_file()
+                object_set, parsing_errors = parse_spdx3_file(self.file)
+                self._parsing_errors.extend(parsing_errors)
+
                 if not object_set:
                     logging.error("Failed to parse the SPDX 3 file.")
                 else:
@@ -417,7 +423,7 @@ class BaseChecker(ABC):
             error_msg = (
                 "To have SBOM type (SBOM generation context) information, "
                 "the rootElement of the SpdxDocument shall be of type "
-                "/Software/Sbom."
+                "/Software/Sbom. "
                 f"Found: {type(root_elem).__name__!r}"
             )
             context = ValidationContext(parent_id=doc_id, spdx_id=root_elem_id)
@@ -572,14 +578,8 @@ class BaseChecker(ABC):
             return [
                 (package.name or "", package.spdx_id or "")
                 for package in packages
-                if package.spdx_id in self.reachable_component_ids
-                and (
-                    package.spdx_id is None
-                    or (
-                        isinstance(package.spdx_id, str)
-                        and package.spdx_id.strip() == ""
-                    )
-                )
+                if package.spdx_id is None
+                or (isinstance(package.spdx_id, str) and package.spdx_id.strip() == "")
             ]
 
         # SPDX 3
@@ -588,8 +588,11 @@ class BaseChecker(ABC):
 
             return [
                 (name or "", spdx_id or "")
-                for name, _, spdx_id in iter_objects_with_property(
-                    self.doc, spdx3.Element, "spdxId", self.reachable_component_ids
+                for name, spdx_id, _ in iter_objects_with_property(
+                    self.doc,
+                    spdx3.software_Package,
+                    "spdxId",
+                    reachable_ids=None,
                 )
                 if not spdx_id or (isinstance(spdx_id, str) and spdx_id.strip() == "")
             ]
@@ -764,6 +767,10 @@ class BaseChecker(ABC):
         """
         Retrieve total number of components.
 
+        For SPDX 2, this returns the total count of packages.
+        For SPDX 3, this returns the total count of packages and package
+        subclasses (including AIPackage and DatasetPackage).
+
         Returns:
             int: The total number of components.
         """
@@ -780,8 +787,7 @@ class BaseChecker(ABC):
         # SPDX 3
         if self.sbom_spec == "spdx3":
             self.doc = cast("spdx3.SHACLObjectSet", self.doc)
-            objects: set[spdx3.SHACLObject] = getattr(self.doc, "objects", set())
-            return len(objects)
+            return len(get_all_packages(self.doc))
 
         return 0
 
@@ -823,32 +829,6 @@ class BaseChecker(ABC):
             return None
 
         return cast("Document", doc)
-
-    def parse_spdx3_file(self) -> spdx3.SHACLObjectSet | None:
-        """
-        Parse SPDX 3 SBOM document.
-
-        Returns:
-            spdx3.SHACLObjectSet | None: An SHACLObjectSet if successful, otherwise None.
-        """
-        if not self.file or str(self.file).strip() == "":
-            logging.error("No file path provided.")
-            return None
-
-        if not os.path.exists(self.file):
-            logging.error("File not found: %s", self.file)
-            return None
-
-        object_set: spdx3.SHACLObjectSet = spdx3.SHACLObjectSet()
-        try:
-            with open(self.file, "rb") as f:
-                spdx3.JSONLDDeserializer().read(f, object_set)
-        except (OSError, json.JSONDecodeError) as err:
-            logging.warning("SPDX3 deserialization failed: %s", err)
-            self._parsing_errors.append(str(err))
-            return None
-
-        return object_set
 
     def print_components_missing_info(self) -> None:
         """
@@ -893,6 +873,8 @@ class BaseChecker(ABC):
             validation_messages=self._validation_messages,
             conformance_messages=self._conformance_messages,
             parsing_errors=self._parsing_errors,
+            unknown_pointer_edges=getattr(self, "unknown_pointer_edges", {}),
+            floating_component_ids=getattr(self, "floating_component_ids", set()),
         )
 
         print(report_text(report_context, verbose))
@@ -913,6 +895,8 @@ class BaseChecker(ABC):
             validation_messages=self._validation_messages,
             conformance_messages=self._conformance_messages,
             parsing_errors=self._parsing_errors,
+            unknown_pointer_edges=getattr(self, "unknown_pointer_edges", {}),
+            floating_component_ids=getattr(self, "floating_component_ids", set()),
         )
 
         return report_html(report_context, verbose=True)
@@ -945,6 +929,20 @@ class BaseChecker(ABC):
                 self, "dependency_relationships", False
             ),
             "totalNumberComponents": self.get_total_number_components(),
+            "graphValidation": {
+                "unknownPointers": {
+                    "hasUnknownPointers": getattr(self, "has_unknown_pointers", False),
+                    "unknownPointerEdges": getattr(self, "unknown_pointer_edges", {}),
+                },
+                "floatingComponents": {
+                    "floatingComponentCount": len(
+                        getattr(self, "floating_component_ids", set())
+                    ),
+                    "floatingComponentIds": list(
+                        getattr(self, "floating_component_ids", set())
+                    ),
+                },
+            },
         }
 
         _groups = {
@@ -975,12 +973,15 @@ class BaseChecker(ABC):
     def _evaluate_graph_connectivity(self) -> None:
         """Evaluate graph connectivity to isolate floating nodes and unknown pointers."""
 
-        reachable, floating, _, has_unknown_pointers = analyze_graph_connectivity(
-            self.sbom_spec, self.doc, getattr(self, "_BaseChecker__spdx3_doc", None)
+        reachable, floating, unknown_pointer_edges, has_unknown_pointers = (
+            analyze_graph_connectivity(
+                self.sbom_spec, self.doc, getattr(self, "_BaseChecker__spdx3_doc", None)
+            )
         )
 
         self.reachable_component_ids = reachable
         self.floating_component_ids = floating
+        self.unknown_pointer_edges = unknown_pointer_edges
         self.has_unknown_pointers = has_unknown_pointers
 
         if self.floating_component_ids:
@@ -992,5 +993,5 @@ class BaseChecker(ABC):
         if self.has_unknown_pointers:
             logging.error(
                 "Unknown components detected!"
-                "A relationship points to a missing element."
+                " A relationship points to a missing element."
             )

@@ -1,9 +1,10 @@
-# SPDX-FileCopyrightText: 2025 SPDX contributors
+# SPDX-FileCopyrightText: 2026 SPDX contributors
 # SPDX-FileType: SOURCE
 # SPDX-License-Identifier: Apache-2.0
 
 """Graph utilities for SPDX 2 and SPDX 3."""
 
+import logging
 from typing import TYPE_CHECKING, Any, cast
 
 from spdx_python_model.bindings import v3_0_1 as spdx3
@@ -18,44 +19,117 @@ if TYPE_CHECKING:
     from spdx_tools.spdx.model.document import Document
 
 
+def _collect_spdx2_known_and_package_ids(
+    spdx2_doc: "Document",
+) -> tuple[set[str], set[str]]:
+    """
+    Retrieve known entity IDs (packages, files, snippets, document) and package IDs for SPDX 2.
+
+    Returns:
+        tuple: (all_known_ids, all_package_ids)
+    """
+    doc_id = "SPDXRef-DOCUMENT"
+    if getattr(spdx2_doc, "creation_info", None) and getattr(
+        spdx2_doc.creation_info, "spdx_id", None
+    ):
+        doc_id = spdx2_doc.creation_info.spdx_id
+
+    package_ids = {
+        pkg.spdx_id
+        for pkg in getattr(spdx2_doc, "packages", [])
+        if isinstance(pkg.spdx_id, str)
+    }
+    file_ids = {
+        f.spdx_id for f in getattr(spdx2_doc, "files", []) if isinstance(f.spdx_id, str)
+    }
+    snippet_ids = {
+        s.spdx_id
+        for s in getattr(spdx2_doc, "snippets", [])
+        if isinstance(s.spdx_id, str)
+    }
+    all_known_ids = package_ids | file_ids | snippet_ids | {doc_id}
+    return all_known_ids, package_ids
+
+
+def _collect_spdx3_known_and_package_ids(
+    object_set: spdx3.SHACLObjectSet,
+) -> tuple[set[str], set[str]]:
+    """
+    Retrieve all known object IDs and package IDs for SPDX 3.
+
+    Returns:
+        tuple: (all_known_ids, all_package_ids)
+    """
+    all_known_ids = {
+        getattr(obj, "spdxId")
+        for obj in object_set.objects
+        if isinstance(getattr(obj, "spdxId", None), str)
+    }
+    package_ids = {
+        getattr(obj, "spdxId")
+        for obj in object_set.objects
+        if isinstance(obj, spdx3.software_Package)
+        and isinstance(getattr(obj, "spdxId", None), str)
+    }
+    return all_known_ids, package_ids
+
+
 def analyze_graph_connectivity(
     sbom_spec: str, parsed_data: Any, spdx3_doc: Any = None
 ) -> tuple[set[str], set[str], dict[str, list[str]], bool]:
     """
-    Analyzes the graph to find reachable nodes, floating nodes, and unknown pointer edges.
+    Analyze graph connectivity to find reachable components and unknown pointers.
+
+    Connectivity is evaluated at the component (package) level because
+    components represent the primary unit of software conformance in
+    minimum elements standards.
 
     Returns:
-        tuple: (reachable_ids, floating_ids, unknown_pointer_edges, has_unknown_pointers)
+        tuple: (reachable_component_ids, floating_component_ids,
+            unknown_pointer_edges, has_unknown_pointers)
     """
-    reachable_ids, connection_map = get_reachable_components(
+    if not parsed_data or (sbom_spec == "spdx3" and not spdx3_doc):
+        return set(), set(), {}, False
+
+    reachable_node_ids, connection_map = get_reachable_nodes(
         sbom_spec, parsed_data, spdx3_doc
     )
-    all_doc_ids: set[str] = set()
+    all_known_ids: set[str] = set()
+    all_package_ids: set[str] = set()
 
     if sbom_spec == "spdx2":
-        spdx2_doc = cast("Document", parsed_data)
-        all_doc_ids = {
-            pkg.spdx_id for pkg in spdx2_doc.packages if isinstance(pkg.spdx_id, str)
-        }
+        all_known_ids, all_package_ids = _collect_spdx2_known_and_package_ids(
+            cast("Document", parsed_data)
+        )
     elif sbom_spec == "spdx3":
-        spdx3_doc_set = cast("spdx3.SHACLObjectSet", parsed_data)
-        all_doc_ids = {
-            getattr(obj, "spdxId")
-            for obj in spdx3_doc_set.objects
-            if isinstance(getattr(obj, "spdxId", None), str)
-        }
+        all_known_ids, all_package_ids = _collect_spdx3_known_and_package_ids(
+            cast("spdx3.SHACLObjectSet", parsed_data)
+        )
 
-    floating_ids = all_doc_ids - reachable_ids
-    has_unknown_pointers = not reachable_ids.issubset(all_doc_ids)
+    reachable_component_ids = reachable_node_ids & all_package_ids
 
     # Find exactly which edges point to unknown nodes
     unknown_pointer_edges: dict[str, list[str]] = {}
     for source_id, target_ids in connection_map.items():
-        missing_targets = [t for t in target_ids if t not in all_doc_ids]
+        missing_targets = [t for t in target_ids if t not in all_known_ids]
         if missing_targets:
             unknown_pointer_edges[source_id] = missing_targets
 
-    return reachable_ids, floating_ids, unknown_pointer_edges, has_unknown_pointers
+    floating_component_ids = all_package_ids - reachable_component_ids
+    has_unknown_pointers = bool(unknown_pointer_edges)
+
+    if not reachable_node_ids.issubset(all_known_ids) and not has_unknown_pointers:
+        logging.error(
+            "Traversal bug: BFS reached a node absent from all_known_ids, "
+            "but unknown_pointer_edges did not record it."
+        )
+
+    return (
+        reachable_component_ids,
+        floating_component_ids,
+        unknown_pointer_edges,
+        has_unknown_pointers,
+    )
 
 
 def _build_spdx2_graph(spdx2_doc: "Document") -> tuple[list[str], dict[str, list[str]]]:
@@ -85,6 +159,12 @@ def _build_spdx2_graph(spdx2_doc: "Document") -> tuple[list[str], dict[str, list
             "SPDXRef-DOCUMENT",
         ):
             queue.append(target_id)
+        # DESCRIBED_BY is a reverse of DESCRIBES
+        elif rel.relationship_type == RelationshipType.DESCRIBED_BY and target_id in (
+            doc_id,
+            "SPDXRef-DOCUMENT",
+        ):
+            queue.append(source_id)
 
         # Build the graph connection map
         if rel.relationship_type.name in VALID_SPDX2_COMPOSITION_RELATIONSHIPS:
@@ -135,11 +215,10 @@ def _extract_spdx3_collection_edges(
     if col_id not in graph_connection_map:
         graph_connection_map[col_id] = []
 
-    for attr in ("rootElement", "element"):
-        for elem in getattr(obj, attr, []):
-            e_id = elem if isinstance(elem, str) else getattr(elem, "spdxId", "")
-            if e_id:
-                graph_connection_map[col_id].append(e_id)
+    for elem in getattr(obj, "rootElement", []):
+        e_id = elem if isinstance(elem, str) else getattr(elem, "spdxId", "")
+        if e_id:
+            graph_connection_map[col_id].append(e_id)
 
 
 def _build_spdx3_graph(
@@ -186,22 +265,19 @@ def _build_spdx3_graph(
     return queue, graph_connection_map
 
 
-def get_reachable_components(
+def get_reachable_nodes(
     sbom_spec: str, parsed_data: Any, spdx3_doc: Any = None
 ) -> tuple[set[str], dict[str, list[str]]]:
     """
-    Get all components connected to the root by using Breadth-First Search.
+    Get all nodes connected to the root by using Breadth-First Search.
 
     Returns:
-        tuple: (reachable_component_ids, graph_connection_map)
+        tuple: (reachable_node_ids, graph_connection_map)
     """
-
-    if not parsed_data:
+    if not parsed_data or (sbom_spec == "spdx3" and not spdx3_doc):
         return set(), {}
 
     queue: list[str] = []
-
-    # graph_connection_map: source_id -> list[target_ids]
     graph_connection_map: dict[str, list[str]] = {}
 
     # SPDX 2
@@ -212,16 +288,16 @@ def get_reachable_components(
     if sbom_spec == "spdx3":
         queue, graph_connection_map = _build_spdx3_graph(parsed_data, spdx3_doc)
 
-    reachable_component_ids: set[str] = set(queue)
+    reachable_node_ids: set[str] = set(queue)
 
-    # Perform BFS to find all reachable components
+    # Perform BFS to find all reachable nodes
     while queue:
         current_id = queue.pop(0)
 
         if current_id in graph_connection_map:
             for target_id in graph_connection_map[current_id]:
-                if target_id not in reachable_component_ids:
-                    reachable_component_ids.add(target_id)
+                if target_id not in reachable_node_ids:
+                    reachable_node_ids.add(target_id)
                     queue.append(target_id)
 
-    return reachable_component_ids, graph_connection_map
+    return reachable_node_ids, graph_connection_map

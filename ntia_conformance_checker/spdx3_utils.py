@@ -6,6 +6,9 @@
 
 from __future__ import annotations
 
+import json
+import logging
+import os
 from typing import TYPE_CHECKING, Any, Union
 
 from spdx_python_model.bindings import v3_0_1 as spdx3
@@ -127,7 +130,7 @@ def validate_spdx3_data(
 
 def get_boms_from_spdx_document(
     spdx_doc: spdx3.SpdxDocument | None,
-) -> list[spdx3.Bom] | None:
+) -> list[spdx3.Bom]:
     """
     Retrieve the BOMs that are rootElements of an SPDX 3 SpdxDocument.
 
@@ -135,21 +138,18 @@ def get_boms_from_spdx_document(
         spdx_doc (spdx3.SpdxDocument | None): The SPDX 3 SpdxDocument.
 
     Returns:
-        list[spdx3.Bom] | None: A list of BOMs if found, otherwise None.
+        list[spdx3.Bom]: A list of BOMs if found, otherwise an empty list.
     """
     if not spdx_doc:
-        return None
+        return []
 
-    root_elements: list[spdx3.Bom] = getattr(spdx_doc, "rootElement", [])
-    if not root_elements:
-        return None
-
-    return root_elements
+    root_elements: list[Any] = getattr(spdx_doc, "rootElement", [])
+    return [elem for elem in root_elements if isinstance(elem, spdx3.Bom)]
 
 
 def get_packages_from_bom(
     bom: spdx3.Bom | None,
-) -> list[spdx3.software_Package] | None:
+) -> list[spdx3.software_Package]:
     """
     Retrieve the /Software/Packages that are rootElements of an SPDX 3 BOM.
 
@@ -157,16 +157,13 @@ def get_packages_from_bom(
         bom (spdx3.Bom | None): The SPDX 3 Bom.
 
     Returns:
-        list[spdx3.software_Package] | None: A list of packages if found, otherwise None.
+        list[spdx3.software_Package]: A list of packages if found, otherwise an empty list.
     """
     if not bom:
-        return None
+        return []
 
-    root_elements: list[spdx3.software_Package] = getattr(bom, "rootElement", [])
-    if not root_elements or len(root_elements) != 1:
-        return None
-
-    return root_elements
+    root_elements: list[Any] = getattr(bom, "rootElement", [])
+    return [elem for elem in root_elements if isinstance(elem, spdx3.software_Package)]
 
 
 def iter_objects_with_property(
@@ -232,7 +229,12 @@ def iter_relationships_by_type(
 
 
 def get_all_packages(object_set: spdx3.SHACLObjectSet) -> set[spdx3.software_Package]:
-    """Retrieve all /Software/Package objects from an SHACLObjectSet."""
+    """
+    Retrieve all /Software/Package objects from an SHACLObjectSet.
+
+    This includes instances of software_Package and its subclasses,
+    such as ai_AIPackage and dataset_DatasetPackage.
+    """
     packages: set[spdx3.software_Package] = set(
         object_set.foreach_type(spdx3.software_Package)
     )
@@ -360,3 +362,33 @@ def get_dependency_relationships_completeness(
                     )
 
     return completeness_map
+
+
+def parse_spdx3_file(file_path: str) -> tuple[spdx3.SHACLObjectSet | None, list[str]]:
+    """
+    Parse SPDX 3 SBOM document.
+
+    Returns:
+        tuple[spdx3.SHACLObjectSet | None, list[str]]: A tuple containing the parsed
+            SHACLObjectSet (or None if parsing failed) and a list of parsing error strings.
+    """
+    parsing_errors: list[str] = []
+
+    if not file_path or str(file_path).strip() == "":
+        logging.error("No file path provided.")
+        return None, parsing_errors
+
+    if not os.path.exists(file_path):
+        logging.error("File not found: %s", file_path)
+        return None, parsing_errors
+
+    object_set: spdx3.SHACLObjectSet = spdx3.SHACLObjectSet()
+    try:
+        with open(file_path, "rb") as f:
+            spdx3.JSONLDDeserializer().read(f, object_set)
+    except (OSError, json.JSONDecodeError) as err:
+        logging.warning("SPDX3 deserialization failed: %s", err)
+        parsing_errors.append(str(err))
+        return None, parsing_errors
+
+    return object_set, parsing_errors
