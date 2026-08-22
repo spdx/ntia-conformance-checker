@@ -79,6 +79,8 @@ Mappings:
 > 
 > For full technical details regarding these design decisions, please refer to [PR #428](https://github.com/spdx/ntia-conformance-checker/pull/428).
 
+## Installation
+
 This tool requires Python 3.10 or newer.
 Its dependencies may require a more recent version of Python.
 
