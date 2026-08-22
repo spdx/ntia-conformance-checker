@@ -52,12 +52,12 @@ class BSIChecker(BaseChecker):
             "Components missing a distribution filename",
         ),
         "distribution_licenses": (
-                    "components_without_concluded_licenses",
-                    "Components missing distribution licenses",
+            "components_without_concluded_licenses",
+            "Components missing distribution licenses",
         ),
         "sha512_hash": (
-                    "components_without_sha512_hashes",
-                    "Components missing SHA-512 hash",
+            "components_without_sha512_hashes",
+            "Components missing SHA-512 hash",
         ),
         "executable_property": (
             "components_without_executable_prop",
@@ -95,10 +95,10 @@ class BSIChecker(BaseChecker):
 
         self.components_without_creators: list[tuple[str, str]] = []
         self.components_without_filenames: list[tuple[str, str]] = []
+        self.components_without_sha512_hashes: list[tuple[str, str]] = []
         self.components_without_executable_prop: list[tuple[str, str]] = []
         self.components_without_archive_prop: list[tuple[str, str]] = []
         self.components_without_structured_prop: list[tuple[str, str]] = []
-        self.components_without_sha512_hashes: list[tuple[str, str]] = []
 
         # Initialize Additional/Optional lists (Warnings)
         self.components_without_source_code_uris: list[tuple[str, str]] = []
@@ -532,7 +532,10 @@ class BSIChecker(BaseChecker):
                 (
                     spdx3.software_SoftwareArtifact,
                     spdx3.software_File,
+                    spdx3.software_Snippet,
                     spdx3.software_Package,
+                    spdx3.ai_AIPackage,
+                    spdx3.dataset_DatasetPackage,
                 ),
             ):
                 raw_purpose = getattr(obj, "software_primaryPurpose", None) or getattr(
@@ -579,6 +582,8 @@ class BSIChecker(BaseChecker):
 
             has_deployable_uri = False
             for file_obj in linked_files:
+                # Note: BSI TR-03183-2 example shows 'binaryArtifact' as a direct property,
+                # but SPDX 3.0.1 defines it strictly as an ExternalRefType.
                 for ext_ref in getattr(file_obj, "externalRef", []):
                     ref_type = str(getattr(ext_ref, "externalRefType", "")).lower()
                     if "binaryartifact" in ref_type:
@@ -722,7 +727,10 @@ class BSIChecker(BaseChecker):
                 (
                     spdx3.software_SoftwareArtifact,
                     spdx3.software_File,
+                    spdx3.software_Snippet,
                     spdx3.software_Package,
+                    spdx3.ai_AIPackage,
+                    spdx3.dataset_DatasetPackage,
                 ),
             ):
                 raw_purpose = getattr(obj, "software_primaryPurpose", None) or getattr(

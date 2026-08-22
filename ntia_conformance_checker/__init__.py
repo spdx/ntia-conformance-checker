@@ -5,11 +5,11 @@
 """Export functions for usage as library."""
 
 __all__ = [
-    "BaseChecker", 
+    "BaseChecker",
     "BSIChecker",
-    "FSCT3Checker", 
-    "NTIAChecker", 
-    "SbomChecker", 
+    "FSCT3Checker",
+    "NTIAChecker",
+    "SbomChecker",
 ]
 
 from .base_checker import BaseChecker
