@@ -51,6 +51,14 @@ class BSIChecker(BaseChecker):
             "components_without_filenames",
             "Components missing a distribution filename",
         ),
+        "distribution_licenses": (
+                    "components_without_concluded_licenses",
+                    "Components missing distribution licenses",
+        ),
+        "sha512_hash": (
+                    "components_without_sha512_hashes",
+                    "Components missing SHA-512 hash",
+        ),
         "executable_property": (
             "components_without_executable_prop",
             "Components missing executable property",
@@ -62,14 +70,6 @@ class BSIChecker(BaseChecker):
         "structured_property": (
             "components_without_structured_prop",
             "Components missing structured property",
-        ),
-        "distribution_licenses": (
-            "components_without_concluded_licenses",
-            "Components missing distribution licenses",
-        ),
-        "sha512_hash": (
-            "components_without_sha512_hashes",
-            "Components missing SHA-512 hash",
         ),
     }
 
