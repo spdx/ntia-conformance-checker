@@ -78,11 +78,6 @@ class SbomAdapter(ABC):
         """
         Retrieve components missing unique identifiers (SPDX IDs).
 
-        Note that SPDX 3 requires identifiers for all elements,
-        so this should not happen in a valid SPDX 3 document.
-        The spdx-python-model JSON deserializer will raise a ValueError
-        if any element is missing an identifier.
-
         Returns:
             list[tuple[str, str]]: A list of tuples of the form
             (component_name, spdx_id). Consumers should extract the
@@ -124,10 +119,6 @@ class SbomAdapter(ABC):
         """
         Retrieve total number of components.
 
-        For SPDX 2, this returns the total count of packages.
-        For SPDX 3, this returns the total count of packages and package
-        subclasses (including AIPackage and DatasetPackage).
-
         Returns:
             int: The total number of components.
         """
@@ -141,6 +132,4 @@ class SbomAdapter(ABC):
         CISA Framing Software Component Transparency (2024) listed
         "SBOM type" as one of baseline attributes, see Table 1 (p. 22) in:
         https://www.cisa.gov/resources-tools/resources/framing-software-component-transparency-2024
-
-        In SPDX 3, SBOM type is only available in /Software/Sbom class.
         """
