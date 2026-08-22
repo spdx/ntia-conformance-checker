@@ -17,6 +17,11 @@ from spdx_python_model.bindings import v3_0_1 as spdx3
 
 import ntia_conformance_checker.sbom_checker as sbom_checker
 from ntia_conformance_checker import FSCT3Checker, NTIAChecker
+from ntia_conformance_checker.report import (
+    ReportContext,
+    _generate_graph_html_report,
+    _generate_graph_text_report,
+)
 from ntia_conformance_checker.spdx3_utils import (
     get_boms_from_spdx_document,
     get_packages_from_bom,
@@ -665,9 +670,37 @@ test_files_missing_target = [os.path.join(dirname, fn) for fn in os.listdir(dirn
 
 @pytest.mark.parametrize("test_file", test_files_missing_target)
 def test_missing_relationship_target(test_file: str) -> None:
-    """Test that a relationship node points to an ID that does not exist in the document."""
-    sbom = sbom_checker.SbomChecker(test_file)
-    assert sbom.compliant is False
+    """Test that a relationship node points to an ID that does not exist in the document
+    and logged properly."""
+    spec = "spdx3" if "spdx3" in test_file else "spdx2"
+    sbom = sbom_checker.SbomChecker(test_file, sbom_spec=spec)
+
+    # For SPDX 3, unknown pointer graph issues do not fail minimum elements compliance
+    # because we decouple the graph validation from the minimum elements check.
+    if spec == "spdx3":
+        assert sbom.compliant is True
+    else:
+        assert sbom.compliant is False
+
+    # Test that the SBOM has unknown pointers and that the unknown pointer edges are logged
+    assert sbom.has_unknown_pointers is True
+    assert len(sbom.unknown_pointer_edges) > 0
+
+    # Test JSON output contains graph validation block
+    json_output = sbom.output_json()
+    assert "graphValidation" in json_output
+    assert (
+        json_output["graphValidation"]["unknownPointers"]["hasUnknownPointers"] is True
+    )
+    assert (
+        len(json_output["graphValidation"]["unknownPointers"]["unknownPointerEdges"])
+        > 0
+    )
+
+    # Test HTML output includes graph section
+    html_output = sbom.output_html()
+    assert "<div class='conformance-graph'>" in html_output
+    assert "Structural Graph Issues" in html_output
 
 
 ### Test disconnected graph
@@ -685,6 +718,9 @@ def test_disconnected_component(test_file: str) -> None:
     spec = "spdx3" if "spdx3" in test_file else "spdx2"
     sbom = sbom_checker.SbomChecker(test_file, sbom_spec=spec)
 
+    # Disconnected components do not fail minimum elements compliance
+    assert sbom.compliant is True
+
     # Assert the valid root package was successfully reached
     assert any(
         "Package-Valid" in spdx_id for spdx_id in sbom.reachable_component_ids
@@ -699,6 +735,120 @@ def test_disconnected_component(test_file: str) -> None:
     assert not any(
         "Package-Orphan" in spdx_id for spdx_id in sbom.reachable_component_ids
     ), "The orphan package MUST NOT be in the reachable list."
+
+    # Test JSON output contains floating components metadata
+    json_output = sbom.output_json()
+    assert (
+        json_output["graphValidation"]["floatingComponents"]["floatingComponentCount"]
+        > 0
+    )
+    assert (
+        len(
+            json_output["graphValidation"]["floatingComponents"]["floatingComponentIds"]
+        )
+        > 0
+    )
+
+    # Test HTML output contains floating warning block
+    html_output = sbom.output_html()
+    assert "<div class='conformance-graph'>" in html_output
+    assert "floating" in html_output
+
+
+### Test graph reporting helper functions
+
+
+def test_generate_graph_text_report_with_issues() -> None:
+    """Test that the plain-text graph report formats exact strings correctly."""
+    rc = ReportContext(
+        unknown_pointer_edges={"SPDXRef-Package-Valid": ["SPDXRef-Package-Missing"]},
+        floating_component_ids={"SPDXRef-Package-Orphan"},
+    )
+
+    got_list = _generate_graph_text_report(rc)
+    got_text = "\n".join(got_list)
+
+    expected_list = [
+        "\n" + "=" * 55,
+        "Structural Graph Issues".center(55),
+        "=" * 55,
+        "\n************* ERROR *************",
+        "Unknown components detected! A relationship points to a missing element.",
+        "  -> Broken dependency linkages found:",
+        (
+            "    * Component 'SPDXRef-Package-Valid' links to"
+            " missing element 'SPDXRef-Package-Missing'"
+        ),
+        "\n************ WARNING ************",
+        "Found 1 disconnected 'floating' elements.",
+        "  -> These elements are not attached to the primary software tree",
+        "     and were ignored during the compliance check.\n",
+        "    * SPDXRef-Package-Orphan",
+        "\n" + "-" * 55,
+    ]
+    expected_text = "\n".join(expected_list)
+
+    assert got_text == expected_text
+
+
+def test_generate_graph_text_report_empty() -> None:
+    """Test that the plain-text report returns nothing if there are no graph issues."""
+    rc = ReportContext(
+        unknown_pointer_edges={},
+        floating_component_ids=set(),
+    )
+
+    got_list = _generate_graph_text_report(rc)
+    assert not got_list
+
+
+def test_generate_graph_html_report_with_issues() -> None:
+    """Test that the HTML graph report formats exact tags correctly."""
+    rc = ReportContext(
+        unknown_pointer_edges={"SPDXRef-Package-Valid": ["SPDXRef-Package-Missing"]},
+        floating_component_ids={"SPDXRef-Package-Orphan"},
+    )
+
+    got_list = _generate_graph_html_report(rc)
+    got_text = "\n".join(got_list)
+
+    expected_list = [
+        "<div class='conformance-graph'>",
+        "<h2 class='conformance-res-title'>Structural Graph Issues</h2>",
+        (
+            "<p class='conformance-err-label'><strong>ERROR:</strong>"
+            " Unknown components detected! A relationship points to a missing element.</p>"
+        ),
+        "<ul class='conformance-err-list'>",
+        (
+            "<li>Component '<b>SPDXRef-Package-Valid</b>' links to"
+            " missing element '<b>SPDXRef-Package-Missing</b>'</li>"
+        ),
+        "</ul>",
+        (
+            "<p class='conformance-msg-label' style='margin-top: 15px;'>"
+            "<strong>WARNING:</strong> Found 1 disconnected 'floating' elements"
+            " ignored during compliance.</p>"
+        ),
+        "<ul class='conformance-msg-list'>",
+        "<li>SPDXRef-Package-Orphan</li>",
+        "</ul>",
+        "</div>",
+    ]
+    expected_text = "\n".join(expected_list)
+
+    assert got_text == expected_text
+
+
+def test_generate_graph_html_report_empty() -> None:
+    """Test that the HTML report returns nothing if there are no graph issues."""
+    rc = ReportContext(
+        unknown_pointer_edges={},
+        floating_component_ids=set(),
+    )
+
+    got_list = _generate_graph_html_report(rc)
+    assert not got_list
 
 
 ### Test get_packages_from_bom and get_boms_from_spdx_document

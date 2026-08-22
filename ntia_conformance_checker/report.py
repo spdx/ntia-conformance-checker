@@ -37,6 +37,8 @@ class ReportContext:
     validation_messages: list[ValidationMessage] | None = None
     conformance_messages: list[ValidationMessage] | None = None
     parsing_errors: list[str] | None = None
+    unknown_pointer_edges: dict[str, list[str]] | None = None
+    floating_component_ids: set[str] | None = None
 
 
 def _safe_attr(obj: object, name: str) -> str:
@@ -151,6 +153,54 @@ def get_validation_messages_json(
     return json_output
 
 
+def _generate_graph_text_report(rc: ReportContext) -> list[str]:
+    """Generates a text report for graph structural issues."""
+    graph_issues_report: list[str] = []
+
+    if not rc.unknown_pointer_edges and not rc.floating_component_ids:
+        return graph_issues_report
+
+    graph_issues_report.append("\n" + "=" * 55)
+    graph_issues_report.append("Structural Graph Issues ".center(55))
+    graph_issues_report.append("=" * 55)
+
+    if rc.unknown_pointer_edges:
+        graph_issues_report.append("\n************* ERROR *************")
+        graph_issues_report.append(
+            "Unknown components detected! A relationship points to a missing element."
+        )
+        graph_issues_report.append("  -> Broken dependency linkages found:")
+        for source, targets in rc.unknown_pointer_edges.items():
+            for target in targets:
+                graph_issues_report.append(
+                    f"    * Component '{source}' links to missing element '{target}'"
+                )
+
+    if rc.floating_component_ids:
+        floating_ids = sorted(rc.floating_component_ids)
+        graph_issues_report.append("\n************ WARNING ************")
+        graph_issues_report.append(
+            f"Found {len(floating_ids)} disconnected 'floating' elements."
+        )
+        graph_issues_report.append(
+            "  -> These elements are not attached to the primary software tree"
+        )
+        graph_issues_report.append(
+            "     and were ignored during the compliance check.\n"
+        )
+
+        for spdx_id in floating_ids[:10]:
+            graph_issues_report.append(f"    * {spdx_id}")
+
+        if len(floating_ids) > 10:
+            graph_issues_report.append(
+                f"    * ... and {len(floating_ids) - 10} more items."
+            )
+
+    graph_issues_report.append("\n" + "-" * 55)
+    return graph_issues_report
+
+
 def report_text(
     rc: ReportContext,
     verbose: bool = False,
@@ -205,7 +255,59 @@ def report_text(
         report.append("The following conformance issues were found:\n")
         report.append(get_validation_messages_text(rc.conformance_messages, verbose))
 
+    # structural graph issues
+    graph_issues_report = _generate_graph_text_report(rc)
+    if graph_issues_report:
+        report.extend(graph_issues_report)
+
     return "\n".join(report)
+
+
+def _generate_graph_html_report(rc: ReportContext) -> list[str]:
+    """Generates an HTML report for graph structural issues."""
+    graph_issues_report: list[str] = []
+
+    if not rc.unknown_pointer_edges and not rc.floating_component_ids:
+        return graph_issues_report
+
+    graph_issues_report.append("<div class='conformance-graph'>")
+    graph_issues_report.append(
+        "<h2 class='conformance-res-title'>Structural Graph Issues</h2>"
+    )
+
+    if rc.unknown_pointer_edges:
+        graph_issues_report.append(
+            "<p class='conformance-err-label'><strong>ERROR:</strong>"
+            " Unknown components detected! A relationship points to a missing element.</p>"
+        )
+        graph_issues_report.append("<ul class='conformance-err-list'>")
+        for source, targets in rc.unknown_pointer_edges.items():
+            for target in targets:
+                graph_issues_report.append(
+                    f"<li>Component '<b>{source}</b>' links to missing element "
+                    f"'<b>{target}</b>'</li>"
+                )
+        graph_issues_report.append("</ul>")
+
+    if rc.floating_component_ids:
+        floating_ids = sorted(rc.floating_component_ids)
+        graph_issues_report.append(
+            "<p class='conformance-msg-label' style='margin-top: 15px;'>"
+            f"<strong>WARNING:</strong> Found {len(floating_ids)} disconnected "
+            "'floating' elements ignored during compliance.</p>"
+        )
+        graph_issues_report.append("<ul class='conformance-msg-list'>")
+        for spdx_id in floating_ids[:10]:
+            graph_issues_report.append(f"<li>{spdx_id}</li>")
+        if len(floating_ids) > 10:
+            graph_issues_report.append(
+                f"<li>... and {len(floating_ids) - 10} more items.</li>"
+            )
+        graph_issues_report.append("</ul>")
+
+    graph_issues_report.append("</div>")
+
+    return graph_issues_report
 
 
 def report_html(
@@ -325,6 +427,11 @@ def report_html(
         )
         report.append("</div>")
 
+    # structural graph issues
+    graph_issues_report = _generate_graph_html_report(rc)
+    if graph_issues_report:
+        report.extend(graph_issues_report)
+
     return "\n".join(report)
 
 
@@ -352,6 +459,20 @@ def report_json(checker_instance: "BaseChecker") -> dict[str, Any]:
             checker_instance, "dependency_relationships", False
         ),
         "totalNumberComponents": checker_instance.get_total_number_components(),
+        "graphValidation": {
+            "unknownPointers": {
+                "hasUnknownPointers": getattr(checker_instance, "has_unknown_pointers", False),
+                "unknownPointerEdges": getattr(checker_instance, "unknown_pointer_edges", {}),
+            },
+            "floatingComponents": {
+                "floatingComponentCount": len(
+                    getattr(checker_instance, "floating_component_ids", set())
+                ),
+                "floatingComponentIds": list(
+                    getattr(checker_instance, "floating_component_ids", set())
+                ),
+            },
+        },
     }
 
     _groups = {
