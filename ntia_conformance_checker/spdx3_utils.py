@@ -281,6 +281,89 @@ def has_package_dependency_relationship(object_set: spdx3.SHACLObjectSet) -> boo
     return False
 
 
+def get_distribution_artifacts_map(
+    object_set: spdx3.SHACLObjectSet,
+) -> dict[str, list[spdx3.software_File]]:
+    """
+    Create a mapping of package spdxId to their linked software_File distribution artifacts.
+
+    Returns:
+        dict[str, list[spdx3.software_File]]: A dictionary mapping package spdxId to a list of
+        linked software_File objects.
+    """
+    artifact_map: dict[str, list[spdx3.software_File]] = {}
+
+    file_map: dict[str, spdx3.software_File] = {}
+    for file_obj in object_set.foreach_type(spdx3.software_File):
+        file_id = getattr(file_obj, "spdxId", "")
+        if file_id:
+            file_map[file_id] = file_obj
+
+    for from_id, to_ids in iter_relationships_by_type(
+        object_set, "hasDistributionArtifact"
+    ):
+        files = [file_map[to_id] for to_id in to_ids if to_id in file_map]
+        if files:
+            artifact_map.setdefault(from_id, []).extend(files)
+
+    return artifact_map
+
+
+def has_sha512_hash(file_obj: spdx3.SHACLObject) -> bool:
+    """
+    Check if a software_File has a SHA-512 hash declared in its verifiedUsing property.
+    """
+    verified_using = getattr(file_obj, "verifiedUsing", [])
+    for verification in verified_using:
+        if isinstance(verification, spdx3.Hash):
+            algorithm = getattr(verification, "algorithm", "")
+            hash_value = getattr(verification, "hashValue", "")
+
+            if algorithm and "sha512" in str(algorithm).lower() and hash_value:
+                return True
+
+    return False
+
+
+def get_dependency_relationships_completeness(
+    object_set: spdx3.SHACLObjectSet,
+) -> dict[str, list[str]]:
+    """
+    Extract the completeness attribute for all dependency
+    relationships ('contains', 'dependsOn') in the SPDX 3 document.
+
+    Returns:
+        dict[str, list[str]]: A dictionary mapping all relationship's
+        from_id to a list of all completeness attributes.
+    """
+    completeness_map: dict[str, list[str]] = {}
+
+    for obj in object_set.foreach_type(spdx3.Relationship):
+        rel_type = getattr(obj, "relationshipType", "")
+        if not rel_type:
+            continue
+
+        # Remove the IRI prefix of entry name before compare
+        rel_type_name = str(rel_type).rsplit("/", maxsplit=1)[-1]
+        if rel_type_name in ("contains", "dependsOn"):
+            from_ = getattr(obj, "from_", None)
+            from_id = from_ if isinstance(from_, str) else getattr(from_, "spdxId", "")
+
+            if from_id:
+                completeness_iri = getattr(obj, "completeness", None)
+                completeness_val = (
+                    str(completeness_iri).rsplit("/", maxsplit=1)[-1]
+                    if completeness_iri
+                    else "noAssertion"
+                )
+                if completeness_val:
+                    completeness_map.setdefault(from_id, []).append(
+                        str(completeness_val)
+                    )
+
+    return completeness_map
+
+
 def parse_spdx3_file(file_path: str) -> tuple[spdx3.SHACLObjectSet | None, list[str]]:
     """
     Parse SPDX 3 SBOM document.

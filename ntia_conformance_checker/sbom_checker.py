@@ -8,6 +8,8 @@ from __future__ import annotations
 
 from typing import Any, final
 
+from ntia_conformance_checker.bsi_checker import BSIChecker
+
 from .base_checker import BaseChecker
 from .constants import SUPPORTED_SBOM_SPECS
 
@@ -71,6 +73,9 @@ class SbomChecker(BaseChecker):
             from .fsct_checker import FSCT3Checker
 
             return FSCT3Checker(file, validate, sbom_spec=sbom_spec)
+
+        if compliance == "bsi":
+            return BSIChecker(file, validate, sbom_spec=sbom_spec)
 
         raise ValueError(f"Unknown compliance standard: {compliance}")
 

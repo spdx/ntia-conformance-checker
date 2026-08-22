@@ -31,6 +31,8 @@ Currently, the supported specifications are:
   ["minimum elements."][ntia]
 - 2024 CISA Framing Software Component Transparency (FSCT3)
   ["minimum expected."][fsct3]
+- BSI TR-03183-2 v2.1.0 Minimum Elements.
+  ["SBOM requirements."][bsi]
 
 The minimum elements include:
 
@@ -52,6 +54,12 @@ FSCT3 requires these Baseline Attributes as part of its "minimum expected":
 - License
 - Copyright Holder (inside Copyright Notice)
 
+BSI TR-03183-2 introduces stricter requirements for component files and relationships, including:
+- SHA-512 Hashes for deployable components
+- Structured component properties (e.g., container, firmware)
+- Strict concluded licensing targets
+- Explicit dependency completeness definitions
+
 Mappings:
 
 - The mapping of the NTIA elements required data fields to the SPDX 2.3
@@ -61,6 +69,15 @@ Mappings:
 - More comparison of SBOM requirements and their mapping to SPDX can be found
   in [this slide][sbom-reqs] from Takashi Ninjouji of OpenChain Japan SBOM
   Sub-WG, presented at SPDX General Meeting 2024-12-05.
+
+> [!NOTE]
+> ### BSI TR-03183-2 Implementation Notes
+> To ensure strict compatibility with the official SPDX 3.0.1 specification, this checker adapts two of the examples provided in the BSI TR-03183-2 v2.1.0 document:
+> 
+> * **Deployable URIs:** `binaryArtifact` is evaluated strictly as an `ExternalRefType` inside an `externalRef` array (rather than a direct property of `software_File`).
+> * **Source Code URIs:** Artifacts must be defined using concrete subclasses (e.g., `software_File`, `software_Package`, `software_Snippet`) instead of the abstract `software_SoftwareArtifact` class.
+> 
+> For full technical details regarding these design decisions, please refer to [PR #428](https://github.com/spdx/ntia-conformance-checker/pull/428).
 
 ## Installation
 
@@ -101,7 +118,7 @@ options:
   -h, --help            show this help message and exit
   -s, --sbom-spec {spdx2,spdx3}
                         SBOM specification of the input file; see below for details [default: spdx2]
-  -c, --comply {fsct3-min,ntia}
+  -c, --comply {bsi,fsct3-min,ntia}
                         Compliance standards to check against; see below for details [default: ntia]
   -k, --skip-validation
                         Skip validation
@@ -119,6 +136,7 @@ choices:
     spdx3       System Package Data Exchange (SPDX) 3.x
 
   Compliance standards (for --comply):
+    bsi         BSI TR-03183-2 v2.1.0 Minimum Elements
     fsct3-min   2024 CISA Framing Software Component Transparency (minimum expectation)
     ntia        2021 NTIA SBOM Minimum Elements
 
@@ -202,6 +220,8 @@ each with a specific CSS class for easy styling and targeting:
   [contribution in 2022][gsoc2022] by [@linynjosh][].
 - SPDX 3 support and improved FSCT3 checker, available in [v4.0.0][],
   are [GSoC 2025 contribution][gsoc2025] by [@bact][].
+- BSI TR-03183-2 conformance checker and structural graph validation architecture
+  are [GSoC 2026 contribution][gsoc2026] by [@InduwaraGunasena][].
 - The project is maintained by a community of SPDX adopters and enthusiasts.
 - See SPDX's participation in Google Summer of Code (GSoC):
   <https://github.com/spdx/GSoC>.
@@ -211,7 +231,9 @@ each with a specific CSS class for easy styling and targeting:
 [@linynjosh]: https://github.com/linynjosh
 [v4.0.0]: https://github.com/spdx/ntia-conformance-checker/blob/main/CHANGELOG.md#400---2025-09-05
 [gsoc2025]: https://github.com/spdx/ntia-conformance-checker/wiki/Adding-SPDX-3.0-Support
+[gsoc2026]: https://github.com/spdx/ntia-conformance-checker/wiki/BSI-TR%E2%80%9003183%E2%80%902-Conformance-and-Structural-Graph-Validation-for-SPDX-SBOMs
 [@bact]: https://github.com/bact
+[@InduwaraGunasena]: https://github.com/InduwaraGunasena
 
 ## License
 
@@ -243,5 +265,6 @@ Check out the [frequently asked questions](./FAQ.md) document.
 [ntia]: https://www.ntia.gov/report/2021/minimum-elements-software-bill-materials-sbom
 [ntia-spdx23]: https://spdx.github.io/spdx-spec/v2.3/how-to-use/#k22-mapping-ntia-minimum-elements-to-spdx-fields
 [fsct3]: https://www.cisa.gov/resources-tools/resources/framing-software-component-transparency-2024
+[bsi]: https://www.bsi.bund.de/SharedDocs/Downloads/EN/BSI/Publications/TechGuidelines/TR03183/BSI-TR-03183-2_v2_1_0.html
 [sbom-reqs]: https://drive.google.com/file/d/14HZGYD7pSSWEmtaHZzWrzPhxCXaCnloJ/view
 [pypi]: https://pypi.org/project/ntia-conformance-checker/
