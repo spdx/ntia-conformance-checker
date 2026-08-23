@@ -208,7 +208,7 @@ class BaseChecker(ABC):
             if self.sbom_spec == "spdx2":
                 self.doc = cast("Document", self.doc)
                 self.adapter = Spdx2Adapter(self.doc)
-            elif self.sbom_spec == "spdx3" and self.__spdx3_doc:
+            elif self.sbom_spec == "spdx3":
                 self.adapter = Spdx3Adapter(
                     cast(spdx3.SHACLObjectSet, self.doc),
                     self.__spdx3_doc,
