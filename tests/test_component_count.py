@@ -20,6 +20,7 @@ from spdx_tools.spdx.model.document import (
 
 import ntia_conformance_checker.sbom_checker as sbom_checker
 from ntia_conformance_checker.adapters import Spdx2Adapter, Spdx3Adapter
+from ntia_conformance_checker.ntia_checker import NTIAChecker
 from ntia_conformance_checker.spdx3_utils import get_all_packages
 
 SPDX3_RELATIONSHIP_TYPE_BASE = "https://spdx.org/rdf/3.0.1/terms/Core/RelationshipType"
@@ -226,3 +227,22 @@ def test_get_total_number_components_spdx3_files() -> None:
             f"Expected {expected_count} components in {filename}, "
             f"got {sbom.get_total_number_components()}"
         )
+
+
+def test_spdx3_missing_spdxdocument_node_still_initializes_adapter() -> None:
+    """
+    Test that an SPDX 3 document missing the SpdxDocument node
+    still initializes the adapter and evaluates components,
+    while correctly logging a validation error.
+    """
+    filepath = os.path.join(
+        os.path.dirname(__file__), "data", "spdx3", "missing_spdxdocument_node.json"
+    )
+
+    checker = NTIAChecker(filepath, sbom_spec="spdx3")
+
+    assert checker.adapter is not None
+    assert checker.get_total_number_components() == 1
+
+    validation_texts = [msg.validation_message for msg in checker.validation_messages]
+    assert any("No SpdxDocument object found" in msg for msg in validation_texts)
