@@ -27,10 +27,9 @@ A web-based version of the tool is available (no installation needed) at:
 
 Currently, the supported specifications are:
 
-- 2021 National Telecommunications and Information Administration (NTIA)
-  ["minimum elements."][ntia]
-- 2024 CISA Framing Software Component Transparency (FSCT3)
-  ["minimum expected."][fsct3]
+- [2021 NTIA SBOM Minimum Elements][ntia]
+- [2024 CISA Framing Software Component Transparency (FSCT3) (minimum expected)][fsct3]
+- [2025 BSI TR-03183-2 v2.1.0][bsi]
 
 The minimum elements include:
 
@@ -101,7 +100,7 @@ options:
   -h, --help            show this help message and exit
   -s, --sbom-spec {spdx2,spdx3}
                         SBOM specification of the input file; see below for details [default: spdx2]
-  -c, --comply {fsct3-min,ntia}
+  -c, --comply {bsi,fsct3-min,ntia}
                         Compliance standards to check against; see below for details [default: ntia]
   -k, --skip-validation
                         Skip validation
@@ -119,7 +118,8 @@ choices:
     spdx3       System Package Data Exchange (SPDX) 3.x
 
   Compliance standards (for --comply):
-    fsct3-min   2024 CISA Framing Software Component Transparency (minimum expectation)
+    bsi         2025 BSI TR-03183-2 v2.1.0
+    fsct3-min   2024 CISA Framing Software Component Transparency (minimum expected)
     ntia        2021 NTIA SBOM Minimum Elements
 
   Report output types (for --output):
@@ -175,11 +175,6 @@ See the API documentation at:
 
 Additional orchestrating properties and methods can be found in
 the `BaseChecker` class at `base_checker.py`.
-Format-specific data extraction has been decoupled using the Adapter Pattern;
-if you need to access direct extraction methods for a specific specification,
-you can reference the `adapters` package (e.g., `Spdx2Adapter` or `Spdx3Adapter`).
-Specific compliance standard logic can be found in their respective classes,
-such as the `NTIAChecker` class at [`ntia_checker.py`](ntia_conformance_checker/ntia_checker.py).
 
 ## Online usage
 
@@ -243,6 +238,7 @@ for instructions on how to contribute to the codebase.
 
 Check out the [frequently asked questions](./FAQ.md) document.
 
+[bsi]: https://www.bsi.bund.de/SharedDocs/Downloads/EN/BSI/Publications/TechGuidelines/TR03183/BSI-TR-03183-2_v2_1_0.html
 [ntia]: https://www.ntia.gov/report/2021/minimum-elements-software-bill-materials-sbom
 [ntia-spdx23]: https://spdx.github.io/spdx-spec/v2.3/how-to-use/#k22-mapping-ntia-minimum-elements-to-spdx-fields
 [fsct3]: https://www.cisa.gov/resources-tools/resources/framing-software-component-transparency-2024
