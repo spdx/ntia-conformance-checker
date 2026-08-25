@@ -27,12 +27,9 @@ A web-based version of the tool is available (no installation needed) at:
 
 Currently, the supported specifications are:
 
-- 2021 National Telecommunications and Information Administration (NTIA)
-  ["minimum elements."][ntia]
-- 2024 CISA Framing Software Component Transparency (FSCT3)
-  ["minimum expected."][fsct3]
-- BSI TR-03183-2 v2.1.0 Minimum Elements.
-  ["SBOM requirements."][bsi]
+- [2021 NTIA SBOM Minimum Elements][ntia]
+- [2024 CISA Framing Software Component Transparency (FSCT3) (minimum expected)][fsct3]
+- [2025 BSI TR-03183-2 v2.1.0 content requirements][bsi]
 
 The minimum elements include:
 
@@ -136,8 +133,8 @@ choices:
     spdx3       System Package Data Exchange (SPDX) 3.x
 
   Compliance standards (for --comply):
-    bsi         BSI TR-03183-2 v2.1.0 Minimum Elements
-    fsct3-min   2024 CISA Framing Software Component Transparency (minimum expectation)
+    bsi         BSI TR-03183-2 v2.1.0 content requirements
+    fsct3-min   2024 CISA Framing Software Component Transparency (minimum expected)
     ntia        2021 NTIA SBOM Minimum Elements
 
   Report output types (for --output):
@@ -213,6 +210,7 @@ each with a specific CSS class for easy styling and targeting:
 - Conformance results: `<div class="conformance-res">`
 - Components missing required information: `<div class="conformance-mis">`
 - Detailed validation information: `<div class="conformance-val">`
+- Graph structural issues: `<div class="conformance-graph">`
 
 ## History
 
@@ -262,6 +260,7 @@ for instructions on how to contribute to the codebase.
 
 Check out the [frequently asked questions](./FAQ.md) document.
 
+[bsi]: https://www.bsi.bund.de/SharedDocs/Downloads/EN/BSI/Publications/TechGuidelines/TR03183/BSI-TR-03183-2_v2_1_0.html
 [ntia]: https://www.ntia.gov/report/2021/minimum-elements-software-bill-materials-sbom
 [ntia-spdx23]: https://spdx.github.io/spdx-spec/v2.3/how-to-use/#k22-mapping-ntia-minimum-elements-to-spdx-fields
 [fsct3]: https://www.cisa.gov/resources-tools/resources/framing-software-component-transparency-2024
