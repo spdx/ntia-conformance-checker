@@ -1,0 +1,176 @@
+{
+  "@context": "https://spdx.org/rdf/3.0.1/spdx-context.jsonld",
+  "@graph": [
+    {
+      "type": "CreationInfo",
+      "@id": "_:creationinfo",
+      "specVersion": "3.0.1",
+      "createdBy": ["https://example.com/spdx/person-01"],
+      "created": "2026-08-16T04:00:00Z"
+    },
+    {
+      "type": "SpdxDocument",
+      "spdxId": "https://example.com/spdx/doc-01",
+      "creationInfo": "_:creationinfo",
+      "name": "BSI Compliant Document",
+      "rootElement": ["https://example.com/spdx/sbom-01"]
+    },
+    {
+      "type": "Person",
+      "spdxId": "https://example.com/spdx/person-01",
+      "creationInfo": "_:creationinfo",
+      "name": "Induwara",
+      "externalIdentifier": [
+        {
+          "type": "ExternalIdentifier",
+          "externalIdentifierType": "email",
+          "identifier": "induwaras@example.com"
+        }
+      ]
+    },
+    {
+      "type": "software_Sbom",
+      "spdxId": "https://example.com/spdx/sbom-01",
+      "creationInfo": "_:creationinfo",
+      "name": "Primary SBOM",
+      "rootElement": ["https://example.com/spdx/package-01"],
+      "externalRef": [
+        {
+          "type": "ExternalRef",
+          "externalRefType": "buildMeta",
+          "locator": "https://example.com/external-sbom.json"
+        }
+      ]
+    },
+    {
+      "type": "software_Package",
+      "spdxId": "https://example.com/spdx/package-01",
+      "creationInfo": "_:creationinfo",
+      "name": "example-component",
+      "software_packageVersion": "1.0.0",
+      "originatedBy": ["https://example.com/spdx/person-01"],
+      "externalIdentifier": [
+        {
+          "type": "ExternalIdentifier",
+          "externalIdentifierType": "packageUrl",
+          "identifier": "pkg:generic/example-component@1.0.0"
+        }
+      ],
+      "externalRef": [
+        {
+          "type": "ExternalRef",
+          "externalRefType": "securityOther",
+          "locator": "https://example.com/.well-known/security.txt"
+        }
+      ]
+    },
+    {
+      "type": "software_File",
+      "spdxId": "https://example.com/spdx/file-01",
+      "creationInfo": "_:creationinfo",
+      "name": "example-component.tar.gz",
+      "software_additionalPurpose": ["executable", "archive", "container"],
+      "externalRef": [
+        {
+          "type": "ExternalRef",
+          "externalRefType": "binaryArtifact",
+          "locator": "https://example.com/downloads/example-component.tar.gz"
+        }
+      ],
+      "verifiedUsing": [
+        {
+          "type": "Hash",
+          "algorithm": "sha512",
+          "hashValue": "cf83e1357eefb8bdf1542850d66d8007d620e4050b5715dc83f4a921d36ce9ce47d0d13c5d85f2b0ff8318d2877eec2f63b931bd47417a81a538327af927da3e"
+        }
+      ]
+    },
+    {
+      "type": "software_File",
+      "spdxId": "https://example.com/spdx/source-01",
+      "creationInfo": "_:creationinfo",
+      "software_primaryPurpose": "source",
+      "externalRef": [
+        {
+          "type": "ExternalRef",
+          "externalRefType": "sourceArtifact",
+          "locator": "https://github.com/example/repo"
+        }
+      ],
+      "verifiedUsing": [
+        {
+          "type": "Hash",
+          "algorithm": "sha512",
+          "hashValue": "cf83e1357eefb8bdf1542850d66d8007d620e4050b5715dc83f4a921d36ce9ce47d0d13c5d85f2b0ff8318d2877eec2f63b931bd47417a81a538327af927da3e"
+        }
+      ]
+    },
+    {
+      "type": "simplelicensing_LicenseExpression",
+      "spdxId": "https://example.com/spdx/license-01",
+      "creationInfo": "_:creationinfo",
+      "simplelicensing_licenseExpression": "Apache-2.0"
+    },
+    {
+      "type": "simplelicensing_LicenseExpression",
+      "spdxId": "https://example.com/spdx/license-02",
+      "creationInfo": "_:creationinfo",
+      "simplelicensing_licenseExpression": "MIT"
+    },
+    {
+      "type": "Relationship",
+      "spdxId": "https://example.com/spdx/rel-01",
+      "creationInfo": "_:creationinfo",
+      "from": "https://example.com/spdx/package-01",
+      "relationshipType": "hasDistributionArtifact",
+      "to": ["https://example.com/spdx/file-01"],
+      "completeness": "complete"
+    },
+    {
+      "type": "Relationship",
+      "spdxId": "https://example.com/spdx/rel-02",
+      "creationInfo": "_:creationinfo",
+      "from": "https://example.com/spdx/package-01",
+      "relationshipType": "hasConcludedLicense",
+      "to": ["https://example.com/spdx/license-01"],
+      "completeness": "complete"
+    },
+    {
+      "type": "Relationship",
+      "spdxId": "https://example.com/spdx/rel-03",
+      "creationInfo": "_:creationinfo",
+      "from": "https://example.com/spdx/package-01",
+      "relationshipType": "hasDeclaredLicense",
+      "to": ["https://example.com/spdx/license-02"],
+      "completeness": "complete"
+    },
+    {
+      "type": "Relationship",
+      "spdxId": "https://example.com/spdx/rel-04",
+      "creationInfo": "_:creationinfo",
+      "from": "https://example.com/spdx/source-01",
+      "relationshipType": "generates",
+      "to": ["https://example.com/spdx/package-01"],
+      "completeness": "complete"
+    },
+    {
+      "type": "Relationship",
+      "spdxId": "https://example.com/spdx/rel-05",
+      "creationInfo": "_:creationinfo",
+      "from": "https://example.com/spdx/package-01",
+      "relationshipType": "other",
+      "comment": "hasEffectiveLicense",
+      "to": ["https://example.com/spdx/license-01"],
+      "completeness": "complete"
+    },
+    {
+      "type": "Relationship",
+      "spdxId": "https://example.com/spdx/rel-06",
+      "creationInfo": "_:creationinfo",
+      "from": "https://example.com/spdx/sbom-01",
+      "relationshipType": "describes",
+      "to": ["https://example.com/spdx/package-01"],
+      "completeness": "complete"
+    }
+  ]
+}
