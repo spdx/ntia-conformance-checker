@@ -15,17 +15,20 @@ and this project adheres to [Semantic Versioning][semver].
 
 ### Added
 
-- Add support for **BSI TR-03183-2 v2.1.0 Minimum Elements** compliance standard (`-c bsi`) ([#428])
-- Add Graph Structural Validation to detect broken dependency linkages (unknown pointers) and disconnected (floating) elements ([#412])
-- Add nested `graphValidation` JSON object to the `--output json` machine-readable payload and
-  visual structural graph issue reporting blocks for plain-text CLI and HTML (`<div class="conformance-graph">`) outputs ([#413])
+- Add support for BSI TR-03183-2 v2.1.0 minimum elements ([#428])
+- Add structural graph validation to detect broken dependency linkages
+  (unknown pointers) and disconnected (floating) elements ([#412])
+- Add graph validation section to CLI report;
+  to HTML output (`<div class="conformance-graph">`);
+  and to JSON output (`graphValidation`) ([#413])
 - `-v`/`-vv`/`--debug` log verbosity levels and `-q`/`--quiet` to show
   errors only; `-k` short flag for `--skip-validation` ([#406])
 
 ### Changed
 
-- Replaced flat-file element iteration with Breadth-First Search (BFS) graph traversal to dynamically discover reachable software components via `rootElement` and explicit relationships ([#412])
-- Separated structural graph validation from high-level minimum element compliance, ensuring valid disconnected components do not trigger a false compliance failure ([#413])
+- Replaced flat-file element iteration with Breadth-First Search (BFS) graph
+  traversal to discover reachable software components via `rootElement` and
+  explicit relationships ([#412])
 - Default log level is now `WARNING` (previously `INFO`);
   use `-v` to restore the old default verbosity ([#406])
 - `--output quiet` renamed to `--output none` (`quiet` still accepted;
@@ -391,8 +394,10 @@ Thanks to @goneall, @licquia, and @kestewart for mentoring @linynjosh.
 - Initial commit from Google Summer of Code 2022 ([#1]).
 
 [#1]: https://github.com/spdx/ntia-conformance-checker/pull/1
+
 [keepachangelog]: https://keepachangelog.com/en/1.1.0/
 [semver]: https://semver.org/spec/v2.0.0.html
+
 [5.0.3]: https://github.com/spdx/ntia-conformance-checker/releases/tag/v5.0.3
 [5.0.2]: https://github.com/spdx/ntia-conformance-checker/releases/tag/v5.0.2
 [5.0.1]: https://github.com/spdx/ntia-conformance-checker/releases/tag/v5.0.1
