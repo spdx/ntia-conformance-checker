@@ -173,8 +173,11 @@ print(sbom_checker.compliant)
 See the API documentation at:
 <https://spdx.github.io/ntia-conformance-checker/>
 
-Additional orchestrating properties and methods can be found in
-the `BaseChecker` class at `base_checker.py`.
+Additional properties and methods can be found in `BaseChecker` class
+at [`base_checker.py`](ntia_conformance_checker/base_checker.py).
+Specific properties and methods for a particular specification can be found
+at the checker for that specification. For example, `NTIAChecker` class
+at [`ntia_checker.py`](ntia_conformance_checker/ntia_checker.py).
 
 ## Online usage
 
