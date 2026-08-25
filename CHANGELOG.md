@@ -15,7 +15,6 @@ and this project adheres to [Semantic Versioning][semver].
 
 ### Added
 
-- Refactored `BaseChecker` using the Adapter Pattern (via a new `adapters` package) to decouple format-specific data extraction logic, vastly improving maintainability and resolving Pylint `too-many-lines` warnings ([#429])
 - Add support for **BSI TR-03183-2 v2.1.0 Minimum Elements** compliance standard (`-c bsi`) ([#428])
 - Add Graph Structural Validation to detect broken dependency linkages (unknown pointers) and disconnected (floating) elements ([#412])
 - Add nested `graphValidation` JSON object to the `--output json` machine-readable payload and
@@ -47,7 +46,6 @@ and this project adheres to [Semantic Versioning][semver].
 [#412]: https://github.com/spdx/ntia-conformance-checker/pull/412
 [#413]: https://github.com/spdx/ntia-conformance-checker/pull/413
 [#428]: https://github.com/spdx/ntia-conformance-checker/pull/428
-[#429]: https://github.com/spdx/ntia-conformance-checker/pull/429
 
 ## [5.0.3] - 2026-06-02
 
