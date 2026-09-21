@@ -1,0 +1,90 @@
+# SPDX-FileContributor: Arthit Suriyawongkul
+# SPDX-FileCopyrightText: 2026-present SPDX contributors
+# SPDX-FileType: SOURCE
+# SPDX-License-Identifier: Apache-2.0
+
+"""Probe registry: name -> callable.
+
+Probes are registered with the :func:`probe` decorator at import time and
+looked up by name when the rule engine processes a YAML rule's
+``probe.name``.
+
+Probe signature (informal -- enforced by convention, not types):
+
+    probe(checker: CheckerProtocol, **params) -> Iterable[Finding]
+
+* ``checker`` -- the running checker instance.  Probes use the
+  presence-oriented accessors on it (:meth:`CheckerProtocol.components_without`
+  and :meth:`CheckerProtocol.document_has`) rather than poking at private
+  attributes, so they stay format-agnostic.
+* ``**params`` -- keyword arguments from the rule's ``probe.params`` YAML
+  block.  Probes must declare every parameter explicitly (no ``**kwargs``)
+  so the loader can validate parameter spelling.
+* Returns -- iterable of :class:`Finding`.  Empty iterable means the rule
+  passed.  Probes never decide severity, level, or rule id -- those live
+  on :class:`SpecRule`.
+"""
+
+from __future__ import annotations
+
+from collections.abc import Callable, Iterable
+from typing import TYPE_CHECKING, Protocol
+
+if TYPE_CHECKING:
+    from ..model import Finding
+
+
+class CheckerProtocol(Protocol):
+    """Structural type for the probe-facing surface of a checker.
+
+    Probes only need these two accessors, so they type-hint against this
+    protocol rather than importing the concrete ``BaseChecker`` -- any
+    object providing this shape satisfies it.
+    """
+
+    def components_without(self, element_id: str) -> list[tuple[str, str]]:
+        """Components missing ``element_id``, as ``(name, spdx_id)`` pairs."""
+        raise NotImplementedError
+
+    def document_has(self, element_id: str) -> bool:
+        """True iff the SBOM document declares ``element_id``."""
+        raise NotImplementedError
+
+
+ProbeFn = Callable[..., Iterable["Finding"]]
+
+_PROBES: dict[str, ProbeFn] = {}
+
+
+def probe(name: str) -> Callable[[ProbeFn], ProbeFn]:
+    """Register ``fn`` under ``name`` in the global probe registry.
+
+    Raises ``ValueError`` on duplicate registration so accidental overrides
+    fail loudly at import time.
+    """
+
+    def deco(fn: ProbeFn) -> ProbeFn:
+        if name in _PROBES:
+            raise ValueError(
+                f"Probe {name!r} already registered as {_PROBES[name].__qualname__}; "
+                f"refusing to overwrite with {fn.__qualname__}."
+            )
+        _PROBES[name] = fn
+        return fn
+
+    return deco
+
+
+def lookup(name: str) -> ProbeFn:
+    """Return the probe registered under ``name``; raise ``KeyError`` if absent."""
+    try:
+        return _PROBES[name]
+    except KeyError as exc:
+        raise KeyError(
+            f"Probe {name!r} not registered.  Known probes: {sorted(_PROBES)!r}"
+        ) from exc
+
+
+def registered_names() -> tuple[str, ...]:
+    """All registered probe names, sorted.  For tests / introspection."""
+    return tuple(sorted(_PROBES))
