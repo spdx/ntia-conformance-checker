@@ -12,6 +12,7 @@ from unittest.mock import MagicMock
 from spdx_python_model.bindings import v3_0_1 as spdx3
 
 import ntia_conformance_checker.sbom_checker as sbom_checker
+from ntia_conformance_checker.adapters import Spdx2Adapter, Spdx3Adapter
 
 
 def test_get_components_without_identifiers_spdx3() -> None:
@@ -46,6 +47,7 @@ def test_get_components_without_identifiers_spdx3() -> None:
         "http://example.com/spdx3/pkg-valid",
         "http://example.com/spdx3/agent1",
     }
+    checker.adapter = Spdx3Adapter(doc_set, None)
 
     # All packages have valid identifiers
     assert checker.get_components_without_identifiers() == []
@@ -80,6 +82,7 @@ def test_get_components_without_identifiers_spdx2() -> None:
     doc.packages = [pkg1, pkg_no_id, pkg_empty_id]
     checker.doc = doc
     checker.reachable_component_ids = {"SPDXRef-Package1"}
+    checker.adapter = Spdx2Adapter(doc)
 
     assert checker.get_components_without_identifiers() == [
         ("pkg-no-id", ""),
