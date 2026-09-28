@@ -8,6 +8,23 @@ from abc import ABC, abstractmethod
 
 from spdx_tools.spdx.validation.validation_message import ValidationMessage
 
+_BLANK_STRINGS = frozenset({"", "NONE", "NOASSERTION"})
+
+
+def is_blank_string(value: object) -> bool:
+    """
+    Check whether a value is a blank string.
+
+    Blank means whitespace-only or ``NONE``/``NOASSERTION`` (any case).
+
+    Args:
+        value: The value to check.
+
+    Returns:
+        bool: True if ``value`` is a blank string.
+    """
+    return isinstance(value, str) and value.strip().upper() in _BLANK_STRINGS
+
 
 class SbomAdapter(ABC):
     """Abstract base class defining the standard interface for all SBOM adapters."""

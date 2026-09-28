@@ -19,7 +19,7 @@ from ntia_conformance_checker.spdx3_utils import (
     iter_relationships_by_type,
 )
 
-from .adapter_interface import SbomAdapter
+from .adapter_interface import SbomAdapter, is_blank_string
 
 _ELEMENT_INDIVIDUALS = spdx3.IndividualElement.NAMED_INDIVIDUALS
 _LICENSE_INDIVIDUALS = spdx3.expandedlicensing_IndividualLicensingInfo.NAMED_INDIVIDUALS
@@ -44,8 +44,8 @@ def _is_blank(value: object) -> bool:
     """
     Check whether an SPDX 3 field value should be treated as blank.
 
-    A value is blank when it is falsy (``None``, ``""``, ``0``, ...) or
-    an empty/whitespace-only string.
+    Blank means falsy (``None``, ``""``, ...) or a blank string per
+    :func:`is_blank_string`.
 
     Args:
         value: The field value to check.
@@ -53,7 +53,7 @@ def _is_blank(value: object) -> bool:
     Returns:
         bool: True if the value is considered blank.
     """
-    return not value or (isinstance(value, str) and value.strip() == "")
+    return not value or is_blank_string(value)
 
 
 def _is_blank_ref(value: object) -> bool:

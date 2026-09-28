@@ -10,9 +10,7 @@ from spdx_tools.spdx.model.spdx_no_assertion import SpdxNoAssertion
 from spdx_tools.spdx.model.spdx_none import SpdxNone
 from spdx_tools.spdx.validation.validation_message import ValidationMessage
 
-from .adapter_interface import SbomAdapter
-
-_BLANK_STRINGS = frozenset({"", "NONE", "NOASSERTION"})
+from .adapter_interface import SbomAdapter, is_blank_string
 
 
 def _is_blank(value: object) -> bool:
@@ -31,7 +29,7 @@ def _is_blank(value: object) -> bool:
     """
     if value is None or isinstance(value, (SpdxNone, SpdxNoAssertion)):
         return True
-    return isinstance(value, str) and value.strip().upper() in _BLANK_STRINGS
+    return is_blank_string(value)
 
 
 class Spdx2Adapter(SbomAdapter):

@@ -45,7 +45,7 @@ def _spdx3(attr: str, value: object) -> Spdx3Adapter:
     return Spdx3Adapter(object_set, None)
 
 
-COMMON = [(None, True), (" \t\n", True), ("valid", False)]
+COMMON = [(None, True), (" \t\n", True), ("none", True), ("valid", False)]
 
 # method suffix -> SPDX 2 Package attribute
 SPDX2_FIELDS = {
@@ -77,7 +77,7 @@ CASES = [
     *[
         pytest.param(_spdx2, method, attr, value, blank, id=f"spdx2-{method}-{value!r}")
         for method, attr in SPDX2_FIELDS.items()
-        for value, blank in [*COMMON, ("NOASSERTION", True)]
+        for value, blank in COMMON
     ],
     *[
         pytest.param(_spdx3, method, attr, value, blank, id=f"spdx3-{method}-{value!r}")

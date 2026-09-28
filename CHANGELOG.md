@@ -43,14 +43,10 @@ and this project adheres to [Semantic Versioning][semver].
   This changes the return signature to `Iterator[tuple[str, list[str]]]`
   ([#398])
 - Handle `OSError` when writing JSON output file in `print_output`
-- Report SPDX 3 package with a nameless supplier Agent as missing a supplier,
+- Treat `NONE`/`NOASSERTION` values, SPDX 3 None/NoAssertion
+  Element/License references, and BSI `NONE`/`NOASSERTION` license
+  expressions as missing; report a supplier Agent without name as missing
   instead of raising `AttributeError` ([#451])
-- Treat SPDX 3 `NoneElement`, `NoAssertionElement`, `NoneLicense` and
-  `NoAssertionLicense` references as missing ([#451])
-- BSI: treat `NONE`, `NOASSERTION` and blank license expressions as missing
-  concluded or original license ([#451])
-- SPDX 2: treat `NONE` and `NOASSERTION` as missing in all component fields
-  ([#451])
 
 [#398]: https://github.com/spdx/ntia-conformance-checker/pull/398
 [#406]: https://github.com/spdx/ntia-conformance-checker/pull/406
