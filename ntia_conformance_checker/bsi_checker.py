@@ -19,6 +19,51 @@ from .spdx3_utils import (
     iter_relationships_by_type,
 )
 
+# License expression texts that carry no license information (case-insensitive).
+_BLANK_LICENSE_EXPRESSIONS = frozenset(
+    {"NONE", "NOASSERTION", "NONELICENSE", "NOASSERTIONLICENSE"}
+)
+
+
+def _is_license_expression(obj: object) -> bool:
+    """
+    Check whether an object is a license expression with license information.
+
+    Args:
+        obj: The relationship target object.
+
+    Returns:
+        bool: True if ``obj`` is a ``simplelicensing_LicenseExpression`` whose
+        expression is neither empty nor a ``NONE``/``NOASSERTION`` keyword.
+    """
+    if not isinstance(obj, spdx3.simplelicensing_LicenseExpression):
+        return False
+    expr = getattr(obj, "simplelicensing_licenseExpression", "")
+    if not isinstance(expr, str):
+        return False
+    expr = expr.strip().upper()
+    return bool(expr) and expr not in _BLANK_LICENSE_EXPRESSIONS
+
+
+def _ids_with_license_expression(
+    object_set: spdx3.SHACLObjectSet, rel_type: str
+) -> set[str]:
+    """
+    Get IDs of elements with at least one license expression via ``rel_type``.
+
+    Args:
+        object_set: The SPDX 3 object set.
+        rel_type: The relationship type, e.g. ``hasConcludedLicense``.
+
+    Returns:
+        set[str]: SPDX IDs of the relationships' ``from`` elements.
+    """
+    return {
+        from_id
+        for from_id, to_ids in iter_relationships_by_type(object_set, rel_type)
+        if any(_is_license_expression(object_set.find_by_id(t)) for t in to_ids)
+    }
+
 
 # pylint: disable=too-many-instance-attributes
 class BSIChecker(BaseChecker):
@@ -402,25 +447,9 @@ class BSIChecker(BaseChecker):
         if not isinstance(self.doc, spdx3.SHACLObjectSet):
             return missing
 
-        valid_license_ids = set()
-        for from_id, to_ids in iter_relationships_by_type(
+        valid_license_ids = _ids_with_license_expression(
             self.doc, "hasConcludedLicense"
-        ):
-            has_valid_expression = False
-            for target_id in to_ids:
-                obj = self.doc.find_by_id(target_id)
-                if obj and isinstance(obj, spdx3.simplelicensing_LicenseExpression):
-                    expr = getattr(obj, "simplelicensing_licenseExpression", "")
-                    if (
-                        expr
-                        and isinstance(expr, str)
-                        and expr.strip() != "NoAssertionLicense"
-                    ):
-                        has_valid_expression = True
-                        break
-
-            if has_valid_expression:
-                valid_license_ids.add(from_id)
+        )
 
         # Check packages against the valid license list
         for name, spdx_id, _ in iter_objects_with_property(
@@ -640,26 +669,7 @@ class BSIChecker(BaseChecker):
         if not isinstance(self.doc, spdx3.SHACLObjectSet):
             return missing
 
-        valid_license_ids = set()
-
-        for from_id, to_ids in iter_relationships_by_type(
-            self.doc, "hasDeclaredLicense"
-        ):
-            has_valid_expression = False
-            for target_id in to_ids:
-                obj = self.doc.find_by_id(target_id)
-                if obj and isinstance(obj, spdx3.simplelicensing_LicenseExpression):
-                    expr = getattr(obj, "simplelicensing_licenseExpression", "")
-                    if (
-                        expr
-                        and isinstance(expr, str)
-                        and expr.strip() != "NoAssertionLicense"
-                    ):
-                        has_valid_expression = True
-                        break
-
-            if has_valid_expression:
-                valid_license_ids.add(from_id)
+        valid_license_ids = _ids_with_license_expression(self.doc, "hasDeclaredLicense")
 
         for name, spdx_id, _ in iter_objects_with_property(
             self.doc, spdx3.software_Package, "spdxId", self.reachable_component_ids

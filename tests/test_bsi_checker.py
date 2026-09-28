@@ -4,7 +4,9 @@
 
 """Tests for the BSI TR-03183-2 conformance checker."""
 
+import json
 import os
+from pathlib import Path
 from unittest import TestCase
 
 import pytest
@@ -195,3 +197,34 @@ def test_bsichecker_missing_optional_warnings() -> None:
     TestCase().assertCountEqual(
         _component_names(sbom.components_without_bom_references), ["example-component"]
     )
+
+
+@pytest.mark.parametrize(
+    ("expression", "missing"),
+    [
+        ("NOASSERTION", True),
+        ("noassertion", True),
+        ("NONE", True),
+        ("NoAssertionLicense", True),
+        (" ", True),
+        ("Apache-2.0 OR MIT", False),
+    ],
+)
+def test_bsichecker_blank_license_expression(
+    tmp_path: Path, expression: str, missing: bool
+) -> None:
+    """NONE/NOASSERTION license expressions do not count as a license."""
+    with open(
+        os.path.join(BSI_DATA_DIR, "compliant_bsi_spdx3.json"), encoding="utf-8"
+    ) as f:
+        sbom_json = json.load(f)
+    for obj in sbom_json["@graph"]:
+        if obj.get("type") == "simplelicensing_LicenseExpression":
+            obj["simplelicensing_licenseExpression"] = expression
+    test_file = tmp_path / "sbom.json"
+    test_file.write_text(json.dumps(sbom_json), encoding="utf-8")
+
+    sbom = BSIChecker(str(test_file), compliance="bsi", sbom_spec="spdx3")
+
+    assert bool(sbom.components_without_concluded_licenses) is missing
+    assert bool(sbom.components_without_original_licenses) is missing

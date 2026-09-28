@@ -47,6 +47,8 @@ and this project adheres to [Semantic Versioning][semver].
   instead of raising `AttributeError` ([#451])
 - Treat SPDX 3 `NoneElement`, `NoAssertionElement`, `NoneLicense` and
   `NoAssertionLicense` references as missing supplier or concluded license
+- BSI: treat `NONE`, `NOASSERTION` and blank license expressions as missing
+  concluded or original license
   ([#451])
 
 [#398]: https://github.com/spdx/ntia-conformance-checker/pull/398
