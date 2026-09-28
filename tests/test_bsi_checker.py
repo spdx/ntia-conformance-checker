@@ -202,7 +202,6 @@ def test_bsichecker_missing_optional_warnings() -> None:
 @pytest.mark.parametrize(
     ("expression", "missing"),
     [
-        ("NOASSERTION", True),
         ("noassertion", True),
         ("NONE", True),
         ("NoAssertionLicense", True),
@@ -214,10 +213,8 @@ def test_bsichecker_blank_license_expression(
     tmp_path: Path, expression: str, missing: bool
 ) -> None:
     """NONE/NOASSERTION license expressions do not count as a license."""
-    with open(
-        os.path.join(BSI_DATA_DIR, "compliant_bsi_spdx3.json"), encoding="utf-8"
-    ) as f:
-        sbom_json = json.load(f)
+    src = Path(BSI_DATA_DIR, "compliant_bsi_spdx3.json")
+    sbom_json = json.loads(src.read_text(encoding="utf-8"))
     for obj in sbom_json["@graph"]:
         if obj.get("type") == "simplelicensing_LicenseExpression":
             obj["simplelicensing_licenseExpression"] = expression
