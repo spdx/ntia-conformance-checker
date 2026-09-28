@@ -5,7 +5,8 @@
 """Adapter package for handling multiple SBOM specifications."""
 
 from .adapter_interface import SbomAdapter
+from .null_adapter import NullAdapter
 from .spdx2_adapter import Spdx2Adapter
 from .spdx3_adapter import Spdx3Adapter
 
-__all__ = ["SbomAdapter", "Spdx2Adapter", "Spdx3Adapter"]
+__all__ = ["NullAdapter", "SbomAdapter", "Spdx2Adapter", "Spdx3Adapter"]
