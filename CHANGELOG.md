@@ -49,6 +49,8 @@ and this project adheres to [Semantic Versioning][semver].
   `NoAssertionLicense` references as missing ([#451])
 - BSI: treat `NONE`, `NOASSERTION` and blank license expressions as missing
   concluded or original license ([#451])
+- SPDX 2: treat `NONE` and `NOASSERTION` as missing in all component fields
+  ([#451])
 
 [#398]: https://github.com/spdx/ntia-conformance-checker/pull/398
 [#406]: https://github.com/spdx/ntia-conformance-checker/pull/406

@@ -4,15 +4,16 @@
 
 """Tests for blank-value handling in adapters' get_components_without_* methods."""
 
+import json
 from collections.abc import Callable
+from pathlib import Path
 from unittest.mock import MagicMock
 
 import pytest
 from spdx_python_model.bindings import v3_0_1 as spdx3
 from spdx_tools.spdx.model.document import Document
 from spdx_tools.spdx.model.package import Package
-from spdx_tools.spdx.model.spdx_no_assertion import SpdxNoAssertion
-from spdx_tools.spdx.model.spdx_none import SpdxNone
+from spdx_tools.spdx.parser.parse_anything import parse_file
 
 from ntia_conformance_checker.adapters import SbomAdapter, Spdx2Adapter, Spdx3Adapter
 
@@ -46,14 +47,14 @@ def _spdx3(attr: str, value: object) -> Spdx3Adapter:
 
 COMMON = [(None, True), (" \t\n", True), ("valid", False)]
 
-# method suffix -> (SPDX 2 Package attribute, SpdxNoAssertion counts as blank)
+# method suffix -> SPDX 2 Package attribute
 SPDX2_FIELDS = {
-    "names": ("name", False),
-    "versions": ("version", True),
-    "suppliers": ("supplier", True),
-    "identifiers": ("spdx_id", False),
-    "concluded_licenses": ("license_concluded", True),
-    "copyright_texts": ("copyright_text", True),
+    "names": "name",
+    "versions": "version",
+    "suppliers": "supplier",
+    "identifiers": "spdx_id",
+    "concluded_licenses": "license_concluded",
+    "copyright_texts": "copyright_text",
 }
 
 # method suffix -> SPDX 3 software_Package attribute
@@ -75,12 +76,8 @@ SPDX3_SUPPLIERS = [
 CASES = [
     *[
         pytest.param(_spdx2, method, attr, value, blank, id=f"spdx2-{method}-{value!r}")
-        for method, (attr, no_assertion_blank) in SPDX2_FIELDS.items()
-        for value, blank in [
-            *COMMON,
-            (SpdxNone(), False),
-            (SpdxNoAssertion(), no_assertion_blank),
-        ]
+        for method, attr in SPDX2_FIELDS.items()
+        for value, blank in [*COMMON, ("NOASSERTION", True)]
     ],
     *[
         pytest.param(_spdx3, method, attr, value, blank, id=f"spdx3-{method}-{value!r}")
@@ -132,3 +129,29 @@ def test_spdx3_concluded_license_individuals(licenses: list[str], blank: bool) -
     missing = adapter.get_components_without_concluded_licenses({PKG_ID})
 
     assert bool(missing) is blank
+
+
+@pytest.mark.parametrize(
+    ("key", "value", "method"),
+    [
+        ("versionInfo", "NOASSERTION", "versions"),  # parsed as str
+        ("supplier", "NOASSERTION", "suppliers"),  # SpdxNoAssertion
+        ("copyrightText", "NONE", "copyright_texts"),  # SpdxNone
+        ("copyrightText", "none", "copyright_texts"),  # str
+    ],
+)
+def test_spdx2_parsed_keywords(
+    tmp_path: Path, key: str, value: str, method: str
+) -> None:
+    """Keywords are missing whether spdx-tools parses them as objects or str."""
+    src = Path(__file__).parent / "data/no_elements_missing"
+    sbom_json = json.loads((src / "SPDXJSONExample-v2.3.spdx.json").read_text())
+    package = sbom_json["packages"][0]
+    package[key] = value
+    test_file = tmp_path / "sbom.spdx.json"
+    test_file.write_text(json.dumps(sbom_json))
+
+    adapter = Spdx2Adapter(parse_file(str(test_file)))
+    missing = getattr(adapter, f"get_components_without_{method}")({package["SPDXID"]})
+
+    assert missing == [(package["name"], package["SPDXID"])]
