@@ -178,16 +178,7 @@ class BaseChecker(ABC):
         self._validation_messages = []
         self._conformance_messages = []
 
-        # Per-instance result lists; class-level defaults would be shared
-        # between instances whenever parsing fails.
-        self.components_without_names = []
-        self.components_without_versions = []
-        self.components_without_suppliers = []
-        self.components_without_identifiers = []
-        self.components_without_concluded_licenses = []
-        self.components_without_copyright_texts = []
-        self.all_components_without_info = []
-        self.sbom_gen_context = []
+        self._init_result_lists()
 
         self.reachable_component_ids: set[str] = set()
         self.floating_component_ids: set[str] = set()
@@ -258,6 +249,22 @@ class BaseChecker(ABC):
             self.all_components_without_info = self._get_all_components_without_info()
 
         self.table_elements: list[tuple[str, bool]] = []
+
+    def _init_result_lists(self) -> None:
+        """
+        Initialize per-instance result lists.
+
+        Class-level defaults would be shared between instances whenever
+        parsing fails, so each instance gets its own empty lists.
+        """
+        self.components_without_names = []
+        self.components_without_versions = []
+        self.components_without_suppliers = []
+        self.components_without_identifiers = []
+        self.components_without_concluded_licenses = []
+        self.components_without_copyright_texts = []
+        self.all_components_without_info = []
+        self.sbom_gen_context = []
 
     def check_doc_version(self) -> bool:
         """Check if the document's specification version exists."""
