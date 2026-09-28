@@ -104,11 +104,10 @@ class BaseChecker(ABC):
     doc_author: bool = False  # Has SPDX document author?
     doc_timestamp: bool = False  # Has SPDX document creation timestamp?
     dependency_relationships: bool = False  # Has dependency relationship?
-    # False when no component is reachable from the SBOM root,
-    # so component requirements could not be checked.
-    components_evaluated: bool = False
     # See https://github.com/spdx/ntia-conformance-checker/issues/392
     # for discussion on dependency relationships and DESCRIBES.
+    # False when no component is reachable from the SBOM root.
+    components_evaluated: bool = False
 
     compliant: bool = False  # Is SBOM compliant with the chosen standard?
 
