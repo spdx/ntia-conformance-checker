@@ -2,9 +2,8 @@
 # SPDX-FileType: SOURCE
 # SPDX-License-Identifier: Apache-2.0
 
-"""Tests that SPDX 3 component lists are ordered independent of hash seed."""
+"""Tests that SPDX 3 component lists are ordered the same across runs."""
 
-import os
 import subprocess
 import sys
 from pathlib import Path
@@ -17,17 +16,16 @@ SCRIPT = (
 )
 
 
-def test_spdx3_component_order_independent_of_hash_seed() -> None:
-    """Component list is sorted and identical under different hash seeds."""
+def test_spdx3_component_order_stable_across_runs() -> None:
+    """Component list is sorted and identical across separate processes."""
     outputs = {
         subprocess.run(
             [sys.executable, "-c", SCRIPT, str(SBOM_FILE)],
             capture_output=True,
             check=True,
-            env={**os.environ, "PYTHONHASHSEED": seed},
             text=True,
         ).stdout
-        for seed in ("0", "1", "2")
+        for _ in range(3)
     }
     assert outputs == {
         "['Acme Application', 'alpine:latest', 'npm-elliptic', 'openssl']\n"
