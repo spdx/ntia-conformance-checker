@@ -104,6 +104,9 @@ class BaseChecker(ABC):
     doc_author: bool = False  # Has SPDX document author?
     doc_timestamp: bool = False  # Has SPDX document creation timestamp?
     dependency_relationships: bool = False  # Has dependency relationship?
+    # False when no component is reachable from the SBOM root,
+    # so component requirements could not be checked.
+    components_evaluated: bool = False
     # See https://github.com/spdx/ntia-conformance-checker/issues/392
     # for discussion on dependency relationships and DESCRIBES.
 
@@ -178,9 +181,6 @@ class BaseChecker(ABC):
         self._conformance_messages = []
 
         self.reachable_component_ids: set[str] = set()
-        # False when no component is reachable from the SBOM root,
-        # so component requirements could not be checked.
-        self.components_evaluated: bool = False
         self.floating_component_ids: set[str] = set()
         self.unknown_pointer_edges: dict[str, list[str]] = {}
 
