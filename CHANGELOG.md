@@ -46,10 +46,9 @@ and this project adheres to [Semantic Versioning][semver].
 - Report SPDX 3 package with a nameless supplier Agent as missing a supplier,
   instead of raising `AttributeError` ([#451])
 - Treat SPDX 3 `NoneElement`, `NoAssertionElement`, `NoneLicense` and
-  `NoAssertionLicense` references as missing supplier or concluded license
+  `NoAssertionLicense` references as missing ([#451])
 - BSI: treat `NONE`, `NOASSERTION` and blank license expressions as missing
-  concluded or original license
-  ([#451])
+  concluded or original license ([#451])
 
 [#398]: https://github.com/spdx/ntia-conformance-checker/pull/398
 [#406]: https://github.com/spdx/ntia-conformance-checker/pull/406
