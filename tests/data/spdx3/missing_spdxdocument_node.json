@@ -1,0 +1,34 @@
+{
+  "@context": "https://spdx.org/rdf/3.0.1/spdx-context.jsonld",
+  "@graph": [
+    {
+      "type": "CreationInfo",
+      "@id": "_:creationinfo",
+      "specVersion": "3.0.1",
+      "createdBy": [
+        "https://swinslow.net/spdx-examples/SPDXRef-Person1"
+      ],
+      "created": "2026-07-01T12:00:00Z"
+    },
+    {
+      "type": "Person",
+      "spdxId": "https://swinslow.net/spdx-examples/SPDXRef-Person1",
+      "creationInfo": "_:creationinfo",
+      "name": "Induwara"
+    },
+    {
+      "type": "Organization",
+      "spdxId": "https://swinslow.net/spdx-examples/SPDXRef-Supplier",
+      "creationInfo": "_:creationinfo",
+      "name": "Test Supplier"
+    },
+    {
+      "type": "software_Package",
+      "spdxId": "https://swinslow.net/spdx-examples/SPDXRef-Package-Valid",
+      "creationInfo": "_:creationinfo",
+      "name": "Valid-Root-Package",
+      "software_packageVersion": "1.0.0",
+      "suppliedBy": "https://swinslow.net/spdx-examples/SPDXRef-Supplier"
+    }
+  ]
+}
