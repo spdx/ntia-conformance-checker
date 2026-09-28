@@ -2,7 +2,7 @@
 # SPDX-FileType: SOURCE
 # SPDX-License-Identifier: Apache-2.0
 
-"""Tests for checker results when no SBOM document could be parsed."""
+"""Tests for checker results when parsing fails."""
 
 from pathlib import Path
 
@@ -31,7 +31,7 @@ DEFAULTS: dict[str, object] = {
 
 @pytest.mark.parametrize("sbom_spec", ["spdx2", "spdx3"])
 def test_failed_parse_uses_null_adapter(tmp_path: Path, sbom_spec: str) -> None:
-    """Every adapter-backed method returns its default when parsing fails."""
+    """Adapter-backed methods return defaults when parsing fails."""
     garbage = tmp_path / "garbage.json"
     garbage.write_text("{not json")
 

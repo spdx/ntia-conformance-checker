@@ -2,7 +2,7 @@
 # SPDX-FileType: SOURCE
 # SPDX-License-Identifier: Apache-2.0
 
-"""Adapter used when no SBOM document could be parsed."""
+"""Adapter for when parsing fails."""
 
 from spdx_tools.spdx.validation.validation_message import ValidationMessage
 
@@ -10,7 +10,7 @@ from .adapter_interface import SbomAdapter
 
 
 class NullAdapter(SbomAdapter):
-    """Adapter that reports nothing, for when parsing failed."""
+    """Adapter returning defaults, used when parsing fails."""
 
     def get_doc_spec_version(self) -> str | None:
         return None
