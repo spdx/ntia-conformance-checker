@@ -40,7 +40,7 @@ _BLANK_INDIVIDUALS: frozenset[str] = frozenset(
 )
 
 
-def _is_blank(value: object) -> bool:
+def _is_blank(value: object, keywords: bool = False) -> bool:
     """
     Check whether an SPDX 3 field value should be treated as blank.
 
@@ -49,20 +49,21 @@ def _is_blank(value: object) -> bool:
 
     Args:
         value: The field value to check.
+        keywords: Whether ``NONE``/``NOASSERTION`` strings count as blank.
 
     Returns:
         bool: True if the value is considered blank.
     """
-    return not value or is_blank_string(value)
+    return not value or is_blank_string(value, keywords)
 
 
 def _is_blank_ref(value: object) -> bool:
     """
     Check whether an SPDX 3 element reference should be treated as blank.
 
-    A reference is blank when it is blank per :func:`_is_blank`, or when it
-    points to ``NoneElement``, ``NoAssertionElement``, ``NoneLicense`` or
-    ``NoAssertionLicense``, given as an IRI or as an element object.
+    A reference is blank when it is blank per :func:`_is_blank` (with
+    keywords), or when it points to ``NoneElement``, ``NoAssertionElement``,
+    ``NoneLicense`` or ``NoAssertionLicense``, as an IRI or an element object.
 
     Args:
         value: The reference to check (IRI string or element object).
@@ -71,8 +72,29 @@ def _is_blank_ref(value: object) -> bool:
         bool: True if the reference is considered blank.
     """
     ref = getattr(value, "spdxId", value)
-    return _is_blank(value) or (
+    return _is_blank(value, keywords=True) or (
         isinstance(ref, str) and ref.strip() in _BLANK_INDIVIDUALS
+    )
+
+
+def is_blank_license_expression(obj: object) -> bool:
+    """
+    Check whether an object is a license expression without license information.
+
+    Args:
+        obj: The object to check, e.g. a relationship target.
+
+    Returns:
+        bool: True if ``obj`` is a ``simplelicensing_LicenseExpression`` whose
+        text is blank, ``NONE``/``NOASSERTION``, or names a None/NoAssertion
+        license individual.
+    """
+    if not isinstance(obj, spdx3.simplelicensing_LicenseExpression):
+        return False
+    expr = getattr(obj, "simplelicensing_licenseExpression", "")
+    return _is_blank(expr, keywords=True) or (
+        isinstance(expr, str)
+        and expr.strip().upper() in {"NONELICENSE", "NOASSERTIONLICENSE"}
     )
 
 
@@ -146,7 +168,8 @@ class Spdx3Adapter(SbomAdapter):
                 reachable_ids,
             )
             # Agent suppliers carry ``name``; bare IRI strings are checked as-is.
-            if _is_blank_ref(supplier) or _is_blank(getattr(supplier, "name", supplier))
+            if _is_blank_ref(supplier)
+            or _is_blank(getattr(supplier, "name", supplier), keywords=True)
         ]
 
     def get_components_without_identifiers(
@@ -169,6 +192,12 @@ class Spdx3Adapter(SbomAdapter):
             if _is_blank(spdx_id)
         ]
 
+    def _is_blank_license(self, ref: str) -> bool:
+        """Check whether a license reference carries no license information."""
+        return _is_blank_ref(ref) or is_blank_license_expression(
+            self.object_set.find_by_id(ref)
+        )
+
     def get_components_without_concluded_licenses(
         self, reachable_ids: set[str]
     ) -> list[tuple[str, str]]:
@@ -177,7 +206,7 @@ class Spdx3Adapter(SbomAdapter):
             for from_id, to_ids in iter_relationships_by_type(
                 self.object_set, "hasConcludedLicense"
             )
-            if any(not _is_blank_ref(to_id) for to_id in to_ids)
+            if any(not self._is_blank_license(to_id) for to_id in to_ids)
         }
 
         return [
@@ -202,7 +231,7 @@ class Spdx3Adapter(SbomAdapter):
                 "software_copyrightText",
                 reachable_ids,
             )
-            if _is_blank(copyright_text)
+            if _is_blank(copyright_text, keywords=True)
         ]
 
     def check_dependency_relationships(self) -> bool:

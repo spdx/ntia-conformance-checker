@@ -19,6 +19,7 @@ from ntia_conformance_checker.adapters import SbomAdapter, Spdx2Adapter, Spdx3Ad
 
 PKG_ID = "https://example.com/pkg1"
 MIT = "https://spdx.org/licenses/MIT"
+EXPR_ID = "https://example.com/expr1"
 NONE_ELEMENT = spdx3.IndividualElement.NAMED_INDIVIDUALS["NoneElement"]
 _LICENSES = spdx3.expandedlicensing_IndividualLicensingInfo.NAMED_INDIVIDUALS
 NONE_LICENSE = _LICENSES["NoneLicense"]
@@ -45,7 +46,10 @@ def _spdx3(attr: str, value: object) -> Spdx3Adapter:
     return Spdx3Adapter(object_set, None)
 
 
-COMMON = [(None, True), (" \t\n", True), ("none", True), ("valid", False)]
+COMMON = [(None, True), (" \t\n", True), ("valid", False)]
+
+# Only these fields take NONE/NOASSERTION keywords; others are literal.
+KEYWORD_FIELDS = {"suppliers", "concluded_licenses", "copyright_texts"}
 
 # method suffix -> SPDX 2 Package attribute
 SPDX2_FIELDS = {
@@ -77,12 +81,16 @@ CASES = [
     *[
         pytest.param(_spdx2, method, attr, value, blank, id=f"spdx2-{method}-{value!r}")
         for method, attr in SPDX2_FIELDS.items()
-        for value, blank in COMMON
+        for value, blank in [*COMMON, ("none", method in KEYWORD_FIELDS)]
     ],
     *[
         pytest.param(_spdx3, method, attr, value, blank, id=f"spdx3-{method}-{value!r}")
         for method, attr in SPDX3_FIELDS.items()
-        for value, blank in COMMON + (SPDX3_SUPPLIERS if method == "suppliers" else [])
+        for value, blank in [
+            *COMMON,
+            ("none", method in KEYWORD_FIELDS),
+            *(SPDX3_SUPPLIERS if method == "suppliers" else []),
+        ]
     ],
 ]
 
@@ -112,11 +120,18 @@ def test_blank_values(
         pytest.param([NONE_ELEMENT], True, id="NoneElement"),
         pytest.param([MIT], False, id="MIT"),
         pytest.param([NO_ASSERTION_LICENSE, MIT], False, id="mixed"),
+        pytest.param([EXPR_ID], True, id="expression-NOASSERTION"),
+        pytest.param([EXPR_ID, MIT], False, id="expression-mixed"),
     ],
 )
 def test_spdx3_concluded_license_individuals(licenses: list[str], blank: bool) -> None:
-    """None/NoAssertion license and element individuals are not a license."""
+    """None/NoAssertion individuals and expressions are not a license."""
     adapter = _spdx3("name", "pkg")
+    adapter.object_set.add(
+        spdx3.simplelicensing_LicenseExpression(
+            spdxId=EXPR_ID, simplelicensing_licenseExpression="NOASSERTION"
+        )
+    )
     if licenses:
         rel = MagicMock(
             spec=spdx3.Relationship,
@@ -132,18 +147,18 @@ def test_spdx3_concluded_license_individuals(licenses: list[str], blank: bool) -
 
 
 @pytest.mark.parametrize(
-    ("key", "value", "method"),
+    ("key", "value", "method", "missing"),
     [
-        ("versionInfo", "NOASSERTION", "versions"),  # parsed as str
-        ("supplier", "NOASSERTION", "suppliers"),  # SpdxNoAssertion
-        ("copyrightText", "NONE", "copyright_texts"),  # SpdxNone
-        ("copyrightText", "none", "copyright_texts"),  # str
+        ("versionInfo", "NOASSERTION", "versions", False),  # literal str
+        ("supplier", "NOASSERTION", "suppliers", True),  # SpdxNoAssertion
+        ("copyrightText", "NONE", "copyright_texts", True),  # SpdxNone
+        ("copyrightText", "none", "copyright_texts", True),  # str
     ],
 )
 def test_spdx2_parsed_keywords(
-    tmp_path: Path, key: str, value: str, method: str
+    tmp_path: Path, key: str, value: str, method: str, missing: bool
 ) -> None:
-    """Keywords are missing whether spdx-tools parses them as objects or str."""
+    """Keywords are missing in keyword fields, whether objects or str."""
     src = Path(__file__).parent / "data/no_elements_missing"
     sbom_json = json.loads((src / "SPDXJSONExample-v2.3.spdx.json").read_text())
     package = sbom_json["packages"][0]
@@ -152,6 +167,6 @@ def test_spdx2_parsed_keywords(
     test_file.write_text(json.dumps(sbom_json))
 
     adapter = Spdx2Adapter(parse_file(str(test_file)))
-    missing = getattr(adapter, f"get_components_without_{method}")({package["SPDXID"]})
+    result = getattr(adapter, f"get_components_without_{method}")({package["SPDXID"]})
 
-    assert missing == [(package["name"], package["SPDXID"])]
+    assert bool(result) is missing

@@ -43,9 +43,9 @@ and this project adheres to [Semantic Versioning][semver].
   This changes the return signature to `Iterator[tuple[str, list[str]]]`
   ([#398])
 - Handle `OSError` when writing JSON output file in `print_output`
-- Treat `NONE`/`NOASSERTION` values, SPDX 3 None/NoAssertion
-  Element/License references, and BSI `NONE`/`NOASSERTION` license
-  expressions as missing; report a supplier Agent without name as missing
+- Treat `NONE`/`NOASSERTION` supplier, license and copyright values,
+  including SPDX 3 None/NoAssertion references and license expressions,
+  as missing; report a supplier Agent without name as missing
   instead of raising `AttributeError` ([#451])
 
 [#398]: https://github.com/spdx/ntia-conformance-checker/pull/398

@@ -10,6 +10,7 @@ from typing import Any
 
 from spdx_python_model.bindings import v3_0_1 as spdx3
 
+from .adapters.spdx3_adapter import is_blank_license_expression
 from .base_checker import BaseChecker
 from .spdx3_utils import (
     get_dependency_relationships_completeness,
@@ -17,11 +18,6 @@ from .spdx3_utils import (
     has_sha512_hash,
     iter_objects_with_property,
     iter_relationships_by_type,
-)
-
-# License expression texts that carry no license information (case-insensitive).
-_BLANK_LICENSE_EXPRESSIONS = frozenset(
-    {"NONE", "NOASSERTION", "NONELICENSE", "NOASSERTIONLICENSE"}
 )
 
 
@@ -33,16 +29,12 @@ def _is_license_expression(obj: object) -> bool:
         obj: The relationship target object.
 
     Returns:
-        bool: True if ``obj`` is a ``simplelicensing_LicenseExpression`` whose
-        expression is neither empty nor a ``NONE``/``NOASSERTION`` keyword.
+        bool: True if ``obj`` is a ``simplelicensing_LicenseExpression`` that
+        is not blank per :func:`is_blank_license_expression`.
     """
-    if not isinstance(obj, spdx3.simplelicensing_LicenseExpression):
-        return False
-    expr = getattr(obj, "simplelicensing_licenseExpression", "")
-    if not isinstance(expr, str):
-        return False
-    expr = expr.strip().upper()
-    return bool(expr) and expr not in _BLANK_LICENSE_EXPRESSIONS
+    return isinstance(
+        obj, spdx3.simplelicensing_LicenseExpression
+    ) and not is_blank_license_expression(obj)
 
 
 def _ids_with_license_expression(
