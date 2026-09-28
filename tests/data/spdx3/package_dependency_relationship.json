@@ -45,6 +45,9 @@
       ],
       "software_sbomType": [
         "analyzed"
+      ],
+      "rootElement": [
+        "https://spdx.org/spdxdocs/Package-application"
       ]
     },
     {

@@ -33,6 +33,8 @@ from .spdx3_utils import (
 )
 
 if TYPE_CHECKING:
+    from collections.abc import Sized
+
     from spdx_tools.spdx.model.document import Document
 
 
@@ -176,6 +178,9 @@ class BaseChecker(ABC):
         self._conformance_messages = []
 
         self.reachable_component_ids: set[str] = set()
+        # False when no component is reachable from the SBOM root,
+        # so component requirements could not be checked.
+        self.components_evaluated: bool = False
         self.floating_component_ids: set[str] = set()
         self.unknown_pointer_edges: dict[str, list[str]] = {}
 
@@ -248,6 +253,18 @@ class BaseChecker(ABC):
             ] = self._get_all_components_without_info()
 
         self.table_elements: list[tuple[str, bool]] = []
+
+    def _all_provided(self, missing: Sized) -> bool:
+        """
+        Check if components were evaluated and none is missing the information.
+
+        Args:
+            missing: Components missing the information.
+
+        Returns:
+            bool: True if components were evaluated and ``missing`` is empty.
+        """
+        return self.components_evaluated and not missing
 
     def check_doc_version(self) -> bool:
         """Check if the document's specification version exists."""
@@ -502,6 +519,7 @@ class BaseChecker(ABC):
             parsing_errors=self._parsing_errors,
             unknown_pointer_edges=getattr(self, "unknown_pointer_edges", {}),
             floating_component_ids=getattr(self, "floating_component_ids", set()),
+            components_evaluated=self.components_evaluated,
         )
 
         print(report_text(report_context, verbose))
@@ -524,6 +542,7 @@ class BaseChecker(ABC):
             parsing_errors=self._parsing_errors,
             unknown_pointer_edges=getattr(self, "unknown_pointer_edges", {}),
             floating_component_ids=getattr(self, "floating_component_ids", set()),
+            components_evaluated=self.components_evaluated,
         )
 
         return report_html(report_context, verbose=True)
@@ -546,6 +565,7 @@ class BaseChecker(ABC):
         )
 
         self.reachable_component_ids = reachable
+        self.components_evaluated = bool(reachable)
         self.floating_component_ids = floating
         self.unknown_pointer_edges = unknown_pointer_edges
         self.has_unknown_pointers = has_unknown_pointers

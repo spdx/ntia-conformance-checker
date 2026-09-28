@@ -43,12 +43,16 @@ and this project adheres to [Semantic Versioning][semver].
   This changes the return signature to `Iterator[tuple[str, list[str]]]`
   ([#398])
 - Handle `OSError` when writing JSON output file in `print_output`
+- Do not report an SBOM as compliant, or its component fields as provided,
+  when no component is reachable from the SBOM root; add
+  `componentsEvaluated` to JSON output and a note to text/HTML reports ([#453])
 
 [#398]: https://github.com/spdx/ntia-conformance-checker/pull/398
 [#406]: https://github.com/spdx/ntia-conformance-checker/pull/406
 [#412]: https://github.com/spdx/ntia-conformance-checker/pull/412
 [#413]: https://github.com/spdx/ntia-conformance-checker/pull/413
 [#428]: https://github.com/spdx/ntia-conformance-checker/pull/428
+[#453]: https://github.com/spdx/ntia-conformance-checker/pull/453
 
 ## [5.0.3] - 2026-06-02
 
