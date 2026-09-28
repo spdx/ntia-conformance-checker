@@ -1,0 +1,37 @@
+ntia\_conformance\_checker.adapters package
+===========================================
+
+Submodules
+----------
+
+ntia\_conformance\_checker.adapters.adapter\_interface module
+-------------------------------------------------------------
+
+.. automodule:: ntia_conformance_checker.adapters.adapter_interface
+   :members:
+   :show-inheritance:
+   :undoc-members:
+
+ntia\_conformance\_checker.adapters.spdx2\_adapter module
+---------------------------------------------------------
+
+.. automodule:: ntia_conformance_checker.adapters.spdx2_adapter
+   :members:
+   :show-inheritance:
+   :undoc-members:
+
+ntia\_conformance\_checker.adapters.spdx3\_adapter module
+---------------------------------------------------------
+
+.. automodule:: ntia_conformance_checker.adapters.spdx3_adapter
+   :members:
+   :show-inheritance:
+   :undoc-members:
+
+Module contents
+---------------
+
+.. automodule:: ntia_conformance_checker.adapters
+   :members:
+   :show-inheritance:
+   :undoc-members:

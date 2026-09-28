@@ -1,6 +1,14 @@
 ntia\_conformance\_checker package
 ==================================
 
+Subpackages
+-----------
+
+.. toctree::
+   :maxdepth: 4
+
+   ntia_conformance_checker.adapters
+
 Submodules
 ----------
 
