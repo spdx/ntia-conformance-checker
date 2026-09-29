@@ -27,7 +27,7 @@ class Spdx3Adapter(SbomAdapter):
 
     def __init__(
         self, object_set: spdx3.SHACLObjectSet, spdx3_doc: spdx3.SpdxDocument | None
-    ):
+    ) -> None:
         self.object_set = object_set
         self.spdx3_doc = spdx3_doc
 
