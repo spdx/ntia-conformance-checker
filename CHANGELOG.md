@@ -43,12 +43,16 @@ and this project adheres to [Semantic Versioning][semver].
   This changes the return signature to `Iterator[tuple[str, list[str]]]`
   ([#398])
 - Handle `OSError` when writing JSON output file in `print_output`
+- Initialize per-component result lists as instance attributes,
+  so checkers with a failed parse do not share state between instances ([#449])
+- `FSCT3Checker` no longer raises `AttributeError` on an unparsable file ([#449])
 
 [#398]: https://github.com/spdx/ntia-conformance-checker/pull/398
 [#406]: https://github.com/spdx/ntia-conformance-checker/pull/406
 [#412]: https://github.com/spdx/ntia-conformance-checker/pull/412
 [#413]: https://github.com/spdx/ntia-conformance-checker/pull/413
 [#428]: https://github.com/spdx/ntia-conformance-checker/pull/428
+[#449]: https://github.com/spdx/ntia-conformance-checker/pull/449
 
 ## [5.0.3] - 2026-06-02
 
