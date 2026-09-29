@@ -40,7 +40,7 @@ class FSCT3Checker(BaseChecker):
         validate: bool = True,
         compliance: str = "fsct3-min",
         sbom_spec: str = "spdx2",
-    ):
+    ) -> None:
         """
         Initialize the FSCTv3 checker.
 
