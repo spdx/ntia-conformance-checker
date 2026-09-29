@@ -15,7 +15,7 @@ from .adapter_interface import SbomAdapter
 class Spdx2Adapter(SbomAdapter):
     """Adapter for extracting data from SPDX 2.x documents."""
 
-    def __init__(self, doc: Document):
+    def __init__(self, doc: Document) -> None:
         self.doc = doc
 
     def get_doc_spec_version(self) -> str | None:
