@@ -27,7 +27,7 @@ class NTIAChecker(BaseChecker):
         validate: bool = True,
         compliance: str = "ntia",
         sbom_spec: str = "spdx2",
-    ):
+    ) -> None:
         """
         Initialize the NTIA Minimum Element Checker.
 

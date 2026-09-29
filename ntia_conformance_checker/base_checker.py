@@ -91,12 +91,15 @@ class BaseChecker(ABC):
     sbom_name: str = ""
     # Lists of components missing required information.
     # Each item is a tuple of (component name, component SPDX ID).
-    components_without_names: list[tuple[str, str]] = []
-    components_without_versions: list[tuple[str, str]] = []
-    components_without_suppliers: list[tuple[str, str]] = []
-    components_without_identifiers: list[tuple[str, str]] = []
-    components_without_concluded_licenses: list[tuple[str, str]] = []
-    components_without_copyright_texts: list[tuple[str, str]] = []
+    components_without_names: list[tuple[str, str]]
+    components_without_versions: list[tuple[str, str]]
+    components_without_suppliers: list[tuple[str, str]]
+    components_without_identifiers: list[tuple[str, str]]
+    components_without_concluded_licenses: list[tuple[str, str]]
+    components_without_copyright_texts: list[tuple[str, str]]
+    # (info name, components missing that info) pairs.
+    all_components_without_info: list[tuple[str, list[tuple[str, str]]]]
+    sbom_gen_context: list[str]  # SBOM types (SPDX 3 only)
 
     doc_version: bool = False  # Has SPDX document version?
     doc_author: bool = False  # Has SPDX document author?
@@ -175,6 +178,8 @@ class BaseChecker(ABC):
         self._validation_messages = []
         self._conformance_messages = []
 
+        self._init_result_lists()
+
         self.reachable_component_ids: set[str] = set()
         self.floating_component_ids: set[str] = set()
         self.unknown_pointer_edges: dict[str, list[str]] = {}
@@ -241,13 +246,25 @@ class BaseChecker(ABC):
                 self.get_components_without_copyright_texts()
             )
 
-            # List of (info_name, components) tuples,
-            # where components is a list of (component_name, spdx_id) tuples
-            self.all_components_without_info: list[
-                tuple[str, list[tuple[str, str]]]
-            ] = self._get_all_components_without_info()
+            self.all_components_without_info = self._get_all_components_without_info()
 
         self.table_elements: list[tuple[str, bool]] = []
+
+    def _init_result_lists(self) -> None:
+        """
+        Initialize per-instance result lists.
+
+        Class-level defaults would be shared between instances whenever
+        parsing fails, so each instance gets its own empty lists.
+        """
+        self.components_without_names = []
+        self.components_without_versions = []
+        self.components_without_suppliers = []
+        self.components_without_identifiers = []
+        self.components_without_concluded_licenses = []
+        self.components_without_copyright_texts = []
+        self.all_components_without_info = []
+        self.sbom_gen_context = []
 
     def check_doc_version(self) -> bool:
         """Check if the document's specification version exists."""
