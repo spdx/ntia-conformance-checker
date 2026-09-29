@@ -43,6 +43,9 @@ and this project adheres to [Semantic Versioning][semver].
   This changes the return signature to `Iterator[tuple[str, list[str]]]`
   ([#398])
 - Handle `OSError` when writing JSON output file in `print_output`
+- Initialize per-component result lists as instance attributes,
+  so checkers with a failed parse do not share state between instances ([#449])
+- `FSCT3Checker` no longer raises `AttributeError` on an unparsable file ([#449])
 - Treat `NONE`/`NOASSERTION` supplier, license and copyright values,
   including SPDX 3 None/NoAssertion references and license expressions,
   as missing; report a supplier Agent without name as missing
@@ -53,6 +56,7 @@ and this project adheres to [Semantic Versioning][semver].
 [#412]: https://github.com/spdx/ntia-conformance-checker/pull/412
 [#413]: https://github.com/spdx/ntia-conformance-checker/pull/413
 [#428]: https://github.com/spdx/ntia-conformance-checker/pull/428
+[#449]: https://github.com/spdx/ntia-conformance-checker/pull/449
 [#451]: https://github.com/spdx/ntia-conformance-checker/pull/451
 
 ## [5.0.3] - 2026-06-02

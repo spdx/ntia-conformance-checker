@@ -116,7 +116,7 @@ class BSIChecker(BaseChecker):
         validate: bool = True,
         compliance: str = "bsi",
         sbom_spec: str = "spdx3",
-    ):
+    ) -> None:
         """
         Initialize the BSI Minimum Element Checker.
 
