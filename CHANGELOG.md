@@ -46,6 +46,8 @@ and this project adheres to [Semantic Versioning][semver].
 - Initialize per-component result lists as instance attributes,
   so checkers with a failed parse do not share state between instances ([#449])
 - `FSCT3Checker` no longer raises `AttributeError` on an unparsable file ([#449])
+- Make SPDX 3 nonconformant component lists deterministic by sorting
+  `iter_objects_with_property` output by (name, spdxId) ([#454])
 
 [#398]: https://github.com/spdx/ntia-conformance-checker/pull/398
 [#406]: https://github.com/spdx/ntia-conformance-checker/pull/406
@@ -53,6 +55,7 @@ and this project adheres to [Semantic Versioning][semver].
 [#413]: https://github.com/spdx/ntia-conformance-checker/pull/413
 [#428]: https://github.com/spdx/ntia-conformance-checker/pull/428
 [#449]: https://github.com/spdx/ntia-conformance-checker/pull/449
+[#454]: https://github.com/spdx/ntia-conformance-checker/pull/454
 
 ## [5.0.3] - 2026-06-02
 
