@@ -49,6 +49,8 @@ and this project adheres to [Semantic Versioning][semver].
 - Do not report an SBOM as compliant, or its component fields as provided,
   when no component is reachable from the SBOM root; add
   `componentsEvaluated` to JSON output and a note to text/HTML reports ([#453])
+- Make SPDX 3 nonconformant component lists deterministic by sorting
+  `iter_objects_with_property` output by (name, spdxId) ([#454])
 
 [#398]: https://github.com/spdx/ntia-conformance-checker/pull/398
 [#406]: https://github.com/spdx/ntia-conformance-checker/pull/406
@@ -57,6 +59,7 @@ and this project adheres to [Semantic Versioning][semver].
 [#428]: https://github.com/spdx/ntia-conformance-checker/pull/428
 [#449]: https://github.com/spdx/ntia-conformance-checker/pull/449
 [#453]: https://github.com/spdx/ntia-conformance-checker/pull/453
+[#454]: https://github.com/spdx/ntia-conformance-checker/pull/454
 
 ## [5.0.3] - 2026-06-02
 

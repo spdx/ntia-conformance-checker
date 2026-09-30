@@ -12,11 +12,9 @@ import warnings
 from abc import ABC, abstractmethod
 from typing import TYPE_CHECKING, Any, cast
 
-from spdx_python_model.bindings import v3_0_1 as spdx3
 from spdx_tools.spdx.parser import parse_anything
 from spdx_tools.spdx.parser.error import SPDXParsingError
 from spdx_tools.spdx.validation.document_validator import validate_full_spdx_document
-from spdx_tools.spdx.validation.validation_message import ValidationMessage
 
 from .adapters import SbomAdapter, Spdx2Adapter, Spdx3Adapter
 from .constants import DEFAULT_SBOM_SPEC
@@ -35,7 +33,9 @@ from .spdx3_utils import (
 if TYPE_CHECKING:
     from collections.abc import Sized
 
+    from spdx_python_model.bindings import v3_0_1 as spdx3
     from spdx_tools.spdx.model.document import Document
+    from spdx_tools.spdx.validation.validation_message import ValidationMessage
 
 
 # pylint: disable=too-many-instance-attributes,too-many-public-methods
@@ -219,7 +219,7 @@ class BaseChecker(ABC):
                 self.adapter = Spdx2Adapter(self.doc)
             elif self.sbom_spec == "spdx3":
                 self.adapter = Spdx3Adapter(
-                    cast(spdx3.SHACLObjectSet, self.doc),
+                    cast("spdx3.SHACLObjectSet", self.doc),
                     self.__spdx3_doc,
                 )
 
