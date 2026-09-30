@@ -219,6 +219,9 @@
 <span class="w">    </span><span class="sd">"""</span>
 <span class="sd">    Yield (name, spdxId, property) for each SPDX 3 object.</span>
 
+<span class="sd">    Objects are yielded sorted by (name, spdxId), as SHACLObjectSet</span>
+<span class="sd">    iteration order is not stable across runs.</span>
+
 <span class="sd">    Args:</span>
 <span class="sd">        object_set (spdx3.SHACLObjectSet): The SHACLObjectSet to iterate over.</span>
 <span class="sd">        typ (type[spdx3.SHACLObject]): The type of SPDX3 object</span>
@@ -230,10 +233,18 @@
 <span class="sd">        SPDX ID, and the specified property of the object.</span>
 <span class="sd">    """</span>
 
-    <span class="k">for</span> <span class="n">obj</span> <span class="ow">in</span> <span class="n">object_set</span><span class="o">.</span><span class="n">foreach_type</span><span class="p">(</span><span class="n">typ</span><span class="p">):</span>
-        <span class="n">name</span> <span class="o">=</span> <span class="p">(</span><span class="nb">getattr</span><span class="p">(</span><span class="n">obj</span><span class="p">,</span> <span class="s2">"name"</span><span class="p">,</span> <span class="s2">""</span><span class="p">)</span> <span class="ow">or</span> <span class="s2">""</span><span class="p">)</span><span class="o">.</span><span class="n">strip</span><span class="p">()</span>
-        <span class="n">spdx_id</span> <span class="o">=</span> <span class="p">(</span><span class="nb">getattr</span><span class="p">(</span><span class="n">obj</span><span class="p">,</span> <span class="s2">"spdxId"</span><span class="p">,</span> <span class="s2">""</span><span class="p">)</span> <span class="ow">or</span> <span class="s2">""</span><span class="p">)</span><span class="o">.</span><span class="n">strip</span><span class="p">()</span>
-
+    <span class="n">entries</span> <span class="o">=</span> <span class="nb">sorted</span><span class="p">(</span>
+        <span class="p">(</span>
+            <span class="p">(</span>
+                <span class="p">(</span><span class="nb">getattr</span><span class="p">(</span><span class="n">obj</span><span class="p">,</span> <span class="s2">"name"</span><span class="p">,</span> <span class="s2">""</span><span class="p">)</span> <span class="ow">or</span> <span class="s2">""</span><span class="p">)</span><span class="o">.</span><span class="n">strip</span><span class="p">(),</span>
+                <span class="p">(</span><span class="nb">getattr</span><span class="p">(</span><span class="n">obj</span><span class="p">,</span> <span class="s2">"spdxId"</span><span class="p">,</span> <span class="s2">""</span><span class="p">)</span> <span class="ow">or</span> <span class="s2">""</span><span class="p">)</span><span class="o">.</span><span class="n">strip</span><span class="p">(),</span>
+                <span class="n">obj</span><span class="p">,</span>
+            <span class="p">)</span>
+            <span class="k">for</span> <span class="n">obj</span> <span class="ow">in</span> <span class="n">object_set</span><span class="o">.</span><span class="n">foreach_type</span><span class="p">(</span><span class="n">typ</span><span class="p">)</span>
+        <span class="p">),</span>
+        <span class="n">key</span><span class="o">=</span><span class="k">lambda</span> <span class="n">entry</span><span class="p">:</span> <span class="n">entry</span><span class="p">[:</span><span class="mi">2</span><span class="p">],</span>
+    <span class="p">)</span>
+    <span class="k">for</span> <span class="n">name</span><span class="p">,</span> <span class="n">spdx_id</span><span class="p">,</span> <span class="n">obj</span> <span class="ow">in</span> <span class="n">entries</span><span class="p">:</span>
         <span class="k">if</span> <span class="n">reachable_ids</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span> <span class="ow">and</span> <span class="n">spdx_id</span> <span class="ow">not</span> <span class="ow">in</span> <span class="n">reachable_ids</span><span class="p">:</span>
             <span class="k">continue</span>
 
