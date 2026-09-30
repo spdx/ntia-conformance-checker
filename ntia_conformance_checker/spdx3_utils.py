@@ -175,6 +175,9 @@ def iter_objects_with_property(
     """
     Yield (name, spdxId, property) for each SPDX 3 object.
 
+    Objects are yielded sorted by (name, spdxId), as SHACLObjectSet
+    iteration order is not stable across runs.
+
     Args:
         object_set (spdx3.SHACLObjectSet): The SHACLObjectSet to iterate over.
         typ (type[spdx3.SHACLObject]): The type of SPDX3 object
@@ -186,10 +189,18 @@ def iter_objects_with_property(
         SPDX ID, and the specified property of the object.
     """
 
-    for obj in object_set.foreach_type(typ):
-        name = (getattr(obj, "name", "") or "").strip()
-        spdx_id = (getattr(obj, "spdxId", "") or "").strip()
-
+    entries = sorted(
+        (
+            (
+                (getattr(obj, "name", "") or "").strip(),
+                (getattr(obj, "spdxId", "") or "").strip(),
+                obj,
+            )
+            for obj in object_set.foreach_type(typ)
+        ),
+        key=lambda entry: entry[:2],
+    )
+    for name, spdx_id, obj in entries:
         if reachable_ids is not None and spdx_id not in reachable_ids:
             continue
 

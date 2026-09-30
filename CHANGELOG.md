@@ -50,6 +50,8 @@ and this project adheres to [Semantic Versioning][semver].
   including SPDX 3 None/NoAssertion references and license expressions,
   as missing; report a supplier Agent without name as missing
   instead of raising `AttributeError` ([#451])
+- Make SPDX 3 nonconformant component lists deterministic by sorting
+  `iter_objects_with_property` output by (name, spdxId) ([#454])
 
 [#398]: https://github.com/spdx/ntia-conformance-checker/pull/398
 [#406]: https://github.com/spdx/ntia-conformance-checker/pull/406
@@ -58,6 +60,7 @@ and this project adheres to [Semantic Versioning][semver].
 [#428]: https://github.com/spdx/ntia-conformance-checker/pull/428
 [#449]: https://github.com/spdx/ntia-conformance-checker/pull/449
 [#451]: https://github.com/spdx/ntia-conformance-checker/pull/451
+[#454]: https://github.com/spdx/ntia-conformance-checker/pull/454
 
 ## [5.0.3] - 2026-06-02
 
