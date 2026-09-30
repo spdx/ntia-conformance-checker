@@ -203,7 +203,8 @@ def test_bsichecker_missing_optional_warnings() -> None:
     ("expression", "missing"),
     [
         ("noassertion", True),
-        ("NONE", True),
+        ("NONE", False),
+        ("NoneLicense", False),
         ("NoAssertionLicense", True),
         (" ", True),
         ("Apache-2.0 OR MIT", False),
@@ -212,7 +213,7 @@ def test_bsichecker_missing_optional_warnings() -> None:
 def test_bsichecker_blank_license_expression(
     tmp_path: Path, expression: str, missing: bool
 ) -> None:
-    """NONE/NOASSERTION license expressions do not count as a license."""
+    """NOASSERTION license expressions do not count as a license; NONE does."""
     src = Path(BSI_DATA_DIR, "compliant_bsi_spdx3.json")
     sbom_json = json.loads(src.read_text(encoding="utf-8"))
     for obj in sbom_json["@graph"]:

@@ -7,30 +7,29 @@
 from spdx_tools.spdx.model.document import Document
 from spdx_tools.spdx.model.relationship import RelationshipType
 from spdx_tools.spdx.model.spdx_no_assertion import SpdxNoAssertion
-from spdx_tools.spdx.model.spdx_none import SpdxNone
 from spdx_tools.spdx.validation.validation_message import ValidationMessage
 
 from .adapter_interface import SbomAdapter, is_blank_string
 
 
-def _is_blank(value: object, keywords: bool = False) -> bool:
+def _is_blank(value: object, noassertion: bool = False) -> bool:
     """
     Check whether an SPDX 2 field value should be treated as blank.
 
-    Blank means ``None``, ``SpdxNone``, ``SpdxNoAssertion``, or a blank string
-    per :func:`is_blank_string`. spdx-tools keeps keywords as plain strings in
-    some fields, e.g. lowercase ``none`` in ``copyrightText``.
+    Blank means ``None``, ``SpdxNoAssertion``, or a blank string per
+    :func:`is_blank_string`. spdx-tools keeps some keywords as plain strings,
+    e.g. lowercase ``noassertion`` in ``copyrightText``.
 
     Args:
         value: The field value to check.
-        keywords: Whether ``NONE``/``NOASSERTION`` strings count as blank.
+        noassertion: Whether ``NOASSERTION`` strings count as blank.
 
     Returns:
         bool: True if the value is considered blank.
     """
-    if value is None or isinstance(value, (SpdxNone, SpdxNoAssertion)):
+    if value is None or isinstance(value, SpdxNoAssertion):
         return True
-    return is_blank_string(value, keywords)
+    return is_blank_string(value, noassertion)
 
 
 class Spdx2Adapter(SbomAdapter):
@@ -94,7 +93,7 @@ class Spdx2Adapter(SbomAdapter):
             (package.name or "", package.spdx_id or "")
             for package in getattr(self.doc, "packages", [])
             if package.spdx_id in reachable_ids
-            and _is_blank(package.supplier, keywords=True)
+            and _is_blank(package.supplier, noassertion=True)
         ]
 
     def get_components_without_identifiers(
@@ -114,7 +113,7 @@ class Spdx2Adapter(SbomAdapter):
             (package.name or "", package.spdx_id or "")
             for package in getattr(self.doc, "packages", [])
             if package.spdx_id in reachable_ids
-            and _is_blank(package.license_concluded, keywords=True)
+            and _is_blank(package.license_concluded, noassertion=True)
         ]
 
     def get_components_without_copyright_texts(
@@ -124,7 +123,7 @@ class Spdx2Adapter(SbomAdapter):
             (package.name or "", package.spdx_id or "")
             for package in getattr(self.doc, "packages", [])
             if package.spdx_id in reachable_ids
-            and _is_blank(package.copyright_text, keywords=True)
+            and _is_blank(package.copyright_text, noassertion=True)
         ]
 
     def check_dependency_relationships(self) -> bool:

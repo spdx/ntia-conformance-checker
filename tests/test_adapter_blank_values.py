@@ -46,10 +46,10 @@ def _spdx3(attr: str, value: object) -> Spdx3Adapter:
     return Spdx3Adapter(object_set, None)
 
 
-COMMON = [(None, True), (" \t\n", True), ("valid", False)]
+COMMON = [(None, True), (" \t\n", True), ("valid", False), ("none", False)]
 
-# Only these fields take NONE/NOASSERTION keywords; others are literal.
-KEYWORD_FIELDS = {"suppliers", "concluded_licenses", "copyright_texts"}
+# Only these fields take NOASSERTION; others are literal. NONE is never blank.
+NOASSERTION_FIELDS = {"suppliers", "concluded_licenses", "copyright_texts"}
 
 # method suffix -> SPDX 2 Package attribute
 SPDX2_FIELDS = {
@@ -73,7 +73,7 @@ SPDX3_FIELDS = {
 SPDX3_SUPPLIERS = [
     (_agent(None), True),
     (_agent("Acme"), False),
-    (NONE_ELEMENT, True),
+    (NONE_ELEMENT, False),
     ("NoAssertionElement", True),  # compact form kept by the deserializer
 ]
 
@@ -81,14 +81,14 @@ CASES = [
     *[
         pytest.param(_spdx2, method, attr, value, blank, id=f"spdx2-{method}-{value!r}")
         for method, attr in SPDX2_FIELDS.items()
-        for value, blank in [*COMMON, ("none", method in KEYWORD_FIELDS)]
+        for value, blank in [*COMMON, ("noassertion", method in NOASSERTION_FIELDS)]
     ],
     *[
         pytest.param(_spdx3, method, attr, value, blank, id=f"spdx3-{method}-{value!r}")
         for method, attr in SPDX3_FIELDS.items()
         for value, blank in [
             *COMMON,
-            ("none", method in KEYWORD_FIELDS),
+            ("noassertion", method in NOASSERTION_FIELDS),
             *(SPDX3_SUPPLIERS if method == "suppliers" else []),
         ]
     ],
@@ -115,9 +115,10 @@ def test_blank_values(
     ("licenses", "blank"),
     [
         pytest.param([], True, id="no-relationship"),
-        pytest.param([NONE_LICENSE], True, id="NoneLicense"),
+        pytest.param([NONE_LICENSE], False, id="NoneLicense"),
         pytest.param(["expandedlicensing_NoAssertionLicense"], True, id="compact"),
-        pytest.param([NONE_ELEMENT], True, id="NoneElement"),
+        pytest.param([NONE_ELEMENT], False, id="NoneElement"),
+        pytest.param([NO_ASSERTION_LICENSE], True, id="NoAssertionLicense"),
         pytest.param([MIT], False, id="MIT"),
         pytest.param([NO_ASSERTION_LICENSE, MIT], False, id="mixed"),
         pytest.param([EXPR_ID], True, id="expression-NOASSERTION"),
@@ -125,7 +126,7 @@ def test_blank_values(
     ],
 )
 def test_spdx3_concluded_license_individuals(licenses: list[str], blank: bool) -> None:
-    """None/NoAssertion individuals and expressions are not a license."""
+    """NoAssertion individuals and expressions are not a license; None is."""
     adapter = _spdx3("name", "pkg")
     adapter.object_set.add(
         spdx3.simplelicensing_LicenseExpression(
@@ -151,14 +152,14 @@ def test_spdx3_concluded_license_individuals(licenses: list[str], blank: bool) -
     [
         ("versionInfo", "NOASSERTION", "versions", False),  # literal str
         ("supplier", "NOASSERTION", "suppliers", True),  # SpdxNoAssertion
-        ("copyrightText", "NONE", "copyright_texts", True),  # SpdxNone
-        ("copyrightText", "none", "copyright_texts", True),  # str
+        ("copyrightText", "NONE", "copyright_texts", False),  # SpdxNone
+        ("copyrightText", "noassertion", "copyright_texts", True),  # str
     ],
 )
 def test_spdx2_parsed_keywords(
     tmp_path: Path, key: str, value: str, method: str, missing: bool
 ) -> None:
-    """Keywords are missing in keyword fields, whether objects or str."""
+    """NOASSERTION is missing in keyword fields, whether object or str."""
     src = Path(__file__).parent / "data/no_elements_missing"
     sbom_json = json.loads((src / "SPDXJSONExample-v2.3.spdx.json").read_text())
     package = sbom_json["packages"][0]

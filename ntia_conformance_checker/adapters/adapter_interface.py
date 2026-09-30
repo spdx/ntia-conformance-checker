@@ -8,20 +8,19 @@ from abc import ABC, abstractmethod
 
 from spdx_tools.spdx.validation.validation_message import ValidationMessage
 
-_KEYWORDS = frozenset({"NONE", "NOASSERTION"})
 
-
-def is_blank_string(value: object, keywords: bool = False) -> bool:
+def is_blank_string(value: object, noassertion: bool = False) -> bool:
     """
     Check whether a value is a blank string.
 
-    Blank means whitespace-only, or ``NONE``/``NOASSERTION`` (any case) when
-    ``keywords`` is set. Use ``keywords`` only for fields where the SPDX
-    specification defines these keywords (supplier, license, copyright).
+    Blank means whitespace-only, or ``NOASSERTION`` (any case) when
+    ``noassertion`` is set. Use ``noassertion`` only for fields where the SPDX
+    specification defines it (supplier, license, copyright). ``NONE`` is a
+    statement, so it is not blank.
 
     Args:
         value: The value to check.
-        keywords: Whether ``NONE``/``NOASSERTION`` count as blank.
+        noassertion: Whether ``NOASSERTION`` counts as blank.
 
     Returns:
         bool: True if ``value`` is a blank string.
@@ -29,7 +28,7 @@ def is_blank_string(value: object, keywords: bool = False) -> bool:
     if not isinstance(value, str):
         return False
     text = value.strip().upper()
-    return not text or (keywords and text in _KEYWORDS)
+    return not text or (noassertion and text == "NOASSERTION")
 
 
 class SbomAdapter(ABC):

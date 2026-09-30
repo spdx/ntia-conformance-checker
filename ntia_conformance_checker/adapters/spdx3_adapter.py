@@ -24,23 +24,19 @@ from .adapter_interface import SbomAdapter, is_blank_string
 _ELEMENT_INDIVIDUALS = spdx3.IndividualElement.NAMED_INDIVIDUALS
 _LICENSE_INDIVIDUALS = spdx3.expandedlicensing_IndividualLicensingInfo.NAMED_INDIVIDUALS
 
-# "None" and "no assertion" individuals, as full IRIs and as the compact
-# names that spdx-python-model may keep when deserializing references.
+# NoAssertion individuals, as full IRIs and compact names.
+# None individuals state "none", so are not blank.
 _BLANK_INDIVIDUALS: frozenset[str] = frozenset(
     {
-        _ELEMENT_INDIVIDUALS["NoneElement"],
         _ELEMENT_INDIVIDUALS["NoAssertionElement"],
-        _LICENSE_INDIVIDUALS["NoneLicense"],
         _LICENSE_INDIVIDUALS["NoAssertionLicense"],
-        "NoneElement",
         "NoAssertionElement",
-        "expandedlicensing_NoneLicense",
         "expandedlicensing_NoAssertionLicense",
     }
 )
 
 
-def _is_blank(value: object, keywords: bool = False) -> bool:
+def _is_blank(value: object, noassertion: bool = False) -> bool:
     """
     Check whether an SPDX 3 field value should be treated as blank.
 
@@ -49,12 +45,12 @@ def _is_blank(value: object, keywords: bool = False) -> bool:
 
     Args:
         value: The field value to check.
-        keywords: Whether ``NONE``/``NOASSERTION`` strings count as blank.
+        noassertion: Whether ``NOASSERTION`` strings count as blank.
 
     Returns:
         bool: True if the value is considered blank.
     """
-    return not value or is_blank_string(value, keywords)
+    return not value or is_blank_string(value, noassertion)
 
 
 def _is_blank_ref(value: object) -> bool:
@@ -62,8 +58,8 @@ def _is_blank_ref(value: object) -> bool:
     Check whether an SPDX 3 element reference should be treated as blank.
 
     A reference is blank when it is blank per :func:`_is_blank` (with
-    keywords), or when it points to ``NoneElement``, ``NoAssertionElement``,
-    ``NoneLicense`` or ``NoAssertionLicense``, as an IRI or an element object.
+    ``noassertion``), or when it points to ``NoAssertionElement`` or
+    ``NoAssertionLicense``, as an IRI or an element object.
 
     Args:
         value: The reference to check (IRI string or element object).
@@ -72,7 +68,7 @@ def _is_blank_ref(value: object) -> bool:
         bool: True if the reference is considered blank.
     """
     ref = getattr(value, "spdxId", value)
-    return _is_blank(value, keywords=True) or (
+    return _is_blank(value, noassertion=True) or (
         isinstance(ref, str) and ref.strip() in _BLANK_INDIVIDUALS
     )
 
@@ -86,15 +82,14 @@ def is_blank_license_expression(obj: object) -> bool:
 
     Returns:
         bool: True if ``obj`` is a ``simplelicensing_LicenseExpression`` whose
-        text is blank, ``NONE``/``NOASSERTION``, or names a None/NoAssertion
-        license individual.
+        text is blank, ``NOASSERTION``, or names the
+        ``NoAssertionLicense`` individual.
     """
     if not isinstance(obj, spdx3.simplelicensing_LicenseExpression):
         return False
     expr = getattr(obj, "simplelicensing_licenseExpression", "")
-    return _is_blank(expr, keywords=True) or (
-        isinstance(expr, str)
-        and expr.strip().upper() in {"NONELICENSE", "NOASSERTIONLICENSE"}
+    return _is_blank(expr, noassertion=True) or (
+        isinstance(expr, str) and expr.strip().upper() == "NOASSERTIONLICENSE"
     )
 
 
@@ -169,7 +164,7 @@ class Spdx3Adapter(SbomAdapter):
             )
             # Agent suppliers carry ``name``; bare IRI strings are checked as-is.
             if _is_blank_ref(supplier)
-            or _is_blank(getattr(supplier, "name", supplier), keywords=True)
+            or _is_blank(getattr(supplier, "name", supplier), noassertion=True)
         ]
 
     def get_components_without_identifiers(
@@ -231,7 +226,7 @@ class Spdx3Adapter(SbomAdapter):
                 "software_copyrightText",
                 reachable_ids,
             )
-            if _is_blank(copyright_text, keywords=True)
+            if _is_blank(copyright_text, noassertion=True)
         ]
 
     def check_dependency_relationships(self) -> bool:
