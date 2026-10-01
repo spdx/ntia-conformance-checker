@@ -19,7 +19,7 @@ from spdx_tools.spdx.model.document import (
 )
 
 import ntia_conformance_checker.sbom_checker as sbom_checker
-from ntia_conformance_checker.adapters import Spdx2Adapter, Spdx3Adapter
+from ntia_conformance_checker.adapters import NullAdapter, Spdx2Adapter, Spdx3Adapter
 from ntia_conformance_checker.ntia_checker import NTIAChecker
 from ntia_conformance_checker.spdx3_utils import get_all_packages
 
@@ -135,7 +135,7 @@ def test_get_total_number_components_none_or_unknown_spec() -> None:
     """Test get_total_number_components when doc is None or unknown spec."""
     checker = sbom_checker.SbomChecker(test_files[0])
     checker.doc = None
-    checker.adapter = None
+    checker.adapter = NullAdapter()
     assert checker.get_total_number_components() == 0
 
     checker.doc = spdx3.SHACLObjectSet()
@@ -241,7 +241,7 @@ def test_spdx3_missing_spdxdocument_node_still_initializes_adapter() -> None:
 
     checker = NTIAChecker(filepath, sbom_spec="spdx3")
 
-    assert checker.adapter is not None
+    assert isinstance(checker.adapter, Spdx3Adapter)
     assert checker.get_total_number_components() == 1
 
     validation_texts = [msg.validation_message for msg in checker.validation_messages]

@@ -16,7 +16,7 @@ from spdx_tools.spdx.parser import parse_anything
 from spdx_tools.spdx.parser.error import SPDXParsingError
 from spdx_tools.spdx.validation.document_validator import validate_full_spdx_document
 
-from .adapters import SbomAdapter, Spdx2Adapter, Spdx3Adapter
+from .adapters import NullAdapter, SbomAdapter, Spdx2Adapter, Spdx3Adapter
 from .constants import DEFAULT_SBOM_SPEC
 from .graph_utils import analyze_graph_connectivity
 from .report import (
@@ -187,7 +187,7 @@ class BaseChecker(ABC):
         # "Pointers" refers to relationship edges targeting unknown/missing elements in the graph.
         self.has_unknown_pointers: bool = False
 
-        self.adapter: SbomAdapter | None = None
+        self.adapter: SbomAdapter = NullAdapter()
 
         match sbom_spec:
             case "spdx2":
@@ -268,39 +268,27 @@ class BaseChecker(ABC):
 
     def check_doc_version(self) -> bool:
         """Check if the document's specification version exists."""
-        if self.adapter:
-            return self.adapter.check_doc_version()
-        return False
+        return self.adapter.check_doc_version()
 
     def check_author(self) -> bool:
         """Check if the author of SBOM data exists."""
-        if self.adapter:
-            return self.adapter.check_author()
-        return False
+        return self.adapter.check_author()
 
     def check_dependency_relationships(self) -> bool:
         """Check if the SBOM document declares dependency information."""
-        if self.adapter:
-            return self.adapter.check_dependency_relationships()
-        return False
+        return self.adapter.check_dependency_relationships()
 
     def check_timestamp(self) -> bool:
         """Check if the SBOM creation timestamp exists."""
-        if self.adapter:
-            return self.adapter.check_timestamp()
-        return False
+        return self.adapter.check_timestamp()
 
     def get_doc_spec_version(self) -> str | None:
         """Retrieve the document's specification version."""
-        if self.adapter:
-            return self.adapter.get_doc_spec_version()
-        return None
+        return self.adapter.get_doc_spec_version()
 
     def get_sbom_name(self) -> str:
         """Retrieve the name of the SBOM."""
-        if self.adapter:
-            return self.adapter.get_sbom_name()
-        return ""
+        return self.adapter.get_sbom_name()
 
     def get_sbom_types(self) -> list[str]:
         """Get SBOM types (generation context) from the document.
@@ -310,9 +298,7 @@ class BaseChecker(ABC):
         https://www.cisa.gov/resources-tools/resources/framing-software-component-transparency-2024
         """
         # SBOM type is only available in SPDX 3
-        if self.adapter:
-            return self.adapter.get_sbom_types(self._conformance_messages)
-        return []
+        return self.adapter.get_sbom_types(self._conformance_messages)
 
     def get_components_without_concluded_licenses(self) -> list[tuple[str, str]]:
         """
@@ -324,11 +310,9 @@ class BaseChecker(ABC):
             preferred value (name or SPDX ID) as needed.
         """
         # Note: concluded license is mandatory in SPDX-2.2 and SPDX-2.3
-        if self.adapter:
-            return self.adapter.get_components_without_concluded_licenses(
-                self.reachable_component_ids
-            )
-        return []
+        return self.adapter.get_components_without_concluded_licenses(
+            self.reachable_component_ids
+        )
 
     def get_components_without_copyright_texts(self) -> list[tuple[str, str]]:
         """
@@ -339,11 +323,9 @@ class BaseChecker(ABC):
             (component_name, spdx_id). Consumers should extract the
             preferred value (name or SPDX ID) as needed.
         """
-        if self.adapter:
-            return self.adapter.get_components_without_copyright_texts(
-                self.reachable_component_ids
-            )
-        return []
+        return self.adapter.get_components_without_copyright_texts(
+            self.reachable_component_ids
+        )
 
     def get_components_without_identifiers(self) -> list[tuple[str, str]]:
         """
@@ -354,11 +336,9 @@ class BaseChecker(ABC):
             (component_name, spdx_id). Consumers should extract the
             preferred value (name or SPDX ID) as needed.
         """
-        if self.adapter:
-            return self.adapter.get_components_without_identifiers(
-                self.reachable_component_ids
-            )
-        return []
+        return self.adapter.get_components_without_identifiers(
+            self.reachable_component_ids
+        )
 
     def get_components_without_names(self) -> list[tuple[str, str]]:
         """
@@ -369,11 +349,7 @@ class BaseChecker(ABC):
             (component_name, spdx_id). Consumers should extract the
             preferred value (name or SPDX ID) as needed.
         """
-        if self.adapter:
-            return self.adapter.get_components_without_names(
-                self.reachable_component_ids
-            )
-        return []
+        return self.adapter.get_components_without_names(self.reachable_component_ids)
 
     def get_components_without_suppliers(self) -> list[tuple[str, str]]:
         """
@@ -384,11 +360,9 @@ class BaseChecker(ABC):
             (component_name, spdx_id). Consumers should extract the
             preferred value (name or SPDX ID) as needed.
         """
-        if self.adapter:
-            return self.adapter.get_components_without_suppliers(
-                self.reachable_component_ids
-            )
-        return []
+        return self.adapter.get_components_without_suppliers(
+            self.reachable_component_ids
+        )
 
     def get_components_without_versions(self) -> list[tuple[str, str]]:
         """
@@ -399,11 +373,9 @@ class BaseChecker(ABC):
             (component_name, spdx_id). Consumers should extract the
             preferred value (name or SPDX ID) as needed.
         """
-        if self.adapter:
-            return self.adapter.get_components_without_versions(
-                self.reachable_component_ids
-            )
-        return []
+        return self.adapter.get_components_without_versions(
+            self.reachable_component_ids
+        )
 
     def _get_all_components_without_info(
         self,
@@ -431,9 +403,7 @@ class BaseChecker(ABC):
         Returns:
             int: The total number of components.
         """
-        if self.adapter:
-            return self.adapter.get_total_number_components()
-        return 0
+        return self.adapter.get_total_number_components()
 
     def parse_file(self) -> Document | None:
         """
