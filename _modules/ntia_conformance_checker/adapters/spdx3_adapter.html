@@ -52,7 +52,81 @@
     <span class="n">iter_relationships_by_type</span><span class="p">,</span>
 <span class="p">)</span>
 
-<span class="kn">from</span><span class="w"> </span><span class="nn">.adapter_interface</span><span class="w"> </span><span class="kn">import</span> <span class="n">SbomAdapter</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">.adapter_interface</span><span class="w"> </span><span class="kn">import</span> <span class="n">SbomAdapter</span><span class="p">,</span> <span class="n">is_blank_string</span>
+
+<span class="n">_ELEMENT_INDIVIDUALS</span> <span class="o">=</span> <span class="n">spdx3</span><span class="o">.</span><span class="n">IndividualElement</span><span class="o">.</span><span class="n">NAMED_INDIVIDUALS</span>
+<span class="n">_LICENSE_INDIVIDUALS</span> <span class="o">=</span> <span class="n">spdx3</span><span class="o">.</span><span class="n">expandedlicensing_IndividualLicensingInfo</span><span class="o">.</span><span class="n">NAMED_INDIVIDUALS</span>
+
+<span class="c1"># NoAssertion individuals, as full IRIs and compact names.</span>
+<span class="c1"># None individuals state "none", so are not blank.</span>
+<span class="n">_BLANK_INDIVIDUALS</span><span class="p">:</span> <span class="nb">frozenset</span><span class="p">[</span><span class="nb">str</span><span class="p">]</span> <span class="o">=</span> <span class="nb">frozenset</span><span class="p">(</span>
+    <span class="p">{</span>
+        <span class="n">_ELEMENT_INDIVIDUALS</span><span class="p">[</span><span class="s2">"NoAssertionElement"</span><span class="p">],</span>
+        <span class="n">_LICENSE_INDIVIDUALS</span><span class="p">[</span><span class="s2">"NoAssertionLicense"</span><span class="p">],</span>
+        <span class="s2">"NoAssertionElement"</span><span class="p">,</span>
+        <span class="s2">"expandedlicensing_NoAssertionLicense"</span><span class="p">,</span>
+    <span class="p">}</span>
+<span class="p">)</span>
+
+
+<span class="k">def</span><span class="w"> </span><span class="nf">_is_blank</span><span class="p">(</span><span class="n">value</span><span class="p">:</span> <span class="nb">object</span><span class="p">,</span> <span class="n">noassertion</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">False</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">bool</span><span class="p">:</span>
+<span class="w">    </span><span class="sd">"""</span>
+<span class="sd">    Check whether an SPDX 3 field value should be treated as blank.</span>
+
+<span class="sd">    Blank means falsy (``None``, ``""``, ...) or a blank string per</span>
+<span class="sd">    :func:`is_blank_string`.</span>
+
+<span class="sd">    Args:</span>
+<span class="sd">        value: The field value to check.</span>
+<span class="sd">        noassertion: Whether ``NOASSERTION`` strings count as blank.</span>
+
+<span class="sd">    Returns:</span>
+<span class="sd">        bool: True if the value is considered blank.</span>
+<span class="sd">    """</span>
+    <span class="k">return</span> <span class="ow">not</span> <span class="n">value</span> <span class="ow">or</span> <span class="n">is_blank_string</span><span class="p">(</span><span class="n">value</span><span class="p">,</span> <span class="n">noassertion</span><span class="p">)</span>
+
+
+<span class="k">def</span><span class="w"> </span><span class="nf">_is_blank_ref</span><span class="p">(</span><span class="n">value</span><span class="p">:</span> <span class="nb">object</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">bool</span><span class="p">:</span>
+<span class="w">    </span><span class="sd">"""</span>
+<span class="sd">    Check whether an SPDX 3 element reference should be treated as blank.</span>
+
+<span class="sd">    A reference is blank when it is blank per :func:`_is_blank` (with</span>
+<span class="sd">    ``noassertion``), or when it points to ``NoAssertionElement`` or</span>
+<span class="sd">    ``NoAssertionLicense``, as an IRI or an element object.</span>
+
+<span class="sd">    Args:</span>
+<span class="sd">        value: The reference to check (IRI string or element object).</span>
+
+<span class="sd">    Returns:</span>
+<span class="sd">        bool: True if the reference is considered blank.</span>
+<span class="sd">    """</span>
+    <span class="n">ref</span> <span class="o">=</span> <span class="nb">getattr</span><span class="p">(</span><span class="n">value</span><span class="p">,</span> <span class="s2">"spdxId"</span><span class="p">,</span> <span class="n">value</span><span class="p">)</span>
+    <span class="k">return</span> <span class="n">_is_blank</span><span class="p">(</span><span class="n">value</span><span class="p">,</span> <span class="n">noassertion</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span> <span class="ow">or</span> <span class="p">(</span>
+        <span class="nb">isinstance</span><span class="p">(</span><span class="n">ref</span><span class="p">,</span> <span class="nb">str</span><span class="p">)</span> <span class="ow">and</span> <span class="n">ref</span><span class="o">.</span><span class="n">strip</span><span class="p">()</span> <span class="ow">in</span> <span class="n">_BLANK_INDIVIDUALS</span>
+    <span class="p">)</span>
+
+
+<div class="viewcode-block" id="is_blank_license_expression">
+<a class="viewcode-back" href="../../../ntia_conformance_checker.adapters.html#ntia_conformance_checker.adapters.spdx3_adapter.is_blank_license_expression">[docs]</a>
+<span class="k">def</span><span class="w"> </span><span class="nf">is_blank_license_expression</span><span class="p">(</span><span class="n">obj</span><span class="p">:</span> <span class="nb">object</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">bool</span><span class="p">:</span>
+<span class="w">    </span><span class="sd">"""</span>
+<span class="sd">    Check whether an object is a license expression without license information.</span>
+
+<span class="sd">    Args:</span>
+<span class="sd">        obj: The object to check, e.g. a relationship target.</span>
+
+<span class="sd">    Returns:</span>
+<span class="sd">        bool: True if ``obj`` is a ``simplelicensing_LicenseExpression`` whose</span>
+<span class="sd">        text is blank, ``NOASSERTION``, or names the</span>
+<span class="sd">        ``NoAssertionLicense`` individual.</span>
+<span class="sd">    """</span>
+    <span class="k">if</span> <span class="ow">not</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">obj</span><span class="p">,</span> <span class="n">spdx3</span><span class="o">.</span><span class="n">simplelicensing_LicenseExpression</span><span class="p">):</span>
+        <span class="k">return</span> <span class="kc">False</span>
+    <span class="n">expr</span> <span class="o">=</span> <span class="nb">getattr</span><span class="p">(</span><span class="n">obj</span><span class="p">,</span> <span class="s2">"simplelicensing_licenseExpression"</span><span class="p">,</span> <span class="s2">""</span><span class="p">)</span>
+    <span class="k">return</span> <span class="n">_is_blank</span><span class="p">(</span><span class="n">expr</span><span class="p">,</span> <span class="n">noassertion</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span> <span class="ow">or</span> <span class="p">(</span>
+        <span class="nb">isinstance</span><span class="p">(</span><span class="n">expr</span><span class="p">,</span> <span class="nb">str</span><span class="p">)</span> <span class="ow">and</span> <span class="n">expr</span><span class="o">.</span><span class="n">strip</span><span class="p">()</span><span class="o">.</span><span class="n">upper</span><span class="p">()</span> <span class="o">==</span> <span class="s2">"NOASSERTIONLICENSE"</span>
+    <span class="p">)</span></div>
+
 
 
 <div class="viewcode-block" id="Spdx3Adapter">
@@ -112,7 +186,7 @@
                 <span class="s2">"name"</span><span class="p">,</span>
                 <span class="n">reachable_ids</span><span class="p">,</span>
             <span class="p">)</span>
-            <span class="k">if</span> <span class="ow">not</span> <span class="n">name</span> <span class="ow">or</span> <span class="p">(</span><span class="nb">isinstance</span><span class="p">(</span><span class="n">name</span><span class="p">,</span> <span class="nb">str</span><span class="p">)</span> <span class="ow">and</span> <span class="n">name</span><span class="o">.</span><span class="n">strip</span><span class="p">()</span> <span class="o">==</span> <span class="s2">""</span><span class="p">)</span>
+            <span class="k">if</span> <span class="n">_is_blank</span><span class="p">(</span><span class="n">name</span><span class="p">)</span>
         <span class="p">]</span></div>
 
 
@@ -129,8 +203,7 @@
                 <span class="s2">"software_packageVersion"</span><span class="p">,</span>
                 <span class="n">reachable_ids</span><span class="p">,</span>
             <span class="p">)</span>
-            <span class="k">if</span> <span class="ow">not</span> <span class="n">package_version</span>
-            <span class="ow">or</span> <span class="p">(</span><span class="nb">isinstance</span><span class="p">(</span><span class="n">package_version</span><span class="p">,</span> <span class="nb">str</span><span class="p">)</span> <span class="ow">and</span> <span class="n">package_version</span><span class="o">.</span><span class="n">strip</span><span class="p">()</span> <span class="o">==</span> <span class="s2">""</span><span class="p">)</span>
+            <span class="k">if</span> <span class="n">_is_blank</span><span class="p">(</span><span class="n">package_version</span><span class="p">)</span>
         <span class="p">]</span></div>
 
 
@@ -147,9 +220,9 @@
                 <span class="s2">"suppliedBy"</span><span class="p">,</span>
                 <span class="n">reachable_ids</span><span class="p">,</span>
             <span class="p">)</span>
-            <span class="k">if</span> <span class="ow">not</span> <span class="n">supplier</span>
-            <span class="ow">or</span> <span class="p">(</span><span class="n">supplier</span><span class="o">.</span><span class="n">name</span> <span class="k">if</span> <span class="nb">hasattr</span><span class="p">(</span><span class="n">supplier</span><span class="p">,</span> <span class="s2">"name"</span><span class="p">)</span> <span class="k">else</span> <span class="n">supplier</span> <span class="ow">or</span> <span class="s2">""</span><span class="p">)</span><span class="o">.</span><span class="n">strip</span><span class="p">()</span>
-            <span class="o">==</span> <span class="s2">""</span>
+            <span class="c1"># Agent suppliers carry ``name``; bare IRI strings are checked as-is.</span>
+            <span class="k">if</span> <span class="n">_is_blank_ref</span><span class="p">(</span><span class="n">supplier</span><span class="p">)</span>
+            <span class="ow">or</span> <span class="n">_is_blank</span><span class="p">(</span><span class="nb">getattr</span><span class="p">(</span><span class="n">supplier</span><span class="p">,</span> <span class="s2">"name"</span><span class="p">,</span> <span class="n">supplier</span><span class="p">),</span> <span class="n">noassertion</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
         <span class="p">]</span></div>
 
 
@@ -172,33 +245,28 @@
                 <span class="s2">"spdxId"</span><span class="p">,</span>
                 <span class="n">reachable_ids</span><span class="o">=</span><span class="kc">None</span><span class="p">,</span>
             <span class="p">)</span>
-            <span class="k">if</span> <span class="ow">not</span> <span class="n">spdx_id</span> <span class="ow">or</span> <span class="p">(</span><span class="nb">isinstance</span><span class="p">(</span><span class="n">spdx_id</span><span class="p">,</span> <span class="nb">str</span><span class="p">)</span> <span class="ow">and</span> <span class="n">spdx_id</span><span class="o">.</span><span class="n">strip</span><span class="p">()</span> <span class="o">==</span> <span class="s2">""</span><span class="p">)</span>
+            <span class="k">if</span> <span class="n">_is_blank</span><span class="p">(</span><span class="n">spdx_id</span><span class="p">)</span>
         <span class="p">]</span></div>
 
+
+    <span class="k">def</span><span class="w"> </span><span class="nf">_is_blank_license</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">ref</span><span class="p">:</span> <span class="nb">str</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">bool</span><span class="p">:</span>
+<span class="w">        </span><span class="sd">"""Check whether a license reference carries no license information."""</span>
+        <span class="k">return</span> <span class="n">_is_blank_ref</span><span class="p">(</span><span class="n">ref</span><span class="p">)</span> <span class="ow">or</span> <span class="n">is_blank_license_expression</span><span class="p">(</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">object_set</span><span class="o">.</span><span class="n">find_by_id</span><span class="p">(</span><span class="n">ref</span><span class="p">)</span>
+        <span class="p">)</span>
 
 <div class="viewcode-block" id="Spdx3Adapter.get_components_without_concluded_licenses">
 <a class="viewcode-back" href="../../../ntia_conformance_checker.adapters.html#ntia_conformance_checker.adapters.spdx3_adapter.Spdx3Adapter.get_components_without_concluded_licenses">[docs]</a>
     <span class="k">def</span><span class="w"> </span><span class="nf">get_components_without_concluded_licenses</span><span class="p">(</span>
         <span class="bp">self</span><span class="p">,</span> <span class="n">reachable_ids</span><span class="p">:</span> <span class="nb">set</span><span class="p">[</span><span class="nb">str</span><span class="p">]</span>
     <span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">list</span><span class="p">[</span><span class="nb">tuple</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="nb">str</span><span class="p">]]:</span>
-        <span class="n">has_concluded_license_ids</span><span class="p">:</span> <span class="nb">set</span><span class="p">[</span><span class="nb">str</span><span class="p">]</span> <span class="o">=</span> <span class="nb">set</span><span class="p">()</span>
-        <span class="n">no_assertion_uri</span> <span class="o">=</span> <span class="p">(</span>
-            <span class="n">spdx3</span><span class="o">.</span><span class="n">expandedlicensing_IndividualLicensingInfo</span><span class="o">.</span><span class="n">NAMED_INDIVIDUALS</span><span class="p">[</span>
-                <span class="s2">"NoAssertionLicense"</span>
-            <span class="p">]</span>
-        <span class="p">)</span>
-
-        <span class="k">for</span> <span class="n">from_id</span><span class="p">,</span> <span class="n">to_ids</span> <span class="ow">in</span> <span class="n">iter_relationships_by_type</span><span class="p">(</span>
-            <span class="bp">self</span><span class="o">.</span><span class="n">object_set</span><span class="p">,</span> <span class="s2">"hasConcludedLicense"</span>
-        <span class="p">):</span>
-            <span class="c1"># Filter out any "NoAssertionLicense" from the list</span>
-            <span class="n">valid_licenses</span> <span class="o">=</span> <span class="p">[</span>
-                <span class="n">t_id</span> <span class="k">for</span> <span class="n">t_id</span> <span class="ow">in</span> <span class="n">to_ids</span> <span class="k">if</span> <span class="n">t_id</span><span class="o">.</span><span class="n">strip</span><span class="p">()</span> <span class="o">!=</span> <span class="n">no_assertion_uri</span>
-            <span class="p">]</span>
-
-            <span class="c1"># If there is at least one valid license left, this package is safe!</span>
-            <span class="k">if</span> <span class="n">valid_licenses</span><span class="p">:</span>
-                <span class="n">has_concluded_license_ids</span><span class="o">.</span><span class="n">add</span><span class="p">(</span><span class="n">from_id</span><span class="p">)</span>
+        <span class="n">has_concluded_license_ids</span><span class="p">:</span> <span class="nb">set</span><span class="p">[</span><span class="nb">str</span><span class="p">]</span> <span class="o">=</span> <span class="p">{</span>
+            <span class="n">from_id</span>
+            <span class="k">for</span> <span class="n">from_id</span><span class="p">,</span> <span class="n">to_ids</span> <span class="ow">in</span> <span class="n">iter_relationships_by_type</span><span class="p">(</span>
+                <span class="bp">self</span><span class="o">.</span><span class="n">object_set</span><span class="p">,</span> <span class="s2">"hasConcludedLicense"</span>
+            <span class="p">)</span>
+            <span class="k">if</span> <span class="nb">any</span><span class="p">(</span><span class="ow">not</span> <span class="bp">self</span><span class="o">.</span><span class="n">_is_blank_license</span><span class="p">(</span><span class="n">to_id</span><span class="p">)</span> <span class="k">for</span> <span class="n">to_id</span> <span class="ow">in</span> <span class="n">to_ids</span><span class="p">)</span>
+        <span class="p">}</span>
 
         <span class="k">return</span> <span class="p">[</span>
             <span class="p">(</span><span class="n">name</span> <span class="ow">or</span> <span class="s2">""</span><span class="p">,</span> <span class="n">spdx_id</span> <span class="ow">or</span> <span class="s2">""</span><span class="p">)</span>
@@ -225,8 +293,7 @@
                 <span class="s2">"software_copyrightText"</span><span class="p">,</span>
                 <span class="n">reachable_ids</span><span class="p">,</span>
             <span class="p">)</span>
-            <span class="k">if</span> <span class="ow">not</span> <span class="n">copyright_text</span>
-            <span class="ow">or</span> <span class="p">(</span><span class="nb">isinstance</span><span class="p">(</span><span class="n">copyright_text</span><span class="p">,</span> <span class="nb">str</span><span class="p">)</span> <span class="ow">and</span> <span class="n">copyright_text</span><span class="o">.</span><span class="n">strip</span><span class="p">()</span> <span class="o">==</span> <span class="s2">""</span><span class="p">)</span>
+            <span class="k">if</span> <span class="n">_is_blank</span><span class="p">(</span><span class="n">copyright_text</span><span class="p">,</span> <span class="n">noassertion</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
         <span class="p">]</span></div>
 
 

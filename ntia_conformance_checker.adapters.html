@@ -202,6 +202,30 @@ preferred value (name or SPDX ID) as needed.</p>
 
 </dd></dl>
 
+<dl class="py function">
+<dt class="sig sig-object py" id="ntia_conformance_checker.adapters.adapter_interface.is_blank_string">
+<span class="sig-prename descclassname"><span class="pre">ntia_conformance_checker.adapters.adapter_interface.</span></span><span class="sig-name descname"><span class="pre">is_blank_string</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">value</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">object</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">noassertion</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">bool</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">False</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">bool</span></span></span><a class="reference internal" href="_modules/ntia_conformance_checker/adapters/adapter_interface.html#is_blank_string"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#ntia_conformance_checker.adapters.adapter_interface.is_blank_string" title="Link to this definition">¶</a></dt>
+<dd><p>Check whether a value is a blank string.</p>
+<p>Blank means whitespace-only, or <code class="docutils literal notranslate"><span class="pre">NOASSERTION</span></code> (any case) when
+<code class="docutils literal notranslate"><span class="pre">noassertion</span></code> is set. Use <code class="docutils literal notranslate"><span class="pre">noassertion</span></code> only for fields where the SPDX
+specification defines it (supplier, license, copyright). <code class="docutils literal notranslate"><span class="pre">NONE</span></code> is a
+statement, so it is not blank.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>value</strong> – The value to check.</p></li>
+<li><p><strong>noassertion</strong> – Whether <code class="docutils literal notranslate"><span class="pre">NOASSERTION</span></code> counts as blank.</p></li>
+</ul>
+</dd>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
+<dd class="field-even"><p>True if <code class="docutils literal notranslate"><span class="pre">value</span></code> is a blank string.</p>
+</dd>
+<dt class="field-odd">Return type<span class="colon">:</span></dt>
+<dd class="field-odd"><p>bool</p>
+</dd>
+</dl>
+</dd></dl>
+
 </section>
 <section id="module-ntia_conformance_checker.adapters.spdx2_adapter">
 <span id="ntia-conformance-checker-adapters-spdx2-adapter-module"></span><h2>ntia_conformance_checker.adapters.spdx2_adapter module<a class="headerlink" href="#module-ntia_conformance_checker.adapters.spdx2_adapter" title="Link to this heading">¶</a></h2>
@@ -495,6 +519,25 @@ preferred value (name or SPDX ID) as needed.</p>
 subclasses (including AIPackage and DatasetPackage).</p>
 </dd></dl>
 
+</dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="ntia_conformance_checker.adapters.spdx3_adapter.is_blank_license_expression">
+<span class="sig-prename descclassname"><span class="pre">ntia_conformance_checker.adapters.spdx3_adapter.</span></span><span class="sig-name descname"><span class="pre">is_blank_license_expression</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">obj</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">object</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">bool</span></span></span><a class="reference internal" href="_modules/ntia_conformance_checker/adapters/spdx3_adapter.html#is_blank_license_expression"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#ntia_conformance_checker.adapters.spdx3_adapter.is_blank_license_expression" title="Link to this definition">¶</a></dt>
+<dd><p>Check whether an object is a license expression without license information.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><p><strong>obj</strong> – The object to check, e.g. a relationship target.</p>
+</dd>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
+<dd class="field-even"><p>True if <code class="docutils literal notranslate"><span class="pre">obj</span></code> is a <code class="docutils literal notranslate"><span class="pre">simplelicensing_LicenseExpression</span></code> whose
+text is blank, <code class="docutils literal notranslate"><span class="pre">NOASSERTION</span></code>, or names the
+<code class="docutils literal notranslate"><span class="pre">NoAssertionLicense</span></code> individual.</p>
+</dd>
+<dt class="field-odd">Return type<span class="colon">:</span></dt>
+<dd class="field-odd"><p>bool</p>
+</dd>
+</dl>
 </dd></dl>
 
 </section>
