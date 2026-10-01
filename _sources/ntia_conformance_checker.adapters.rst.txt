@@ -12,6 +12,14 @@ ntia\_conformance\_checker.adapters.adapter\_interface module
    :show-inheritance:
    :undoc-members:
 
+ntia\_conformance\_checker.adapters.null\_adapter module
+--------------------------------------------------------
+
+.. automodule:: ntia_conformance_checker.adapters.null_adapter
+   :members:
+   :show-inheritance:
+   :undoc-members:
+
 ntia\_conformance\_checker.adapters.spdx2\_adapter module
 ---------------------------------------------------------
 
