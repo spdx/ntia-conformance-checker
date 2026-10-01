@@ -197,58 +197,70 @@
             <span class="p">(</span><span class="s2">"Creator of the SBOM"</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">doc_creator</span><span class="p">),</span>
             <span class="p">(</span><span class="s2">"Timestamp"</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">doc_timestamp</span><span class="p">),</span>
             <span class="p">(</span><span class="s2">"Dependency Completeness"</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">dependency_completeness</span><span class="p">),</span>
-            <span class="p">(</span><span class="s2">"Component Names"</span><span class="p">,</span> <span class="ow">not</span> <span class="nb">bool</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">components_without_names</span><span class="p">)),</span>
-            <span class="p">(</span><span class="s2">"Component Versions"</span><span class="p">,</span> <span class="ow">not</span> <span class="nb">bool</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">components_without_versions</span><span class="p">)),</span>
-            <span class="p">(</span><span class="s2">"Component Creators"</span><span class="p">,</span> <span class="ow">not</span> <span class="nb">bool</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">components_without_creators</span><span class="p">)),</span>
-            <span class="p">(</span><span class="s2">"Distribution Filenames"</span><span class="p">,</span> <span class="ow">not</span> <span class="nb">bool</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">components_without_filenames</span><span class="p">)),</span>
+            <span class="p">(</span><span class="s2">"Component Names"</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">_all_provided</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">components_without_names</span><span class="p">)),</span>
+            <span class="p">(</span>
+                <span class="s2">"Component Versions"</span><span class="p">,</span>
+                <span class="bp">self</span><span class="o">.</span><span class="n">_all_provided</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">components_without_versions</span><span class="p">),</span>
+            <span class="p">),</span>
+            <span class="p">(</span>
+                <span class="s2">"Component Creators"</span><span class="p">,</span>
+                <span class="bp">self</span><span class="o">.</span><span class="n">_all_provided</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">components_without_creators</span><span class="p">),</span>
+            <span class="p">),</span>
+            <span class="p">(</span>
+                <span class="s2">"Distribution Filenames"</span><span class="p">,</span>
+                <span class="bp">self</span><span class="o">.</span><span class="n">_all_provided</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">components_without_filenames</span><span class="p">),</span>
+            <span class="p">),</span>
             <span class="p">(</span>
                 <span class="s2">"Executable Properties"</span><span class="p">,</span>
-                <span class="ow">not</span> <span class="nb">bool</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">components_without_executable_prop</span><span class="p">),</span>
+                <span class="bp">self</span><span class="o">.</span><span class="n">_all_provided</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">components_without_executable_prop</span><span class="p">),</span>
             <span class="p">),</span>
-            <span class="p">(</span><span class="s2">"Archive Properties"</span><span class="p">,</span> <span class="ow">not</span> <span class="nb">bool</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">components_without_archive_prop</span><span class="p">)),</span>
+            <span class="p">(</span>
+                <span class="s2">"Archive Properties"</span><span class="p">,</span>
+                <span class="bp">self</span><span class="o">.</span><span class="n">_all_provided</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">components_without_archive_prop</span><span class="p">),</span>
+            <span class="p">),</span>
             <span class="p">(</span>
                 <span class="s2">"Structured Properties"</span><span class="p">,</span>
-                <span class="ow">not</span> <span class="nb">bool</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">components_without_structured_prop</span><span class="p">),</span>
+                <span class="bp">self</span><span class="o">.</span><span class="n">_all_provided</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">components_without_structured_prop</span><span class="p">),</span>
             <span class="p">),</span>
             <span class="p">(</span>
                 <span class="s2">"Distribution Licenses"</span><span class="p">,</span>
-                <span class="ow">not</span> <span class="nb">bool</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">components_without_concluded_licenses</span><span class="p">),</span>
+                <span class="bp">self</span><span class="o">.</span><span class="n">_all_provided</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">components_without_concluded_licenses</span><span class="p">),</span>
             <span class="p">),</span>
             <span class="p">(</span>
                 <span class="s2">"Deployable Component Hashes"</span><span class="p">,</span>
-                <span class="ow">not</span> <span class="nb">bool</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">components_without_sha512_hashes</span><span class="p">),</span>
+                <span class="bp">self</span><span class="o">.</span><span class="n">_all_provided</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">components_without_sha512_hashes</span><span class="p">),</span>
             <span class="p">),</span>
             <span class="p">(</span>
                 <span class="s2">"Source Code URIs (Warning)"</span><span class="p">,</span>
-                <span class="ow">not</span> <span class="nb">bool</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">components_without_source_code_uris</span><span class="p">),</span>
+                <span class="bp">self</span><span class="o">.</span><span class="n">_all_provided</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">components_without_source_code_uris</span><span class="p">),</span>
             <span class="p">),</span>
             <span class="p">(</span>
                 <span class="s2">"Deployable Form URIs (Warning)"</span><span class="p">,</span>
-                <span class="ow">not</span> <span class="nb">bool</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">components_without_deployable_uris</span><span class="p">),</span>
+                <span class="bp">self</span><span class="o">.</span><span class="n">_all_provided</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">components_without_deployable_uris</span><span class="p">),</span>
             <span class="p">),</span>
             <span class="p">(</span>
                 <span class="s2">"Other Unique Identifiers (Warning)"</span><span class="p">,</span>
-                <span class="ow">not</span> <span class="nb">bool</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">components_without_unique_identifiers</span><span class="p">),</span>
+                <span class="bp">self</span><span class="o">.</span><span class="n">_all_provided</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">components_without_unique_identifiers</span><span class="p">),</span>
             <span class="p">),</span>
             <span class="p">(</span>
                 <span class="s2">"Original Licenses (Warning)"</span><span class="p">,</span>
-                <span class="ow">not</span> <span class="nb">bool</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">components_without_original_licenses</span><span class="p">),</span>
+                <span class="bp">self</span><span class="o">.</span><span class="n">_all_provided</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">components_without_original_licenses</span><span class="p">),</span>
             <span class="p">),</span>
             <span class="p">(</span>
                 <span class="s2">"Effective Licenses (Optional)"</span><span class="p">,</span>
-                <span class="ow">not</span> <span class="nb">bool</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">components_without_effective_licenses</span><span class="p">),</span>
+                <span class="bp">self</span><span class="o">.</span><span class="n">_all_provided</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">components_without_effective_licenses</span><span class="p">),</span>
             <span class="p">),</span>
             <span class="p">(</span>
                 <span class="s2">"Source Code Hashes (Optional)"</span><span class="p">,</span>
-                <span class="ow">not</span> <span class="nb">bool</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">components_without_source_code_hashes</span><span class="p">),</span>
+                <span class="bp">self</span><span class="o">.</span><span class="n">_all_provided</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">components_without_source_code_hashes</span><span class="p">),</span>
             <span class="p">),</span>
             <span class="p">(</span>
                 <span class="s2">"Security.txt URLs (Optional)"</span><span class="p">,</span>
-                <span class="ow">not</span> <span class="nb">bool</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">components_without_security_txt</span><span class="p">),</span>
+                <span class="bp">self</span><span class="o">.</span><span class="n">_all_provided</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">components_without_security_txt</span><span class="p">),</span>
             <span class="p">),</span>
             <span class="p">(</span>
                 <span class="s2">"BOM References (Optional)"</span><span class="p">,</span>
-                <span class="ow">not</span> <span class="nb">bool</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">components_without_bom_references</span><span class="p">),</span>
+                <span class="bp">self</span><span class="o">.</span><span class="n">_all_provided</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">components_without_bom_references</span><span class="p">),</span>
             <span class="p">),</span>
         <span class="p">]</span>
 
@@ -320,7 +332,7 @@
                 <span class="bp">self</span><span class="o">.</span><span class="n">doc_timestamp</span><span class="p">,</span>
                 <span class="bp">self</span><span class="o">.</span><span class="n">doc_uri</span><span class="p">,</span>
                 <span class="bp">self</span><span class="o">.</span><span class="n">dependency_completeness</span><span class="p">,</span>
-                <span class="ow">not</span> <span class="nb">bool</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">all_components_without_info</span><span class="p">),</span>
+                <span class="bp">self</span><span class="o">.</span><span class="n">_all_provided</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">all_components_without_info</span><span class="p">),</span>
             <span class="p">]</span>
         <span class="p">)</span></div>
 
