@@ -61,26 +61,29 @@ class FSCT3Checker(BaseChecker):
             self.compliant = self.check_compliance()
 
         self.table_elements = [
-            ("All component names provided?", not self.components_without_names),
+            (
+                "All component names provided?",
+                self._all_provided(self.components_without_names),
+            ),
             (
                 "All component versions provided?",
-                not self.components_without_versions,
+                self._all_provided(self.components_without_versions),
             ),
             (
                 "All component identifiers provided?",
-                not self.components_without_identifiers,
+                self._all_provided(self.components_without_identifiers),
             ),
             (
                 "All component suppliers provided?",
-                not self.components_without_suppliers,
+                self._all_provided(self.components_without_suppliers),
             ),
             (
                 "All component concluded license provided?",
-                not self.components_without_concluded_licenses,
+                self._all_provided(self.components_without_concluded_licenses),
             ),
             (
                 "All component copyright notice provided?",
-                not self.components_without_copyright_texts,
+                self._all_provided(self.components_without_copyright_texts),
             ),
             ("SBOM author name provided?", self.doc_author),
             ("SBOM creation timestamp provided?", self.doc_timestamp),
@@ -99,12 +102,12 @@ class FSCT3Checker(BaseChecker):
                 self.doc_timestamp,
                 self.dependency_relationships,
                 bool(self.sbom_gen_context),
-                not self.components_without_names,
-                not self.components_without_versions,
-                not self.components_without_identifiers,
-                not self.components_without_suppliers,
-                not self.components_without_concluded_licenses,
-                not self.components_without_copyright_texts,
+                self._all_provided(self.components_without_names),
+                self._all_provided(self.components_without_versions),
+                self._all_provided(self.components_without_identifiers),
+                self._all_provided(self.components_without_suppliers),
+                self._all_provided(self.components_without_concluded_licenses),
+                self._all_provided(self.components_without_copyright_texts),
                 not self.validation_messages,
             ]
         )

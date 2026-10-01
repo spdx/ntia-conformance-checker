@@ -39,6 +39,13 @@ class ReportContext:
     parsing_errors: list[str] | None = None
     unknown_pointer_edges: dict[str, list[str]] | None = None
     floating_component_ids: set[str] | None = None
+    components_evaluated: bool = True
+
+
+_NOT_EVALUATED = (
+    "No components are reachable from the SBOM root element; "
+    "component requirements were not evaluated."
+)
 
 
 def _safe_attr(obj: object, name: str) -> str:
@@ -201,6 +208,44 @@ def _generate_graph_text_report(rc: ReportContext) -> list[str]:
     return graph_issues_report
 
 
+def _requirements_text(rc: ReportContext) -> list[str]:
+    """Requirement table and not-evaluated note, in plain text."""
+    lines: list[str] = []
+    if rc.requirement_results:
+        lines.append("Requirement                                    | Status")
+        lines.append("-------------------------------------------------------")
+        for label, value in rc.requirement_results:
+            lines.append(f"{label:<46} | {value}")
+        lines.append("")
+    if not rc.components_evaluated:
+        lines.append(_NOT_EVALUATED + "\n")
+    return lines
+
+
+def _requirements_html(rc: ReportContext) -> list[str]:
+    """Requirement table and not-evaluated note, in HTML."""
+    lines: list[str] = []
+    if rc.requirement_results:
+        lines.append("<table class='conformance-res-tab'>")
+        lines.append("<thead><tr><th>Requirement</th><th>Conformant</th></tr></thead>")
+        lines.append("<tbody>")
+        for info_name, val in rc.requirement_results:
+            lines.append(
+                "<tr>"
+                "<td class='conformance-res-tab-r'>"
+                f"{info_name}</td>"
+                "<td class='conformance-res-tab-v'>"
+                f"{val}</td>"
+                "</tr>"
+            )
+        lines.append("</tbody>")
+        lines.append("</table>")
+
+    if not rc.components_evaluated:
+        lines.append(f"<p class='conformance-res-note'>{_NOT_EVALUATED}</p>")
+    return lines
+
+
 def report_text(
     rc: ReportContext,
     verbose: bool = False,
@@ -236,12 +281,7 @@ def report_text(
         " Conformance Results\n"
     )
     report.append(f"Conformant: {rc.compliant}\n")
-    if rc.requirement_results:
-        report.append("Requirement                                    | Status")
-        report.append("-------------------------------------------------------")
-        for label, value in rc.requirement_results:
-            report.append(f"{label:<46} | {value}")
-        report.append("")
+    report.extend(_requirements_text(rc))
 
     if rc.validation_messages:
         report.append(
@@ -361,21 +401,7 @@ def report_html(
     )
     report.append(f"<h3 class='conformance-res-status'>Conformant: {rc.compliant}</h3>")
 
-    if rc.requirement_results:
-        report.append("<table class='conformance-res-tab'>")
-        report.append("<thead><tr><th>Requirement</th><th>Conformant</th></tr></thead>")
-        report.append("<tbody>")
-        for info_name, val in rc.requirement_results:
-            report.append(
-                "<tr>"
-                "<td class='conformance-res-tab-r'>"
-                f"{info_name}</td>"
-                "<td class='conformance-res-tab-v'>"
-                f"{val}</td>"
-                "</tr>"
-            )
-        report.append("</tbody>")
-        report.append("</table>")
+    report.extend(_requirements_html(rc))
 
     report.append("</div>")  # End of conformance-res
 
@@ -459,6 +485,7 @@ def report_json(checker_instance: "BaseChecker") -> dict[str, Any]:
             checker_instance, "dependency_relationships", False
         ),
         "totalNumberComponents": checker_instance.get_total_number_components(),
+        "componentsEvaluated": getattr(checker_instance, "components_evaluated", False),
         "graphValidation": {
             "unknownPointers": {
                 "hasUnknownPointers": getattr(
@@ -499,7 +526,7 @@ def report_json(checker_instance: "BaseChecker") -> dict[str, Any]:
 
         result[key_] = {
             "nonconformantComponents": nonconformant,
-            "allProvided": not bool(nonconformant),
+            "allProvided": result["componentsEvaluated"] and not nonconformant,
         }
 
     return result

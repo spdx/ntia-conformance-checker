@@ -162,58 +162,70 @@ class BSIChecker(BaseChecker):
             ("Creator of the SBOM", self.doc_creator),
             ("Timestamp", self.doc_timestamp),
             ("Dependency Completeness", self.dependency_completeness),
-            ("Component Names", not bool(self.components_without_names)),
-            ("Component Versions", not bool(self.components_without_versions)),
-            ("Component Creators", not bool(self.components_without_creators)),
-            ("Distribution Filenames", not bool(self.components_without_filenames)),
+            ("Component Names", self._all_provided(self.components_without_names)),
+            (
+                "Component Versions",
+                self._all_provided(self.components_without_versions),
+            ),
+            (
+                "Component Creators",
+                self._all_provided(self.components_without_creators),
+            ),
+            (
+                "Distribution Filenames",
+                self._all_provided(self.components_without_filenames),
+            ),
             (
                 "Executable Properties",
-                not bool(self.components_without_executable_prop),
+                self._all_provided(self.components_without_executable_prop),
             ),
-            ("Archive Properties", not bool(self.components_without_archive_prop)),
+            (
+                "Archive Properties",
+                self._all_provided(self.components_without_archive_prop),
+            ),
             (
                 "Structured Properties",
-                not bool(self.components_without_structured_prop),
+                self._all_provided(self.components_without_structured_prop),
             ),
             (
                 "Distribution Licenses",
-                not bool(self.components_without_concluded_licenses),
+                self._all_provided(self.components_without_concluded_licenses),
             ),
             (
                 "Deployable Component Hashes",
-                not bool(self.components_without_sha512_hashes),
+                self._all_provided(self.components_without_sha512_hashes),
             ),
             (
                 "Source Code URIs (Warning)",
-                not bool(self.components_without_source_code_uris),
+                self._all_provided(self.components_without_source_code_uris),
             ),
             (
                 "Deployable Form URIs (Warning)",
-                not bool(self.components_without_deployable_uris),
+                self._all_provided(self.components_without_deployable_uris),
             ),
             (
                 "Other Unique Identifiers (Warning)",
-                not bool(self.components_without_unique_identifiers),
+                self._all_provided(self.components_without_unique_identifiers),
             ),
             (
                 "Original Licenses (Warning)",
-                not bool(self.components_without_original_licenses),
+                self._all_provided(self.components_without_original_licenses),
             ),
             (
                 "Effective Licenses (Optional)",
-                not bool(self.components_without_effective_licenses),
+                self._all_provided(self.components_without_effective_licenses),
             ),
             (
                 "Source Code Hashes (Optional)",
-                not bool(self.components_without_source_code_hashes),
+                self._all_provided(self.components_without_source_code_hashes),
             ),
             (
                 "Security.txt URLs (Optional)",
-                not bool(self.components_without_security_txt),
+                self._all_provided(self.components_without_security_txt),
             ),
             (
                 "BOM References (Optional)",
-                not bool(self.components_without_bom_references),
+                self._all_provided(self.components_without_bom_references),
             ),
         ]
 
@@ -283,7 +295,7 @@ class BSIChecker(BaseChecker):
                 self.doc_timestamp,
                 self.doc_uri,
                 self.dependency_completeness,
-                not bool(self.all_components_without_info),
+                self._all_provided(self.all_components_without_info),
             ]
         )
 

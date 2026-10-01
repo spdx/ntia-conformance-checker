@@ -31,6 +31,8 @@ from .spdx3_utils import (
 )
 
 if TYPE_CHECKING:
+    from collections.abc import Sized
+
     from spdx_python_model.bindings import v3_0_1 as spdx3
     from spdx_tools.spdx.model.document import Document
     from spdx_tools.spdx.validation.validation_message import ValidationMessage
@@ -107,6 +109,8 @@ class BaseChecker(ABC):
     dependency_relationships: bool = False  # Has dependency relationship?
     # See https://github.com/spdx/ntia-conformance-checker/issues/392
     # for discussion on dependency relationships and DESCRIBES.
+    # False when no component is reachable from the SBOM root.
+    components_evaluated: bool = False
 
     compliant: bool = False  # Is SBOM compliant with the chosen standard?
 
@@ -265,6 +269,18 @@ class BaseChecker(ABC):
         self.components_without_copyright_texts = []
         self.all_components_without_info = []
         self.sbom_gen_context = []
+
+    def _all_provided(self, missing: Sized) -> bool:
+        """
+        Check if components were evaluated and none is missing the information.
+
+        Args:
+            missing: Components missing the information.
+
+        Returns:
+            bool: True if components were evaluated and ``missing`` is empty.
+        """
+        return self.components_evaluated and not missing
 
     def check_doc_version(self) -> bool:
         """Check if the document's specification version exists."""
@@ -489,6 +505,7 @@ class BaseChecker(ABC):
             parsing_errors=self._parsing_errors,
             unknown_pointer_edges=getattr(self, "unknown_pointer_edges", {}),
             floating_component_ids=getattr(self, "floating_component_ids", set()),
+            components_evaluated=self.components_evaluated,
         )
 
         print(report_text(report_context, verbose))
@@ -511,6 +528,7 @@ class BaseChecker(ABC):
             parsing_errors=self._parsing_errors,
             unknown_pointer_edges=getattr(self, "unknown_pointer_edges", {}),
             floating_component_ids=getattr(self, "floating_component_ids", set()),
+            components_evaluated=self.components_evaluated,
         )
 
         return report_html(report_context, verbose=True)
@@ -533,6 +551,7 @@ class BaseChecker(ABC):
         )
 
         self.reachable_component_ids = reachable
+        self.components_evaluated = bool(reachable)
         self.floating_component_ids = floating
         self.unknown_pointer_edges = unknown_pointer_edges
         self.has_unknown_pointers = has_unknown_pointers
