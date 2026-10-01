@@ -9,6 +9,28 @@ from abc import ABC, abstractmethod
 from spdx_tools.spdx.validation.validation_message import ValidationMessage
 
 
+def is_blank_string(value: object, noassertion: bool = False) -> bool:
+    """
+    Check whether a value is a blank string.
+
+    Blank means whitespace-only, or ``NOASSERTION`` (any case) when
+    ``noassertion`` is set. Use ``noassertion`` only for fields where the SPDX
+    specification defines it (supplier, license, copyright). ``NONE`` is a
+    statement, so it is not blank.
+
+    Args:
+        value: The value to check.
+        noassertion: Whether ``NOASSERTION`` counts as blank.
+
+    Returns:
+        bool: True if ``value`` is a blank string.
+    """
+    if not isinstance(value, str):
+        return False
+    text = value.strip().upper()
+    return not text or (noassertion and text == "NOASSERTION")
+
+
 class SbomAdapter(ABC):
     """Abstract base class defining the standard interface for all SBOM adapters."""
 

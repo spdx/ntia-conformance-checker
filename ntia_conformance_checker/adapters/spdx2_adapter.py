@@ -9,7 +9,27 @@ from spdx_tools.spdx.model.relationship import RelationshipType
 from spdx_tools.spdx.model.spdx_no_assertion import SpdxNoAssertion
 from spdx_tools.spdx.validation.validation_message import ValidationMessage
 
-from .adapter_interface import SbomAdapter
+from .adapter_interface import SbomAdapter, is_blank_string
+
+
+def _is_blank(value: object, noassertion: bool = False) -> bool:
+    """
+    Check whether an SPDX 2 field value should be treated as blank.
+
+    Blank means ``None``, ``SpdxNoAssertion``, or a blank string per
+    :func:`is_blank_string`. spdx-tools keeps some keywords as plain strings,
+    e.g. lowercase ``noassertion`` in ``copyrightText``.
+
+    Args:
+        value: The field value to check.
+        noassertion: Whether ``NOASSERTION`` strings count as blank.
+
+    Returns:
+        bool: True if the value is considered blank.
+    """
+    if value is None or isinstance(value, SpdxNoAssertion):
+        return True
+    return is_blank_string(value, noassertion)
 
 
 class Spdx2Adapter(SbomAdapter):
@@ -54,11 +74,7 @@ class Spdx2Adapter(SbomAdapter):
         return [
             (package.name or "", package.spdx_id or "")
             for package in getattr(self.doc, "packages", [])
-            if package.spdx_id in reachable_ids
-            and (
-                package.name is None
-                or (isinstance(package.name, str) and package.name.strip() == "")
-            )
+            if package.spdx_id in reachable_ids and _is_blank(package.name)
         ]
 
     def get_components_without_versions(
@@ -67,12 +83,7 @@ class Spdx2Adapter(SbomAdapter):
         return [
             (package.name or "", package.spdx_id or "")
             for package in getattr(self.doc, "packages", [])
-            if package.spdx_id in reachable_ids
-            and (
-                package.version is None
-                or isinstance(package.version, SpdxNoAssertion)
-                or (isinstance(package.version, str) and package.version.strip() == "")
-            )
+            if package.spdx_id in reachable_ids and _is_blank(package.version)
         ]
 
     def get_components_without_suppliers(
@@ -82,13 +93,7 @@ class Spdx2Adapter(SbomAdapter):
             (package.name or "", package.spdx_id or "")
             for package in getattr(self.doc, "packages", [])
             if package.spdx_id in reachable_ids
-            and (
-                package.supplier is None
-                or isinstance(package.supplier, SpdxNoAssertion)
-                or (
-                    isinstance(package.supplier, str) and package.supplier.strip() == ""
-                )
-            )
+            and _is_blank(package.supplier, noassertion=True)
         ]
 
     def get_components_without_identifiers(
@@ -97,8 +102,7 @@ class Spdx2Adapter(SbomAdapter):
         return [
             (package.name or "", package.spdx_id or "")
             for package in getattr(self.doc, "packages", [])
-            if package.spdx_id is None
-            or (isinstance(package.spdx_id, str) and package.spdx_id.strip() == "")
+            if _is_blank(package.spdx_id)
         ]
 
     def get_components_without_concluded_licenses(
@@ -109,14 +113,7 @@ class Spdx2Adapter(SbomAdapter):
             (package.name or "", package.spdx_id or "")
             for package in getattr(self.doc, "packages", [])
             if package.spdx_id in reachable_ids
-            and (
-                package.license_concluded is None
-                or isinstance(package.license_concluded, SpdxNoAssertion)
-                or (
-                    isinstance(package.license_concluded, str)
-                    and package.license_concluded.strip() == ""
-                )
-            )
+            and _is_blank(package.license_concluded, noassertion=True)
         ]
 
     def get_components_without_copyright_texts(
@@ -126,14 +123,7 @@ class Spdx2Adapter(SbomAdapter):
             (package.name or "", package.spdx_id or "")
             for package in getattr(self.doc, "packages", [])
             if package.spdx_id in reachable_ids
-            and (
-                package.copyright_text is None
-                or isinstance(package.copyright_text, SpdxNoAssertion)
-                or (
-                    isinstance(package.copyright_text, str)
-                    and package.copyright_text.strip() == ""
-                )
-            )
+            and _is_blank(package.copyright_text, noassertion=True)
         ]
 
     def check_dependency_relationships(self) -> bool:
