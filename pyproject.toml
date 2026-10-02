@@ -13,6 +13,7 @@ authors = [
     { name = "Josh Lin", email = "linynjosh@gmail.com" },
     { name = "John Speed Meyers", email = "johnmeyersster@gmail.com" },
     { name = "Arthit Suriyawongkul", email = "suriyawa@tcd.ie" },
+    { name = "Induwara Gunasena" },
 ]
 maintainers = [
     { name = "John Speed Meyers", email = "johnmeyersster@gmail.com" },
