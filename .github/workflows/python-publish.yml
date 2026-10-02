@@ -21,13 +21,22 @@ jobs:
     - name: Set up Python
       uses: actions/setup-python@5fda3b95a4ea91299a34e894583c3862153e4b97  # v7.0.0
       with:
-        python-version: '3.10'
+        python-version: '3.14'
         cache: 'pip'
     - name: Install dependencies
       run: |
-        pip install build==1.4.0
+        pip install build==1.6.1
     - name: Build package
       run: python -m build
+    - name: Embed SBOM into wheel
+      uses: bact/pitloom@3c555bf08e8c7f24ff9b4eb5659a5f9d999739f9  # v0.19.0
+      with:
+        embed-wheel: "dist/*.whl"
+        project-path: "."
+        extras: "content-type,validate"
+        content-type: "true"
+        args: --validate
+
     - name: Publish package
       uses: pypa/gh-action-pypi-publish@dc37677b2e1c63e2034f94d8a5b11f265b73ba33  # v1.14.2
       with:
