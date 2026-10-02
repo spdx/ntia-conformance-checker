@@ -11,7 +11,20 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog][keepachangelog]
 and this project adheres to [Semantic Versioning][semver].
 
-## [Unreleased]
+## [6.0.0] - 2026-10-02
+
+This major release adds support for BSI TR-03183-2 minimum elements,
+graph-based validation for SPDX 3, and stricter handling of `NOASSERTION`
+values.
+
+Breaking changes:
+
+- Default log level is now `WARNING`; use `-v` for the previous output
+- `iter_relationships_by_type` now returns
+  `Iterator[tuple[str, list[str]]]`
+- `NOASSERTION` supplier, license and copyright values count as missing
+- SPDX 3 components are discovered by traversing from `rootElement`;
+  an SBOM with no reachable component is no longer reported as compliant
 
 ### Added
 
@@ -416,6 +429,7 @@ Thanks to @goneall, @licquia, and @kestewart for mentoring @linynjosh.
 [keepachangelog]: https://keepachangelog.com/en/1.1.0/
 [semver]: https://semver.org/spec/v2.0.0.html
 
+[6.0.0]: https://github.com/spdx/ntia-conformance-checker/releases/tag/v6.0.0
 [5.0.3]: https://github.com/spdx/ntia-conformance-checker/releases/tag/v5.0.3
 [5.0.2]: https://github.com/spdx/ntia-conformance-checker/releases/tag/v5.0.2
 [5.0.1]: https://github.com/spdx/ntia-conformance-checker/releases/tag/v5.0.1
