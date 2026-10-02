@@ -110,6 +110,10 @@ warn_unused_ignores = true
 module = ["spdx_python_model.bindings", "spdx_python_model.bindings.*"]
 ignore_missing_imports = true
 
+[[tool.pitloom.creator]]
+name = "SPDX project"
+type = "organization"
+
 [tool.pylint.main]
 disable = "duplicate-code"
 ignore = ["_version.py"]
