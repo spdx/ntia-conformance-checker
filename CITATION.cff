@@ -20,8 +20,11 @@ authors:
   - given-names: Arthit
     family-names: Suriyawongkul
     email: suriyawa@tcd.ie
-    affiliation: 'ADAPT Centre, Trinity College Dublin'
+    affiliation: 'Trinity College Dublin'
     orcid: 'https://orcid.org/0000-0002-9698-1899'
+  - given-names: Induwara
+    family-names: Gunasena
+    affiliation: 'University of Moratuwa'
 doi: 10.5281/zenodo.17068669
 repository-code: 'https://github.com/spdx/ntia-conformance-checker'
 url: 'https://pypi.org/project/ntia-conformance-checker/'
@@ -43,6 +46,7 @@ keywords:
   - software component transparency
   - NTIA
   - CISA
+  - BSI
 license: Apache-2.0
-version: 5.0.3
-date-released: '2026-06-02'
+version: 6.0.0
+date-released: '2026-10-02'

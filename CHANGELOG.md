@@ -11,28 +11,42 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog][keepachangelog]
 and this project adheres to [Semantic Versioning][semver].
 
-## [Unreleased]
+## [6.0.0] - 2026-10-02
+
+This major release adds support for BSI TR-03183-2 minimum elements,
+graph-based validation for SPDX 3, and stricter handling of `NOASSERTION`
+values.
+
+Breaking changes:
+
+- Default log level is now `WARNING`; use `-v` for the previous output
+- `iter_relationships_by_type` now returns
+  `Iterator[tuple[str, list[str]]]`
+- `NOASSERTION` supplier, license and copyright values count as missing
+- SPDX 3 components are discovered by traversing from `rootElement`;
+  an SBOM with no reachable component is no longer reported as compliant
 
 ### Added
 
-- Add support for BSI TR-03183-2 v2.1.0 minimum elements ([#428])
+- `-v`/`-vv`/`--debug` log verbosity levels and `-q`/`--quiet` to show
+  errors only; `-k` short flag for `--skip-validation` ([#406])
 - Add structural graph validation to detect broken dependency linkages
   (unknown pointers) and disconnected (floating) elements ([#412])
 - Add graph validation section to CLI report;
   to HTML output (`<div class="conformance-graph">`);
   and to JSON output (`graphValidation`) ([#413])
-- `-v`/`-vv`/`--debug` log verbosity levels and `-q`/`--quiet` to show
-  errors only; `-k` short flag for `--skip-validation` ([#406])
+- Add support for BSI TR-03183-2 v2.1.0 minimum elements ([#428])
+- Embed an SPDX 3 SBOM (PEP 770) into the wheel published to PyPI ([#457])
 
 ### Changed
 
-- Replaced flat-file element iteration with Breadth-First Search (BFS) graph
-  traversal to discover reachable software components via `rootElement` and
-  explicit relationships ([#412])
 - Default log level is now `WARNING` (previously `INFO`);
   use `-v` to restore the old default verbosity ([#406])
 - `--output quiet` renamed to `--output none` (`quiet` still accepted;
   the name is now reserved for log verbosity) ([#406])
+- Replaced flat-file element iteration with Breadth-First Search (BFS) graph
+  traversal to discover reachable software components via `rootElement` and
+  explicit relationships ([#412])
 
 ### Fixed
 
@@ -65,6 +79,7 @@ and this project adheres to [Semantic Versioning][semver].
 [#451]: https://github.com/spdx/ntia-conformance-checker/pull/451
 [#453]: https://github.com/spdx/ntia-conformance-checker/pull/453
 [#454]: https://github.com/spdx/ntia-conformance-checker/pull/454
+[#457]: https://github.com/spdx/ntia-conformance-checker/pull/457
 
 ## [5.0.3] - 2026-06-02
 
@@ -414,6 +429,7 @@ Thanks to @goneall, @licquia, and @kestewart for mentoring @linynjosh.
 [keepachangelog]: https://keepachangelog.com/en/1.1.0/
 [semver]: https://semver.org/spec/v2.0.0.html
 
+[6.0.0]: https://github.com/spdx/ntia-conformance-checker/releases/tag/v6.0.0
 [5.0.3]: https://github.com/spdx/ntia-conformance-checker/releases/tag/v5.0.3
 [5.0.2]: https://github.com/spdx/ntia-conformance-checker/releases/tag/v5.0.2
 [5.0.1]: https://github.com/spdx/ntia-conformance-checker/releases/tag/v5.0.1
