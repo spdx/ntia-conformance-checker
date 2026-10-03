@@ -145,8 +145,8 @@ select = ["E", "F", "W", "C", "I", "N", "TC"]
 ignore = ["E203", "E501"]
 fixable = ["ALL"]
 
-[tool.setuptools]
-packages = ["ntia_conformance_checker"]
+[tool.setuptools.packages.find]
+include = ["ntia_conformance_checker*"]
 
 [tool.setuptools_scm]
 write_to = "ntia_conformance_checker/_version.py"
