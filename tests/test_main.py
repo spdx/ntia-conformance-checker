@@ -9,6 +9,8 @@
 from pathlib import Path
 from typing import List, Tuple
 
+import pytest
+
 from ntia_conformance_checker.cli_utils import get_sbom_spec, get_spdx_version
 
 spdx2_2_dir = Path(__file__).parent / "data" / "missing_component_name"
@@ -58,3 +60,13 @@ def test_detect_sbom_spec() -> None:
         assert (
             sbom_spec == expected_sbom_spec
         ), f"Expected {expected_sbom_spec}, got {sbom_spec} for {file_path}"
+
+
+@pytest.mark.parametrize("sbom_spec", ["spdx2", "spdx3"])
+def test_get_sbom_spec_missing_file(
+    tmp_path: Path, caplog: pytest.LogCaptureFixture, sbom_spec: str
+) -> None:
+    missing = tmp_path / "nonexistent.json"
+    assert get_sbom_spec(str(missing), sbom_spec=sbom_spec) == ""
+    assert f"File not found: {missing}" in caplog.text
+    assert "Could not determine" not in caplog.text
