@@ -17,6 +17,14 @@ This major release adds support for BSI TR-03183-2 minimum elements,
 graph-based validation for SPDX 3, and stricter handling of `NOASSERTION`
 values.
 
+Support for BSI TR-03183-2 and graph-based validation was completed during
+the [Google Summer of Code (GSoC) 2026][gsoc2026] program by @InduwaraGunasena,
+with mentorship and support from @bact, @jspeed-meyers, @rtgdk,
+the SPDX project, and the Linux Foundation.
+
+This release is also the first to ship with an SBOM embedded directly into
+the wheel at build time, following guidelines in [PEP 770].
+
 Breaking changes:
 
 - Default log level is now `WARNING`; use `-v` for the previous output
@@ -59,11 +67,13 @@ Breaking changes:
 - Handle `OSError` when writing JSON output file in `print_output`
 - Initialize per-component result lists as instance attributes,
   so checkers with a failed parse do not share state between instances ([#449])
-- `FSCT3Checker` no longer raises `AttributeError` on an unparsable file ([#449])
+- `FSCT3Checker` no longer raises `AttributeError` on an unparsable file
+  ([#449])
 - Treat `NOASSERTION` supplier, license and copyright values,
   including SPDX 3 NoAssertion references and license expressions,
-  as missing (`NONE` counts as provided); report a supplier Agent without name as missing
-  instead of raising `AttributeError` ([#451])
+  as missing (`NONE` counts as provided);
+  report a supplier Agent without name as missing instead of
+  raising `AttributeError` ([#451])
 - Do not report an SBOM as compliant, or its component fields as provided,
   when no component is reachable from the SBOM root; add
   `componentsEvaluated` to JSON output and a note to text/HTML reports ([#453])
@@ -72,6 +82,8 @@ Breaking changes:
 - Report "File not found" for a missing input path, instead of
   "Could not determine SPDX version" ([#460])
 
+[gsoc2026]: https://summerofcode.withgoogle.com/programs/2026/projects/Oo4W6HPR
+[pep 770]: https://peps.python.org/pep-0770/
 [#398]: https://github.com/spdx/ntia-conformance-checker/pull/398
 [#406]: https://github.com/spdx/ntia-conformance-checker/pull/406
 [#412]: https://github.com/spdx/ntia-conformance-checker/pull/412
