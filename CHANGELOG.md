@@ -19,7 +19,7 @@ values.
 
 Support for BSI TR-03183-2 and graph-based validation was completed during
 the [Google Summer of Code (GSoC) 2026][gsoc2026] program by @InduwaraGunasena,
-with mentorship and support from @bact, @jspeed-meyers, @rtgdk,
+with mentorship and support from @bact, @jspeed-meyers, @rtgdk, @aerabi
 the SPDX project, and the Linux Foundation.
 
 This release is also the first to ship with an SBOM embedded directly into
