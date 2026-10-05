@@ -11,7 +11,7 @@ All notable changes to this project will be documented in this file.
 The format is based on [Keep a Changelog][keepachangelog]
 and this project adheres to [Semantic Versioning][semver].
 
-## [6.0.0] - 2026-10-02
+## [6.0.0] - 2026-10-05
 
 This major release adds support for BSI TR-03183-2 minimum elements,
 graph-based validation for SPDX 3, and stricter handling of `NOASSERTION`
@@ -69,6 +69,8 @@ Breaking changes:
   `componentsEvaluated` to JSON output and a note to text/HTML reports ([#453])
 - Make SPDX 3 nonconformant component lists deterministic by sorting
   `iter_objects_with_property` output by (name, spdxId) ([#454])
+- Report "File not found" for a missing input path, instead of
+  "Could not determine SPDX version" ([#460])
 
 [#398]: https://github.com/spdx/ntia-conformance-checker/pull/398
 [#406]: https://github.com/spdx/ntia-conformance-checker/pull/406
@@ -80,6 +82,7 @@ Breaking changes:
 [#453]: https://github.com/spdx/ntia-conformance-checker/pull/453
 [#454]: https://github.com/spdx/ntia-conformance-checker/pull/454
 [#457]: https://github.com/spdx/ntia-conformance-checker/pull/457
+[#460]: https://github.com/spdx/ntia-conformance-checker/pull/460
 
 ## [5.0.3] - 2026-06-02
 
