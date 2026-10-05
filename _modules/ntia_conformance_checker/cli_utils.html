@@ -42,6 +42,7 @@
 <span class="kn">import</span><span class="w"> </span><span class="nn">argparse</span>
 <span class="kn">import</span><span class="w"> </span><span class="nn">json</span>
 <span class="kn">import</span><span class="w"> </span><span class="nn">logging</span>
+<span class="kn">import</span><span class="w"> </span><span class="nn">os</span>
 <span class="kn">import</span><span class="w"> </span><span class="nn">re</span>
 <span class="kn">import</span><span class="w"> </span><span class="nn">sys</span>
 <span class="kn">from</span><span class="w"> </span><span class="nn">importlib.metadata</span><span class="w"> </span><span class="kn">import</span> <span class="n">version</span>
@@ -306,6 +307,10 @@
             <span class="n">sbom_spec</span><span class="p">,</span>
             <span class="s2">", "</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="nb">sorted</span><span class="p">(</span><span class="n">SUPPORTED_SBOM_SPECS</span><span class="p">)),</span>
         <span class="p">)</span>
+        <span class="k">return</span> <span class="s2">""</span>
+
+    <span class="k">if</span> <span class="ow">not</span> <span class="n">os</span><span class="o">.</span><span class="n">path</span><span class="o">.</span><span class="n">isfile</span><span class="p">(</span><span class="n">file</span><span class="p">):</span>
+        <span class="n">logging</span><span class="o">.</span><span class="n">error</span><span class="p">(</span><span class="s2">"File not found: </span><span class="si">%s</span><span class="s2">"</span><span class="p">,</span> <span class="n">file</span><span class="p">)</span>
         <span class="k">return</span> <span class="s2">""</span>
 
     <span class="k">if</span> <span class="n">sbom_spec</span><span class="o">.</span><span class="n">startswith</span><span class="p">(</span><span class="s2">"spdx"</span><span class="p">):</span>
