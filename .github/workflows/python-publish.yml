@@ -9,7 +9,8 @@ permissions:
 
 # If attach-release or sign-and-attest fails after the PyPI publish, use
 # "Re-run failed jobs": it signs and attaches the same files that were
-# published (artifacts are kept 14 days). "Re-run all jobs" rebuilds a
+# published. This works while the artifacts exist: dist is kept 60 days,
+# sbom for the repository's default retention. "Re-run all jobs" rebuilds a
 # different wheel, which PyPI rejects as a duplicate.
 jobs:
   build:
@@ -68,7 +69,7 @@ jobs:
       with:
         name: dist
         path: dist/
-        retention-days: 14
+        retention-days: 60
 
   publish:
     name: Publish to PyPI
