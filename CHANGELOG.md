@@ -4,12 +4,28 @@ SPDX-FileType: DOCUMENTATION
 SPDX-License-Identifier: Apache-2.0
 ---
 
+<!-- markdownlint-disable MD024 -->
+
 # Changelog
 
 All notable changes to this project will be documented in this file.
 
 The format is based on [Keep a Changelog][keepachangelog]
 and this project adheres to [Semantic Versioning][semver].
+
+## [Unreleased]
+
+### Added
+
+- GitHub releases attach the wheel, the sdist and the wheel's SPDX 3 SBOM,
+  each with a Sigstore bundle and a build provenance attestation;
+  see "Verify release files" in `SECURITY.md`
+
+### Changed
+
+- Pull request and release builds embed the SBOM with Pitloom 0.20.0 and fail
+  on an invalid SBOM; content types are detected with magika
+- Release files are signed and attached only after the PyPI publish succeeds
 
 ## [6.0.0] - 2026-10-05
 
@@ -444,6 +460,7 @@ Thanks to @goneall, @licquia, and @kestewart for mentoring @linynjosh.
 [keepachangelog]: https://keepachangelog.com/en/1.1.0/
 [semver]: https://semver.org/spec/v2.0.0.html
 
+[Unreleased]: https://github.com/spdx/ntia-conformance-checker/compare/v6.0.0...HEAD
 [6.0.0]: https://github.com/spdx/ntia-conformance-checker/releases/tag/v6.0.0
 [5.0.3]: https://github.com/spdx/ntia-conformance-checker/releases/tag/v5.0.3
 [5.0.2]: https://github.com/spdx/ntia-conformance-checker/releases/tag/v5.0.2

@@ -43,6 +43,21 @@ jobs:
     - name: Build package
       run: |
         python -m build
+    # Same embed as the release, so SBOM problems show on the PR.
+    - name: Embed SBOM into wheel
+      if: matrix.os == 'ubuntu-latest' && matrix.python-version == '3.14'
+      uses: bact/pitloom@3785ee7babe07661b8f0ea92fdb41321b7a88b6b  # v0.20.0
+      with:
+        embed-wheel: "dist/*.whl"
+        project-path: "."
+        extras: "content-type,validate"
+        content-type: "true"
+        # magika is used to determine the content type of files
+        content-type-method: "magika"
+        # Fail on a bad SBOM: --verify (PEP 770 location, name, version),
+        # --validate (SPDX 3 schema and SHACL).
+        args: "--verify --validate"
+        upload-artifact: "false"
     - name: Install package
       run: |
         pip install .
