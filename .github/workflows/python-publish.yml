@@ -7,13 +7,19 @@ on:
 permissions:
   contents: read
 
+# If attach-release or sign-and-attest fails after the PyPI publish, use
+# "Re-run failed jobs": it signs and attaches the same files that were
+# published. This works while the artifacts exist: dist is kept 60 days,
+# sbom for the repository's default retention. "Re-run all jobs" rebuilds a
+# different wheel, which PyPI rejects as a duplicate.
 jobs:
-  deploy:
+  build:
+    name: Build distribution
     runs-on: ubuntu-latest
     permissions:
-       # 'id-token: write' is mandatory for trusted publishing
-       # see: https://docs.pypi.org/trusted-publishers/
-       id-token: write
+      contents: read
+    outputs:
+      sbom-name: ${{ steps.pitloom.outputs.sbom-path }}
 
     steps:
     - name: Checkout repository
@@ -29,16 +35,141 @@ jobs:
     - name: Build package
       run: python -m build
     - name: Embed SBOM into wheel
-      uses: bact/pitloom@3785ee7babe07661b8f0ea92fdb41321b7a88b6b  # v0.20.0
+      id: pitloom
+      uses: bact/pitloom@f62b54496cef37246948c4d4ce2ad6dfb4e276fa  # v0.20.1
       with:
         embed-wheel: "dist/*.whl"
         project-path: "."
         extras: "content-type,validate"
         content-type: "true"
-        args: --validate
+        # magika is used to determine the content type of files
+        content-type-method: "magika"
+        # Fail if the SBOM is not at the PEP 770 location (--verify) or is
+        # not valid SPDX 3 (--validate: schema and SHACL).
+        args: "--verify --validate"
+        # The artifact is the SBOM read back from the wheel.
+        upload-artifact: "true"
+        artifact-name: "sbom"
 
+    # If "dist/*.whl" matches more than one wheel, a standalone SBOM is
+    # ambiguous, so the Pitloom action above leaves sbom-path empty.
+    # The Pitloom step still succeeds, so fail on the empty value in this step,
+    # to stop a release without its SBOM.
+    - name: Check the SBOM was embedded
+      env:
+        SBOM_NAME: ${{ steps.pitloom.outputs.sbom-path }}
+      run: |
+        if [ -z "${SBOM_NAME}" ]; then
+          echo "::error::Pitloom reported no embedded SBOM"
+          exit 1
+        fi
+
+    - name: Upload distribution artifacts
+      uses: actions/upload-artifact@043fb46d1a93c77aae656e7c1c64a875d1fc6a0a  # v7.0.1
+      with:
+        name: dist
+        path: dist/
+        retention-days: 60
+
+  publish:
+    name: Publish to PyPI
+    # Only if the SBOM was built and validated in "build".
+    needs: build
+    runs-on: ubuntu-latest
+    permissions:
+       # 'id-token: write' is mandatory for trusted publishing
+       # see: https://docs.pypi.org/trusted-publishers/
+       id-token: write
+
+    steps:
+    - name: Download distribution artifacts
+      uses: actions/download-artifact@3e5f45b2cfb9172054b4087a40e8e0b5a5461e7c  # v8.0.1
+      with:
+        name: dist
+        path: dist/
     - name: Publish package
       uses: pypa/gh-action-pypi-publish@dc37677b2e1c63e2034f94d8a5b11f265b73ba33  # v1.14.2
       with:
         user: __token__
         password: ${{ secrets.PYPI_API_TOKEN }}
+
+  # The jobs below run only after a successful PyPI publish, so the release
+  # page never carries files that were not published.
+  attach-release:
+    name: Attach files to GitHub Release
+    needs: [build, publish]
+    runs-on: ubuntu-latest
+    permissions:
+      contents: write  # gh release upload
+
+    steps:
+    - name: Download distribution artifacts
+      uses: actions/download-artifact@3e5f45b2cfb9172054b4087a40e8e0b5a5461e7c  # v8.0.1
+      with:
+        name: dist
+        path: dist/
+    - name: Download SBOM artifact
+      uses: actions/download-artifact@3e5f45b2cfb9172054b4087a40e8e0b5a5461e7c  # v8.0.1
+      with:
+        name: sbom
+        path: sbom/
+    - name: Attach sdist, wheel and SBOM to GitHub Release
+      env:
+        GH_TOKEN: ${{ github.token }}
+        RELEASE_TAG: ${{ github.event.release.tag_name }}
+        REPO: ${{ github.repository }}
+        SBOM_NAME: ${{ needs.build.outputs.sbom-name }}
+      run: |
+        set -euo pipefail
+        gh release upload "${RELEASE_TAG}" dist/*.whl dist/*.tar.gz \
+          "sbom/${SBOM_NAME}" --clobber --repo "${REPO}"
+
+  sign-and-attest:
+    name: Sign artifacts and attach provenance
+    needs: [build, publish]
+    runs-on: ubuntu-latest
+    permissions:
+      contents: write  # gh release upload, for the signature bundles
+      id-token: write  # Sigstore keyless signing + attestation signing
+      attestations: write  # actions/attest-build-provenance
+
+    steps:
+    - name: Download distribution artifacts
+      uses: actions/download-artifact@3e5f45b2cfb9172054b4087a40e8e0b5a5461e7c  # v8.0.1
+      with:
+        name: dist
+        path: dist/
+    - name: Download SBOM artifact
+      uses: actions/download-artifact@3e5f45b2cfb9172054b4087a40e8e0b5a5461e7c  # v8.0.1
+      with:
+        name: sbom
+        path: sbom/
+
+    - name: Sign artifacts with Sigstore
+      uses: sigstore/gh-action-sigstore-python@790bc6befb9d733738f18d8f895854b453640ec9  # v3.5.0
+      with:
+        inputs: >-
+          dist/*.whl dist/*.tar.gz
+          sbom/${{ needs.build.outputs.sbom-name }}
+        # "true" (default) also signs GitHub's auto-generated source
+        # archives, which we don't want.
+        release-signing-artifacts: "false"
+
+    - name: Generate build provenance attestation
+      uses: actions/attest-build-provenance@4d101475d8b20a2381f78447822ac1eab6504dd8  # v4.2.2
+      with:
+        subject-path: |
+          dist/*.whl
+          dist/*.tar.gz
+          sbom/${{ needs.build.outputs.sbom-name }}
+
+    - name: Attach Sigstore bundles to GitHub Release
+      env:
+        GH_TOKEN: ${{ github.token }}
+        RELEASE_TAG: ${{ github.event.release.tag_name }}
+        REPO: ${{ github.repository }}
+        SBOM_NAME: ${{ needs.build.outputs.sbom-name }}
+      run: |
+        set -euo pipefail
+        gh release upload "${RELEASE_TAG}" dist/*.sigstore.json \
+          "sbom/${SBOM_NAME}.sigstore.json" --clobber --repo "${REPO}"

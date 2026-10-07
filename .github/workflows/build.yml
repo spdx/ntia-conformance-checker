@@ -55,3 +55,19 @@ jobs:
         pip install ".[test]"
         coverage run -m pytest
         coverage xml -o coverage/python.xml
+    # Same embed as the release, so SBOM problems show on the PR. Last, as
+    # the action installs Pitloom and its dependencies into this Python.
+    - name: Embed SBOM into wheel
+      if: matrix.os == 'ubuntu-latest' && matrix.python-version == '3.14'
+      uses: bact/pitloom@f62b54496cef37246948c4d4ce2ad6dfb4e276fa  # v0.20.1
+      with:
+        embed-wheel: "dist/*.whl"
+        project-path: "."
+        extras: "content-type,validate"
+        content-type: "true"
+        # magika is used to determine the content type of files
+        content-type-method: "magika"
+        # Fail if the SBOM is not at the PEP 770 location (--verify) or is
+        # not valid SPDX 3 (--validate: schema and SHACL).
+        args: "--verify --validate"
+        upload-artifact: "false"
