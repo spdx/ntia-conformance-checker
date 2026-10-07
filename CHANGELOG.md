@@ -23,7 +23,7 @@ and this project adheres to [Semantic Versioning][semver].
 
 ### Changed
 
-- Pull request and release builds embed the SBOM with Pitloom 0.20.0 and fail
+- Pull request and release builds embed the SBOM with Pitloom 0.20.1 and fail
   on an invalid SBOM; content types are detected with magika
 - Releases publish to PyPI only after the SBOM is validated; release files are
   attached, signed and attested after the publish, and can be re-run if that

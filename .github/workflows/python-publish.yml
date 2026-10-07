@@ -36,7 +36,7 @@ jobs:
       run: python -m build
     - name: Embed SBOM into wheel
       id: pitloom
-      uses: bact/pitloom@3785ee7babe07661b8f0ea92fdb41321b7a88b6b  # v0.20.0
+      uses: bact/pitloom@f62b54496cef37246948c4d4ce2ad6dfb4e276fa  # v0.20.1
       with:
         embed-wheel: "dist/*.whl"
         project-path: "."
