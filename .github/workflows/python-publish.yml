@@ -31,6 +31,7 @@ jobs:
         cache: 'pip'
     - name: Install dependencies
       run: |
+        pip install pip==26.2.1
         pip install build==1.6.1
     - name: Build package
       run: python -m build
@@ -97,7 +98,7 @@ jobs:
   # page never carries files that were not published.
   attach-release:
     name: Attach files to GitHub Release
-    needs: [build, publish]
+    needs: publish
     runs-on: ubuntu-latest
     permissions:
       contents: write  # gh release upload
@@ -126,7 +127,7 @@ jobs:
 
   sign-and-attest:
     name: Sign artifacts and attach provenance
-    needs: [build, publish]
+    needs: publish
     runs-on: ubuntu-latest
     permissions:
       contents: write  # gh release upload, for the signature bundles

@@ -38,8 +38,8 @@ jobs:
         cache: "pip"
     - name: Install dependencies
       run: |
-        pip install pip==26.0.1
-        pip install build==1.4.0
+        pip install pip==26.2.1
+        pip install build==1.6.1
     - name: Build package
       run: |
         python -m build
