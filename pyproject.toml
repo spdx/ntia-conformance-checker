@@ -156,14 +156,20 @@ include = ["ntia_conformance_checker*"]
 [tool.setuptools_scm]
 write_to = "ntia_conformance_checker/_version.py"
 
+# Ship only the files listed in package-data below.  Without this, setuptools-scm
+# adds every git-tracked file in the package to the wheel, overriding
+# exclude-package-data.
+[tool.setuptools]
+include-package-data = false
+
 [tool.setuptools.package-data]
 ntia_conformance_checker = [
     "py.typed", # Signal type hinting support
     "rules/*.yaml", # Ship declarative spec YAML files
 ]
 
-# Docs / templates living in rules/ are not shippable specs.  Keep them out of
-# the wheel; MANIFEST.in keeps them out of the sdist too.
+# Docs / templates living in rules/ are not shippable specs; keep them out of
+# the wheel.
 [tool.setuptools.exclude-package-data]
 ntia_conformance_checker = [
     "rules/_*.yaml", # e.g. rules/_example.yaml (template, not a real spec)
