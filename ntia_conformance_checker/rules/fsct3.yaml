@@ -109,11 +109,11 @@ rules:
     warning: An SBOM should identify a primary component.
     status: catalogue-only
 
-  # FSCT-META-05 is a stop-gap: FSCT §2.2.2.6 ("Relationship") wants a
+  # SBOM-FSCT3-META-005 is a stop-gap: FSCT §2.2.2.6 ("Relationship") wants a
   # per-component relationship + completeness assertion, which we treat
-  # as catalogue-only (FSCT-COMP-06).  Until that lands, we fall back to
+  # as catalogue-only (SBOM-FSCT3-COMP-006).  Until that lands, we fall back to
   # the NTIA-inherited document-level check "the SBOM declares at least
-  # one dependency relationship".  When FSCT-COMP-06 becomes active,
+  # one dependency relationship".  When SBOM-FSCT3-COMP-006 becomes active,
   # this META-05 rule should be retired.
   - number: 5
     slug: fsct3-dependency-relationships-missing

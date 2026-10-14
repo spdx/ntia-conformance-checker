@@ -27,6 +27,7 @@ Probe signature (informal -- enforced by convention, not types):
 
 from __future__ import annotations
 
+import inspect
 from collections.abc import Callable, Iterable
 from typing import TYPE_CHECKING, Protocol
 
@@ -54,22 +55,38 @@ class CheckerProtocol(Protocol):
 ProbeFn = Callable[..., Iterable["Finding"]]
 
 _PROBES: dict[str, ProbeFn] = {}
+_ATTRIBUTE_SCOPES: dict[str, frozenset[str]] = {}
 
 
-def probe(name: str) -> Callable[[ProbeFn], ProbeFn]:
+def probe(
+    name: str, *, attributes: frozenset[str] | None = None
+) -> Callable[[ProbeFn], ProbeFn]:
     """Register ``fn`` under ``name`` in the global probe registry.
 
+    ``attributes`` is for a probe taking an ``attribute`` param: the element
+    ids it accepts.  The loader then requires a rule's ``attribute`` to be one
+    of them and to equal the rule's ``element_id``.
+
     Raises ``ValueError`` on duplicate registration so accidental overrides
-    fail loudly at import time.
+    fail loudly at import time, and on a probe that takes ``*args``/``**kwargs``
+    (the loader validates YAML params against explicit parameters) or that is
+    given ``attributes`` without an ``attribute`` parameter.
     """
 
     def deco(fn: ProbeFn) -> ProbeFn:
+        params = inspect.signature(fn).parameters
+        if any(p.kind in (p.VAR_POSITIONAL, p.VAR_KEYWORD) for p in params.values()):
+            raise ValueError(f"Probe {name!r} must declare its params explicitly.")
+        if attributes is not None and "attribute" not in params:
+            raise ValueError(f"Probe {name!r} has attributes but no 'attribute' param.")
         if name in _PROBES:
             raise ValueError(
                 f"Probe {name!r} already registered as {_PROBES[name].__qualname__}; "
                 f"refusing to overwrite with {fn.__qualname__}."
             )
         _PROBES[name] = fn
+        if attributes is not None:
+            _ATTRIBUTE_SCOPES[name] = attributes
         return fn
 
     return deco
@@ -83,6 +100,11 @@ def lookup(name: str) -> ProbeFn:
         raise KeyError(
             f"Probe {name!r} not registered.  Known probes: {sorted(_PROBES)!r}"
         ) from exc
+
+
+def attribute_scope(name: str) -> frozenset[str] | None:
+    """Element ids probe ``name`` accepts as ``attribute``; ``None`` if unrestricted."""
+    return _ATTRIBUTE_SCOPES.get(name)
 
 
 def registered_names() -> tuple[str, ...]:

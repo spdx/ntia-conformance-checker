@@ -44,14 +44,16 @@ the schema:
 
 from __future__ import annotations
 
+import inspect
 import re
-from dataclasses import fields
+from dataclasses import MISSING, fields
 from pathlib import Path
-from typing import Any, get_args
+from typing import Any, get_args, get_type_hints
 
 import yaml
 
 from . import probes
+from .model import ELEMENT_IDS
 from .spec import (
     DEFAULT_MATURITY_LEVELS,
     ProbeRef,
@@ -71,6 +73,7 @@ _SPEC_ALLOWED = {f.name for f in fields(Spec)} - {
     "maturity_levels",
     "rules",
 }
+_TOP_LEVEL_ALLOWED = {"spec", "categories", "maturity_levels", "rules"}
 _CATEGORY_ALLOWED = {f.name for f in fields(SpecCategory)}
 _MATURITY_ALLOWED = {f.name for f in fields(SpecMaturity)}
 _TAXONOMIES_ALLOWED = {f.name for f in fields(SpecTaxonomies)}
@@ -87,6 +90,8 @@ _PROVISION_VALUES: frozenset[str] = frozenset(get_args(Provision))
 # spec_id is uppercased into the SPEC segment of every rule id, so it must be a
 # hyphen-free, uppercase-safe token (start with a letter, then letters/digits).
 _SPEC_ID_RE = re.compile(r"^[a-z][a-z0-9]*$")
+_KEBAB_RE = re.compile(r"^[a-z][a-z0-9]*(-[a-z0-9]+)*$")  # category id, rule slug
+_CATEGORY_CODE_RE = re.compile(r"^[A-Z][A-Z0-9]*$")  # CATEGORY segment of a rule id
 
 
 def load_spec(path: str | Path) -> Spec:
@@ -99,16 +104,25 @@ def load_spec(path: str | Path) -> Spec:
             fields, malformed probe reference, etc).
     """
     yaml_path = Path(path)
-    text = yaml_path.read_text(encoding="utf-8")
-    raw = yaml.safe_load(text)
+    try:
+        # _UniqueKeyLoader is a yaml.SafeLoader subclass, so this is a safe load.
+        raw = yaml.load(  # nosec B506
+            yaml_path.read_text(encoding="utf-8"), Loader=_UniqueKeyLoader
+        )
+    except (yaml.YAMLError, UnicodeDecodeError) as exc:
+        raise SpecLoadError(
+            f"{yaml_path}: invalid YAML (UTF-8 expected): {exc}"
+        ) from exc
     if not isinstance(raw, dict):
         raise SpecLoadError(f"{yaml_path}: top-level must be a mapping")
 
+    _reject_unknown(raw, _TOP_LEVEL_ALLOWED, "top level", yaml_path)
     spec_block = dict(_require_mapping(raw, "spec", yaml_path))
     _reject_unknown(spec_block, _SPEC_ALLOWED, "spec", yaml_path)
+    _check_fields(Spec, spec_block, "spec", yaml_path)
 
     spec_id = spec_block.get("id")
-    if not isinstance(spec_id, str) or not _SPEC_ID_RE.match(spec_id):
+    if not isinstance(spec_id, str) or not _SPEC_ID_RE.fullmatch(spec_id):
         raise SpecLoadError(
             f"{yaml_path}: spec id must match {_SPEC_ID_RE.pattern!r} "
             f"(lowercase, hyphen-free, uppercase-safe for the rule-id SPEC "
@@ -117,9 +131,11 @@ def load_spec(path: str | Path) -> Spec:
 
     taxonomies = _build_taxonomies(spec_block.pop("taxonomies", None), yaml_path)
     categories = tuple(
-        _build_category(c, yaml_path) for c in (raw.get("categories") or [])
+        _build_category(c, yaml_path)
+        for c in _require_list(raw, "categories", yaml_path)
     )
-    raw_levels = raw.get("maturity_levels")
+    _validate_categories(categories, yaml_path)
+    raw_levels = _require_list(raw, "maturity_levels", yaml_path)
     if not raw_levels:  # absent or empty -> flat spec gets the named default
         maturity_levels = DEFAULT_MATURITY_LEVELS
     else:
@@ -128,9 +144,9 @@ def load_spec(path: str | Path) -> Spec:
     category_ids = frozenset(c.id for c in categories)
     rules = tuple(
         _build_rule(r, allowed_levels, category_ids, yaml_path)
-        for r in (raw.get("rules") or [])
+        for r in _require_list(raw, "rules", yaml_path)
     )
-    _validate_unique_rule_ids(rules, yaml_path)
+    _validate_rules(spec_id, rules, yaml_path)
 
     return Spec(
         **spec_block,
@@ -145,7 +161,36 @@ def load_spec(path: str | Path) -> Spec:
 
 
 class SpecLoadError(ValueError):
-    """Raised when a YAML spec file does not match the expected schema."""
+    """Raised when a YAML spec file is not valid YAML or does not match the
+    expected schema."""
+
+
+class _UniqueKeyLoader(yaml.SafeLoader):  # pylint: disable=too-many-ancestors
+    """Safe YAML loader that rejects duplicate mapping keys.
+
+    PyYAML keeps the last of two equal keys, which would silently defeat the
+    uniqueness checks below.
+    """
+
+    def __init__(self, stream: str) -> None:
+        super().__init__(stream)
+        self._checked: set[int] = set()
+
+    def flatten_mapping(self, node: yaml.MappingNode) -> None:
+        """Check ``node``'s own keys once, before merge keys are folded in."""
+        if id(node) not in self._checked:
+            self._checked.add(id(node))
+            keys = [
+                self.construct_object(key, deep=True)
+                for key, _ in node.value
+                if key.tag != "tag:yaml.org,2002:merge"
+            ]
+            dupes = [k for i, k in enumerate(keys) if k in keys[:i]]
+            if dupes:
+                raise yaml.constructor.ConstructorError(
+                    None, None, f"duplicate key(s) {dupes!r}", node.start_mark
+                )
+        super().flatten_mapping(node)
 
 
 # ---- Generic mapping / validation helpers --------------------------------
@@ -158,7 +203,7 @@ def _reject_bad_enum(
     if key not in data:
         return  # omitted -> dataclass default (already a valid value)
     value = data[key]
-    if value not in allowed:
+    if not isinstance(value, str) or value not in allowed:
         raise SpecLoadError(
             f"{path}: rule {key!r} must be one of {sorted(allowed)!r}; got {value!r}"
         )
@@ -170,7 +215,7 @@ def _reject_unknown(
     extras = set(data) - allowed
     if extras:
         raise SpecLoadError(
-            f"{path}: unknown key(s) in {where}: {sorted(extras)!r} "
+            f"{path}: unknown key(s) in {where}: {sorted(extras, key=repr)!r} "
             f"(allowed: {sorted(allowed)!r})"
         )
 
@@ -184,6 +229,49 @@ def _require_mapping(data: dict[str, Any], key: str, path: Path) -> dict[str, An
     return val
 
 
+def _require_list(data: dict[str, Any], key: str, path: Path) -> list[Any]:
+    val = data.get(key)
+    if val is None:
+        return []
+    if not isinstance(val, list):
+        raise SpecLoadError(f"{path}: {key!r} must be a list, got {type(val).__name__}")
+    return val
+
+
+# Scalar field types the loader checks (a bool is never accepted as an int).
+_SCALAR_TYPES: dict[Any, tuple[type, ...]] = {
+    str: (str,),
+    str | None: (str, type(None)),
+    int: (int,),
+}
+
+
+def _check_fields(cls: type, data: dict[str, Any], where: str, path: Path) -> None:
+    """Require ``cls``'s mandatory fields and enforce its scalar field types.
+
+    YAML 1.1 coerces bare scalars (``NO`` -> ``False``, ``1.10`` -> ``1.1``), so
+    types are checked rather than trusted.
+    """
+    hints = get_type_hints(cls)
+    for fld in fields(cls):
+        if fld.name not in data:
+            if fld.default is MISSING and fld.default_factory is MISSING:
+                raise SpecLoadError(f"{path}: {where} is missing key {fld.name!r}")
+            continue
+        value = data[fld.name]
+        kind = hints[fld.name]
+        allowed = _SCALAR_TYPES.get(kind)
+        if allowed and (
+            not isinstance(value, allowed)
+            or (isinstance(value, bool) and int in allowed)
+        ):
+            raise SpecLoadError(
+                f"{path}: {where}.{fld.name} must be {allowed[0].__name__}"
+                f"{' or null' if type(None) in allowed else ''}; got {value!r}"
+                f"{' (quote it in YAML)' if str in allowed else ''}"
+            )
+
+
 # ---- Per-section builders (raw mapping -> dataclass) ----------------------
 
 
@@ -193,6 +281,7 @@ def _build_category(raw: Any, path: Path) -> SpecCategory:
             f"{path}: each category must be a mapping, got {type(raw).__name__}"
         )
     _reject_unknown(raw, _CATEGORY_ALLOWED, "categories[]", path)
+    _check_fields(SpecCategory, raw, "categories[]", path)
     return SpecCategory(**raw)
 
 
@@ -202,15 +291,11 @@ def _build_maturity(raw: Any, path: Path) -> SpecMaturity:
             f"{path}: each maturity level must be a mapping, got {type(raw).__name__}"
         )
     _reject_unknown(raw, _MATURITY_ALLOWED, "maturity_levels[]", path)
-    level = raw.get("level")
-    if not isinstance(level, int) or isinstance(level, bool):
+    _check_fields(SpecMaturity, raw, "maturity_levels[]", path)
+    if not raw["id"] or raw["level"] < 0:
         raise SpecLoadError(
-            f"{path}: maturity_levels[].level must be an integer; got {level!r}"
-        )
-    mat_id = raw.get("id")
-    if not isinstance(mat_id, str) or not mat_id:
-        raise SpecLoadError(
-            f"{path}: maturity_levels[].id must be a non-empty string; got {mat_id!r}"
+            f"{path}: maturity_levels[] needs a non-empty id and level >= 0; "
+            f"got {raw!r}"
         )
     return SpecMaturity(**raw)
 
@@ -228,12 +313,27 @@ def _build_probe(raw: Any, path: Path) -> ProbeRef:
             f"{path}: rule.probe.name {name!r} is not a registered probe; "
             f"known probes: {list(probes.registered_names())!r}"
         )
-    params = raw.get("params") or {}
+    params = raw.get("params", {})
     if not isinstance(params, dict):
         raise SpecLoadError(f"{path}: rule.probe.params must be a mapping or omitted")
     extras = set(raw) - {"name", "params"}
     if extras:
-        raise SpecLoadError(f"{path}: unknown key(s) in rule.probe: {sorted(extras)!r}")
+        raise SpecLoadError(
+            f"{path}: unknown key(s) in rule.probe: {sorted(extras, key=repr)!r}"
+        )
+    sig = inspect.signature(probes.lookup(name))
+    unknown = set(params) - set(sig.parameters)
+    if unknown:
+        raise SpecLoadError(
+            f"{path}: probe {name!r} has no param(s) {sorted(unknown, key=repr)!r}; "
+            f"accepts {list(sig.parameters)[1:]!r}"
+        )
+    try:  # also catches missing params
+        sig.bind(None, **params)
+    except TypeError as exc:
+        raise SpecLoadError(
+            f"{path}: rule.probe.params do not fit probe {name!r}: {exc}"
+        ) from exc
     return ProbeRef(name=name, params=dict(params))
 
 
@@ -247,10 +347,15 @@ def _build_rule(
     data = dict(raw)  # shallow copy so we can pop
     probe_raw = data.pop("probe", None)
     _reject_unknown(data, _RULE_ALLOWED, "rules[]", path)
-    if data.get("spec_category") not in category_ids:
+    _check_fields(SpecRule, data, "rules[]", path)
+    if not 1 <= data["number"] <= 999:  # rendered as three digits (NNN)
+        raise SpecLoadError(
+            f"{path}: rule number must be 1..999; got {data['number']!r}"
+        )
+    if data["spec_category"] not in category_ids:
         raise SpecLoadError(
             f"{path}: rule spec_category must be one of {sorted(category_ids)!r}; "
-            f"got {data.get('spec_category')!r}"
+            f"got {data['spec_category']!r}"
         )
     # maturity is an optional ordinal (omitted -> 0); when set it must name one
     # of the spec's declared maturity_levels.
@@ -261,6 +366,11 @@ def _build_rule(
         )
     _reject_bad_enum(data, "provision", _PROVISION_VALUES, path)
     _reject_bad_enum(data, "status", _STATUS_VALUES, path)
+    if data.get("element_id", "") not in ELEMENT_IDS | {""}:
+        raise SpecLoadError(
+            f"{path}: rule element_id must be one of {sorted(ELEMENT_IDS)!r}; "
+            f"got {data['element_id']!r}"
+        )
     if "element_concept_uris" in data:
         uris = data["element_concept_uris"]
         if not isinstance(uris, list) or not all(isinstance(u, str) for u in uris):
@@ -269,8 +379,47 @@ def _build_rule(
                 f"got {uris!r}"
             )
         data["element_concept_uris"] = tuple(uris)
+    return SpecRule(**data, probe=_build_rule_probe(probe_raw, data, path))
+
+
+def _build_rule_probe(
+    probe_raw: Any, data: dict[str, Any], path: Path
+) -> ProbeRef | None:
+    """Build a rule's probe and check it fits the rule: an active rule needs one
+    (else it passes vacuously), a non-active rule must not have one."""
     probe = _build_probe(probe_raw, path) if probe_raw is not None else None
-    return SpecRule(**data, probe=probe)
+    active = data.get("status", "active") == "active"
+    if active and probe is None:
+        raise SpecLoadError(
+            f"{path}: active rule {data['slug']!r} has no probe, so it would "
+            f"pass vacuously; add a probe or set status to catalogue-only/tbd"
+        )
+    if probe is not None and not active:
+        raise SpecLoadError(
+            f"{path}: rule {data['slug']!r} is not active, so its probe never runs"
+        )
+    if probe is not None:
+        _check_probe_attribute(probe, data.get("element_id", ""), path)
+    return probe
+
+
+def _check_probe_attribute(probe: ProbeRef, element_id: str, path: Path) -> None:
+    """For a probe registered with ``attributes``: the rule must name one of them
+    as ``attribute``, and the rule's ``element_id`` (when set) must be the same."""
+    scope = probes.attribute_scope(probe.name)
+    if scope is None:
+        return
+    attr = probe.params.get("attribute")
+    if not isinstance(attr, str) or attr not in scope:
+        raise SpecLoadError(
+            f"{path}: probe {probe.name!r} attribute must be one of "
+            f"{sorted(scope)!r}; got {attr!r}"
+        )
+    if element_id and element_id != attr:
+        raise SpecLoadError(
+            f"{path}: rule element_id {element_id!r} differs from its probe "
+            f"attribute {attr!r}"
+        )
 
 
 def _build_taxonomies(raw: Any, path: Path) -> SpecTaxonomies:
@@ -281,6 +430,7 @@ def _build_taxonomies(raw: Any, path: Path) -> SpecTaxonomies:
             f"{path}: 'spec.taxonomies' must be a mapping, got {type(raw).__name__}"
         )
     _reject_unknown(raw, _TAXONOMIES_ALLOWED, "spec.taxonomies", path)
+    _check_fields(SpecTaxonomies, raw, "spec.taxonomies", path)
     return SpecTaxonomies(**raw)
 
 
@@ -311,18 +461,48 @@ def _validate_maturity_levels(
     return frozenset(ordinals)
 
 
-def _validate_unique_rule_ids(rules: tuple[SpecRule, ...], path: Path) -> None:
-    """Reject rules sharing a ``(spec_category, number)`` pair.
+def _validate_categories(categories: tuple[SpecCategory, ...], path: Path) -> None:
+    """Check category id/code shape and uniqueness.
 
-    Two rules with the same pair render the same rule id, so one silently
-    shadows the other's findings at check time.
+    Codes form the ``CATEGORY`` segment of rule ids, so a duplicate code would
+    let two categories mint the same rule id.
     """
-    seen: set[tuple[str, int]] = set()
-    for rule in rules:
-        key = (rule.spec_category, rule.number)
-        if key in seen:
+    for cat in categories:
+        if not _KEBAB_RE.fullmatch(cat.id):
             raise SpecLoadError(
-                f"{path}: duplicate rule number {rule.number} in category "
-                f"{rule.spec_category!r}"
+                f"{path}: category id must be kebab-case; got {cat.id!r}"
             )
-        seen.add(key)
+        if not _CATEGORY_CODE_RE.fullmatch(cat.code):
+            raise SpecLoadError(
+                f"{path}: category code must be uppercase and hyphen-free; "
+                f"got {cat.code!r}"
+            )
+    for attr in ("id", "code"):
+        values = [getattr(c, attr) for c in categories]
+        if len(set(values)) != len(values):
+            raise SpecLoadError(f"{path}: duplicate category {attr} in {values!r}")
+
+
+def _validate_rules(spec_id: str, rules: tuple[SpecRule, ...], path: Path) -> None:
+    """Check slug shape and uniqueness of rule ids, slugs and JSON keys.
+
+    Categories are validated first, so ``(spec_category, number)`` identifies
+    the rendered rule id one-to-one.
+    """
+    for rule in rules:
+        if not _KEBAB_RE.fullmatch(rule.slug) or not rule.slug.startswith(
+            f"{spec_id}-"
+        ):
+            raise SpecLoadError(
+                f"{path}: rule slug must be kebab-case and start with "
+                f"'{spec_id}-'; got {rule.slug!r}"
+            )
+    keys: dict[str, list[Any]] = {
+        "slug": [r.slug for r in rules],
+        "number in its category": [(r.spec_category, r.number) for r in rules],
+        "json_key": [(r.json_group, r.json_key) for r in rules if r.json_key],
+    }
+    for what, values in keys.items():
+        dupes = sorted({str(v) for v in values if values.count(v) > 1})
+        if dupes:
+            raise SpecLoadError(f"{path}: duplicate rule {what}: {dupes}")

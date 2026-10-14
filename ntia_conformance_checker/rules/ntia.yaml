@@ -31,7 +31,7 @@ categories:
     description: Operational practices for SBOM creation, exchange, and consumption.
 
 # NTIA is a flat spec: it defines no maturity tiers, so no `maturity_levels`
-# block.  Every rule sits at the implicit baseline (maturity 0 -> SARIF error).
+# block.  Every rule sits at the implicit baseline (maturity 0).
 
 rules:
   # ---- Data Fields (component-level) -----------------------------------

@@ -19,6 +19,6 @@ from __future__ import annotations
 
 # Import side-effect: register built-in probes by importing their modules.
 from . import presence  # noqa: F401  (registration only)
-from ._registry import lookup, probe, registered_names
+from ._registry import attribute_scope, lookup, probe, registered_names
 
-__all__ = ["lookup", "probe", "registered_names"]
+__all__ = ["attribute_scope", "lookup", "probe", "registered_names"]

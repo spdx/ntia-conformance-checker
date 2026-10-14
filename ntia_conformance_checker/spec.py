@@ -89,8 +89,9 @@ class ProbeRef:
     """Probe name as registered with :func:`probes.probe`."""
 
     params: dict[str, Any] = field(default_factory=dict)
-    """Keyword arguments passed to the probe.  Probe functions declare
-    every accepted parameter explicitly so typos in YAML fail loudly."""
+    """Keyword arguments passed to the probe; treat as read-only.  Probe
+    functions declare every accepted parameter explicitly, and the loader
+    rejects params that do not fit the probe's signature."""
 
 
 @dataclass(frozen=True, kw_only=True)
@@ -100,7 +101,7 @@ class SpecMaturity:
     Declaring maturity levels is **optional** -- a flat spec with no tiers
     simply omits :attr:`Spec.maturity_levels`, and the loader substitutes
     :data:`DEFAULT_MATURITY_LEVELS` (a single ``required`` / level ``0`` /
-    ``error`` baseline) so every rule still has a named level.
+    ``required`` baseline) so every rule still has a named level.
 
     When a spec *does* declare levels, :attr:`level` is a **universal ordinal**
     -- ``0`` is the baseline, higher numbers demand more depth / completeness.
@@ -362,7 +363,7 @@ class Spec:
     """The standard's maturity vocabulary, keyed by universal ordinal.
     **Optional in YAML** -- a flat spec omits it and the loader substitutes
     :data:`DEFAULT_MATURITY_LEVELS` (a single ``required`` / level ``0`` /
-    ``error`` baseline).  When declared it must include level ``0``."""
+    ``required`` baseline).  When declared it must include level ``0``."""
 
     rules: tuple[SpecRule, ...] = field(default_factory=tuple)
     """The standard's rule catalogue.  Rules with ``status == "tbd"`` are

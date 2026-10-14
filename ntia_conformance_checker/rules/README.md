@@ -8,7 +8,7 @@ SPDX-License-Identifier: Apache-2.0
 # Declarative rule files
 
 - Each `*.yaml` in this directory defines one compliance standard loaded by
-  `RuleBasedChecker` at import time;
+  `registry.py` at import time;
   - dropping a new `<spec_id>.yaml` here is all that is needed to add
     a standard.
 - Files prefixed with `_` (e.g. [`_example.yaml`](_example.yaml)) are skipped

@@ -14,14 +14,14 @@ from __future__ import annotations
 
 from typing import TYPE_CHECKING
 
-from ..model import Finding
+from ..model import COMPONENT_ELEMENT_IDS, DOCUMENT_ELEMENT_IDS, Finding
 from ._registry import CheckerProtocol, probe
 
 if TYPE_CHECKING:
     from collections.abc import Iterable
 
 
-@probe("require_component_attribute")
+@probe("require_component_attribute", attributes=COMPONENT_ELEMENT_IDS)
 def require_component_attribute(
     checker: CheckerProtocol, *, attribute: str
 ) -> Iterable[Finding]:
@@ -33,10 +33,9 @@ def require_component_attribute(
 
     Args:
         checker: the running checker instance.
-        attribute: a canonical element id from
-            :data:`ntia_conformance_checker.model.ELEMENT_IDS`
-            (component-level subset), e.g. ``"supplier"`` /
-            ``"concluded_license"``.
+        attribute: an element id from
+            :data:`ntia_conformance_checker.model.COMPONENT_ELEMENT_IDS`,
+            e.g. ``"supplier"`` / ``"concluded_license"``.
     """
     for comp_name, comp_id in checker.components_without(attribute):
         yield Finding(
@@ -45,7 +44,7 @@ def require_component_attribute(
         )
 
 
-@probe("require_document_attribute")
+@probe("require_document_attribute", attributes=DOCUMENT_ELEMENT_IDS)
 def require_document_attribute(
     checker: CheckerProtocol, *, attribute: str
 ) -> Iterable[Finding]:
@@ -56,10 +55,9 @@ def require_document_attribute(
 
     Args:
         checker: the running checker instance.
-        attribute: a canonical element id from
-            :data:`ntia_conformance_checker.model.ELEMENT_IDS`
-            (document-level subset), e.g. ``"author"`` /
-            ``"dependency_relationship"``.
+        attribute: an element id from
+            :data:`ntia_conformance_checker.model.DOCUMENT_ELEMENT_IDS`,
+            e.g. ``"author"`` / ``"dependency_relationship"``.
     """
     if not checker.document_has(attribute):
         yield Finding(component_id="document", component_name="")

@@ -50,9 +50,8 @@ class Finding:
 # Canonical element-id vocabulary.  These strings appear verbatim in YAML
 # rules, on probe ``params``, and in SARIF ``rule.properties.elementId``.
 # Choose them carefully -- they are public contract.
-ELEMENT_IDS: frozenset[str] = frozenset(
+COMPONENT_ELEMENT_IDS: frozenset[str] = frozenset(
     {
-        # Component-level (presence on each component)
         "name",
         "version",
         "unique_identifier",
@@ -61,7 +60,12 @@ ELEMENT_IDS: frozenset[str] = frozenset(
         "copyright_notice",
         "cryptographic_hash",
         "relationship",
-        # Document-level (presence on the SBOM as a whole)
+    }
+)
+"""Elements checked for presence on each component."""
+
+DOCUMENT_ELEMENT_IDS: frozenset[str] = frozenset(
+    {
         "author",
         "timestamp",
         "spec_version",
@@ -70,3 +74,6 @@ ELEMENT_IDS: frozenset[str] = frozenset(
         "sbom_type",
     }
 )
+"""Elements checked for presence on the SBOM as a whole."""
+
+ELEMENT_IDS: frozenset[str] = COMPONENT_ELEMENT_IDS | DOCUMENT_ELEMENT_IDS
