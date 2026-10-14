@@ -1,9 +1,10 @@
-# SPDX-FileCopyrightText: 2025 SPDX contributors
+# SPDX-FileCopyrightText: 2026 SPDX contributors
 # SPDX-FileType: SOURCE
 # SPDX-License-Identifier: Apache-2.0
 
 """Graph utilities for SPDX 2 and SPDX 3."""
 
+import logging
 from typing import TYPE_CHECKING, Any, cast
 
 from spdx_python_model.bindings import v3_0_1 as spdx3
@@ -106,8 +107,6 @@ def analyze_graph_connectivity(
         )
 
     reachable_component_ids = reachable_node_ids & all_package_ids
-    floating_component_ids = all_package_ids - reachable_component_ids
-    has_unknown_pointers = not reachable_node_ids.issubset(all_known_ids)
 
     # Find exactly which edges point to unknown nodes
     unknown_pointer_edges: dict[str, list[str]] = {}
@@ -115,6 +114,15 @@ def analyze_graph_connectivity(
         missing_targets = [t for t in target_ids if t not in all_known_ids]
         if missing_targets:
             unknown_pointer_edges[source_id] = missing_targets
+
+    floating_component_ids = all_package_ids - reachable_component_ids
+    has_unknown_pointers = bool(unknown_pointer_edges)
+
+    if not reachable_node_ids.issubset(all_known_ids) and not has_unknown_pointers:
+        logging.error(
+            "Traversal bug: BFS reached a node absent from all_known_ids, "
+            "but unknown_pointer_edges did not record it."
+        )
 
     return (
         reachable_component_ids,
@@ -207,11 +215,10 @@ def _extract_spdx3_collection_edges(
     if col_id not in graph_connection_map:
         graph_connection_map[col_id] = []
 
-    for attr in ("rootElement", "element"):
-        for elem in getattr(obj, attr, []):
-            e_id = elem if isinstance(elem, str) else getattr(elem, "spdxId", "")
-            if e_id:
-                graph_connection_map[col_id].append(e_id)
+    for elem in getattr(obj, "rootElement", []):
+        e_id = elem if isinstance(elem, str) else getattr(elem, "spdxId", "")
+        if e_id:
+            graph_connection_map[col_id].append(e_id)
 
 
 def _build_spdx3_graph(

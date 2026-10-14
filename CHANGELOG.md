@@ -4,6 +4,8 @@ SPDX-FileType: DOCUMENTATION
 SPDX-License-Identifier: Apache-2.0
 ---
 
+<!-- markdownlint-disable MD024 -->
+
 # Changelog
 
 All notable changes to this project will be documented in this file.
@@ -15,8 +17,52 @@ and this project adheres to [Semantic Versioning][semver].
 
 ### Added
 
+- GitHub releases attach the wheel, the sdist and the wheel's SPDX 3 SBOM,
+  each with a Sigstore bundle and a build provenance attestation;
+  see "Verify release files" in `SECURITY.md`
+
+### Changed
+
+- Pull request and release builds embed the SBOM with Pitloom 0.20.1 and fail
+  on an invalid SBOM; content types are detected with magika
+- Releases publish to PyPI only after the SBOM is validated; release files are
+  attached, signed and attested after the publish, and can be re-run if that
+  fails
+
+## [6.0.0] - 2026-10-05
+
+This major release adds support for BSI TR-03183-2 minimum elements,
+graph-based validation for SPDX 3, and stricter handling of `NOASSERTION`
+values.
+
+Support for BSI TR-03183-2 and graph-based validation was completed during
+the [Google Summer of Code (GSoC) 2026][gsoc2026] program by @InduwaraGunasena,
+with mentorship and support from @bact, @jspeed-meyers, @rtgdk, @aerabi
+the SPDX project, and the Linux Foundation.
+
+This release is also the first to ship with an SBOM embedded directly into
+the wheel at build time, following guidelines in [PEP 770].
+
+Breaking changes:
+
+- Default log level is now `WARNING`; use `-v` for the previous output
+- `iter_relationships_by_type` now returns
+  `Iterator[tuple[str, list[str]]]`
+- `NOASSERTION` supplier, license and copyright values count as missing
+- SPDX 3 components are discovered by traversing from `rootElement`;
+  an SBOM with no reachable component is no longer reported as compliant
+
+### Added
+
 - `-v`/`-vv`/`--debug` log verbosity levels and `-q`/`--quiet` to show
   errors only; `-k` short flag for `--skip-validation` ([#406])
+- Add structural graph validation to detect broken dependency linkages
+  (unknown pointers) and disconnected (floating) elements ([#412])
+- Add graph validation section to CLI report;
+  to HTML output (`<div class="conformance-graph">`);
+  and to JSON output (`graphValidation`) ([#413])
+- Add support for BSI TR-03183-2 v2.1.0 minimum elements ([#428])
+- Embed an SPDX 3 SBOM (PEP 770) into the wheel published to PyPI ([#457])
 
 ### Changed
 
@@ -24,6 +70,9 @@ and this project adheres to [Semantic Versioning][semver].
   use `-v` to restore the old default verbosity ([#406])
 - `--output quiet` renamed to `--output none` (`quiet` still accepted;
   the name is now reserved for log verbosity) ([#406])
+- Replaced flat-file element iteration with Breadth-First Search (BFS) graph
+  traversal to discover reachable software components via `rootElement` and
+  explicit relationships ([#412])
 
 ### Fixed
 
@@ -34,9 +83,36 @@ and this project adheres to [Semantic Versioning][semver].
   This changes the return signature to `Iterator[tuple[str, list[str]]]`
   ([#398])
 - Handle `OSError` when writing JSON output file in `print_output`
+- Initialize per-component result lists as instance attributes,
+  so checkers with a failed parse do not share state between instances ([#449])
+- `FSCT3Checker` no longer raises `AttributeError` on an unparsable file
+  ([#449])
+- Treat `NOASSERTION` supplier, license and copyright values,
+  including SPDX 3 NoAssertion references and license expressions,
+  as missing (`NONE` counts as provided);
+  report a supplier Agent without name as missing instead of
+  raising `AttributeError` ([#451])
+- Do not report an SBOM as compliant, or its component fields as provided,
+  when no component is reachable from the SBOM root; add
+  `componentsEvaluated` to JSON output and a note to text/HTML reports ([#453])
+- Make SPDX 3 nonconformant component lists deterministic by sorting
+  `iter_objects_with_property` output by (name, spdxId) ([#454])
+- Report "File not found" for a missing input path, instead of
+  "Could not determine SPDX version" ([#460])
 
+[gsoc2026]: https://summerofcode.withgoogle.com/programs/2026/projects/Oo4W6HPR
+[pep 770]: https://peps.python.org/pep-0770/
 [#398]: https://github.com/spdx/ntia-conformance-checker/pull/398
 [#406]: https://github.com/spdx/ntia-conformance-checker/pull/406
+[#412]: https://github.com/spdx/ntia-conformance-checker/pull/412
+[#413]: https://github.com/spdx/ntia-conformance-checker/pull/413
+[#428]: https://github.com/spdx/ntia-conformance-checker/pull/428
+[#449]: https://github.com/spdx/ntia-conformance-checker/pull/449
+[#451]: https://github.com/spdx/ntia-conformance-checker/pull/451
+[#453]: https://github.com/spdx/ntia-conformance-checker/pull/453
+[#454]: https://github.com/spdx/ntia-conformance-checker/pull/454
+[#457]: https://github.com/spdx/ntia-conformance-checker/pull/457
+[#460]: https://github.com/spdx/ntia-conformance-checker/pull/460
 
 ## [5.0.3] - 2026-06-02
 
@@ -382,8 +458,12 @@ Thanks to @goneall, @licquia, and @kestewart for mentoring @linynjosh.
 - Initial commit from Google Summer of Code 2022 ([#1]).
 
 [#1]: https://github.com/spdx/ntia-conformance-checker/pull/1
+
 [keepachangelog]: https://keepachangelog.com/en/1.1.0/
 [semver]: https://semver.org/spec/v2.0.0.html
+
+[Unreleased]: https://github.com/spdx/ntia-conformance-checker/compare/v6.0.0...HEAD
+[6.0.0]: https://github.com/spdx/ntia-conformance-checker/releases/tag/v6.0.0
 [5.0.3]: https://github.com/spdx/ntia-conformance-checker/releases/tag/v5.0.3
 [5.0.2]: https://github.com/spdx/ntia-conformance-checker/releases/tag/v5.0.2
 [5.0.1]: https://github.com/spdx/ntia-conformance-checker/releases/tag/v5.0.1

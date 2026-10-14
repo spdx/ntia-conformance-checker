@@ -11,7 +11,7 @@ Some of the code here was originally in the BaseChecker class.
 from __future__ import annotations
 
 from dataclasses import dataclass
-from typing import TYPE_CHECKING
+from typing import TYPE_CHECKING, Any
 
 from .constants import (
     SUPPORTED_COMPLIANCE_STANDARDS,
@@ -20,6 +20,8 @@ from .constants import (
 
 if TYPE_CHECKING:
     from spdx_tools.spdx.validation.validation_message import ValidationMessage
+
+    from .base_checker import BaseChecker
 
 
 # pylint: disable=too-many-instance-attributes
@@ -35,6 +37,15 @@ class ReportContext:
     validation_messages: list[ValidationMessage] | None = None
     conformance_messages: list[ValidationMessage] | None = None
     parsing_errors: list[str] | None = None
+    unknown_pointer_edges: dict[str, list[str]] | None = None
+    floating_component_ids: set[str] | None = None
+    components_evaluated: bool = True
+
+
+_NOT_EVALUATED = (
+    "No components are reachable from the SBOM root element; "
+    "component requirements were not evaluated."
+)
 
 
 def _safe_attr(obj: object, name: str) -> str:
@@ -149,6 +160,92 @@ def get_validation_messages_json(
     return json_output
 
 
+def _generate_graph_text_report(rc: ReportContext) -> list[str]:
+    """Generates a text report for graph structural issues."""
+    graph_issues_report: list[str] = []
+
+    if not rc.unknown_pointer_edges and not rc.floating_component_ids:
+        return graph_issues_report
+
+    graph_issues_report.append("\n" + "=" * 55)
+    graph_issues_report.append("Structural Graph Issues ".center(55))
+    graph_issues_report.append("=" * 55)
+
+    if rc.unknown_pointer_edges:
+        graph_issues_report.append("\n************* ERROR *************")
+        graph_issues_report.append(
+            "Unknown components detected! A relationship points to a missing element."
+        )
+        graph_issues_report.append("  -> Broken dependency linkages found:")
+        for source, targets in rc.unknown_pointer_edges.items():
+            for target in targets:
+                graph_issues_report.append(
+                    f"    * Component '{source}' links to missing element '{target}'"
+                )
+
+    if rc.floating_component_ids:
+        floating_ids = sorted(rc.floating_component_ids)
+        graph_issues_report.append("\n************ WARNING ************")
+        graph_issues_report.append(
+            f"Found {len(floating_ids)} disconnected 'floating' elements."
+        )
+        graph_issues_report.append(
+            "  -> These elements are not attached to the primary software tree"
+        )
+        graph_issues_report.append(
+            "     and were ignored during the compliance check.\n"
+        )
+
+        for spdx_id in floating_ids[:10]:
+            graph_issues_report.append(f"    * {spdx_id}")
+
+        if len(floating_ids) > 10:
+            graph_issues_report.append(
+                f"    * ... and {len(floating_ids) - 10} more items."
+            )
+
+    graph_issues_report.append("\n" + "-" * 55)
+    return graph_issues_report
+
+
+def _requirements_text(rc: ReportContext) -> list[str]:
+    """Requirement table and not-evaluated note, in plain text."""
+    lines: list[str] = []
+    if rc.requirement_results:
+        lines.append("Requirement                                    | Status")
+        lines.append("-------------------------------------------------------")
+        for label, value in rc.requirement_results:
+            lines.append(f"{label:<46} | {value}")
+        lines.append("")
+    if not rc.components_evaluated:
+        lines.append(_NOT_EVALUATED + "\n")
+    return lines
+
+
+def _requirements_html(rc: ReportContext) -> list[str]:
+    """Requirement table and not-evaluated note, in HTML."""
+    lines: list[str] = []
+    if rc.requirement_results:
+        lines.append("<table class='conformance-res-tab'>")
+        lines.append("<thead><tr><th>Requirement</th><th>Conformant</th></tr></thead>")
+        lines.append("<tbody>")
+        for info_name, val in rc.requirement_results:
+            lines.append(
+                "<tr>"
+                "<td class='conformance-res-tab-r'>"
+                f"{info_name}</td>"
+                "<td class='conformance-res-tab-v'>"
+                f"{val}</td>"
+                "</tr>"
+            )
+        lines.append("</tbody>")
+        lines.append("</table>")
+
+    if not rc.components_evaluated:
+        lines.append(f"<p class='conformance-res-note'>{_NOT_EVALUATED}</p>")
+    return lines
+
+
 def report_text(
     rc: ReportContext,
     verbose: bool = False,
@@ -184,12 +281,7 @@ def report_text(
         " Conformance Results\n"
     )
     report.append(f"Conformant: {rc.compliant}\n")
-    if rc.requirement_results:
-        report.append("Requirement                                    | Status")
-        report.append("-------------------------------------------------------")
-        for label, value in rc.requirement_results:
-            report.append(f"{label:<46} | {value}")
-        report.append("")
+    report.extend(_requirements_text(rc))
 
     if rc.validation_messages:
         report.append(
@@ -203,7 +295,59 @@ def report_text(
         report.append("The following conformance issues were found:\n")
         report.append(get_validation_messages_text(rc.conformance_messages, verbose))
 
+    # structural graph issues
+    graph_issues_report = _generate_graph_text_report(rc)
+    if graph_issues_report:
+        report.extend(graph_issues_report)
+
     return "\n".join(report)
+
+
+def _generate_graph_html_report(rc: ReportContext) -> list[str]:
+    """Generates an HTML report for graph structural issues."""
+    graph_issues_report: list[str] = []
+
+    if not rc.unknown_pointer_edges and not rc.floating_component_ids:
+        return graph_issues_report
+
+    graph_issues_report.append("<div class='conformance-graph'>")
+    graph_issues_report.append(
+        "<h2 class='conformance-res-title'>Structural Graph Issues</h2>"
+    )
+
+    if rc.unknown_pointer_edges:
+        graph_issues_report.append(
+            "<p class='conformance-err-label'><strong>ERROR:</strong>"
+            " Unknown components detected! A relationship points to a missing element.</p>"
+        )
+        graph_issues_report.append("<ul class='conformance-err-list'>")
+        for source, targets in rc.unknown_pointer_edges.items():
+            for target in targets:
+                graph_issues_report.append(
+                    f"<li>Component '<b>{source}</b>' links to missing element "
+                    f"'<b>{target}</b>'</li>"
+                )
+        graph_issues_report.append("</ul>")
+
+    if rc.floating_component_ids:
+        floating_ids = sorted(rc.floating_component_ids)
+        graph_issues_report.append(
+            "<p class='conformance-msg-label' style='margin-top: 15px;'>"
+            f"<strong>WARNING:</strong> Found {len(floating_ids)} disconnected "
+            "'floating' elements ignored during compliance.</p>"
+        )
+        graph_issues_report.append("<ul class='conformance-msg-list'>")
+        for spdx_id in floating_ids[:10]:
+            graph_issues_report.append(f"<li>{spdx_id}</li>")
+        if len(floating_ids) > 10:
+            graph_issues_report.append(
+                f"<li>... and {len(floating_ids) - 10} more items.</li>"
+            )
+        graph_issues_report.append("</ul>")
+
+    graph_issues_report.append("</div>")
+
+    return graph_issues_report
 
 
 def report_html(
@@ -257,21 +401,7 @@ def report_html(
     )
     report.append(f"<h3 class='conformance-res-status'>Conformant: {rc.compliant}</h3>")
 
-    if rc.requirement_results:
-        report.append("<table class='conformance-res-tab'>")
-        report.append("<thead><tr><th>Requirement</th><th>Conformant</th></tr></thead>")
-        report.append("<tbody>")
-        for info_name, val in rc.requirement_results:
-            report.append(
-                "<tr>"
-                "<td class='conformance-res-tab-r'>"
-                f"{info_name}</td>"
-                "<td class='conformance-res-tab-v'>"
-                f"{val}</td>"
-                "</tr>"
-            )
-        report.append("</tbody>")
-        report.append("</table>")
+    report.extend(_requirements_html(rc))
 
     report.append("</div>")  # End of conformance-res
 
@@ -323,4 +453,80 @@ def report_html(
         )
         report.append("</div>")
 
+    # structural graph issues
+    graph_issues_report = _generate_graph_html_report(rc)
+    if graph_issues_report:
+        report.extend(graph_issues_report)
+
     return "\n".join(report)
+
+
+def report_json(checker_instance: "BaseChecker") -> dict[str, Any]:
+    """Build the JSON output dictionary."""
+    result: dict[str, Any] = {
+        "isConformant": getattr(checker_instance, "compliant", False),
+        "isNtiaConformant": getattr(
+            checker_instance, "compliant", False
+        ),  # backward compatibility
+        "complianceStandard": getattr(checker_instance, "compliance_standard", ""),
+        "sbomSpec": getattr(checker_instance, "sbom_spec", ""),
+        "validationMessages": get_validation_messages_json(
+            checker_instance.validation_messages
+        ),
+        "conformanceMessages": get_validation_messages_json(
+            checker_instance.conformance_messages
+        ),
+        "parsingError": checker_instance.parsing_errors,
+        "sbomName": getattr(checker_instance, "sbom_name", ""),
+        "specVersionProvided": getattr(checker_instance, "doc_version", False),
+        "authorNameProvided": getattr(checker_instance, "doc_author", False),
+        "timestampProvided": getattr(checker_instance, "doc_timestamp", False),
+        "dependencyRelationshipsProvided": getattr(
+            checker_instance, "dependency_relationships", False
+        ),
+        "totalNumberComponents": checker_instance.get_total_number_components(),
+        "componentsEvaluated": getattr(checker_instance, "components_evaluated", False),
+        "graphValidation": {
+            "unknownPointers": {
+                "hasUnknownPointers": getattr(
+                    checker_instance, "has_unknown_pointers", False
+                ),
+                "unknownPointerEdges": getattr(
+                    checker_instance, "unknown_pointer_edges", {}
+                ),
+            },
+            "floatingComponents": {
+                "floatingComponentCount": len(
+                    getattr(checker_instance, "floating_component_ids", set())
+                ),
+                "floatingComponentIds": list(
+                    getattr(checker_instance, "floating_component_ids", set())
+                ),
+            },
+        },
+    }
+
+    _groups = {
+        "componentNames": "components_without_names",
+        "componentVersions": "components_without_versions",
+        "componentIdentifiers": "components_without_identifiers",
+        "componentSuppliers": "components_without_suppliers",
+        "componentConcludedLicenses": "components_without_concluded_licenses",
+        "componentCopyrightTexts": "components_without_copyright_texts",
+    }
+
+    for key_, attr in _groups.items():
+        components_without_info = getattr(checker_instance, attr, [])
+        # components_without_info is a list[tuple[name, spdx_id]];
+        # prefer the human-readable name and fall back to SPDX ID.
+        nonconformant = [
+            (name if name not in (None, "") else spdx_id)
+            for name, spdx_id in components_without_info
+        ]
+
+        result[key_] = {
+            "nonconformantComponents": nonconformant,
+            "allProvided": result["componentsEvaluated"] and not nonconformant,
+        }
+
+    return result

@@ -9,6 +9,7 @@ from __future__ import annotations
 import argparse
 import json
 import logging
+import os
 import re
 import sys
 from importlib.metadata import version
@@ -265,6 +266,10 @@ def get_sbom_spec(file: str, sbom_spec: str) -> str:
             sbom_spec,
             ", ".join(sorted(SUPPORTED_SBOM_SPECS)),
         )
+        return ""
+
+    if not os.path.isfile(file):
+        logging.error("File not found: %s", file)
         return ""
 
     if sbom_spec.startswith("spdx"):

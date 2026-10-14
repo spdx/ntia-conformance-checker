@@ -107,8 +107,8 @@ def test_build_spdx2_graph_described_by() -> None:
     pkg = MagicMock(spec=Package)
     pkg.spdx_id = "SPDXRef-Package1"
     doc.packages = [pkg]
-    doc.files = []
-    doc.snippets = []
+    doc.files = list[File]()
+    doc.snippets = list[Snippet]()
 
     rel = Relationship(
         "SPDXRef-Package1", RelationshipType.DESCRIBED_BY, "SPDXRef-DOCUMENT"

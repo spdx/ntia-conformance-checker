@@ -6,42 +6,36 @@
 
 from __future__ import annotations
 
-import json
 import logging
 import os
 import warnings
 from abc import ABC, abstractmethod
-from typing import TYPE_CHECKING, Any, Union, cast
+from typing import TYPE_CHECKING, Any, cast
 
-from spdx_python_model.bindings import v3_0_1 as spdx3
-from spdx_tools.spdx.model.relationship import RelationshipType
-from spdx_tools.spdx.model.spdx_no_assertion import SpdxNoAssertion
 from spdx_tools.spdx.parser import parse_anything
 from spdx_tools.spdx.parser.error import SPDXParsingError
 from spdx_tools.spdx.validation.document_validator import validate_full_spdx_document
-from spdx_tools.spdx.validation.validation_message import (
-    ValidationContext,
-    ValidationMessage,
-)
 
+from .adapters import NullAdapter, SbomAdapter, Spdx2Adapter, Spdx3Adapter
 from .constants import DEFAULT_SBOM_SPEC
 from .graph_utils import analyze_graph_connectivity
 from .report import (
     ReportContext,
-    get_validation_messages_json,
     report_html,
+    report_json,
     report_text,
 )
 from .spdx3_utils import (
-    get_all_packages,
-    has_package_dependency_relationship,
-    iter_objects_with_property,
-    iter_relationships_by_type,
+    parse_spdx3_file,
     validate_spdx3_data,
 )
 
 if TYPE_CHECKING:
+    from collections.abc import Sized
+
+    from spdx_python_model.bindings import v3_0_1 as spdx3
     from spdx_tools.spdx.model.document import Document
+    from spdx_tools.spdx.validation.validation_message import ValidationMessage
 
 
 # pylint: disable=too-many-instance-attributes,too-many-public-methods
@@ -99,12 +93,15 @@ class BaseChecker(ABC):
     sbom_name: str = ""
     # Lists of components missing required information.
     # Each item is a tuple of (component name, component SPDX ID).
-    components_without_names: list[tuple[str, str]] = []
-    components_without_versions: list[tuple[str, str]] = []
-    components_without_suppliers: list[tuple[str, str]] = []
-    components_without_identifiers: list[tuple[str, str]] = []
-    components_without_concluded_licenses: list[tuple[str, str]] = []
-    components_without_copyright_texts: list[tuple[str, str]] = []
+    components_without_names: list[tuple[str, str]]
+    components_without_versions: list[tuple[str, str]]
+    components_without_suppliers: list[tuple[str, str]]
+    components_without_identifiers: list[tuple[str, str]]
+    components_without_concluded_licenses: list[tuple[str, str]]
+    components_without_copyright_texts: list[tuple[str, str]]
+    # (info name, components missing that info) pairs.
+    all_components_without_info: list[tuple[str, list[tuple[str, str]]]]
+    sbom_gen_context: list[str]  # SBOM types (SPDX 3 only)
 
     doc_version: bool = False  # Has SPDX document version?
     doc_author: bool = False  # Has SPDX document author?
@@ -112,6 +109,8 @@ class BaseChecker(ABC):
     dependency_relationships: bool = False  # Has dependency relationship?
     # See https://github.com/spdx/ntia-conformance-checker/issues/392
     # for discussion on dependency relationships and DESCRIBES.
+    # False when no component is reachable from the SBOM root.
+    components_evaluated: bool = False
 
     compliant: bool = False  # Is SBOM compliant with the chosen standard?
 
@@ -183,16 +182,24 @@ class BaseChecker(ABC):
         self._validation_messages = []
         self._conformance_messages = []
 
+        self._init_result_lists()
+
         self.reachable_component_ids: set[str] = set()
         self.floating_component_ids: set[str] = set()
+        self.unknown_pointer_edges: dict[str, list[str]] = {}
+
         # "Pointers" refers to relationship edges targeting unknown/missing elements in the graph.
         self.has_unknown_pointers: bool = False
+
+        self.adapter: SbomAdapter = NullAdapter()
 
         match sbom_spec:
             case "spdx2":
                 self.doc = self.parse_file()
             case "spdx3":
-                object_set = self.parse_spdx3_file()
+                object_set, parsing_errors = parse_spdx3_file(self.file)
+                self._parsing_errors.extend(parsing_errors)
+
                 if not object_set:
                     logging.error("Failed to parse the SPDX 3 file.")
                 else:
@@ -207,6 +214,15 @@ class BaseChecker(ABC):
                 raise ValueError(f"Unsupported SBOM specification: {sbom_spec}")
 
         if self.doc:
+            if self.sbom_spec == "spdx2":
+                self.doc = cast("Document", self.doc)
+                self.adapter = Spdx2Adapter(self.doc)
+            elif self.sbom_spec == "spdx3":
+                self.adapter = Spdx3Adapter(
+                    cast("spdx3.SHACLObjectSet", self.doc),
+                    self.__spdx3_doc,
+                )
+
             self._evaluate_graph_connectivity()
 
             if validate and sbom_spec == "spdx2":
@@ -234,203 +250,71 @@ class BaseChecker(ABC):
                 self.get_components_without_copyright_texts()
             )
 
-            # List of (info_name, components) tuples,
-            # where components is a list of (component_name, spdx_id) tuples
-            self.all_components_without_info: list[
-                tuple[str, list[tuple[str, str]]]
-            ] = self._get_all_components_without_info()
+            self.all_components_without_info = self._get_all_components_without_info()
 
         self.table_elements: list[tuple[str, bool]] = []
 
+    def _init_result_lists(self) -> None:
+        """
+        Initialize per-instance result lists.
+
+        Class-level defaults would be shared between instances whenever
+        parsing fails, so each instance gets its own empty lists.
+        """
+        self.components_without_names = []
+        self.components_without_versions = []
+        self.components_without_suppliers = []
+        self.components_without_identifiers = []
+        self.components_without_concluded_licenses = []
+        self.components_without_copyright_texts = []
+        self.all_components_without_info = []
+        self.sbom_gen_context = []
+
+    def _all_provided(self, missing: Sized) -> bool:
+        """
+        Check if components were evaluated and none is missing the information.
+
+        Args:
+            missing: Components missing the information.
+
+        Returns:
+            bool: True if components were evaluated and ``missing`` is empty.
+        """
+        return self.components_evaluated and not missing
+
     def check_doc_version(self) -> bool:
         """Check if the document's specification version exists."""
-        if self.get_doc_spec_version():
-            return True
-        return False
+        return self.adapter.check_doc_version()
 
     def check_author(self) -> bool:
         """Check if the author of SBOM data exists."""
-        if not self.doc:
-            return False
-
-        # SPDX 2
-        if self.sbom_spec == "spdx2":
-            # Note that the spdx-tools's parser will raise an SPDXParsingError
-            # anyway, if the document does not contain a creator.
-            # So in practice, this section should always return True
-            self.doc = cast("Document", self.doc)
-            doc_creation_info = getattr(self.doc, "creation_info", None)
-            if doc_creation_info:
-                doc_creators = getattr(doc_creation_info, "creators", [])
-                if doc_creators:
-                    return True
-            return False
-
-        # SPDX 3
-        if self.sbom_spec == "spdx3" and self.__spdx3_doc is not None:
-            doc_creation_info = getattr(self.__spdx3_doc, "creationInfo", None)
-            if doc_creation_info:
-                doc_creators = getattr(doc_creation_info, "createdBy", [])
-                if doc_creators:
-                    return True
-            return False
-
-        return False
+        return self.adapter.check_author()
 
     def check_dependency_relationships(self) -> bool:
-        """Check if the SBOM document declares dependency information.
-
-        For SPDX 2 this checks for a DESCRIBES relationship; for SPDX 3 it
-        checks package-level dependency relationships.
-        """
-        if not self.doc:
-            return False
-
-        # SPDX 2
-        if self.sbom_spec == "spdx2":
-            self.doc = cast("Document", self.doc)
-            if not self.doc.relationships:
-                return False
-
-            describes_relationships = [
-                rel
-                for rel in self.doc.relationships
-                if rel.relationship_type == RelationshipType.DESCRIBES
-            ]
-
-            # A set of all package spdx_ids for quick lookup
-            spdx_id_set = {package.spdx_id for package in self.doc.packages}
-
-            # Check if any of the "DESCRIBES" relationships describe a Package
-            describes_package = any(
-                rel.related_spdx_element_id in spdx_id_set
-                for rel in describes_relationships
-            )
-
-            return describes_package
-
-        # SPDX 3
-        if self.sbom_spec == "spdx3":
-            self.doc = cast("spdx3.SHACLObjectSet", self.doc)
-            return has_package_dependency_relationship(self.doc)
-
-        return False
+        """Check if the SBOM document declares dependency information."""
+        return self.adapter.check_dependency_relationships()
 
     def check_timestamp(self) -> bool:
         """Check if the SBOM creation timestamp exists."""
-        if not self.doc:
-            return False
-
-        # SPDX 2
-        if self.sbom_spec == "spdx2":
-            # Note that the spdx-tools's parser will raise an SPDXParsingError,
-            # if the document does not contain a timestamp.
-            # So in practice, this section should always return True.
-            self.doc = cast("Document", self.doc)
-            doc_creation_info = getattr(self.doc, "creation_info", None)
-            if doc_creation_info:
-                doc_created = getattr(doc_creation_info, "created", None)
-                if doc_created:
-                    return True
-            return False
-
-        # SPDX 3
-        if self.sbom_spec == "spdx3" and self.__spdx3_doc is not None:
-            doc_creation_info = getattr(self.__spdx3_doc, "creationInfo", None)
-            if doc_creation_info:
-                doc_created = getattr(doc_creation_info, "created", None)
-                if doc_created:
-                    return True
-
-        return False
+        return self.adapter.check_timestamp()
 
     def get_doc_spec_version(self) -> str | None:
         """Retrieve the document's specification version."""
-        if not self.doc:
-            return None
-
-        doc_spec_version: str | None = None
-
-        # SPDX 2
-        if self.sbom_spec == "spdx2":
-            self.doc = cast("Document", self.doc)
-            doc_creation_info = getattr(self.doc, "creation_info", None)
-            if doc_creation_info:
-                doc_spec_version = getattr(doc_creation_info, "spdx_version", None)
-
-        # SPDX 3
-        if self.sbom_spec == "spdx3" and isinstance(
-            self.__spdx3_doc, spdx3.SpdxDocument
-        ):
-            doc_creation_info = getattr(self.__spdx3_doc, "creationInfo", None)
-            if doc_creation_info:
-                doc_spec_version = getattr(doc_creation_info, "specVersion", None)
-
-        return doc_spec_version
+        return self.adapter.get_doc_spec_version()
 
     def get_sbom_name(self) -> str:
         """Retrieve the name of the SBOM."""
-        if not self.doc:
-            return ""
-
-        name: str = ""
-
-        # SPDX 2
-        if self.sbom_spec == "spdx2":
-            self.doc = cast("Document", self.doc)
-            doc_creation_info = getattr(self.doc, "creation_info", None)
-            if doc_creation_info:
-                name = getattr(doc_creation_info, "name", "")
-
-        # SPDX 3
-        elif self.sbom_spec == "spdx3" and isinstance(
-            self.__spdx3_doc, spdx3.SpdxDocument
-        ):
-            name = getattr(self.__spdx3_doc, "name", "")
-
-        return name
+        return self.adapter.get_sbom_name()
 
     def get_sbom_types(self) -> list[str]:
-        """Get SBOM types from the rootElement of the SpdxDocument.
+        """Get SBOM types (generation context) from the document.
 
         CISA Framing Software Component Transparency (2024) listed
         "SBOM type" as one of baseline attributes, see Table 1 (p. 22) in:
         https://www.cisa.gov/resources-tools/resources/framing-software-component-transparency-2024
-
-        In SPDX 3, SBOM type is only available in /Software/Sbom class.
         """
         # SBOM type is only available in SPDX 3
-        if not self.doc or not self.__spdx3_doc or self.sbom_spec != "spdx3":
-            return []
-
-        root_elements: spdx3.ListProxy[Union[str, spdx3.Element]] = (
-            self.__spdx3_doc.rootElement
-        )
-        if not root_elements:
-            return []
-
-        sbom_types: list[str] = []
-
-        # Assuming only one rootElement per document
-        root_elem = root_elements[0]
-        if not isinstance(root_elem, spdx3.software_Sbom):
-            doc_id = getattr(self.__spdx3_doc, "spdxId", None)
-            root_elem_id = getattr(root_elem, "spdxId", None)
-            error_msg = (
-                "To have SBOM type (SBOM generation context) information, "
-                "the rootElement of the SpdxDocument shall be of type "
-                "/Software/Sbom. "
-                f"Found: {type(root_elem).__name__!r}"
-            )
-            context = ValidationContext(parent_id=doc_id, spdx_id=root_elem_id)
-            self._conformance_messages.append(ValidationMessage(error_msg, context))
-            return []
-
-        sbom_types = [
-            type_.strip() for type_ in getattr(root_elem, "software_sbomType", [])
-        ]
-
-        return sbom_types
+        return self.adapter.get_sbom_types(self._conformance_messages)
 
     def get_components_without_concluded_licenses(self) -> list[tuple[str, str]]:
         """
@@ -442,63 +326,9 @@ class BaseChecker(ABC):
             preferred value (name or SPDX ID) as needed.
         """
         # Note: concluded license is mandatory in SPDX-2.2 and SPDX-2.3
-        if not self.doc:
-            return []
-
-        # SPDX 2
-        if self.sbom_spec == "spdx2":
-            self.doc = cast("Document", self.doc)
-            packages = getattr(self.doc, "packages", [])
-
-            return [
-                (package.name or "", package.spdx_id or "")
-                for package in packages
-                if package.spdx_id in self.reachable_component_ids
-                and (
-                    package.license_concluded is None
-                    or isinstance(package.license_concluded, SpdxNoAssertion)
-                    or (
-                        isinstance(package.license_concluded, str)
-                        and package.license_concluded.strip() == ""
-                    )
-                )
-            ]
-
-        # SPDX 3
-        if self.sbom_spec == "spdx3":
-            self.doc = cast("spdx3.SHACLObjectSet", self.doc)
-
-            has_concluded_license_ids: set[str] = set()
-            no_assertion_uri = (
-                spdx3.expandedlicensing_IndividualLicensingInfo.NAMED_INDIVIDUALS[
-                    "NoAssertionLicense"
-                ]
-            )
-
-            for from_id, to_ids in iter_relationships_by_type(
-                self.doc, "hasConcludedLicense"
-            ):
-                # Filter out any "NoAssertionLicense" from the list
-                valid_licenses = [
-                    t_id for t_id in to_ids if t_id.strip() != no_assertion_uri
-                ]
-
-                # If there is at least one valid license left, this package is safe!
-                if valid_licenses:
-                    has_concluded_license_ids.add(from_id)
-
-            return [
-                (name or "", spdx_id or "")
-                for name, spdx_id, _ in iter_objects_with_property(
-                    self.doc,
-                    spdx3.software_Package,
-                    "spdxId",
-                    self.reachable_component_ids,
-                )
-                if spdx_id not in has_concluded_license_ids
-            ]
-
-        return []
+        return self.adapter.get_components_without_concluded_licenses(
+            self.reachable_component_ids
+        )
 
     def get_components_without_copyright_texts(self) -> list[tuple[str, str]]:
         """
@@ -509,91 +339,22 @@ class BaseChecker(ABC):
             (component_name, spdx_id). Consumers should extract the
             preferred value (name or SPDX ID) as needed.
         """
-        if not self.doc:
-            return []
-
-        # SPDX 2
-        if self.sbom_spec == "spdx2":
-            self.doc = cast("Document", self.doc)
-            packages = getattr(self.doc, "packages", [])
-
-            return [
-                (package.name or "", package.spdx_id or "")
-                for package in packages
-                if package.spdx_id in self.reachable_component_ids
-                and (
-                    package.copyright_text is None
-                    or isinstance(package.copyright_text, SpdxNoAssertion)
-                    or (
-                        isinstance(package.copyright_text, str)
-                        and package.copyright_text.strip() == ""
-                    )
-                )
-            ]
-
-        # SPDX 3
-        if self.sbom_spec == "spdx3":
-            self.doc = cast("spdx3.SHACLObjectSet", self.doc)
-
-            return [
-                (name or "", spdx_id or "")
-                for name, spdx_id, copyright_text in iter_objects_with_property(
-                    self.doc,
-                    spdx3.software_Package,
-                    "software_copyrightText",
-                    self.reachable_component_ids,
-                )
-                if not copyright_text
-                or (isinstance(copyright_text, str) and copyright_text.strip() == "")
-            ]
-
-        return []
+        return self.adapter.get_components_without_copyright_texts(
+            self.reachable_component_ids
+        )
 
     def get_components_without_identifiers(self) -> list[tuple[str, str]]:
         """
         Retrieve components missing unique identifiers (SPDX IDs).
-
-        Note that SPDX 3 requires identifiers for all elements,
-        so this should not happen in a valid SPDX 3 document.
-        The spdx-python-model JSON deserializer will raise a ValueError
-        if any element is missing an identifier.
 
         Returns:
             list[tuple[str, str]]: A list of tuples of the form
             (component_name, spdx_id). Consumers should extract the
             preferred value (name or SPDX ID) as needed.
         """
-        if not self.doc:
-            return []
-
-        # SPDX 2
-        if self.sbom_spec == "spdx2":
-            self.doc = cast("Document", self.doc)
-            packages = getattr(self.doc, "packages", [])
-
-            return [
-                (package.name or "", package.spdx_id or "")
-                for package in packages
-                if package.spdx_id is None
-                or (isinstance(package.spdx_id, str) and package.spdx_id.strip() == "")
-            ]
-
-        # SPDX 3
-        if self.sbom_spec == "spdx3":
-            self.doc = cast("spdx3.SHACLObjectSet", self.doc)
-
-            return [
-                (name or "", spdx_id or "")
-                for name, spdx_id, _ in iter_objects_with_property(
-                    self.doc,
-                    spdx3.software_Package,
-                    "spdxId",
-                    reachable_ids=None,
-                )
-                if not spdx_id or (isinstance(spdx_id, str) and spdx_id.strip() == "")
-            ]
-
-        return []
+        return self.adapter.get_components_without_identifiers(
+            self.reachable_component_ids
+        )
 
     def get_components_without_names(self) -> list[tuple[str, str]]:
         """
@@ -604,40 +365,7 @@ class BaseChecker(ABC):
             (component_name, spdx_id). Consumers should extract the
             preferred value (name or SPDX ID) as needed.
         """
-        if not self.doc:
-            return []
-
-        # SPDX 2
-        if self.sbom_spec == "spdx2":
-            self.doc = cast("Document", self.doc)
-            packages = getattr(self.doc, "packages", [])
-
-            return [
-                (package.name or "", package.spdx_id or "")
-                for package in packages
-                if package.spdx_id in self.reachable_component_ids
-                and (
-                    package.name is None
-                    or (isinstance(package.name, str) and package.name.strip() == "")
-                )
-            ]
-
-        # SPDX 3
-        if self.sbom_spec == "spdx3":
-            self.doc = cast("spdx3.SHACLObjectSet", self.doc)
-
-            return [
-                (name or "", spdx_id or "")
-                for _, spdx_id, name in iter_objects_with_property(
-                    self.doc,
-                    spdx3.software_Package,
-                    "name",
-                    self.reachable_component_ids,
-                )
-                if not name or (isinstance(name, str) and name.strip() == "")
-            ]
-
-        return []
+        return self.adapter.get_components_without_names(self.reachable_component_ids)
 
     def get_components_without_suppliers(self) -> list[tuple[str, str]]:
         """
@@ -648,48 +376,9 @@ class BaseChecker(ABC):
             (component_name, spdx_id). Consumers should extract the
             preferred value (name or SPDX ID) as needed.
         """
-        if not self.doc:
-            return []
-
-        # SPDX 2
-        if self.sbom_spec == "spdx2":
-            self.doc = cast("Document", self.doc)
-            packages = getattr(self.doc, "packages", [])
-
-            return [
-                (package.name or "", package.spdx_id or "")
-                for package in packages
-                if package.spdx_id in self.reachable_component_ids
-                and (
-                    package.supplier is None
-                    or isinstance(package.supplier, SpdxNoAssertion)
-                    or (
-                        isinstance(package.supplier, str)
-                        and package.supplier.strip() == ""
-                    )
-                )
-            ]
-
-        # SPDX 3
-        if self.sbom_spec == "spdx3":
-            self.doc = cast("spdx3.SHACLObjectSet", self.doc)
-
-            return [
-                (name or "", spdx_id or "")
-                for name, spdx_id, supplier in iter_objects_with_property(
-                    self.doc,
-                    spdx3.software_Package,
-                    "suppliedBy",
-                    self.reachable_component_ids,
-                )
-                if not supplier
-                or (
-                    supplier.name if hasattr(supplier, "name") else supplier or ""
-                ).strip()
-                == ""
-            ]
-
-        return []
+        return self.adapter.get_components_without_suppliers(
+            self.reachable_component_ids
+        )
 
     def get_components_without_versions(self) -> list[tuple[str, str]]:
         """
@@ -700,45 +389,9 @@ class BaseChecker(ABC):
             (component_name, spdx_id). Consumers should extract the
             preferred value (name or SPDX ID) as needed.
         """
-        if not self.doc:
-            return []
-
-        # SPDX 2
-        if self.sbom_spec == "spdx2":
-            self.doc = cast("Document", self.doc)
-            packages = getattr(self.doc, "packages", [])
-
-            return [
-                (package.name or "", package.spdx_id or "")
-                for package in packages
-                if package.spdx_id in self.reachable_component_ids
-                and (
-                    package.version is None
-                    or isinstance(package.version, SpdxNoAssertion)
-                    or (
-                        isinstance(package.version, str)
-                        and package.version.strip() == ""
-                    )
-                )
-            ]
-
-        # SPDX 3
-        if self.sbom_spec == "spdx3":
-            self.doc = cast("spdx3.SHACLObjectSet", self.doc)
-
-            return [
-                (name or "", spdx_id or "")
-                for name, spdx_id, package_version in iter_objects_with_property(
-                    self.doc,
-                    spdx3.software_Package,
-                    "software_packageVersion",
-                    self.reachable_component_ids,
-                )
-                if not package_version
-                or (isinstance(package_version, str) and package_version.strip() == "")
-            ]
-
-        return []
+        return self.adapter.get_components_without_versions(
+            self.reachable_component_ids
+        )
 
     def _get_all_components_without_info(
         self,
@@ -763,29 +416,10 @@ class BaseChecker(ABC):
         """
         Retrieve total number of components.
 
-        For SPDX 2, this returns the total count of packages.
-        For SPDX 3, this returns the total count of packages and package
-        subclasses (including AIPackage and DatasetPackage).
-
         Returns:
             int: The total number of components.
         """
-        if not self.doc:
-            return 0
-
-        # SPDX 2
-        if self.sbom_spec == "spdx2":
-            self.doc = cast("Document", self.doc)
-            if not self.doc.packages:
-                return 0
-            return len(self.doc.packages)
-
-        # SPDX 3
-        if self.sbom_spec == "spdx3":
-            self.doc = cast("spdx3.SHACLObjectSet", self.doc)
-            return len(get_all_packages(self.doc))
-
-        return 0
+        return self.adapter.get_total_number_components()
 
     def parse_file(self) -> Document | None:
         """
@@ -825,32 +459,6 @@ class BaseChecker(ABC):
             return None
 
         return cast("Document", doc)
-
-    def parse_spdx3_file(self) -> spdx3.SHACLObjectSet | None:
-        """
-        Parse SPDX 3 SBOM document.
-
-        Returns:
-            spdx3.SHACLObjectSet | None: An SHACLObjectSet if successful, otherwise None.
-        """
-        if not self.file or str(self.file).strip() == "":
-            logging.error("No file path provided.")
-            return None
-
-        if not os.path.exists(self.file):
-            logging.error("File not found: %s", self.file)
-            return None
-
-        object_set: spdx3.SHACLObjectSet = spdx3.SHACLObjectSet()
-        try:
-            with open(self.file, "rb") as f:
-                spdx3.JSONLDDeserializer().read(f, object_set)
-        except (OSError, json.JSONDecodeError) as err:
-            logging.warning("SPDX3 deserialization failed: %s", err)
-            self._parsing_errors.append(str(err))
-            return None
-
-        return object_set
 
     def print_components_missing_info(self) -> None:
         """
@@ -895,6 +503,9 @@ class BaseChecker(ABC):
             validation_messages=self._validation_messages,
             conformance_messages=self._conformance_messages,
             parsing_errors=self._parsing_errors,
+            unknown_pointer_edges=getattr(self, "unknown_pointer_edges", {}),
+            floating_component_ids=getattr(self, "floating_component_ids", set()),
+            components_evaluated=self.components_evaluated,
         )
 
         print(report_text(report_context, verbose))
@@ -915,6 +526,9 @@ class BaseChecker(ABC):
             validation_messages=self._validation_messages,
             conformance_messages=self._conformance_messages,
             parsing_errors=self._parsing_errors,
+            unknown_pointer_edges=getattr(self, "unknown_pointer_edges", {}),
+            floating_component_ids=getattr(self, "floating_component_ids", set()),
+            components_evaluated=self.components_evaluated,
         )
 
         return report_html(report_context, verbose=True)
@@ -925,64 +539,21 @@ class BaseChecker(ABC):
 
         Subclasses may override to provide custom fields.
         """
-        result: dict[str, Any] = {
-            "isConformant": getattr(self, "compliant", False),
-            "isNtiaConformant": getattr(
-                self, "compliant", False
-            ),  # backward compatibility
-            "complianceStandard": getattr(self, "compliance_standard", ""),
-            "sbomSpec": getattr(self, "sbom_spec", ""),
-            "validationMessages": get_validation_messages_json(
-                self._validation_messages
-            ),
-            "conformanceMessages": get_validation_messages_json(
-                self._conformance_messages
-            ),
-            "parsingError": self._parsing_errors,
-            "sbomName": getattr(self, "sbom_name", ""),
-            "specVersionProvided": getattr(self, "doc_version", False),
-            "authorNameProvided": getattr(self, "doc_author", False),
-            "timestampProvided": getattr(self, "doc_timestamp", False),
-            "dependencyRelationshipsProvided": getattr(
-                self, "dependency_relationships", False
-            ),
-            "totalNumberComponents": self.get_total_number_components(),
-        }
-
-        _groups = {
-            "componentNames": "components_without_names",
-            "componentVersions": "components_without_versions",
-            "componentIdentifiers": "components_without_identifiers",
-            "componentSuppliers": "components_without_suppliers",
-            "componentConcludedLicenses": "components_without_concluded_licenses",
-            "componentCopyrightTexts": "components_without_copyright_texts",
-        }
-
-        for key_, attr in _groups.items():
-            components_without_info = getattr(self, attr, [])
-            # components_without_info is a list[tuple[name, spdx_id]];
-            # prefer the human-readable name and fall back to SPDX ID.
-            nonconformant = [
-                (name if name not in (None, "") else spdx_id)
-                for name, spdx_id in components_without_info
-            ]
-
-            result[key_] = {
-                "nonconformantComponents": nonconformant,
-                "allProvided": not bool(nonconformant),
-            }
-
-        return result
+        return report_json(self)
 
     def _evaluate_graph_connectivity(self) -> None:
         """Evaluate graph connectivity to isolate floating nodes and unknown pointers."""
 
-        reachable, floating, _, has_unknown_pointers = analyze_graph_connectivity(
-            self.sbom_spec, self.doc, getattr(self, "_BaseChecker__spdx3_doc", None)
+        reachable, floating, unknown_pointer_edges, has_unknown_pointers = (
+            analyze_graph_connectivity(
+                self.sbom_spec, self.doc, getattr(self, "_BaseChecker__spdx3_doc", None)
+            )
         )
 
         self.reachable_component_ids = reachable
+        self.components_evaluated = bool(reachable)
         self.floating_component_ids = floating
+        self.unknown_pointer_edges = unknown_pointer_edges
         self.has_unknown_pointers = has_unknown_pointers
 
         if self.floating_component_ids:
@@ -994,5 +565,5 @@ class BaseChecker(ABC):
         if self.has_unknown_pointers:
             logging.error(
                 "Unknown components detected!"
-                "A relationship points to a missing element."
+                " A relationship points to a missing element."
             )

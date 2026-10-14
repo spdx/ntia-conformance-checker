@@ -36,6 +36,7 @@ VALID_SPDX3_COMPOSITION_RELATIONSHIPS = {
 SUPPORTED_COMPLIANCE_STANDARDS_DESC = {
     # "cisasbom2025": "2025 CISA SBOM Minimum Elements",
     # https://www.cisa.gov/resources-tools/resources/2025-minimum-elements-software-bill-materials-sbom
+    "bsi": "BSI TR-03183-2 v2.1.0 Cyber Resilience Requirements for Manufacturers and Products",
     "fsct3-min": "2024 CISA Framing Software Component Transparency (minimum expectation)",
     "ntia": "2021 NTIA SBOM Minimum Elements",
 }

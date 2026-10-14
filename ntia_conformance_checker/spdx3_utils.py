@@ -6,6 +6,9 @@
 
 from __future__ import annotations
 
+import json
+import logging
+import os
 from typing import TYPE_CHECKING, Any, Union
 
 from spdx_python_model.bindings import v3_0_1 as spdx3
@@ -172,6 +175,9 @@ def iter_objects_with_property(
     """
     Yield (name, spdxId, property) for each SPDX 3 object.
 
+    Objects are yielded sorted by (name, spdxId), as SHACLObjectSet
+    iteration order is not stable across runs.
+
     Args:
         object_set (spdx3.SHACLObjectSet): The SHACLObjectSet to iterate over.
         typ (type[spdx3.SHACLObject]): The type of SPDX3 object
@@ -183,10 +189,18 @@ def iter_objects_with_property(
         SPDX ID, and the specified property of the object.
     """
 
-    for obj in object_set.foreach_type(typ):
-        name = (getattr(obj, "name", "") or "").strip()
-        spdx_id = (getattr(obj, "spdxId", "") or "").strip()
-
+    entries = sorted(
+        (
+            (
+                (getattr(obj, "name", "") or "").strip(),
+                (getattr(obj, "spdxId", "") or "").strip(),
+                obj,
+            )
+            for obj in object_set.foreach_type(typ)
+        ),
+        key=lambda entry: entry[:2],
+    )
+    for name, spdx_id, obj in entries:
         if reachable_ids is not None and spdx_id not in reachable_ids:
             continue
 
@@ -276,3 +290,116 @@ def has_package_dependency_relationship(object_set: spdx3.SHACLObjectSet) -> boo
                 return True
 
     return False
+
+
+def get_distribution_artifacts_map(
+    object_set: spdx3.SHACLObjectSet,
+) -> dict[str, list[spdx3.software_File]]:
+    """
+    Create a mapping of package spdxId to their linked software_File distribution artifacts.
+
+    Returns:
+        dict[str, list[spdx3.software_File]]: A dictionary mapping package spdxId to a list of
+        linked software_File objects.
+    """
+    artifact_map: dict[str, list[spdx3.software_File]] = {}
+
+    file_map: dict[str, spdx3.software_File] = {}
+    for file_obj in object_set.foreach_type(spdx3.software_File):
+        file_id = getattr(file_obj, "spdxId", "")
+        if file_id:
+            file_map[file_id] = file_obj
+
+    for from_id, to_ids in iter_relationships_by_type(
+        object_set, "hasDistributionArtifact"
+    ):
+        files = [file_map[to_id] for to_id in to_ids if to_id in file_map]
+        if files:
+            artifact_map.setdefault(from_id, []).extend(files)
+
+    return artifact_map
+
+
+def has_sha512_hash(file_obj: spdx3.SHACLObject) -> bool:
+    """
+    Check if a software_File has a SHA-512 hash declared in its verifiedUsing property.
+    """
+    verified_using = getattr(file_obj, "verifiedUsing", [])
+    for verification in verified_using:
+        if isinstance(verification, spdx3.Hash):
+            algorithm = getattr(verification, "algorithm", "")
+            hash_value = getattr(verification, "hashValue", "")
+
+            if algorithm and "sha512" in str(algorithm).lower() and hash_value:
+                return True
+
+    return False
+
+
+def get_dependency_relationships_completeness(
+    object_set: spdx3.SHACLObjectSet,
+) -> dict[str, list[str]]:
+    """
+    Extract the completeness attribute for all dependency
+    relationships ('contains', 'dependsOn') in the SPDX 3 document.
+
+    Returns:
+        dict[str, list[str]]: A dictionary mapping all relationship's
+        from_id to a list of all completeness attributes.
+    """
+    completeness_map: dict[str, list[str]] = {}
+
+    for obj in object_set.foreach_type(spdx3.Relationship):
+        rel_type = getattr(obj, "relationshipType", "")
+        if not rel_type:
+            continue
+
+        # Remove the IRI prefix of entry name before compare
+        rel_type_name = str(rel_type).rsplit("/", maxsplit=1)[-1]
+        if rel_type_name in ("contains", "dependsOn"):
+            from_ = getattr(obj, "from_", None)
+            from_id = from_ if isinstance(from_, str) else getattr(from_, "spdxId", "")
+
+            if from_id:
+                completeness_iri = getattr(obj, "completeness", None)
+                completeness_val = (
+                    str(completeness_iri).rsplit("/", maxsplit=1)[-1]
+                    if completeness_iri
+                    else "noAssertion"
+                )
+                if completeness_val:
+                    completeness_map.setdefault(from_id, []).append(
+                        str(completeness_val)
+                    )
+
+    return completeness_map
+
+
+def parse_spdx3_file(file_path: str) -> tuple[spdx3.SHACLObjectSet | None, list[str]]:
+    """
+    Parse SPDX 3 SBOM document.
+
+    Returns:
+        tuple[spdx3.SHACLObjectSet | None, list[str]]: A tuple containing the parsed
+            SHACLObjectSet (or None if parsing failed) and a list of parsing error strings.
+    """
+    parsing_errors: list[str] = []
+
+    if not file_path or str(file_path).strip() == "":
+        logging.error("No file path provided.")
+        return None, parsing_errors
+
+    if not os.path.exists(file_path):
+        logging.error("File not found: %s", file_path)
+        return None, parsing_errors
+
+    object_set: spdx3.SHACLObjectSet = spdx3.SHACLObjectSet()
+    try:
+        with open(file_path, "rb") as f:
+            spdx3.JSONLDDeserializer().read(f, object_set)
+    except (OSError, json.JSONDecodeError) as err:
+        logging.warning("SPDX3 deserialization failed: %s", err)
+        parsing_errors.append(str(err))
+        return None, parsing_errors
+
+    return object_set, parsing_errors
