@@ -224,7 +224,7 @@ rules:
     spec_clause_uri: https://www.cisa.gov/resources-tools/resources/framing-software-component-transparency-2024
     element_id: concluded_license
     element_description: component concluded license
-    competency_question: All component concluded licenses provided?
+    competency_question: All component concluded license provided?
     warning: An SBOM component should have a concluded license.
     probe:
       name: require_component_attribute
@@ -239,9 +239,9 @@ rules:
     spec_clause_uri: https://www.cisa.gov/resources-tools/resources/framing-software-component-transparency-2024
     element_id: copyright_notice
     element_description: component copyright text
-    competency_question: All component copyright notices provided?
+    competency_question: All component copyright notice provided?
     warning: An SBOM component should have a copyright notice.
     probe:
       name: require_component_attribute
       params: { attribute: copyright_notice }
-    json_key: componentCopyrightNotices
+    json_key: componentCopyrightTexts
