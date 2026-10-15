@@ -8,8 +8,10 @@ from __future__ import annotations
 
 import logging
 import sys
+import warnings
 
 from .cli_utils import get_parsed_args, get_sbom_spec, print_output
+from .constants import DEPRECATED_COMPLIANCE_IDS
 from .sbom_checker import SbomChecker
 
 
@@ -47,12 +49,33 @@ def main() -> None:
     if not detected_sbom_spec:
         sys.exit(1)
 
-    sbom = SbomChecker(
-        args.file,
-        validate=not args.skip_validation,
-        compliance=args.comply,
-        sbom_spec=detected_sbom_spec,
-    )
+    if args.comply in DEPRECATED_COMPLIANCE_IDS:
+        logging.warning(
+            "Compliance standard %r is deprecated; use %r.",
+            args.comply,
+            DEPRECATED_COMPLIANCE_IDS[args.comply],
+        )
+
+    with warnings.catch_warnings():
+        # The deprecated standard id is already reported through logging above.
+        warnings.simplefilter("ignore", DeprecationWarning)
+        sbom = SbomChecker(
+            args.file,
+            validate=not args.skip_validation,
+            compliance=args.comply,
+            sbom_spec=detected_sbom_spec,
+        )
+
+    try:
+        # A 6.0.0 subclass defines check_compliance() without a parameter.
+        is_compliant = (
+            sbom.check_compliance(args.maturity)
+            if args.maturity
+            else sbom.check_compliance()
+        )
+    except ValueError as exc:  # e.g. a maturity level the standard lacks
+        logging.error("%s", exc)
+        sys.exit(2)
 
     logging.debug("Parsing: %s", "OK" if not sbom.parsing_errors else "Failed")
     if not sbom.parsing_errors:
@@ -69,9 +92,10 @@ def main() -> None:
         output_type=args.output,
         output_file=args.output_file,
         verbose=verbose,
+        maturity=args.maturity,
     )
 
-    sys.exit(0 if sbom.compliant else 1)  # 0 indicates success
+    sys.exit(0 if is_compliant else 1)  # 0 indicates success
 
 
 if __name__ == "__main__":

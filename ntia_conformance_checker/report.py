@@ -11,12 +11,10 @@ Some of the code here was originally in the BaseChecker class.
 from __future__ import annotations
 
 from dataclasses import dataclass
+from html import escape
 from typing import TYPE_CHECKING, Any
 
-from .constants import (
-    SUPPORTED_COMPLIANCE_STANDARDS,
-    SUPPORTED_COMPLIANCE_STANDARDS_DESC,
-)
+from .constants import SUPPORTED_COMPLIANCE_STANDARDS_DESC
 
 if TYPE_CHECKING:
     from spdx_tools.spdx.validation.validation_message import ValidationMessage
@@ -31,8 +29,10 @@ class ReportContext:
 
     sbom_spec: str = ""
     compliance_standard: str = ""
+    standard_title: str = ""  # shown in the report; falls back to the standards table
     compliant: bool = False
     requirement_results: list[tuple[str, bool]] | None = None
+    failure_messages: list[str] | None = None  # message of each unmet requirement
     components_without_info: list[tuple[str, list[tuple[str, str]]]] | None = None
     validation_messages: list[ValidationMessage] | None = None
     conformance_messages: list[ValidationMessage] | None = None
@@ -208,6 +208,13 @@ def _generate_graph_text_report(rc: ReportContext) -> list[str]:
     return graph_issues_report
 
 
+def _standard_title(rc: ReportContext) -> str:
+    """Title of the compliance standard; empty when it is unsupported."""
+    return rc.standard_title or SUPPORTED_COMPLIANCE_STANDARDS_DESC.get(
+        rc.compliance_standard, ""
+    )
+
+
 def _requirements_text(rc: ReportContext) -> list[str]:
     """Requirement table and not-evaluated note, in plain text."""
     lines: list[str] = []
@@ -216,6 +223,10 @@ def _requirements_text(rc: ReportContext) -> list[str]:
         lines.append("-------------------------------------------------------")
         for label, value in rc.requirement_results:
             lines.append(f"{label:<46} | {value}")
+        lines.append("")
+    if rc.failure_messages:
+        lines.append("Unmet requirements:")
+        lines.extend(f"- {message}" for message in rc.failure_messages)
         lines.append("")
     if not rc.components_evaluated:
         lines.append(_NOT_EVALUATED + "\n")
@@ -240,6 +251,11 @@ def _requirements_html(rc: ReportContext) -> list[str]:
             )
         lines.append("</tbody>")
         lines.append("</table>")
+
+    if rc.failure_messages:
+        lines.append("<ul class='conformance-res-msg'>")
+        lines.extend(f"<li>{escape(message)}</li>" for message in rc.failure_messages)
+        lines.append("</ul>")
 
     if not rc.components_evaluated:
         lines.append(f"<p class='conformance-res-note'>{_NOT_EVALUATED}</p>")
@@ -271,15 +287,13 @@ def report_text(
         return "\n".join(report)
 
     # Unsupported compliance standard
-    if rc.compliance_standard not in SUPPORTED_COMPLIANCE_STANDARDS:
+    title = _standard_title(rc)
+    if not title:
         report.append(f"Unsupported compliance standard {rc.compliance_standard!r}")
         return "\n".join(report)
 
     # Compliance results
-    report.append(
-        f"{SUPPORTED_COMPLIANCE_STANDARDS_DESC[rc.compliance_standard]}"
-        " Conformance Results\n"
-    )
+    report.append(f"{title} Conformance Results\n")
     report.append(f"Conformant: {rc.compliant}\n")
     report.extend(_requirements_text(rc))
 
@@ -382,7 +396,8 @@ def report_html(
         return "\n".join(report)
 
     # Unsupported compliance standard
-    if rc.compliance_standard not in SUPPORTED_COMPLIANCE_STANDARDS:
+    title = _standard_title(rc)
+    if not title:
         report.append(
             "<div class='conformance-err'>"
             "<p class='conformance-err-label'>"
@@ -395,9 +410,7 @@ def report_html(
     # Compliance results
     report.append("<div class='conformance-res'>")
     report.append(
-        "<h2 class='conformance-res-title'>"
-        f"{SUPPORTED_COMPLIANCE_STANDARDS_DESC[rc.compliance_standard]}"
-        " Conformance Results</h2>"
+        "<h2 class='conformance-res-title'>" f"{escape(title)} Conformance Results</h2>"
     )
     report.append(f"<h3 class='conformance-res-status'>Conformant: {rc.compliant}</h3>")
 
@@ -461,13 +474,11 @@ def report_html(
     return "\n".join(report)
 
 
-def report_json(checker_instance: "BaseChecker") -> dict[str, Any]:
-    """Build the JSON output dictionary."""
+def report_json(checker_instance: "BaseChecker", compliant: bool) -> dict[str, Any]:
+    """Build the JSON output dictionary; ``compliant`` is the verdict to report."""
     result: dict[str, Any] = {
-        "isConformant": getattr(checker_instance, "compliant", False),
-        "isNtiaConformant": getattr(
-            checker_instance, "compliant", False
-        ),  # backward compatibility
+        "isConformant": compliant,
+        "isNtiaConformant": compliant,  # backward compatibility
         "complianceStandard": getattr(checker_instance, "compliance_standard", ""),
         "sbomSpec": getattr(checker_instance, "sbom_spec", ""),
         "validationMessages": get_validation_messages_json(
@@ -481,6 +492,7 @@ def report_json(checker_instance: "BaseChecker") -> dict[str, Any]:
         "specVersionProvided": getattr(checker_instance, "doc_version", False),
         "authorNameProvided": getattr(checker_instance, "doc_author", False),
         "timestampProvided": getattr(checker_instance, "doc_timestamp", False),
+        "sbomTypeProvided": bool(getattr(checker_instance, "sbom_gen_context", [])),
         "dependencyRelationshipsProvided": getattr(
             checker_instance, "dependency_relationships", False
         ),

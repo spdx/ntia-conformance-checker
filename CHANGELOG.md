@@ -20,6 +20,15 @@ and this project adheres to [Semantic Versioning][semver].
 - GitHub releases attach the wheel, the sdist and the wheel's SPDX 3 SBOM,
   each with a Sigstore bundle and a build provenance attestation;
   see "Verify release files" in `SECURITY.md`
+- NTIA and FSCT3 requirements are read from `rules/*.yaml` files and run by a
+  new `RuleBasedChecker`; a standard made of presence checks needs only a
+  YAML file ([#407], <!-- TODO: [#NNN] -->)
+- `-m`/`--mature` option and `check_compliance(maturity=0)` to check against a
+  maturity level the standard declares; `fsct3` declares three levels but
+  adds no requirements above the baseline yet
+- Text and HTML reports list the message of each unmet requirement,
+  taken from the rule's `warning` in the YAML
+- JSON output adds `sbomTypeProvided`
 
 ### Changed
 
@@ -28,6 +37,20 @@ and this project adheres to [Semantic Versioning][semver].
 - Releases publish to PyPI only after the SBOM is validated; release files are
   attached, signed and attested after the publish, and can be re-run if that
   fails
+- The FSCT3 compliance id is now `fsct3`
+- `check_compliance()` accepts an optional `maturity` argument; checkers that
+  define `check_compliance()` without it, or assign `compliant`, keep working
+  at the baseline
+- `FSCT3Checker` now reports `fsct3` (not `fsct3-min`) as `complianceStandard`
+  unless created with the deprecated id
+- Unknown compliance ids (for example `fsct3x`) now raise
+  `Unknown compliance standard` instead of falling back to FSCT 3
+
+### Deprecated
+
+- `compliant` and `ntia_minimum_elements_compliant` attributes;
+  use `check_compliance()`
+- Compliance id `fsct3-min`; use `fsct3`
 
 ## [6.0.0] - 2026-10-05
 
@@ -104,6 +127,7 @@ Breaking changes:
 [pep 770]: https://peps.python.org/pep-0770/
 [#398]: https://github.com/spdx/ntia-conformance-checker/pull/398
 [#406]: https://github.com/spdx/ntia-conformance-checker/pull/406
+[#407]: https://github.com/spdx/ntia-conformance-checker/pull/407
 [#412]: https://github.com/spdx/ntia-conformance-checker/pull/412
 [#413]: https://github.com/spdx/ntia-conformance-checker/pull/413
 [#428]: https://github.com/spdx/ntia-conformance-checker/pull/428
