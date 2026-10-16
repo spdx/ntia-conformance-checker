@@ -12,6 +12,7 @@ import warnings
 
 from .cli_utils import get_parsed_args, get_sbom_spec, print_output
 from .constants import DEPRECATED_COMPLIANCE_IDS
+from .registry import get_spec, spec_ids
 from .sbom_checker import SbomChecker
 
 
@@ -44,6 +45,18 @@ def main() -> None:
     logging.debug(
         "SPDX validation: %s", "enabled" if not args.skip_validation else "disabled"
     )
+
+    spec_id = DEPRECATED_COMPLIANCE_IDS.get(args.comply or "", args.comply or "")
+    # Custom checkers (bsi) declare only the baseline.
+    levels = get_spec(spec_id).maturity_ordinals() if spec_id in spec_ids() else (0,)
+    if args.maturity not in levels:
+        logging.error(
+            "Unknown maturity level %s for %r; valid levels: %s",
+            args.maturity,
+            args.comply,
+            list(levels),
+        )
+        sys.exit(2)
 
     detected_sbom_spec = get_sbom_spec(file=args.file, sbom_spec=args.sbom_spec)
     if not detected_sbom_spec:

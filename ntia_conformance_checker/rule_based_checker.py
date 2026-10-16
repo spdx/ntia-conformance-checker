@@ -87,7 +87,6 @@ class RuleBasedChecker(BaseChecker):
         sbom_spec: str = DEFAULT_SBOM_SPEC,
     ) -> None:
         self._spec, standard = self._resolve_spec(compliance)
-        self.findings: dict[str, list[Finding]] = {}
         super().__init__(
             file=file, validate=validate, compliance=standard, sbom_spec=sbom_spec
         )
@@ -151,10 +150,11 @@ class RuleBasedChecker(BaseChecker):
     # ---- Running the rules --------------------------------------------------
 
     def run_probes(self) -> dict[str, list[Finding]]:
-        """Run every active rule's probe once and cache findings by rule id.
+        """Run every active rule's probe and return the findings by rule id.
 
         Probes are maturity-independent; maturity only selects which rules a
-        verdict or report considers. When no component is reachable from the
+        verdict or report considers. Verdicts and reports run them afresh, so
+        they follow the checker's current attributes. When no component is reachable from the
         SBOM root, component rules fail rather than pass over an empty list.
         """
         findings: dict[str, list[Finding]] = {}
@@ -171,7 +171,6 @@ class RuleBasedChecker(BaseChecker):
             else:
                 found = list(lookup(rule.probe.name)(self, **rule.probe.params))
             findings[self._spec.rule_id(rule)] = found
-        self.findings = findings
         return findings
 
     def check_compliance(self, maturity: int = 0) -> bool:
@@ -183,8 +182,9 @@ class RuleBasedChecker(BaseChecker):
         target = self._validate_maturity(maturity)
         if not self.doc or self.validation_messages:
             return False
+        findings = self.run_probes()
         return all(
-            not self.findings[self._spec.rule_id(rule)]
+            not findings[self._spec.rule_id(rule)]
             for rule in self._spec.blocking_rules(target)
         )
 
@@ -204,8 +204,9 @@ class RuleBasedChecker(BaseChecker):
         )
 
     def _requirement_rows(self, maturity: int) -> list[tuple[str, bool]]:
+        findings = self.run_probes()
         return [
-            (rule.competency_question, not self.findings[self._spec.rule_id(rule)])
+            (rule.competency_question, not findings[self._spec.rule_id(rule)])
             for rule in self._ordered_rules(maturity)
         ]
 
@@ -214,8 +215,9 @@ class RuleBasedChecker(BaseChecker):
 
     def _failure_messages(self, maturity: int) -> list[str]:
         messages = []
+        findings = self.run_probes()
         for rule in self._ordered_rules(maturity):
-            found = self.findings[self._spec.rule_id(rule)]
+            found = findings[self._spec.rule_id(rule)]
             if (
                 not found
                 or found == [_NOT_EVALUATED]

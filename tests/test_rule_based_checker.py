@@ -324,6 +324,27 @@ def test_failure_messages_are_html_escaped() -> None:
     assert "<li>&lt;b&gt;&amp;</li>" in html
 
 
+def test_verdict_and_reports_follow_the_current_attributes(
+    capsys: CaptureFixture[str],
+) -> None:
+    checker = SbomChecker(OK)
+    assert checker.check_compliance() is True
+    checker.doc_author = False  # as a 6.0.0 subclass could after __init__
+    assert checker.check_compliance() is False
+    assert checker.output_json()["isConformant"] is False
+    assert "Conformant: False" in _text(checker, capsys)
+
+
+@pytest.mark.parametrize("path", ["no/such/file.json", NO_SUPPLIER])
+def test_undeclared_maturity_exits_2_before_the_file_is_read(
+    monkeypatch: MonkeyPatch, path: str
+) -> None:
+    monkeypatch.setattr(sys, "argv", ["sbomcheck", "-m", "9", path])
+    with pytest.raises(SystemExit) as exc:
+        main()
+    assert exc.value.code == 2
+
+
 # ---- messages and reports ---------------------------------------------------
 
 
