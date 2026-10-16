@@ -17,7 +17,7 @@ from spdx_tools.spdx.parser.error import SPDXParsingError
 from spdx_tools.spdx.validation.document_validator import validate_full_spdx_document
 
 from .adapters import NullAdapter, SbomAdapter, Spdx2Adapter, Spdx3Adapter
-from .constants import DEFAULT_SBOM_SPEC
+from .constants import DEFAULT_SBOM_SPEC, SUPPORTED_COMPLIANCE_STANDARDS_DESC
 from .graph_utils import analyze_graph_connectivity
 from .report import (
     ReportContext,
@@ -112,17 +112,38 @@ class BaseChecker(ABC):
     # False when no component is reachable from the SBOM root.
     components_evaluated: bool = False
 
-    compliant: bool = False  # Is SBOM compliant with the chosen standard?
+    # Verdict assigned by a 6.0.0-style subclass through ``compliant``.
+    _compliant_override: bool | None = None
 
     @property
-    def ntia_minimum_elements_compliant(self) -> bool:
-        """Deprecated: use ``compliant`` instead."""
+    def compliant(self) -> bool:
+        """Deprecated: use :meth:`check_compliance` instead."""
         warnings.warn(
-            "ntia_minimum_elements_compliant is deprecated; use compliant instead.",
+            "compliant is deprecated; use check_compliance() instead.",
             DeprecationWarning,
             stacklevel=2,
         )
-        return self.compliant
+        return self._verdict(0)
+
+    @compliant.setter
+    def compliant(self, value: bool) -> None:
+        warnings.warn(
+            "Assigning compliant is deprecated; implement check_compliance() instead.",
+            DeprecationWarning,
+            stacklevel=2,
+        )
+        self._compliant_override = value
+
+    @property
+    def ntia_minimum_elements_compliant(self) -> bool:
+        """Deprecated: use :meth:`check_compliance` instead."""
+        warnings.warn(
+            "ntia_minimum_elements_compliant is deprecated; "
+            "use check_compliance() instead.",
+            DeprecationWarning,
+            stacklevel=2,
+        )
+        return self._verdict(0)
 
     @property
     def parsing_errors(self) -> list[str]:
@@ -150,9 +171,57 @@ class BaseChecker(ABC):
         return self._conformance_messages
 
     @abstractmethod
-    def check_compliance(self) -> bool:
-        """Abstract method to check compliance/conformance."""
+    def check_compliance(self, maturity: int = 0) -> bool:
+        """Abstract method to check compliance/conformance.
+
+        Args:
+            maturity: Target maturity level; ``0`` is the baseline. Raises
+                ``ValueError`` if the standard does not declare that level.
+        """
         raise NotImplementedError
+
+    def maturity_ordinals(self) -> tuple[int, ...]:
+        """Maturity levels the standard declares; only the baseline by default."""
+        return (0,)
+
+    def _validate_maturity(self, maturity: int) -> int:
+        """Return ``maturity`` if the standard declares it, else raise ``ValueError``."""
+        if maturity not in self.maturity_ordinals():
+            raise ValueError(
+                f"Unknown maturity level {maturity!r} for compliance standard "
+                f"{self.compliance_standard!r}; valid levels: "
+                f"{list(self.maturity_ordinals())!r}"
+            )
+        return maturity
+
+    def _verdict(self, maturity: int) -> bool:
+        """Compliance verdict for reports; False when nothing was parsed."""
+        self._validate_maturity(maturity)
+        if not self.doc:
+            return False
+        if maturity == 0 and self._compliant_override is not None:
+            return self._compliant_override
+        # A 6.0.0 subclass defines check_compliance() without a parameter.
+        return self.check_compliance(maturity) if maturity else self.check_compliance()
+
+    def _requirement_rows(self, maturity: int) -> list[tuple[str, bool]]:
+        """Element-by-element result rows for ``maturity``."""
+        del maturity  # fixed per instance unless a subclass scopes by maturity
+        return self.table_elements
+
+    def _standard_title(self) -> str:
+        """Title of the compliance standard shown in reports."""
+        return SUPPORTED_COMPLIANCE_STANDARDS_DESC.get(self.compliance_standard, "")
+
+    def _failure_messages(self, maturity: int) -> list[str]:
+        """Message for each unmet requirement; none by default."""
+        del maturity
+        return []
+
+    def _missing_info(self, maturity: int) -> list[tuple[str, list[tuple[str, str]]]]:
+        """Components missing information, for ``maturity``."""
+        del maturity
+        return self.all_components_without_info
 
     def __init__(
         self,
@@ -393,6 +462,10 @@ class BaseChecker(ABC):
             self.reachable_component_ids
         )
 
+    def _min_elements(self) -> list[str]:
+        """Elements to report on, in order (keys of ``_COMPONENTS_WITHOUT_INFO``)."""
+        return self.MIN_ELEMENTS
+
     def _get_all_components_without_info(
         self,
     ) -> list[tuple[str, list[tuple[str, str]]]]:
@@ -407,7 +480,7 @@ class BaseChecker(ABC):
 
         return [
             (info_name, getattr(self, self._COMPONENTS_WITHOUT_INFO[info_name][0], []))
-            for info_name in self.MIN_ELEMENTS
+            for info_name in self._min_elements()
             if info_name in self._COMPONENTS_WITHOUT_INFO
             and getattr(self, self._COMPONENTS_WITHOUT_INFO[info_name][0], [])
         ]
@@ -460,7 +533,7 @@ class BaseChecker(ABC):
 
         return cast("Document", doc)
 
-    def print_components_missing_info(self) -> None:
+    def print_components_missing_info(self, maturity: int = 0) -> None:
         """
         Print information about components that are missing required details.
 
@@ -474,72 +547,70 @@ class BaseChecker(ABC):
         if self._parsing_errors:
             return
 
-        if not self.all_components_without_info:
+        missing_info = self._missing_info(maturity)
+        if not missing_info:
             return
 
         print("Missing required information in these components:")
-        for info_name, components in self.all_components_without_info:
+        for info_name, components in missing_info:
             print(
                 f"{info_name} ({len(components)}): "
                 f"{', '.join([name for name, _ in components])}"
             )
 
-    def print_table_output(self, verbose: bool = False) -> None:
+    def _report_context(self, maturity: int) -> ReportContext:
+        """Collect everything the text/HTML reporters render."""
+        return ReportContext(
+            sbom_spec=getattr(self, "sbom_spec", ""),
+            compliance_standard=getattr(self, "compliance_standard", ""),
+            standard_title=self._standard_title(),
+            compliant=self._verdict(maturity),
+            requirement_results=self._requirement_rows(maturity),
+            failure_messages=self._failure_messages(maturity),
+            components_without_info=self._missing_info(maturity),
+            validation_messages=self._validation_messages,
+            conformance_messages=self._conformance_messages,
+            parsing_errors=self._parsing_errors,
+            unknown_pointer_edges=getattr(self, "unknown_pointer_edges", {}),
+            floating_component_ids=getattr(self, "floating_component_ids", set()),
+            components_evaluated=self.components_evaluated,
+        )
+
+    def print_table_output(self, verbose: bool = False, maturity: int = 0) -> None:
         """
         Print element-by-element result table.
 
         Args:
             verbose (bool): If True, print detailed information.
+            maturity (int): Target maturity level.
 
         Returns:
             None
         """
-        report_context = ReportContext(
-            sbom_spec=getattr(self, "sbom_spec", ""),
-            compliance_standard=getattr(self, "compliance_standard", ""),
-            compliant=getattr(self, "compliant", False),
-            requirement_results=getattr(self, "table_elements", []),
-            components_without_info=getattr(self, "all_components_without_info", []),
-            validation_messages=self._validation_messages,
-            conformance_messages=self._conformance_messages,
-            parsing_errors=self._parsing_errors,
-            unknown_pointer_edges=getattr(self, "unknown_pointer_edges", {}),
-            floating_component_ids=getattr(self, "floating_component_ids", set()),
-            components_evaluated=self.components_evaluated,
-        )
+        print(report_text(self._report_context(maturity), verbose))
 
-        print(report_text(report_context, verbose))
-
-    def output_html(self) -> str:
+    def output_html(self, maturity: int = 0) -> str:
         """
         Create element-by-element result table in HTML.
+
+        Args:
+            maturity (int): Target maturity level.
 
         Returns:
             str: The HTML representation of the results.
         """
-        report_context = ReportContext(
-            sbom_spec=getattr(self, "sbom_spec", ""),
-            compliance_standard=getattr(self, "compliance_standard", ""),
-            compliant=getattr(self, "compliant", False),
-            requirement_results=getattr(self, "table_elements", []),
-            components_without_info=getattr(self, "all_components_without_info", []),
-            validation_messages=self._validation_messages,
-            conformance_messages=self._conformance_messages,
-            parsing_errors=self._parsing_errors,
-            unknown_pointer_edges=getattr(self, "unknown_pointer_edges", {}),
-            floating_component_ids=getattr(self, "floating_component_ids", set()),
-            components_evaluated=self.components_evaluated,
-        )
+        return report_html(self._report_context(maturity), verbose=True)
 
-        return report_html(report_context, verbose=True)
-
-    def output_json(self) -> dict[str, Any]:
+    def output_json(self, maturity: int = 0) -> dict[str, Any]:
         """
         Create a JSON-serializable result dict.
 
         Subclasses may override to provide custom fields.
+
+        Args:
+            maturity (int): Target maturity level.
         """
-        return report_json(self)
+        return report_json(self, self._verdict(maturity))
 
     def _evaluate_graph_connectivity(self) -> None:
         """Evaluate graph connectivity to isolate floating nodes and unknown pointers."""

@@ -115,8 +115,10 @@ options:
   -h, --help            show this help message and exit
   -s, --sbom-spec {spdx2,spdx3}
                         SBOM specification of the input file; see below for details [default: spdx2]
-  -c, --comply {bsi,fsct3-min,ntia}
+  -c, --comply {bsi,fsct3,fsct3-min,ntia}
                         Compliance standards to check against; see below for details [default: ntia]
+  -m, --mature LEVEL    Maturity level to check against; 0 is the baseline
+                        and higher levels add requirements [default: 0]
   -k, --skip-validation
                         Skip validation
   -r, --output TYPE     Report output type; see below for details [default: print]
@@ -134,7 +136,8 @@ choices:
 
   Compliance standards (for --comply):
     bsi         BSI TR-03183-2 v2.1.0 content requirements
-    fsct3-min   2024 CISA Framing Software Component Transparency (minimum expected)
+    fsct3       2024 CISA Framing Software Component Transparency (minimum expectation)
+    fsct3-min   2024 CISA Framing Software Component Transparency (minimum expectation) (deprecated; use fsct3)
     ntia        2021 NTIA SBOM Minimum Elements
 
   Report output types (for --output):
@@ -145,7 +148,7 @@ choices:
 
 Examples:
   sbomcheck sbom.spdx
-  sbomcheck -s spdx3 -c fsct3-min -v sbom.json
+  sbomcheck -s spdx3 -c fsct3 -v sbom.json
   sbomcheck sbom.yaml --output json --output-file report.json
 ```
 
@@ -182,8 +185,23 @@ from ntia_conformance_checker import SbomChecker
 
 sbom_checker = SbomChecker("SBOM_filepath")
 
-print(sbom_checker.compliant)
+print(sbom_checker.check_compliance())
 ```
+
+`check_compliance(maturity=0)` takes the maturity level to check against
+(`0` is the baseline; `ValueError` if the standard does not declare the level).
+The `compliant` attribute still works but is deprecated;
+use `check_compliance()` instead.
+
+### Rules
+
+The NTIA and FSCT3 standards are defined declaratively in
+[`rules/ntia.yaml`](ntia_conformance_checker/rules/ntia.yaml) and
+[`rules/fsct3.yaml`](ntia_conformance_checker/rules/fsct3.yaml).
+Each rule carries the question shown in the report table and the message
+shown when the requirement is not met.
+See [`rules/_example.yaml`](ntia_conformance_checker/rules/_example.yaml)
+for the format.
 
 See the API documentation at:
 <https://spdx.github.io/ntia-conformance-checker/>

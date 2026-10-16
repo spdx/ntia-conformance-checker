@@ -4,6 +4,8 @@
 
 """Constants."""
 
+from .registry import descriptions
+
 SUPPORTED_SBOM_SPECS_DESC = {
     "spdx2": "Software Package Data Exchange (SPDX) 2.x",
     "spdx3": "System Package Data Exchange (SPDX) 3.x",
@@ -33,13 +35,21 @@ VALID_SPDX3_COMPOSITION_RELATIONSHIPS = {
     "hasProvidedDependency",
 }
 
+# Ids that older releases accepted for a renamed standard -> current id.
+DEPRECATED_COMPLIANCE_IDS = {"fsct3-min": "fsct3"}
+
+# Standards defined by rules/*.yaml take their description from the spec title;
+# standards implemented in code are listed here.
 SUPPORTED_COMPLIANCE_STANDARDS_DESC = {
-    # "cisasbom2025": "2025 CISA SBOM Minimum Elements",
-    # https://www.cisa.gov/resources-tools/resources/2025-minimum-elements-software-bill-materials-sbom
     "bsi": "BSI TR-03183-2 v2.1.0 Cyber Resilience Requirements for Manufacturers and Products",
-    "fsct3-min": "2024 CISA Framing Software Component Transparency (minimum expectation)",
-    "ntia": "2021 NTIA SBOM Minimum Elements",
+    **descriptions(),
 }
+SUPPORTED_COMPLIANCE_STANDARDS_DESC.update(
+    {
+        old: SUPPORTED_COMPLIANCE_STANDARDS_DESC[new]
+        for old, new in DEPRECATED_COMPLIANCE_IDS.items()
+    }
+)
 DEFAULT_COMPLIANCE_STANDARD = "ntia"
 SUPPORTED_COMPLIANCE_STANDARDS = set(SUPPORTED_COMPLIANCE_STANDARDS_DESC.keys())
 
