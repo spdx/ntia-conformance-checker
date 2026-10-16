@@ -22,7 +22,7 @@ and this project adheres to [Semantic Versioning][semver].
   see "Verify release files" in `SECURITY.md`
 - NTIA and FSCT3 requirements are read from `rules/*.yaml` files and run by a
   new `RuleBasedChecker`; a standard made of presence checks needs only a
-  YAML file ([#407], <!-- TODO: [#NNN] -->)
+  YAML file ([#407], [#467])
 - `-m`/`--mature` option and `check_compliance(maturity=0)` to check against a
   maturity level the standard declares; a level the standard does not declare
   exits with code 2; `fsct3` declares three levels but
@@ -139,6 +139,7 @@ Breaking changes:
 [#454]: https://github.com/spdx/ntia-conformance-checker/pull/454
 [#457]: https://github.com/spdx/ntia-conformance-checker/pull/457
 [#460]: https://github.com/spdx/ntia-conformance-checker/pull/460
+[#467]: https://github.com/spdx/ntia-conformance-checker/pull/467
 
 ## [5.0.3] - 2026-06-02
 
