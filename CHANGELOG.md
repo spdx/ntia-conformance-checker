@@ -24,10 +24,11 @@ and this project adheres to [Semantic Versioning][semver].
   new `RuleBasedChecker`; a standard made of presence checks needs only a
   YAML file ([#407], <!-- TODO: [#NNN] -->)
 - `-m`/`--mature` option and `check_compliance(maturity=0)` to check against a
-  maturity level the standard declares; `fsct3` declares three levels but
+  maturity level the standard declares; a level the standard does not declare
+  exits with code 2; `fsct3` declares three levels but
   adds no requirements above the baseline yet
-- Text and HTML reports list the message of each unmet requirement,
-  taken from the rule's `warning` in the YAML
+- Text and HTML reports of YAML-defined standards (not `bsi`) list the message
+  of each unmet requirement, taken from the rule's `warning`
 - JSON output adds `sbomTypeProvided`
 
 ### Changed
@@ -40,7 +41,8 @@ and this project adheres to [Semantic Versioning][semver].
 - The FSCT3 compliance id is now `fsct3`
 - `check_compliance()` accepts an optional `maturity` argument; checkers that
   define `check_compliance()` without it, or assign `compliant`, keep working
-  at the baseline
+  at the baseline; reports of a checker that never sets `compliant` now use
+  `check_compliance()` instead of reporting non-conformant
 - `FSCT3Checker` now reports `fsct3` (not `fsct3-min`) as `complianceStandard`
   unless created with the deprecated id
 - Unknown compliance ids (for example `fsct3x`) now raise
@@ -48,8 +50,8 @@ and this project adheres to [Semantic Versioning][semver].
 
 ### Deprecated
 
-- `compliant` and `ntia_minimum_elements_compliant` attributes;
-  use `check_compliance()`
+- `compliant` attribute; use `check_compliance()` (the same advice now applies
+  to `ntia_minimum_elements_compliant`, deprecated since 5.0.0)
 - Compliance id `fsct3-min`; use `fsct3`
 
 ## [6.0.0] - 2026-10-05

@@ -231,5 +231,5 @@ class RuleBasedChecker(BaseChecker):
         return [
             (name, components)
             for name, components in self.all_components_without_info
-            if name in self.MIN_ELEMENTS or _MIN_ELEMENT_TO_ID.get(name) in in_scope
+            if name not in _MIN_ELEMENT_TO_ID or _MIN_ELEMENT_TO_ID[name] in in_scope
         ]

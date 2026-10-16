@@ -234,11 +234,12 @@ def test_maturity_reaches_every_output_and_the_exit_code(
     assert f"Conformant: {verdict}" in _text(checker, capsys, maturity)
     assert f"Conformant: {verdict}" in checker.output_html(maturity)
 
-    argv = ["sbomcheck", "-r", "none", "-c", "adhoc", "-m", str(maturity), NO_SUPPLIER]
+    argv = ["sbomcheck", "-c", "adhoc", "-m", str(maturity), NO_SUPPLIER]
     monkeypatch.setattr(sys, "argv", argv)
     with pytest.raises(SystemExit) as exc:
         main()
     assert exc.value.code == (0 if verdict else 1)
+    assert f"Conformant: {verdict}" in capsys.readouterr().out
 
 
 def test_json_reports_whether_an_sbom_type_is_provided() -> None:
@@ -272,6 +273,55 @@ def test_unevaluated_and_advisory_rules_are_not_unmet_requirements(
     no_text = replace(rule, element_description="SBOM type (SPDX 3)")
     out = _text(RuleBasedChecker(NO_SUPPLIER, compliance=_spec(no_text)), capsys)
     assert "- SBOM type (SPDX 3) is missing." in out
+
+
+def test_missing_info_is_scoped_by_maturity(capsys: CaptureFixture[str]) -> None:
+    class Listed(RuleBasedChecker):
+        MIN_ELEMENTS = ["name", "supplier"]
+
+    spec = _spec(_comp_rule(1, "name"), _comp_rule(2, "supplier", maturity=1))
+    checker = Listed(NO_SUPPLIER, compliance=spec)
+    for maturity, listed in ((0, False), (1, True)):
+        checker.print_components_missing_info(maturity=maturity)
+        assert ("supplier" in capsys.readouterr().out) is listed
+
+
+def test_verdict_is_false_without_a_parsed_document() -> None:
+    class Always(BaseChecker):
+        def check_compliance(self) -> bool:  # type: ignore[override]
+            return True
+
+    checker = Always("no/such/file.json", compliance="ntia")
+    assert checker.output_json()["isConformant"] is False
+
+
+def test_deprecated_id_warns_only_through_the_log(
+    monkeypatch: MonkeyPatch, capsys: CaptureFixture[str]
+) -> None:
+    monkeypatch.setattr(sys, "argv", ["sbomcheck", "-c", "fsct3-min", OK])
+    with warnings.catch_warnings(record=True) as recorded:
+        warnings.simplefilter("always")
+        with pytest.raises(SystemExit):
+            main()
+    assert not [w for w in recorded if w.category is DeprecationWarning]
+    capsys.readouterr()
+
+
+def test_unreachable_components_are_reported_once_not_per_rule(
+    capsys: CaptureFixture[str],
+) -> None:
+    unreachable = str(DATA / "missing_dependency_relationships" / _JSON)
+    out = _text(SbomChecker(unreachable), capsys)
+    supplier = next(
+        r.warning for r in get_spec("ntia").rules if r.element_id == "supplier"
+    )
+    assert "Conformant: False" in out and supplier not in out
+
+
+def test_failure_messages_are_html_escaped() -> None:
+    rule = replace(_comp_rule(1, "supplier"), warning="<b>&")
+    html = RuleBasedChecker(NO_SUPPLIER, compliance=_spec(rule)).output_html()
+    assert "<li>&lt;b&gt;&amp;</li>" in html
 
 
 # ---- messages and reports ---------------------------------------------------
