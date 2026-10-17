@@ -11,6 +11,7 @@
 
 spec:
   id: fsct3
+  rule_prefix: BOM-FSCT2024
   title: 2024 CISA Framing Software Component Transparency (minimum expectation)
   uri: https://www.cisa.gov/resources-tools/resources/framing-software-component-transparency-2024
   taxonomies:

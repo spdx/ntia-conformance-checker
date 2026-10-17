@@ -29,6 +29,8 @@ Currently, the supported specifications are:
 
 - [2021 NTIA SBOM Minimum Elements][ntia]
 - [2024 CISA Framing Software Component Transparency (FSCT3) (minimum expected)][fsct3]
+- [G7 SBOM for AI: Minimum Elements][g7ai] (partial; SPDX 3 only, see
+  [what is checked](ntia_conformance_checker/rules/g7ai.md))
 - [2025 BSI TR-03183-2 v2.1.0 content requirements][bsi]
 
 The minimum elements include:
@@ -115,7 +117,7 @@ options:
   -h, --help            show this help message and exit
   -s, --sbom-spec {spdx2,spdx3}
                         SBOM specification of the input file; see below for details [default: spdx2]
-  -c, --comply {bsi,fsct3,fsct3-min,ntia}
+  -c, --comply {bsi,fsct3,fsct3-min,g7ai,ntia}
                         Compliance standards to check against; see below for details [default: ntia]
   -m, --mature LEVEL    Maturity level to check against; 0 is the baseline
                         and higher levels add requirements [default: 0]
@@ -138,6 +140,7 @@ choices:
     bsi         BSI TR-03183-2 v2.1.0 content requirements
     fsct3       2024 CISA Framing Software Component Transparency (minimum expectation)
     fsct3-min   2024 CISA Framing Software Component Transparency (minimum expectation) (deprecated; use fsct3)
+    g7ai        G7 2026 SBOM for AI Minimum Elements
     ntia        2021 NTIA SBOM Minimum Elements
 
   Report output types (for --output):
@@ -282,6 +285,7 @@ Check out the [frequently asked questions](./FAQ.md) document.
 [ntia]: https://www.ntia.gov/report/2021/minimum-elements-software-bill-materials-sbom
 [ntia-spdx23]: https://spdx.github.io/spdx-spec/v2.3/how-to-use/#k22-mapping-ntia-minimum-elements-to-spdx-fields
 [fsct3]: https://www.cisa.gov/resources-tools/resources/framing-software-component-transparency-2024
+[g7ai]: https://www.bsi.bund.de/SharedDocs/Downloads/EN/BSI/KI/SBOM-for-AI_minimum-elements.pdf
 [bsi]: https://www.bsi.bund.de/SharedDocs/Downloads/EN/BSI/Publications/TechGuidelines/TR03183/BSI-TR-03183-2_v2_1_0.html
 [sbom-reqs]: https://drive.google.com/file/d/14HZGYD7pSSWEmtaHZzWrzPhxCXaCnloJ/view
 [pypi]: https://pypi.org/project/ntia-conformance-checker/

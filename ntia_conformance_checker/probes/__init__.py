@@ -18,7 +18,7 @@ two-probe vocabulary that covers all current NTIA + FSCT active rules.
 from __future__ import annotations
 
 # Import side-effect: register built-in probes by importing their modules.
-from . import presence  # noqa: F401  (registration only)
-from ._registry import attribute_scope, lookup, probe, registered_names
+from . import presence, spdx3  # noqa: F401  (registration only)
+from ._registry import attribute_scope, lookup, probe, registered_names, validator
 
-__all__ = ["attribute_scope", "lookup", "probe", "registered_names"]
+__all__ = ["attribute_scope", "lookup", "probe", "registered_names", "validator"]

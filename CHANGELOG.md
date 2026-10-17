@@ -30,6 +30,13 @@ and this project adheres to [Semantic Versioning][semver].
 - Text and HTML reports of YAML-defined standards (not `bsi`) list the message
   of each unmet requirement, taken from the rule's `warning`
 - JSON output adds `sbomTypeProvided`
+- Partial support for the G7 SBOM for AI Minimum Elements (`-c g7ai`, SPDX 3
+  only): rules from the requirements ontology, checks per kind of component
+  (system, AI model, dataset), composite elements, and the outcome of each
+  rule (`present`, `missing`, `not-applicable`, `out-of-scope`);
+  see `rules/g7ai.md`
+- JSON output adds `ruleResults` and `clusterCompliance` for YAML-defined
+  standards
 
 ### Changed
 
@@ -39,6 +46,7 @@ and this project adheres to [Semantic Versioning][semver].
   attached, signed and attested after the publish, and can be re-run if that
   fails
 - The FSCT3 compliance id is now `fsct3`
+- Rule ids follow the requirements ontology (`BOM-NTIA2021-DF-001`)
 - `check_compliance()` accepts an optional `maturity` argument; checkers that
   define `check_compliance()` without it, or assign `compliant`, keep working
   at the baseline; reports of a checker that never sets `compliant` now use

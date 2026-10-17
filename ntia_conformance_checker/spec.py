@@ -56,6 +56,17 @@ the CLI log/verbosity threshold.  ``note`` is the informational band (logs and
 tool notifications); no rule provision maps to it.
 """
 
+Aggregation = Literal["", "any-of", "all-of", "self-only"]
+"""How a composite rule is evaluated against its sub-rules (those whose
+:attr:`SpecRule.parent` names it).
+
+* ``any-of`` / ``all-of`` -- a roll-up with no probe of its own: it passes when
+  any / every applicable sub-rule passes.
+* ``self-only`` -- checked on its own probe; sub-rules are refinements that
+  are counted separately.
+* ``""`` -- not a composite.
+"""
+
 Provision = Literal["requirement", "recommendation", "permission"]
 """ISO/IEC Directives provision type -- the kind of provision a rule states,
 independent of its maturity.  Determines severity and whether failure blocks
@@ -317,6 +328,18 @@ class SpecRule:
     """Optional override for the future OSCAL ``control-id``.  When empty,
     the OSCAL exporter is expected to lowercase the SARIF rule id."""
 
+    sub: int = 0
+    """Sub-element number: ``0`` for a top-level rule, ``M >= 1`` for the
+    ``M``-th sub-element of the rule it refines.  Rendered as ``.M`` after the
+    rule number in the rule id."""
+
+    parent: str = ""
+    """Slug of the composite rule this rule refines (``""`` for none)."""
+
+    aggregation: Aggregation = ""
+    """How this rule is evaluated against its sub-rules; see :data:`Aggregation`."""
+
+    # -- Output mappings (continued) ---------------------------------------
     json_group: str | None = None
     """JSON output group / key prefix (e.g. ``"aiPackages"``).  ``None`` means
     the rule, if emitted, lives at the top level of the JSON output."""
@@ -346,6 +369,15 @@ class Spec:
     title: str
     """Human-readable standard name, e.g. ``"2021 NTIA SBOM Minimum
     Elements"``."""
+
+    rule_prefix: str = ""
+    """Prefix of every rule id, e.g. ``"BOM-NTIA2021"`` (source-spec token and
+    edition year, as in the SBOM requirements ontology).  Empty selects the
+    legacy ``SBOM-<ID>`` form."""
+
+    sbom_specs: tuple[str, ...] = ()
+    """SBOM specifications (``"spdx2"``, ``"spdx3"``) the standard can be checked
+    on.  Empty means any.  On another specification no rule applies."""
 
     uri: str = ""
     """General documentation URL for the standard.  Used as the fallback
@@ -420,12 +452,15 @@ class Spec:
         return "".join(seg.capitalize() for seg in rule.slug.split("-"))
 
     def rule_id(self, rule: SpecRule) -> str:
-        """Compose the canonical ``SBOM-[SPEC]-[CAT]-[NNN]`` rule id.
+        """Compose the rule id ``<prefix>-[CAT]-[NNN]`` or ``...[NNN].[M]``.
 
-        The ``SPEC`` segment is :attr:`id` uppercased.
+        The ``SPEC`` segment is :attr:`rule_prefix`, or ``SBOM-`` plus :attr:`id`
+        uppercased when that is empty.  A sub-element appends ``.M``.
         """
         cat = self.category(rule.spec_category)
-        return f"SBOM-{self.id.upper()}-{cat.code}-{rule.number:03d}"
+        prefix = self.rule_prefix or f"SBOM-{self.id.upper()}"
+        suffix = f".{rule.sub}" if rule.sub else ""
+        return f"{prefix}-{cat.code}-{rule.number:03d}{suffix}"
 
     def rule_uri(self, rule: SpecRule) -> str:
         """Rule's source-spec clause URL if set, otherwise the standard URL."""

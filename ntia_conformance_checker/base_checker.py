@@ -204,6 +204,12 @@ class BaseChecker(ABC):
         # A 6.0.0 subclass defines check_compliance() without a parameter.
         return self.check_compliance(maturity) if maturity else self.check_compliance()
 
+    def _json_extras(  # pylint: disable=unused-argument
+        self, maturity: int
+    ) -> dict[str, Any]:
+        """Extra JSON fields a subclass adds to the standard output."""
+        return {}
+
     def _requirement_rows(self, maturity: int) -> list[tuple[str, bool]]:
         """Element-by-element result rows for ``maturity``."""
         del maturity  # fixed per instance unless a subclass scopes by maturity
@@ -610,14 +616,24 @@ class BaseChecker(ABC):
         Args:
             maturity (int): Target maturity level.
         """
-        return report_json(self, self._verdict(maturity))
+        result = report_json(self, self._verdict(maturity))
+        result.update(self._json_extras(maturity))
+        return result
+
+    def _extra_graph_relationships(self) -> frozenset[str]:
+        """SPDX 3 relationship types that connect elements besides the
+        composition ones; subclasses override."""
+        return frozenset()
 
     def _evaluate_graph_connectivity(self) -> None:
         """Evaluate graph connectivity to isolate floating nodes and unknown pointers."""
 
         reachable, floating, unknown_pointer_edges, has_unknown_pointers = (
             analyze_graph_connectivity(
-                self.sbom_spec, self.doc, getattr(self, "_BaseChecker__spdx3_doc", None)
+                self.sbom_spec,
+                self.doc,
+                getattr(self, "_BaseChecker__spdx3_doc", None),
+                self._extra_graph_relationships(),
             )
         )
 

@@ -29,7 +29,7 @@ from __future__ import annotations
 
 import inspect
 from collections.abc import Callable, Iterable
-from typing import TYPE_CHECKING, Protocol
+from typing import TYPE_CHECKING, Any, Protocol
 
 if TYPE_CHECKING:
     from ..model import Finding
@@ -51,15 +51,40 @@ class CheckerProtocol(Protocol):
         """True iff the SBOM document declares ``element_id``."""
         raise NotImplementedError
 
+    def has_components(self, kind: str, reachable_only: bool = True) -> bool:
+        """True iff the SBOM has a component of ``kind`` (reachable from the root
+        unless ``reachable_only`` is false)."""
+        raise NotImplementedError
+
+    def components_without_property(
+        self, kind: str, properties: tuple[str, ...]
+    ) -> list[tuple[str, str]]:
+        """Components of ``kind`` declaring none of ``properties``."""
+        raise NotImplementedError
+
+    def components_without_relationship(
+        self, kind: str, relationships: tuple[str, ...], direction: str
+    ) -> list[tuple[str, str]]:
+        """Components of ``kind`` in none of the ``relationships``."""
+        raise NotImplementedError
+
+    def document_declares(self, properties: tuple[str, ...]) -> bool:
+        """True iff the SBOM document declares any of ``properties``."""
+        raise NotImplementedError
+
 
 ProbeFn = Callable[..., Iterable["Finding"]]
 
 _PROBES: dict[str, ProbeFn] = {}
 _ATTRIBUTE_SCOPES: dict[str, frozenset[str]] = {}
+_VALIDATORS: dict[str, Callable[[dict[str, Any]], None]] = {}
 
 
 def probe(
-    name: str, *, attributes: frozenset[str] | None = None
+    name: str,
+    *,
+    attributes: frozenset[str] | None = None,
+    validate: Callable[[dict[str, Any]], None] | None = None,
 ) -> Callable[[ProbeFn], ProbeFn]:
     """Register ``fn`` under ``name`` in the global probe registry.
 
@@ -71,6 +96,9 @@ def probe(
     fail loudly at import time, and on a probe that takes ``*args``/``**kwargs``
     (the loader validates YAML params against explicit parameters) or that is
     given ``attributes`` without an ``attribute`` parameter.
+
+    ``validate`` checks a rule's params when the spec is loaded (so a typo fails
+    there, not silently at run time); it raises ``ValueError`` for bad params.
     """
 
     def deco(fn: ProbeFn) -> ProbeFn:
@@ -87,6 +115,8 @@ def probe(
         _PROBES[name] = fn
         if attributes is not None:
             _ATTRIBUTE_SCOPES[name] = attributes
+        if validate is not None:
+            _VALIDATORS[name] = validate
         return fn
 
     return deco
@@ -105,6 +135,11 @@ def lookup(name: str) -> ProbeFn:
 def attribute_scope(name: str) -> frozenset[str] | None:
     """Element ids probe ``name`` accepts as ``attribute``; ``None`` if unrestricted."""
     return _ATTRIBUTE_SCOPES.get(name)
+
+
+def validator(name: str) -> Callable[[dict[str, Any]], None] | None:
+    """The load-time params validator of probe ``name``, if it has one."""
+    return _VALIDATORS.get(name)
 
 
 def registered_names() -> tuple[str, ...]:

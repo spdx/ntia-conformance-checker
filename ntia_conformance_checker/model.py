@@ -19,6 +19,7 @@
 from __future__ import annotations
 
 from dataclasses import dataclass
+from typing import Literal
 
 
 @dataclass(frozen=True, kw_only=True)
@@ -77,3 +78,27 @@ DOCUMENT_ELEMENT_IDS: frozenset[str] = frozenset(
 """Elements checked for presence on the SBOM as a whole."""
 
 ELEMENT_IDS: frozenset[str] = COMPONENT_ELEMENT_IDS | DOCUMENT_ELEMENT_IDS
+
+COMPONENT_KINDS: frozenset[str] = frozenset(
+    {"component", "ai_model", "dataset", "system"}
+)
+"""Kinds of component a probe can be scoped to: any package, an AI package, a
+dataset package, or the system itself (the SBOM's root package)."""
+
+Outcome = Literal["present", "missing", "not-applicable", "out-of-scope"]
+"""Result of one rule on one SBOM.
+
+* ``present`` / ``missing`` -- the rule applied and its probe found nothing / something.
+* ``not-applicable`` -- the SBOM has nothing the rule applies to (no component of
+  its kind, or a specification the standard does not cover).
+* ``out-of-scope`` -- the checker does not check the rule (not an active rule).
+"""
+
+
+@dataclass(frozen=True, kw_only=True)
+class RuleResult:
+    """The :data:`Outcome` of one rule and the :class:`Finding` objects behind it."""
+
+    rule_id: str
+    outcome: Outcome
+    findings: tuple[Finding, ...] = ()
