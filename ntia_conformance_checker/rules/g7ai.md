@@ -70,7 +70,7 @@ independent of its sub-elements.
 | `MD-009` | SBOM timestamp | requirement | document has `timestamp` | `created` (exact) |  |
 | `MD-010` | SBOM dependency relationship | requirement | document has `dependency_relationship` | `dependsOn` (exact) |  |
 
-## System Level Properties
+## System-level properties
 
 | Rule id | Element | Provision | Checked as | SPDX 3.0.1 (match) | SPDX 3.1-dev, if different |
 |---|---|---|---|---|---|
@@ -120,7 +120,7 @@ independent of its sub-elements.
 | `MDL-012.1` | Model openness category (gap) | recommendation | not checked | `hasDeclaredLicense` (related) |  |
 | `MDL-013` | Model external references | requirement | `ai_model` has `externalRef` | `externalRef` (exact) |  |
 
-## Dataset Properties
+## Dataset properties
 
 | Rule id | Element | Provision | Checked as | SPDX 3.0.1 (match) | SPDX 3.1-dev, if different |
 |---|---|---|---|---|---|
@@ -155,7 +155,7 @@ independent of its sub-elements.
 | `INF-001` | Infrastructure software | requirement | not checked | `Package`, `dependsOn` (close) |  |
 | `INF-002` | Infrastructure hardware (gap) | requirement | not checked | `comment` (broad) | `Hardware` (exact) |
 
-## Security Properties
+## Security properties
 
 | Rule id | Element | Provision | Checked as | SPDX 3.0.1 (match) | SPDX 3.1-dev, if different |
 |---|---|---|---|---|---|
@@ -164,7 +164,7 @@ independent of its sub-elements.
 | `SP-003` | Cybersecurity policy information | requirement | not checked | `ExternalRefType/securityPolicy` (close) | `ExternalRefType/securityPolicy`, `hasContactPoint`, `ContactType/securityVulnerability` (close) |
 | `SP-004` | Vulnerability referencing | requirement | not checked | `Vulnerability`, `VexAffectedVulnAssessmentRelationship`, `ExternalRefType/securityAdvisory` (close) |  |
 
-## Key Performance Indicators
+## Key performance indicators
 
 | Rule id | Element | Provision | Checked as | SPDX 3.0.1 (match) | SPDX 3.1-dev, if different |
 |---|---|---|---|---|---|
