@@ -21,6 +21,7 @@ from spdx_tools.spdx.parser.parse_anything import parse_file as parse_spdx2_file
 from .constants import (
     DEFAULT_COMPLIANCE_STANDARD,
     DEFAULT_SBOM_SPEC,
+    DEPRECATED_COMPLIANCE_IDS,
     SUPPORTED_COMPLIANCE_STANDARDS,
     SUPPORTED_COMPLIANCE_STANDARDS_DESC,
     SUPPORTED_SBOM_SPECS,
@@ -36,6 +37,8 @@ _OUTPUT_CHOICES = {
     "print": "Report in regular text format",
     "json": "Report in JSON format",
     "html": "Report in HTML format",
+    "sarif": "Report in SARIF format",
+    "sarif-sbom": "SARIF format with the input SBOM embedded",
     "none": "No report",
 }
 
@@ -57,6 +60,11 @@ def get_parsed_args() -> argparse.Namespace:
         "  Compliance standards (for --comply):\n"
         + "\n".join(
             f"    {k:<11} {v}"
+            + (
+                f" (deprecated; use {DEPRECATED_COMPLIANCE_IDS[k]})"
+                if k in DEPRECATED_COMPLIANCE_IDS
+                else ""
+            )
             for k, v in sorted(SUPPORTED_COMPLIANCE_STANDARDS_DESC.items())
         )
         + "\n\n"
@@ -65,7 +73,7 @@ def get_parsed_args() -> argparse.Namespace:
         + "\n\n"
         "Examples:\n"
         "  sbomcheck sbom.spdx\n"
-        "  sbomcheck -s spdx3 -c fsct3-min -v sbom.json\n"
+        "  sbomcheck -s spdx3 -c fsct3 -v sbom.json\n"
         "  sbomcheck sbom.yaml --output json --output-file report.json\n"
     )
 
@@ -106,6 +114,18 @@ def get_parsed_args() -> argparse.Namespace:
         "--conform",  # alias of --comply
         dest="comply",
         help=argparse.SUPPRESS,  # hide from help
+    )
+    parser.add_argument(
+        "-m",
+        "--mature",
+        dest="maturity",
+        type=int,
+        default=0,
+        metavar="LEVEL",
+        help=(
+            "Maturity level to check against; 0 is the baseline "
+            "and higher levels add requirements [default: 0]"
+        ),
     )
     parser.add_argument(
         "-k",
@@ -301,29 +321,46 @@ def get_sbom_spec(file: str, sbom_spec: str) -> str:
     return detected_sbom_spec
 
 
+def _emit_json(
+    data: dict[str, Any], output_file: str | None, label: str, file_indent: int | None
+) -> None:
+    """Write ``data`` as JSON to ``output_file`` (or print it indented)."""
+    if not output_file:
+        print(json.dumps(data, indent=2))
+        return
+    try:
+        with open(output_file, "w", encoding="utf-8") as outfile:
+            json.dump(data, outfile, indent=file_indent)
+    except OSError as exc:
+        logging.error("Could not write %s output file: %s", label, exc)
+
+
 def print_output(
-    sbom: BaseChecker, *, output_type: str, output_file: str | None, verbose: bool
+    sbom: BaseChecker,
+    *,
+    output_type: str,
+    output_file: str | None,
+    verbose: bool,
+    maturity: int = 0,
 ) -> None:
     """Print or save the output report."""
+    # Only a non-default level is passed, so 6.0.0-style overrides keep working.
+    extra = {"maturity": maturity} if maturity else {}
     match output_type:
         case "print":
-            sbom.print_table_output(verbose=verbose)
+            sbom.print_table_output(verbose=verbose, **extra)
             if verbose:
-                sbom.print_components_missing_info()
+                sbom.print_components_missing_info(**extra)
 
         case "json":
-            result_dict: dict[str, Any] = sbom.output_json()
-            if output_file:
-                try:
-                    with open(output_file, "w", encoding="utf-8") as outfile:
-                        json.dump(result_dict, outfile)
-                except OSError as exc:
-                    logging.error("Could not write JSON output file: %s", exc)
-            else:
-                print(json.dumps(result_dict, indent=2))
+            _emit_json(sbom.output_json(**extra), output_file, "JSON", None)
+
+        case "sarif" | "sarif-sbom":
+            sarif = sbom.output_sarif(embed_sbom=output_type == "sarif-sbom", **extra)
+            _emit_json(sarif, output_file, "SARIF", 2)
 
         case "html":
-            html_output = sbom.output_html()
+            html_output = sbom.output_html(**extra)
             if output_file:
                 try:
                     with open(output_file, "w", encoding="utf-8") as outfile:

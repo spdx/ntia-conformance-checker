@@ -155,3 +155,32 @@ class SbomAdapter(ABC):
         "SBOM type" as one of baseline attributes, see Table 1 (p. 22) in:
         https://www.cisa.gov/resources-tools/resources/framing-software-component-transparency-2024
         """
+
+    # ---- Kind-scoped checks (SPDX 3 only; other adapters have no such kinds) ----
+
+    def has_components_of_kind(  # pylint: disable=unused-argument
+        self, kind: str, reachable_ids: set[str] | None
+    ) -> bool:
+        """Whether the SBOM has a component of ``kind`` (only a reachable one unless
+        ``reachable_ids`` is ``None``)."""
+        return False
+
+    def get_components_without_properties(
+        self, kind: str, properties: tuple[str, ...], reachable_ids: set[str]
+    ) -> list[tuple[str, str]]:
+        """Components of ``kind`` that declare none of ``properties``."""
+        raise ValueError(f"{type(self).__name__} cannot check components of {kind!r}")
+
+    def get_components_without_relationships(
+        self,
+        kind: str,
+        relationships: tuple[str, ...],
+        direction: str,
+        reachable_ids: set[str],
+    ) -> list[tuple[str, str]]:
+        """Components of ``kind`` that are in none of ``relationships``."""
+        raise ValueError(f"{type(self).__name__} cannot check components of {kind!r}")
+
+    def document_declares_any(self, properties: tuple[str, ...]) -> bool:
+        """Whether the document or its creation info declares any of ``properties``."""
+        raise ValueError(f"{type(self).__name__} cannot check document properties")

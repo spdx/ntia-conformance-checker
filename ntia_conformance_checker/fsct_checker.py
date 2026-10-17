@@ -6,10 +6,10 @@
 
 from __future__ import annotations
 
-from .base_checker import BaseChecker
+from .rule_based_checker import RuleBasedChecker
 
 
-class FSCT3Checker(BaseChecker):
+class FSCT3Checker(RuleBasedChecker):
     """FSCTv3 checker.
 
     A set of Baseline Attributes is defined in Section 2.2 of
@@ -33,12 +33,13 @@ class FSCT3Checker(BaseChecker):
         "concluded_license",
         "copyright_text",
     ]
+    DOCUMENT_ORDER = ("author", "timestamp", "sbom_type", "dependency_relationship")
 
     def __init__(
         self,
         file: str,
         validate: bool = True,
-        compliance: str = "fsct3-min",
+        compliance: str = "fsct3",
         sbom_spec: str = "spdx2",
     ) -> None:
         """
@@ -47,67 +48,12 @@ class FSCT3Checker(BaseChecker):
         Args:
             file (str): The name of the file to be checked.
             validate (bool): Whether to validate the file.
-            compliance (str): The compliance standard to be used.
+            compliance (str): The compliance standard to be used; ``fsct3``
+                (``fsct3-min`` is a deprecated alias).
             sbom_spec (str): The SBOM specification to be used.
         """
+        if compliance not in {"fsct3", "fsct3-min"}:
+            raise ValueError("Only FSCTv3 Minimum Expected compliance is supported.")
         super().__init__(
             file=file, validate=validate, compliance=compliance, sbom_spec=sbom_spec
-        )
-
-        if compliance not in {"fsct3-min"}:
-            raise ValueError("Only FSCTv3 Minimum Expected compliance is supported.")
-
-        if self.doc:
-            self.compliant = self.check_compliance()
-
-        self.table_elements = [
-            (
-                "All component names provided?",
-                self._all_provided(self.components_without_names),
-            ),
-            (
-                "All component versions provided?",
-                self._all_provided(self.components_without_versions),
-            ),
-            (
-                "All component identifiers provided?",
-                self._all_provided(self.components_without_identifiers),
-            ),
-            (
-                "All component suppliers provided?",
-                self._all_provided(self.components_without_suppliers),
-            ),
-            (
-                "All component concluded license provided?",
-                self._all_provided(self.components_without_concluded_licenses),
-            ),
-            (
-                "All component copyright notice provided?",
-                self._all_provided(self.components_without_copyright_texts),
-            ),
-            ("SBOM author name provided?", self.doc_author),
-            ("SBOM creation timestamp provided?", self.doc_timestamp),
-            (
-                "SBOM generation context (SBOM type) provided?",
-                bool(self.sbom_gen_context),
-            ),
-            ("Dependency relationships provided?", self.dependency_relationships),
-        ]
-
-    def check_compliance(self) -> bool:
-        """Check overall compliance with FSCTv3 Minimum Expected"""
-        return all(
-            [
-                self.doc_author,
-                self.doc_timestamp,
-                self.dependency_relationships,
-                bool(self.sbom_gen_context),
-                self._all_provided(self.components_without_names),
-                self._all_provided(self.components_without_versions),
-                self._all_provided(self.components_without_identifiers),
-                self._all_provided(self.components_without_suppliers),
-                self._all_provided(self.components_without_concluded_licenses),
-                self._all_provided(self.components_without_copyright_texts),
-                not self.validation_messages,
-            ]
         )

@@ -81,5 +81,5 @@ def test_components_evaluated(
         rows = [
             ok for label, ok in checker.table_elements if "component" in label.lower()
         ]
-        assert not checker.compliant
+        assert not checker.check_compliance()
         assert rows and not any(groups + rows)

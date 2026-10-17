@@ -1,0 +1,413 @@
+{
+ "_source": "https://bact.github.io/bom/ ntia2021 0.x / fsct2024 / g7ai2026 0.3.0 (fetched 2026-10-16); regenerate when the ontology changes",
+ "ntia": {
+  "BOM-NTIA2021-DF-001": {
+   "provision": "requirement",
+   "aggregation": ""
+  },
+  "BOM-NTIA2021-DF-002": {
+   "provision": "requirement",
+   "aggregation": ""
+  },
+  "BOM-NTIA2021-DF-003": {
+   "provision": "requirement",
+   "aggregation": ""
+  },
+  "BOM-NTIA2021-DF-004": {
+   "provision": "requirement",
+   "aggregation": ""
+  },
+  "BOM-NTIA2021-DF-005": {
+   "provision": "requirement",
+   "aggregation": ""
+  },
+  "BOM-NTIA2021-DF-006": {
+   "provision": "requirement",
+   "aggregation": ""
+  },
+  "BOM-NTIA2021-DF-007": {
+   "provision": "requirement",
+   "aggregation": ""
+  }
+ },
+ "fsct3": {
+  "BOM-FSCT2024-COMP-001": {
+   "provision": "requirement",
+   "aggregation": ""
+  },
+  "BOM-FSCT2024-COMP-002": {
+   "provision": "requirement",
+   "aggregation": ""
+  },
+  "BOM-FSCT2024-COMP-003": {
+   "provision": "requirement",
+   "aggregation": ""
+  },
+  "BOM-FSCT2024-COMP-004": {
+   "provision": "requirement",
+   "aggregation": ""
+  },
+  "BOM-FSCT2024-COMP-005": {
+   "provision": "requirement",
+   "aggregation": ""
+  },
+  "BOM-FSCT2024-COMP-006": {
+   "provision": "requirement",
+   "aggregation": ""
+  },
+  "BOM-FSCT2024-COMP-007": {
+   "provision": "requirement",
+   "aggregation": ""
+  },
+  "BOM-FSCT2024-COMP-008": {
+   "provision": "requirement",
+   "aggregation": ""
+  },
+  "BOM-FSCT2024-META-001": {
+   "provision": "requirement",
+   "aggregation": ""
+  },
+  "BOM-FSCT2024-META-002": {
+   "provision": "requirement",
+   "aggregation": ""
+  },
+  "BOM-FSCT2024-META-003": {
+   "provision": "requirement",
+   "aggregation": ""
+  },
+  "BOM-FSCT2024-META-004": {
+   "provision": "requirement",
+   "aggregation": ""
+  },
+  "BOM-FSCT2024-META-005": {
+   "provision": "requirement",
+   "aggregation": ""
+  }
+ },
+ "g7ai": {
+  "BOM-G7AI2026-DP-001": {
+   "provision": "requirement",
+   "aggregation": ""
+  },
+  "BOM-G7AI2026-DP-002": {
+   "provision": "requirement",
+   "aggregation": "any-of"
+  },
+  "BOM-G7AI2026-DP-002.1": {
+   "provision": "recommendation",
+   "aggregation": ""
+  },
+  "BOM-G7AI2026-DP-002.2": {
+   "provision": "recommendation",
+   "aggregation": ""
+  },
+  "BOM-G7AI2026-DP-002.3": {
+   "provision": "recommendation",
+   "aggregation": ""
+  },
+  "BOM-G7AI2026-DP-003": {
+   "provision": "requirement",
+   "aggregation": "any-of"
+  },
+  "BOM-G7AI2026-DP-003.1": {
+   "provision": "recommendation",
+   "aggregation": ""
+  },
+  "BOM-G7AI2026-DP-003.2": {
+   "provision": "recommendation",
+   "aggregation": ""
+  },
+  "BOM-G7AI2026-DP-003.3": {
+   "provision": "recommendation",
+   "aggregation": ""
+  },
+  "BOM-G7AI2026-DP-004": {
+   "provision": "requirement",
+   "aggregation": ""
+  },
+  "BOM-G7AI2026-DP-005": {
+   "provision": "requirement",
+   "aggregation": ""
+  },
+  "BOM-G7AI2026-DP-006": {
+   "provision": "requirement",
+   "aggregation": "any-of"
+  },
+  "BOM-G7AI2026-DP-006.1": {
+   "provision": "recommendation",
+   "aggregation": ""
+  },
+  "BOM-G7AI2026-DP-006.2": {
+   "provision": "recommendation",
+   "aggregation": ""
+  },
+  "BOM-G7AI2026-DP-006.3": {
+   "provision": "recommendation",
+   "aggregation": ""
+  },
+  "BOM-G7AI2026-DP-006.4": {
+   "provision": "recommendation",
+   "aggregation": ""
+  },
+  "BOM-G7AI2026-DP-007": {
+   "provision": "requirement",
+   "aggregation": ""
+  },
+  "BOM-G7AI2026-DP-008": {
+   "provision": "requirement",
+   "aggregation": "any-of"
+  },
+  "BOM-G7AI2026-DP-008.1": {
+   "provision": "recommendation",
+   "aggregation": ""
+  },
+  "BOM-G7AI2026-DP-008.2": {
+   "provision": "recommendation",
+   "aggregation": ""
+  },
+  "BOM-G7AI2026-DP-008.3": {
+   "provision": "recommendation",
+   "aggregation": ""
+  },
+  "BOM-G7AI2026-DP-009": {
+   "provision": "requirement",
+   "aggregation": ""
+  },
+  "BOM-G7AI2026-DP-010": {
+   "provision": "requirement",
+   "aggregation": ""
+  },
+  "BOM-G7AI2026-INF-001": {
+   "provision": "requirement",
+   "aggregation": ""
+  },
+  "BOM-G7AI2026-INF-002": {
+   "provision": "requirement",
+   "aggregation": ""
+  },
+  "BOM-G7AI2026-KPI-001": {
+   "provision": "requirement",
+   "aggregation": ""
+  },
+  "BOM-G7AI2026-KPI-002": {
+   "provision": "requirement",
+   "aggregation": ""
+  },
+  "BOM-G7AI2026-MD-001": {
+   "provision": "requirement",
+   "aggregation": ""
+  },
+  "BOM-G7AI2026-MD-002": {
+   "provision": "requirement",
+   "aggregation": ""
+  },
+  "BOM-G7AI2026-MD-003": {
+   "provision": "requirement",
+   "aggregation": ""
+  },
+  "BOM-G7AI2026-MD-004": {
+   "provision": "requirement",
+   "aggregation": ""
+  },
+  "BOM-G7AI2026-MD-005": {
+   "provision": "requirement",
+   "aggregation": ""
+  },
+  "BOM-G7AI2026-MD-006": {
+   "provision": "requirement",
+   "aggregation": ""
+  },
+  "BOM-G7AI2026-MD-007": {
+   "provision": "requirement",
+   "aggregation": ""
+  },
+  "BOM-G7AI2026-MD-008": {
+   "provision": "requirement",
+   "aggregation": ""
+  },
+  "BOM-G7AI2026-MD-009": {
+   "provision": "requirement",
+   "aggregation": ""
+  },
+  "BOM-G7AI2026-MD-010": {
+   "provision": "requirement",
+   "aggregation": ""
+  },
+  "BOM-G7AI2026-MDL-001": {
+   "provision": "requirement",
+   "aggregation": ""
+  },
+  "BOM-G7AI2026-MDL-002": {
+   "provision": "requirement",
+   "aggregation": ""
+  },
+  "BOM-G7AI2026-MDL-003": {
+   "provision": "requirement",
+   "aggregation": ""
+  },
+  "BOM-G7AI2026-MDL-004": {
+   "provision": "requirement",
+   "aggregation": ""
+  },
+  "BOM-G7AI2026-MDL-005": {
+   "provision": "requirement",
+   "aggregation": ""
+  },
+  "BOM-G7AI2026-MDL-006": {
+   "provision": "requirement",
+   "aggregation": "any-of"
+  },
+  "BOM-G7AI2026-MDL-006.1": {
+   "provision": "recommendation",
+   "aggregation": ""
+  },
+  "BOM-G7AI2026-MDL-006.2": {
+   "provision": "recommendation",
+   "aggregation": ""
+  },
+  "BOM-G7AI2026-MDL-006.3": {
+   "provision": "recommendation",
+   "aggregation": ""
+  },
+  "BOM-G7AI2026-MDL-006.4": {
+   "provision": "recommendation",
+   "aggregation": ""
+  },
+  "BOM-G7AI2026-MDL-007": {
+   "provision": "requirement",
+   "aggregation": ""
+  },
+  "BOM-G7AI2026-MDL-008": {
+   "provision": "requirement",
+   "aggregation": ""
+  },
+  "BOM-G7AI2026-MDL-009": {
+   "provision": "requirement",
+   "aggregation": "any-of"
+  },
+  "BOM-G7AI2026-MDL-009.1": {
+   "provision": "recommendation",
+   "aggregation": ""
+  },
+  "BOM-G7AI2026-MDL-009.2": {
+   "provision": "recommendation",
+   "aggregation": ""
+  },
+  "BOM-G7AI2026-MDL-009.3": {
+   "provision": "recommendation",
+   "aggregation": ""
+  },
+  "BOM-G7AI2026-MDL-009.4": {
+   "provision": "recommendation",
+   "aggregation": ""
+  },
+  "BOM-G7AI2026-MDL-010": {
+   "provision": "requirement",
+   "aggregation": "any-of"
+  },
+  "BOM-G7AI2026-MDL-010.1": {
+   "provision": "recommendation",
+   "aggregation": ""
+  },
+  "BOM-G7AI2026-MDL-010.2": {
+   "provision": "recommendation",
+   "aggregation": ""
+  },
+  "BOM-G7AI2026-MDL-010.3": {
+   "provision": "recommendation",
+   "aggregation": ""
+  },
+  "BOM-G7AI2026-MDL-010.4": {
+   "provision": "recommendation",
+   "aggregation": ""
+  },
+  "BOM-G7AI2026-MDL-011": {
+   "provision": "requirement",
+   "aggregation": "any-of"
+  },
+  "BOM-G7AI2026-MDL-011.1": {
+   "provision": "recommendation",
+   "aggregation": ""
+  },
+  "BOM-G7AI2026-MDL-011.2": {
+   "provision": "recommendation",
+   "aggregation": ""
+  },
+  "BOM-G7AI2026-MDL-012": {
+   "provision": "requirement",
+   "aggregation": "self-only"
+  },
+  "BOM-G7AI2026-MDL-012.1": {
+   "provision": "recommendation",
+   "aggregation": ""
+  },
+  "BOM-G7AI2026-MDL-013": {
+   "provision": "requirement",
+   "aggregation": ""
+  },
+  "BOM-G7AI2026-SLP-001": {
+   "provision": "requirement",
+   "aggregation": ""
+  },
+  "BOM-G7AI2026-SLP-002": {
+   "provision": "requirement",
+   "aggregation": ""
+  },
+  "BOM-G7AI2026-SLP-003": {
+   "provision": "requirement",
+   "aggregation": ""
+  },
+  "BOM-G7AI2026-SLP-004": {
+   "provision": "requirement",
+   "aggregation": ""
+  },
+  "BOM-G7AI2026-SLP-005": {
+   "provision": "requirement",
+   "aggregation": ""
+  },
+  "BOM-G7AI2026-SLP-006": {
+   "provision": "requirement",
+   "aggregation": ""
+  },
+  "BOM-G7AI2026-SLP-007": {
+   "provision": "requirement",
+   "aggregation": ""
+  },
+  "BOM-G7AI2026-SLP-008": {
+   "provision": "requirement",
+   "aggregation": "any-of"
+  },
+  "BOM-G7AI2026-SLP-008.1": {
+   "provision": "recommendation",
+   "aggregation": ""
+  },
+  "BOM-G7AI2026-SLP-008.2": {
+   "provision": "recommendation",
+   "aggregation": ""
+  },
+  "BOM-G7AI2026-SLP-008.3": {
+   "provision": "recommendation",
+   "aggregation": ""
+  },
+  "BOM-G7AI2026-SLP-009": {
+   "provision": "requirement",
+   "aggregation": ""
+  },
+  "BOM-G7AI2026-SP-001": {
+   "provision": "requirement",
+   "aggregation": ""
+  },
+  "BOM-G7AI2026-SP-002": {
+   "provision": "requirement",
+   "aggregation": ""
+  },
+  "BOM-G7AI2026-SP-003": {
+   "provision": "requirement",
+   "aggregation": ""
+  },
+  "BOM-G7AI2026-SP-004": {
+   "provision": "requirement",
+   "aggregation": ""
+  }
+ }
+}
