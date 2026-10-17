@@ -11,6 +11,7 @@ from __future__ import annotations
 
 import copy
 import dataclasses
+import json
 import pickle
 from pathlib import Path
 
@@ -32,6 +33,7 @@ from ntia_conformance_checker.spec_loader import (
     load_spec,
 )
 
+_ONTOLOGY = Path(__file__).parent / "data" / "ontology_rules.json"
 _RULES_DIR = Path(registry.__file__).parent / "rules"
 
 
@@ -259,6 +261,9 @@ def _with(extra: str) -> str:  # _GOOD with extra keys on its rule
     return _GOOD.replace("slug: demo-a", f"slug: demo-a\n    {extra}")
 
 
+_KIND_PROBE = (
+    "probe: { name: require_property, params: { kind: KIND, properties: [name] } }"
+)
 _TWO_LEVELS = "maturity_levels:\n  - {level: 0, id: a}\n  - {level: 1, id: b}\n"
 _REJECTED = {
     # enums / references
@@ -336,6 +341,28 @@ _REJECTED = {
     "same rule number": _GOOD + _rule(1, "demo-b"),
     "same slug": _GOOD + _rule(2, "demo-a"),
     "same json_key": _with("json_key: k") + _rule(2, "demo-b", ", json_key: k"),
+    "duplicate sbom_specs": _GOOD.replace(
+        "  title: Demo\n", "  title: Demo\n  sbom_specs: [spdx3, spdx3]\n"
+    ),
+    "roll-up with only inactive sub-rules": _GOOD.replace(
+        "    probe:", "    aggregation: any-of\n    probe:"
+    ).replace(f"    {_PROBE}\n", "")
+    + _rule(1, "demo-b", ", sub: 1, parent: demo-a, status: tbd").replace(
+        f"{_PROBE}, ", ""
+    ),
+    "active sub-rule under inactive roll-up": _GOOD.replace(
+        "    probe:", "    aggregation: any-of\n    status: tbd\n    probe:"
+    ).replace(f"    {_PROBE}\n", "")
+    + _rule(1, "demo-b", ", sub: 1, parent: demo-a"),
+    "roll-up over mixed kinds": _GOOD.replace(
+        "    probe:", "    aggregation: any-of\n    probe:"
+    ).replace(f"    {_PROBE}\n", "")
+    + _rule(1, "demo-b", ", sub: 1, parent: demo-a").replace(
+        _PROBE, _KIND_PROBE.replace("KIND", "system")
+    )
+    + _rule(1, "demo-c", ", sub: 2, parent: demo-a").replace(
+        _PROBE, _KIND_PROBE.replace("KIND", "dataset")
+    ),
     "same category id": _GOOD.replace(
         "    title: C\n", "    title: C\n  - { id: c, code: D, title: D }\n"
     ),
@@ -445,7 +472,11 @@ def test_rule_ids_unique_per_spec(spec_id: str) -> None:
 def test_active_rules_have_a_probe(spec_id: str) -> None:
     spec = get_spec(spec_id)
     missing = [
-        spec.rule_id(r) for r in spec.rules if r.status == "active" and r.probe is None
+        spec.rule_id(r)
+        for r in spec.rules
+        if r.status == "active"
+        and r.probe is None
+        and r.aggregation not in ("any-of", "all-of")  # rolled up from sub-rules
     ]
     assert not missing, f"{spec_id!r} has active rules with no probe: {missing}"
 
@@ -455,7 +486,9 @@ def test_shipped_rules_have_filename_and_prose(spec_id: str) -> None:
     spec = get_spec(spec_id)
     assert (_RULES_DIR / f"{spec_id}.yaml").is_file()  # filename == spec id
     for rule in spec.rules:
-        assert rule.element_id and rule.competency_question and rule.warning, rule.slug
+        assert rule.competency_question and rule.warning, rule.slug
+        if spec_id != "g7ai":  # its rules are scoped by probe params, not element ids
+            assert rule.element_id, rule.slug
 
 
 # Rule ids, their elements and status are public contract: changing one is
@@ -473,6 +506,9 @@ _CATALOGUE = {
 
 @pytest.mark.parametrize("spec_id", spec_ids())
 def test_shipped_catalogue_is_pinned(spec_id: str) -> None:
+    if spec_id not in _CATALOGUE:  # pinned by the ontology snapshot instead
+        assert spec_id in json.loads(_ONTOLOGY.read_text(encoding="utf-8"))
+        return
     spec = get_spec(spec_id)
     got = [
         f"{spec.rule_id(r).split('-', 2)[2]} {r.element_id}"

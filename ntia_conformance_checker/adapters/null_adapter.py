@@ -64,3 +64,6 @@ class NullAdapter(SbomAdapter):
         self, conformance_messages: list[ValidationMessage]
     ) -> list[str]:
         return []
+
+    def document_declares_any(self, properties: tuple[str, ...]) -> bool:
+        return False

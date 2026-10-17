@@ -1,0 +1,938 @@
+# SPDX-FileContributor: Arthit Suriyawongkul
+# SPDX-FileCopyrightText: 2026-present SPDX contributors
+# SPDX-FileType: SOURCE
+# SPDX-License-Identifier: Apache-2.0
+
+# G7 SBOM for AI: Minimum Elements, partial support.
+#
+# Rule ids, labels, provisions and composition (aggregation) follow the SBOM
+# requirements ontology https://bact.github.io/bom/req/g7ai2026/ (0.3.0); the
+# SPDX 3.0.1 fields follow https://bact.github.io/bom/mapping/g7ai2026-to-spdx30.sssom.tsv.
+# Elements for which SPDX 3.0.1 has no field (mapping: GAP) or whose mapping is
+# not yet reviewed are catalogue-only: listed, never checked.
+# Source: G7 Cybersecurity Working Group, 2026, published by BSI.
+# https://www.bsi.bund.de/SharedDocs/Downloads/EN/BSI/KI/SBOM-for-AI_minimum-elements.pdf
+
+spec:
+  id: g7ai
+  rule_prefix: BOM-G7AI2026
+  title: G7 2026 SBOM for AI Minimum Elements
+  uri: https://www.bsi.bund.de/SharedDocs/Downloads/EN/BSI/KI/SBOM-for-AI_minimum-elements.pdf
+  sbom_specs: [spdx3]
+
+categories:
+  - id: metadata
+    code: MD
+    title: Metadata
+  - id: system-level-properties
+    code: SLP
+    title: System Level Properties
+  - id: models
+    code: MDL
+    title: Models
+  - id: dataset-properties
+    code: DP
+    title: Dataset Properties
+  - id: infrastructure
+    code: INF
+    title: Infrastructure
+  - id: security-properties
+    code: SP
+    title: Security Properties
+  - id: key-performance-indicators
+    code: KPI
+    title: Key Performance Indicators
+
+rules:
+
+  - number: 1
+    slug: g7ai-sbom-author-missing
+    spec_category: metadata
+    element_id: author
+    element_description: "sbom author"
+    competency_question: "SBOM author provided?"
+    warning: "SBOM author is missing."
+    provision: requirement
+    probe:
+      name: require_document_attribute
+      params: {"attribute": "author"}
+
+  - number: 2
+    slug: g7ai-sbom-version-missing
+    spec_category: metadata
+    element_description: "sbom version"
+    competency_question: "SBOM version provided?"
+    warning: "SBOM version is missing."
+    provision: requirement
+    status: catalogue-only
+
+  - number: 3
+    slug: g7ai-sbom-data-format-name-missing
+    spec_category: metadata
+    element_id: spec_version
+    element_description: "sbom data format name"
+    competency_question: "SBOM data format name provided?"
+    warning: "SBOM data format name is missing."
+    provision: requirement
+    probe:
+      name: require_document_attribute
+      params: {"attribute": "spec_version"}
+
+  - number: 4
+    slug: g7ai-sbom-data-format-version-missing
+    spec_category: metadata
+    element_id: spec_version
+    element_description: "sbom data format version"
+    competency_question: "SBOM data format version provided?"
+    warning: "SBOM data format version is missing."
+    provision: requirement
+    probe:
+      name: require_document_attribute
+      params: {"attribute": "spec_version"}
+
+  - number: 5
+    slug: g7ai-sbom-author-signature-missing
+    spec_category: metadata
+    element_description: "sbom author signature"
+    competency_question: "SBOM author signature provided?"
+    warning: "SBOM author signature is missing."
+    provision: requirement
+    status: catalogue-only
+
+  - number: 6
+    slug: g7ai-sbom-tool-name-missing
+    spec_category: metadata
+    element_description: "sbom tool name"
+    competency_question: "SBOM tool name provided?"
+    warning: "SBOM tool name is missing."
+    provision: requirement
+    probe:
+      name: require_document_property
+      params: {"properties": ["createdUsing"]}
+
+  - number: 7
+    slug: g7ai-sbom-tool-version-missing
+    spec_category: metadata
+    element_description: "sbom tool version"
+    competency_question: "SBOM tool version provided?"
+    warning: "SBOM tool version is missing."
+    provision: requirement
+    status: catalogue-only
+
+  - number: 8
+    slug: g7ai-sbom-generation-context-missing
+    spec_category: metadata
+    element_id: sbom_type
+    element_description: "sbom generation context"
+    competency_question: "SBOM generation context provided?"
+    warning: "SBOM generation context is missing."
+    provision: requirement
+    probe:
+      name: require_document_attribute
+      params: {"attribute": "sbom_type"}
+
+  - number: 9
+    slug: g7ai-sbom-timestamp-missing
+    spec_category: metadata
+    element_id: timestamp
+    element_description: "sbom timestamp"
+    competency_question: "SBOM timestamp provided?"
+    warning: "SBOM timestamp is missing."
+    provision: requirement
+    probe:
+      name: require_document_attribute
+      params: {"attribute": "timestamp"}
+
+  - number: 10
+    slug: g7ai-sbom-dependency-relationship-missing
+    spec_category: metadata
+    element_id: dependency_relationship
+    element_description: "sbom dependency relationship"
+    competency_question: "SBOM dependency relationship provided?"
+    warning: "SBOM dependency relationship is missing."
+    provision: requirement
+    probe:
+      name: require_document_attribute
+      params: {"attribute": "dependency_relationship"}
+
+  - number: 1
+    slug: g7ai-system-name-missing
+    spec_category: system-level-properties
+    element_description: "system name"
+    competency_question: "System name provided?"
+    warning: "System name is missing."
+    provision: requirement
+    probe:
+      name: require_property
+      params: {"kind": "system", "properties": ["name"]}
+
+  - number: 2
+    slug: g7ai-system-components-missing
+    spec_category: system-level-properties
+    element_description: "system components"
+    competency_question: "System components provided?"
+    warning: "System components is missing."
+    provision: requirement
+    probe:
+      name: require_relationship
+      params: {"kind": "system", "relationships": ["contains", "dependsOn"]}
+
+  - number: 3
+    slug: g7ai-system-producer-missing
+    spec_category: system-level-properties
+    element_description: "system producer"
+    competency_question: "System producer provided?"
+    warning: "System producer is missing."
+    provision: requirement
+    probe:
+      name: require_property
+      params: {"kind": "system", "properties": ["originatedBy"]}
+
+  - number: 4
+    slug: g7ai-system-version-missing
+    spec_category: system-level-properties
+    element_description: "system version"
+    competency_question: "System version provided?"
+    warning: "System version is missing."
+    provision: requirement
+    probe:
+      name: require_property
+      params: {"kind": "system", "properties": ["software_packageVersion"]}
+
+  - number: 5
+    slug: g7ai-system-timestamp-missing
+    spec_category: system-level-properties
+    element_description: "system timestamp"
+    competency_question: "System timestamp provided?"
+    warning: "System timestamp is missing."
+    provision: requirement
+    probe:
+      name: require_property
+      params: {"kind": "system", "properties": ["builtTime", "releaseTime"]}
+
+  - number: 6
+    slug: g7ai-system-data-flow-missing
+    spec_category: system-level-properties
+    element_description: "system data flow"
+    competency_question: "System data flow provided?"
+    warning: "System data flow is missing."
+    provision: requirement
+    status: catalogue-only
+
+  - number: 7
+    slug: g7ai-system-data-usage-missing
+    spec_category: system-level-properties
+    element_description: "system data usage"
+    competency_question: "System data usage provided?"
+    warning: "System data usage is missing."
+    provision: requirement
+    probe:
+      name: require_property
+      params: {"kind": "system", "properties": ["ai_useSensitivePersonalInformation"]}
+
+  - number: 8
+    slug: g7ai-system-input-output-prop-missing
+    spec_category: system-level-properties
+    element_description: "system input/output properties"
+    competency_question: "System input/output properties provided?"
+    warning: "System input/output properties is missing."
+    provision: requirement
+    aggregation: any-of
+
+  - number: 8
+    sub: 1
+    parent: g7ai-system-input-output-prop-missing
+    slug: g7ai-system-input-modality-missing
+    spec_category: system-level-properties
+    element_description: "system input modality"
+    competency_question: "System input modality provided?"
+    warning: "System input modality is missing."
+    provision: recommendation
+    status: catalogue-only
+
+  - number: 8
+    sub: 2
+    parent: g7ai-system-input-output-prop-missing
+    slug: g7ai-system-output-modality-missing
+    spec_category: system-level-properties
+    element_description: "system output modality"
+    competency_question: "System output modality provided?"
+    warning: "System output modality is missing."
+    provision: recommendation
+    status: catalogue-only
+
+  - number: 8
+    sub: 3
+    parent: g7ai-system-input-output-prop-missing
+    slug: g7ai-system-input-preprocessing-missing
+    spec_category: system-level-properties
+    element_description: "system input preprocessing"
+    competency_question: "System input preprocessing provided?"
+    warning: "System input preprocessing is missing."
+    provision: recommendation
+    probe:
+      name: require_property
+      params: {"kind": "system", "properties": ["ai_informationAboutApplication"]}
+
+  - number: 9
+    slug: g7ai-system-intended-application-area-missing
+    spec_category: system-level-properties
+    element_description: "intended application area"
+    competency_question: "Intended application area provided?"
+    warning: "Intended application area is missing."
+    provision: requirement
+    probe:
+      name: require_property
+      params: {"kind": "system", "properties": ["ai_domain"]}
+
+  - number: 1
+    slug: g7ai-model-name-missing
+    spec_category: models
+    element_description: "model name"
+    competency_question: "Model name provided?"
+    warning: "Model name is missing."
+    provision: requirement
+    probe:
+      name: require_property
+      params: {"kind": "ai_model", "properties": ["name"]}
+
+  - number: 2
+    slug: g7ai-model-identifier-missing
+    spec_category: models
+    element_description: "model identifier"
+    competency_question: "Model identifier provided?"
+    warning: "Model identifier is missing."
+    provision: requirement
+    probe:
+      name: require_property
+      params: {"kind": "ai_model", "properties": ["software_packageUrl", "externalIdentifier", "software_contentIdentifier"]}
+
+  - number: 3
+    slug: g7ai-model-version-missing
+    spec_category: models
+    element_description: "model version"
+    competency_question: "Model version provided?"
+    warning: "Model version is missing."
+    provision: requirement
+    probe:
+      name: require_property
+      params: {"kind": "ai_model", "properties": ["software_packageVersion"]}
+
+  - number: 4
+    slug: g7ai-model-timestamp-missing
+    spec_category: models
+    element_description: "model timestamp"
+    competency_question: "Model timestamp provided?"
+    warning: "Model timestamp is missing."
+    provision: requirement
+    probe:
+      name: require_property
+      params: {"kind": "ai_model", "properties": ["builtTime", "releaseTime"]}
+
+  - number: 5
+    slug: g7ai-model-producer-missing
+    spec_category: models
+    element_description: "model producer"
+    competency_question: "Model producer provided?"
+    warning: "Model producer is missing."
+    provision: requirement
+    probe:
+      name: require_property
+      params: {"kind": "ai_model", "properties": ["originatedBy"]}
+
+  - number: 6
+    slug: g7ai-model-description-missing
+    spec_category: models
+    element_description: "model description"
+    competency_question: "Model description provided?"
+    warning: "Model description is missing."
+    provision: requirement
+    aggregation: any-of
+
+  - number: 6
+    sub: 1
+    parent: g7ai-model-description-missing
+    slug: g7ai-model-capability-missing
+    spec_category: models
+    element_description: "model capability"
+    competency_question: "Model capability provided?"
+    warning: "Model capability is missing."
+    provision: recommendation
+    probe:
+      name: require_property
+      params: {"kind": "ai_model", "properties": ["summary"]}
+
+  - number: 6
+    sub: 2
+    parent: g7ai-model-description-missing
+    slug: g7ai-model-limitation-missing
+    spec_category: models
+    element_description: "model limitation"
+    competency_question: "Model limitation provided?"
+    warning: "Model limitation is missing."
+    provision: recommendation
+    probe:
+      name: require_property
+      params: {"kind": "ai_model", "properties": ["ai_limitation"]}
+
+  - number: 6
+    sub: 3
+    parent: g7ai-model-description-missing
+    slug: g7ai-model-lineage-missing
+    spec_category: models
+    element_description: "model lineage"
+    competency_question: "Model lineage provided?"
+    warning: "Model lineage is missing."
+    provision: recommendation
+    probe:
+      name: require_relationship
+      params: {"kind": "ai_model", "relationships": ["descendantOf"]}
+
+  - number: 6
+    sub: 4
+    parent: g7ai-model-description-missing
+    slug: g7ai-model-intended-use-missing
+    spec_category: models
+    element_description: "model intended use"
+    competency_question: "Model intended use provided?"
+    warning: "Model intended use is missing."
+    provision: recommendation
+    probe:
+      name: require_property
+      params: {"kind": "ai_model", "properties": ["ai_informationAboutApplication"]}
+
+  - number: 7
+    slug: g7ai-model-hash-value-missing
+    spec_category: models
+    element_description: "model hash value"
+    competency_question: "Model hash value provided?"
+    warning: "Model hash value is missing."
+    provision: requirement
+    probe:
+      name: require_property
+      params: {"kind": "ai_model", "properties": ["verifiedUsing"]}
+
+  - number: 8
+    slug: g7ai-model-hash-algorithm-missing
+    spec_category: models
+    element_description: "model hash algorithm"
+    competency_question: "Model hash algorithm provided?"
+    warning: "Model hash algorithm is missing."
+    provision: requirement
+    probe:
+      name: require_property
+      params: {"kind": "ai_model", "properties": ["verifiedUsing"]}
+
+  - number: 9
+    slug: g7ai-model-prop-missing
+    spec_category: models
+    element_description: "model properties"
+    competency_question: "Model properties provided?"
+    warning: "Model properties is missing."
+    provision: requirement
+    aggregation: any-of
+
+  - number: 9
+    sub: 1
+    parent: g7ai-model-prop-missing
+    slug: g7ai-model-type-missing
+    spec_category: models
+    element_description: "model type"
+    competency_question: "Model type provided?"
+    warning: "Model type is missing."
+    provision: recommendation
+    probe:
+      name: require_property
+      params: {"kind": "ai_model", "properties": ["ai_typeOfModel"]}
+
+  - number: 9
+    sub: 2
+    parent: g7ai-model-prop-missing
+    slug: g7ai-model-architecture-missing
+    spec_category: models
+    element_description: "model architecture"
+    competency_question: "Model architecture provided?"
+    warning: "Model architecture is missing."
+    provision: recommendation
+    status: catalogue-only
+
+  - number: 9
+    sub: 3
+    parent: g7ai-model-prop-missing
+    slug: g7ai-model-parameter-count-missing
+    spec_category: models
+    element_description: "model parameter count"
+    competency_question: "Model parameter count provided?"
+    warning: "Model parameter count is missing."
+    provision: recommendation
+    status: catalogue-only
+
+  - number: 9
+    sub: 4
+    parent: g7ai-model-prop-missing
+    slug: g7ai-model-hyperparameter-missing
+    spec_category: models
+    element_description: "model hyperparameters"
+    competency_question: "Model hyperparameters provided?"
+    warning: "Model hyperparameters is missing."
+    provision: recommendation
+    probe:
+      name: require_property
+      params: {"kind": "ai_model", "properties": ["ai_hyperparameter"]}
+
+  - number: 10
+    slug: g7ai-model-input-output-prop-missing
+    spec_category: models
+    element_description: "model input/output properties"
+    competency_question: "Model input/output properties provided?"
+    warning: "Model input/output properties is missing."
+    provision: requirement
+    aggregation: any-of
+
+  - number: 10
+    sub: 1
+    parent: g7ai-model-input-output-prop-missing
+    slug: g7ai-model-input-modality-missing
+    spec_category: models
+    element_description: "model input modality"
+    competency_question: "Model input modality provided?"
+    warning: "Model input modality is missing."
+    provision: recommendation
+    status: catalogue-only
+
+  - number: 10
+    sub: 2
+    parent: g7ai-model-input-output-prop-missing
+    slug: g7ai-model-output-modality-missing
+    spec_category: models
+    element_description: "model output modality"
+    competency_question: "Model output modality provided?"
+    warning: "Model output modality is missing."
+    provision: recommendation
+    status: catalogue-only
+
+  - number: 10
+    sub: 3
+    parent: g7ai-model-input-output-prop-missing
+    slug: g7ai-model-context-length-missing
+    spec_category: models
+    element_description: "model context length"
+    competency_question: "Model context length provided?"
+    warning: "Model context length is missing."
+    provision: recommendation
+    status: catalogue-only
+
+  - number: 10
+    sub: 4
+    parent: g7ai-model-input-output-prop-missing
+    slug: g7ai-model-input-preprocessing-missing
+    spec_category: models
+    element_description: "model input preprocessing"
+    competency_question: "Model input preprocessing provided?"
+    warning: "Model input preprocessing is missing."
+    provision: recommendation
+    probe:
+      name: require_property
+      params: {"kind": "ai_model", "properties": ["ai_informationAboutApplication"]}
+
+  - number: 11
+    slug: g7ai-model-training-prop-missing
+    spec_category: models
+    element_description: "model training properties"
+    competency_question: "Model training properties provided?"
+    warning: "Model training properties is missing."
+    provision: requirement
+    aggregation: any-of
+
+  - number: 11
+    sub: 1
+    parent: g7ai-model-training-prop-missing
+    slug: g7ai-model-learning-type-missing
+    spec_category: models
+    element_description: "model learning type"
+    competency_question: "Model learning type provided?"
+    warning: "Model learning type is missing."
+    provision: recommendation
+    probe:
+      name: require_property
+      params: {"kind": "ai_model", "properties": ["ai_typeOfModel", "ai_informationAboutTraining"]}
+
+  - number: 11
+    sub: 2
+    parent: g7ai-model-training-prop-missing
+    slug: g7ai-model-post-training-technique-missing
+    spec_category: models
+    element_description: "model post-training technique"
+    competency_question: "Model post-training technique provided?"
+    warning: "Model post-training technique is missing."
+    provision: recommendation
+    status: catalogue-only
+
+  - number: 12
+    slug: g7ai-model-license-missing
+    spec_category: models
+    element_description: "model license"
+    competency_question: "Model license provided?"
+    warning: "Model license is missing."
+    provision: requirement
+    aggregation: self-only
+    probe:
+      name: require_relationship
+      params: {"kind": "ai_model", "relationships": ["hasDeclaredLicense"]}
+
+  - number: 12
+    sub: 1
+    parent: g7ai-model-license-missing
+    slug: g7ai-model-openness-category-missing
+    spec_category: models
+    element_description: "model openness category"
+    competency_question: "Model openness category provided?"
+    warning: "Model openness category is missing."
+    provision: recommendation
+    status: catalogue-only
+
+  - number: 13
+    slug: g7ai-model-external-ref-missing
+    spec_category: models
+    element_description: "model external references"
+    competency_question: "Model external references provided?"
+    warning: "Model external references is missing."
+    provision: requirement
+    probe:
+      name: require_property
+      params: {"kind": "ai_model", "properties": ["externalRef"]}
+
+  - number: 1
+    slug: g7ai-dataset-name-missing
+    spec_category: dataset-properties
+    element_description: "dataset name"
+    competency_question: "Dataset name provided?"
+    warning: "Dataset name is missing."
+    provision: requirement
+    probe:
+      name: require_property
+      params: {"kind": "dataset", "properties": ["name"]}
+
+  - number: 2
+    slug: g7ai-dataset-description-missing
+    spec_category: dataset-properties
+    element_description: "dataset description"
+    competency_question: "Dataset description provided?"
+    warning: "Dataset description is missing."
+    provision: requirement
+    aggregation: any-of
+
+  - number: 2
+    sub: 1
+    parent: g7ai-dataset-description-missing
+    slug: g7ai-dataset-lifecycle-role-missing
+    spec_category: dataset-properties
+    element_description: "dataset lifecycle role"
+    competency_question: "Dataset lifecycle role provided?"
+    warning: "Dataset lifecycle role is missing."
+    provision: recommendation
+    probe:
+      name: require_relationship
+      params: {"kind": "dataset", "relationships": ["trainedOn", "testedOn"], "direction": "to"}
+
+  - number: 2
+    sub: 2
+    parent: g7ai-dataset-description-missing
+    slug: g7ai-dataset-availability-missing
+    spec_category: dataset-properties
+    element_description: "dataset availability"
+    competency_question: "Dataset availability provided?"
+    warning: "Dataset availability is missing."
+    provision: recommendation
+    probe:
+      name: require_property
+      params: {"kind": "dataset", "properties": ["dataset_datasetAvailability"]}
+
+  - number: 2
+    sub: 3
+    parent: g7ai-dataset-description-missing
+    slug: g7ai-dataset-confidentiality-level-missing
+    spec_category: dataset-properties
+    element_description: "dataset confidentiality level"
+    competency_question: "Dataset confidentiality level provided?"
+    warning: "Dataset confidentiality level is missing."
+    provision: recommendation
+    probe:
+      name: require_property
+      params: {"kind": "dataset", "properties": ["dataset_confidentialityLevel"]}
+
+  - number: 3
+    slug: g7ai-dataset-content-missing
+    spec_category: dataset-properties
+    element_description: "dataset content"
+    competency_question: "Dataset content provided?"
+    warning: "Dataset content is missing."
+    provision: requirement
+    aggregation: any-of
+
+  - number: 3
+    sub: 1
+    parent: g7ai-dataset-content-missing
+    slug: g7ai-dataset-domain-missing
+    spec_category: dataset-properties
+    element_description: "dataset domain"
+    competency_question: "Dataset domain provided?"
+    warning: "Dataset domain is missing."
+    provision: recommendation
+    status: catalogue-only
+
+  - number: 3
+    sub: 2
+    parent: g7ai-dataset-content-missing
+    slug: g7ai-dataset-format-missing
+    spec_category: dataset-properties
+    element_description: "dataset format"
+    competency_question: "Dataset format provided?"
+    warning: "Dataset format is missing."
+    provision: recommendation
+    status: catalogue-only
+
+  - number: 3
+    sub: 3
+    parent: g7ai-dataset-content-missing
+    slug: g7ai-dataset-modality-missing
+    spec_category: dataset-properties
+    element_description: "dataset modality"
+    competency_question: "Dataset modality provided?"
+    warning: "Dataset modality is missing."
+    provision: recommendation
+    probe:
+      name: require_property
+      params: {"kind": "dataset", "properties": ["dataset_datasetType"]}
+
+  - number: 4
+    slug: g7ai-dataset-identifier-missing
+    spec_category: dataset-properties
+    element_description: "dataset identifier"
+    competency_question: "Dataset identifier provided?"
+    warning: "Dataset identifier is missing."
+    provision: requirement
+    probe:
+      name: require_property
+      params: {"kind": "dataset", "properties": ["software_packageUrl", "externalIdentifier", "software_contentIdentifier"]}
+
+  - number: 5
+    slug: g7ai-dataset-hash-missing
+    spec_category: dataset-properties
+    element_description: "dataset hash"
+    competency_question: "Dataset hash provided?"
+    warning: "Dataset hash is missing."
+    provision: requirement
+    probe:
+      name: require_property
+      params: {"kind": "dataset", "properties": ["verifiedUsing"]}
+
+  - number: 6
+    slug: g7ai-dataset-provenance-missing
+    spec_category: dataset-properties
+    element_description: "dataset provenance"
+    competency_question: "Dataset provenance provided?"
+    warning: "Dataset provenance is missing."
+    provision: requirement
+    aggregation: any-of
+
+  - number: 6
+    sub: 1
+    parent: g7ai-dataset-provenance-missing
+    slug: g7ai-dataset-source-missing
+    spec_category: dataset-properties
+    element_description: "dataset source"
+    competency_question: "Dataset source provided?"
+    warning: "Dataset source is missing."
+    provision: recommendation
+    probe:
+      name: require_property
+      params: {"kind": "dataset", "properties": ["originatedBy"]}
+
+  - number: 6
+    sub: 2
+    parent: g7ai-dataset-provenance-missing
+    slug: g7ai-dataset-collection-method-missing
+    spec_category: dataset-properties
+    element_description: "dataset collection method"
+    competency_question: "Dataset collection method provided?"
+    warning: "Dataset collection method is missing."
+    provision: recommendation
+    probe:
+      name: require_property
+      params: {"kind": "dataset", "properties": ["dataset_dataCollectionProcess"]}
+
+  - number: 6
+    sub: 3
+    parent: g7ai-dataset-provenance-missing
+    slug: g7ai-dataset-preprocessing-missing
+    spec_category: dataset-properties
+    element_description: "dataset preprocessing"
+    competency_question: "Dataset preprocessing provided?"
+    warning: "Dataset preprocessing is missing."
+    provision: recommendation
+    probe:
+      name: require_property
+      params: {"kind": "dataset", "properties": ["dataset_dataPreprocessing"]}
+
+  - number: 6
+    sub: 4
+    parent: g7ai-dataset-provenance-missing
+    slug: g7ai-dataset-synthetic-method-missing
+    spec_category: dataset-properties
+    element_description: "dataset synthetic data method"
+    competency_question: "Dataset synthetic data method provided?"
+    warning: "Dataset synthetic data method is missing."
+    provision: recommendation
+    status: catalogue-only
+
+  - number: 7
+    slug: g7ai-dataset-statistical-prop-missing
+    spec_category: dataset-properties
+    element_description: "dataset statistical properties"
+    competency_question: "Dataset statistical properties provided?"
+    warning: "Dataset statistical properties is missing."
+    provision: requirement
+    probe:
+      name: require_property
+      params: {"kind": "dataset", "properties": ["dataset_datasetSize", "dataset_knownBias"]}
+
+  - number: 8
+    slug: g7ai-dataset-sensitivity-missing
+    spec_category: dataset-properties
+    element_description: "dataset sensitivity"
+    competency_question: "Dataset sensitivity provided?"
+    warning: "Dataset sensitivity is missing."
+    provision: requirement
+    aggregation: any-of
+
+  - number: 8
+    sub: 1
+    parent: g7ai-dataset-sensitivity-missing
+    slug: g7ai-dataset-personal-information-missing
+    spec_category: dataset-properties
+    element_description: "dataset personal information"
+    competency_question: "Dataset personal information provided?"
+    warning: "Dataset personal information is missing."
+    provision: recommendation
+    probe:
+      name: require_property
+      params: {"kind": "dataset", "properties": ["dataset_hasSensitivePersonalInformation", "dataset_anonymizationMethodUsed"]}
+
+  - number: 8
+    sub: 2
+    parent: g7ai-dataset-sensitivity-missing
+    slug: g7ai-dataset-copyright-status-missing
+    spec_category: dataset-properties
+    element_description: "dataset copyright status"
+    competency_question: "Dataset copyright status provided?"
+    warning: "Dataset copyright status is missing."
+    provision: recommendation
+    status: catalogue-only
+
+  - number: 8
+    sub: 3
+    parent: g7ai-dataset-sensitivity-missing
+    slug: g7ai-dataset-sensitive-category-missing
+    spec_category: dataset-properties
+    element_description: "dataset sensitive data category"
+    competency_question: "Dataset sensitive data category provided?"
+    warning: "Dataset sensitive data category is missing."
+    provision: recommendation
+    status: catalogue-only
+
+  - number: 9
+    slug: g7ai-dataset-dependency-relationship-missing
+    spec_category: dataset-properties
+    element_description: "dataset dependency relationship"
+    competency_question: "Dataset dependency relationship provided?"
+    warning: "Dataset dependency relationship is missing."
+    provision: requirement
+    probe:
+      name: require_relationship
+      params: {"kind": "dataset", "relationships": ["dependsOn", "descendantOf"]}
+
+  - number: 10
+    slug: g7ai-dataset-license-missing
+    spec_category: dataset-properties
+    element_description: "dataset license"
+    competency_question: "Dataset license provided?"
+    warning: "Dataset license is missing."
+    provision: requirement
+    probe:
+      name: require_relationship
+      params: {"kind": "dataset", "relationships": ["hasDeclaredLicense"]}
+
+  - number: 1
+    slug: g7ai-infrastructure-software-missing
+    spec_category: infrastructure
+    element_description: "infrastructure software"
+    competency_question: "Infrastructure software provided?"
+    warning: "Infrastructure software is missing."
+    provision: requirement
+    status: catalogue-only
+
+  - number: 2
+    slug: g7ai-infrastructure-hardware-missing
+    spec_category: infrastructure
+    element_description: "infrastructure hardware"
+    competency_question: "Infrastructure hardware provided?"
+    warning: "Infrastructure hardware is missing."
+    provision: requirement
+    status: catalogue-only
+
+  - number: 1
+    slug: g7ai-security-controls-missing
+    spec_category: security-properties
+    element_description: "security controls"
+    competency_question: "Security controls provided?"
+    warning: "Security controls is missing."
+    provision: requirement
+    status: catalogue-only
+
+  - number: 2
+    slug: g7ai-security-compliance-missing
+    spec_category: security-properties
+    element_description: "security compliance"
+    competency_question: "Security compliance provided?"
+    warning: "Security compliance is missing."
+    provision: requirement
+    probe:
+      name: require_property
+      params: {"kind": "system", "properties": ["ai_standardCompliance"]}
+
+  - number: 3
+    slug: g7ai-cybersecurity-policy-missing
+    spec_category: security-properties
+    element_description: "cybersecurity policy information"
+    competency_question: "Cybersecurity policy information provided?"
+    warning: "Cybersecurity policy information is missing."
+    provision: requirement
+    status: catalogue-only
+
+  - number: 4
+    slug: g7ai-vulnerability-referencing-missing
+    spec_category: security-properties
+    element_description: "vulnerability referencing"
+    competency_question: "Vulnerability referencing provided?"
+    warning: "Vulnerability referencing is missing."
+    provision: requirement
+    status: catalogue-only
+
+  - number: 1
+    slug: g7ai-security-metric-missing
+    spec_category: key-performance-indicators
+    element_description: "security metrics"
+    competency_question: "Security metrics provided?"
+    warning: "Security metrics is missing."
+    provision: requirement
+    status: catalogue-only
+
+  - number: 2
+    slug: g7ai-operational-perf-kpi-missing
+    spec_category: key-performance-indicators
+    element_description: "operational performance kpis"
+    competency_question: "Operational performance KPIs provided?"
+    warning: "Operational performance KPIs is missing."
+    provision: requirement
+    status: catalogue-only

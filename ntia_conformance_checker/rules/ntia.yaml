@@ -10,6 +10,7 @@
 
 spec:
   id: ntia
+  rule_prefix: BOM-NTIA2021
   title: 2021 NTIA SBOM Minimum Elements
   uri: https://www.ntia.gov/report/2021/minimum-elements-software-bill-materials-sbom
   taxonomies:

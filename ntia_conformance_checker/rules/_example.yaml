@@ -14,6 +14,9 @@ spec:
   id: demo                       # machine id; lowercase, [a-z][a-z0-9]*.
                                  # Uppercased into rule ids: SBOM-DEMO-...
   title: Demo Example Standard   # human-readable name (shown in reports)
+  # rule_prefix: BOM-DEMO        # optional; rule ids become <prefix>-<CAT>-<NNN>[.<M>]
+  #                              # (default: SBOM-<ID>)
+  # sbom_specs: [spdx3]          # optional; SBOM specifications the standard covers
   uri: https://example.org/demo  # fallback help URL when a rule omits its own
   taxonomies:                    # output-format-agnostic taxonomy names (optional)
     category: demo-elements      # SARIF category-taxonomy / OSCAL catalog id
@@ -34,6 +37,17 @@ maturity_levels:                 # optional; omit entirely for a flat standard
     title: Recommended
 
 rules:
+  # Composite rules (optional): a roll-up has no probe and is computed from its
+  # sub-rules, which share its category and number:
+  #   - number: 5
+  #     slug: demo-description-missing
+  #     aggregation: any-of      # or all-of; self-only keeps the rule's own probe
+  #   - number: 5
+  #     sub: 1                   # id suffix .1
+  #     parent: demo-description-missing
+  #     slug: demo-summary-missing
+  # A probe can be scoped to a kind of component (component, system, ai_model, dataset)
+  # and read SPDX 3 properties by name; see g7ai.yaml for examples.
   - number: 1                    # sequence within (spec, category); -> NNN (001)
     slug: demo-component-name-missing   # finding-framed, kebab, spec-prefixed.
                                         # report_name derives: DemoComponentNameMissing

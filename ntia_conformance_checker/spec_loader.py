@@ -56,6 +56,7 @@ from . import probes
 from .model import ELEMENT_IDS
 from .spec import (
     DEFAULT_MATURITY_LEVELS,
+    Aggregation,
     ProbeRef,
     Provision,
     Spec,
@@ -86,12 +87,15 @@ _RULE_ALLOWED = {f.name for f in fields(SpecRule)} - {"probe"}
 # spec's own maturity_levels rather than a fixed Literal.)
 _STATUS_VALUES: frozenset[str] = frozenset(get_args(Status))
 _PROVISION_VALUES: frozenset[str] = frozenset(get_args(Provision))
+_AGGREGATION_VALUES: frozenset[str] = frozenset(get_args(Aggregation))
+_SBOM_SPEC_VALUES = frozenset({"spdx2", "spdx3"})
 
 # spec_id is uppercased into the SPEC segment of every rule id, so it must be a
 # hyphen-free, uppercase-safe token (start with a letter, then letters/digits).
 _SPEC_ID_RE = re.compile(r"^[a-z][a-z0-9]*$")
 _KEBAB_RE = re.compile(r"^[a-z][a-z0-9]*(-[a-z0-9]+)*$")  # category id, rule slug
 _CATEGORY_CODE_RE = re.compile(r"^[A-Z][A-Z0-9]*$")  # CATEGORY segment of a rule id
+_RULE_PREFIX_RE = re.compile(r"^[A-Z][A-Z0-9]*(-[A-Z0-9]+)*$")  # e.g. BOM-NTIA2021
 
 
 def load_spec(path: str | Path) -> Spec:
@@ -130,6 +134,17 @@ def load_spec(path: str | Path) -> Spec:
         )
 
     taxonomies = _build_taxonomies(spec_block.pop("taxonomies", None), yaml_path)
+    spec_block["sbom_specs"] = _build_sbom_specs(
+        spec_block.pop("sbom_specs", []), yaml_path
+    )
+    prefix = spec_block.get("rule_prefix", "")
+    if not isinstance(prefix, str) or (
+        prefix and not _RULE_PREFIX_RE.fullmatch(prefix)
+    ):
+        raise SpecLoadError(
+            f"{yaml_path}: spec rule_prefix must match {_RULE_PREFIX_RE.pattern!r}; "
+            f"got {prefix!r}"
+        )
     categories = tuple(
         _build_category(c, yaml_path)
         for c in _require_list(raw, "categories", yaml_path)
@@ -334,6 +349,12 @@ def _build_probe(raw: Any, path: Path) -> ProbeRef:
         raise SpecLoadError(
             f"{path}: rule.probe.params do not fit probe {name!r}: {exc}"
         ) from exc
+    check = probes.validator(name)
+    if check is not None:
+        try:
+            check(params)
+        except ValueError as exc:
+            raise SpecLoadError(f"{path}: probe {name!r}: {exc}") from exc
     return ProbeRef(name=name, params=dict(params))
 
 
@@ -366,6 +387,9 @@ def _build_rule(
         )
     _reject_bad_enum(data, "provision", _PROVISION_VALUES, path)
     _reject_bad_enum(data, "status", _STATUS_VALUES, path)
+    _reject_bad_enum(data, "aggregation", _AGGREGATION_VALUES, path)
+    if data.get("sub", 0) < 0 or data.get("sub", 0) > 99:
+        raise SpecLoadError(f"{path}: rule sub must be 0..99; got {data['sub']!r}")
     if data.get("element_id", "") not in ELEMENT_IDS | {""}:
         raise SpecLoadError(
             f"{path}: rule element_id must be one of {sorted(ELEMENT_IDS)!r}; "
@@ -389,7 +413,13 @@ def _build_rule_probe(
     (else it passes vacuously), a non-active rule must not have one."""
     probe = _build_probe(probe_raw, path) if probe_raw is not None else None
     active = data.get("status", "active") == "active"
-    if active and probe is None:
+    rollup = data.get("aggregation", "") in ("any-of", "all-of")
+    if rollup and probe is not None:
+        raise SpecLoadError(
+            f"{path}: roll-up rule {data['slug']!r} is computed from its "
+            f"sub-rules and must not have a probe"
+        )
+    if active and probe is None and not rollup:
         raise SpecLoadError(
             f"{path}: active rule {data['slug']!r} has no probe, so it would "
             f"pass vacuously; add a probe or set status to catalogue-only/tbd"
@@ -420,6 +450,20 @@ def _check_probe_attribute(probe: ProbeRef, element_id: str, path: Path) -> None
             f"{path}: rule element_id {element_id!r} differs from its probe "
             f"attribute {attr!r}"
         )
+
+
+def _build_sbom_specs(raw: Any, path: Path) -> tuple[str, ...]:
+    """Validate the spec's ``sbom_specs`` list (omitted -> any SBOM specification)."""
+    if not isinstance(raw, list) or not all(
+        isinstance(v, str) and v in _SBOM_SPEC_VALUES for v in raw
+    ):
+        raise SpecLoadError(
+            f"{path}: spec sbom_specs must be a list drawn from "
+            f"{sorted(_SBOM_SPEC_VALUES)!r}; got {raw!r}"
+        )
+    if len(set(raw)) != len(raw):
+        raise SpecLoadError(f"{path}: spec sbom_specs has duplicates: {raw!r}")
+    return tuple(raw)
 
 
 def _build_taxonomies(raw: Any, path: Path) -> SpecTaxonomies:
@@ -499,10 +543,64 @@ def _validate_rules(spec_id: str, rules: tuple[SpecRule, ...], path: Path) -> No
             )
     keys: dict[str, list[Any]] = {
         "slug": [r.slug for r in rules],
-        "number in its category": [(r.spec_category, r.number) for r in rules],
+        "number in its category": [(r.spec_category, r.number, r.sub) for r in rules],
         "json_key": [(r.json_group, r.json_key) for r in rules if r.json_key],
     }
     for what, values in keys.items():
         dupes = sorted({str(v) for v in values if values.count(v) > 1})
         if dupes:
             raise SpecLoadError(f"{path}: duplicate rule {what}: {dupes}")
+    _validate_composites(rules, path)
+
+
+def _validate_composites(rules: tuple[SpecRule, ...], path: Path) -> None:
+    """Check that sub-rules refine an existing composite rule consistently.
+
+    A sub-rule shares its parent's category and number (its id is the parent's
+    plus ``.M``); a roll-up parent needs at least one sub-rule.
+    """
+    by_slug = {r.slug: r for r in rules}
+    for rule in rules:
+        if bool(rule.parent) != bool(rule.sub):
+            raise SpecLoadError(
+                f"{path}: rule {rule.slug!r} needs both parent and sub, or neither"
+            )
+        if not rule.parent:
+            continue
+        parent = by_slug.get(rule.parent)
+        if parent is None or not parent.aggregation or parent.sub:
+            raise SpecLoadError(
+                f"{path}: rule {rule.slug!r} parent {rule.parent!r} must be a "
+                f"top-level rule with an aggregation"
+            )
+        if (parent.spec_category, parent.number) != (rule.spec_category, rule.number):
+            raise SpecLoadError(
+                f"{path}: sub-rule {rule.slug!r} must share its parent's "
+                f"category and number"
+            )
+    for rule in rules:
+        if rule.aggregation in ("any-of", "all-of"):
+            _validate_rollup(rule, rules, path)
+
+
+def _validate_rollup(rule: SpecRule, rules: tuple[SpecRule, ...], path: Path) -> None:
+    """Check a roll-up rule: active only with active sub-rules of one kind."""
+    subs = [r for r in rules if r.parent == rule.slug]
+    active = [r for r in subs if r.status == "active"]
+    if rule.status != "active":
+        if active:
+            raise SpecLoadError(
+                f"{path}: roll-up rule {rule.slug!r} is not active, so its "
+                f"sub-rules cannot be"
+            )
+        return
+    if not active:
+        raise SpecLoadError(
+            f"{path}: roll-up rule {rule.slug!r} needs an active sub-rule"
+        )
+    kinds = {r.probe.params.get("kind") for r in active if r.probe}
+    if len(kinds) > 1:
+        raise SpecLoadError(
+            f"{path}: sub-rules of roll-up {rule.slug!r} must share one "
+            f"component kind, got {sorted(map(str, kinds))}"
+        )
