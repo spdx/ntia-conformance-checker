@@ -29,6 +29,8 @@ Currently, the supported specifications are:
 
 - [2021 NTIA SBOM Minimum Elements][ntia]
 - [2024 CISA Framing Software Component Transparency (FSCT3) (minimum expected)][fsct3]
+- [G7 SBOM for AI: Minimum Elements][g7ai] (partial; SPDX 3 only, see
+  [what is checked](ntia_conformance_checker/rules/g7ai.md))
 - [2025 BSI TR-03183-2 v2.1.0 content requirements][bsi]
 
 The minimum elements include:
@@ -115,8 +117,10 @@ options:
   -h, --help            show this help message and exit
   -s, --sbom-spec {spdx2,spdx3}
                         SBOM specification of the input file; see below for details [default: spdx2]
-  -c, --comply {bsi,fsct3-min,ntia}
+  -c, --comply {bsi,fsct3,fsct3-min,g7ai,ntia}
                         Compliance standards to check against; see below for details [default: ntia]
+  -m, --mature LEVEL    Maturity level to check against; 0 is the baseline
+                        and higher levels add requirements [default: 0]
   -k, --skip-validation
                         Skip validation
   -r, --output TYPE     Report output type; see below for details [default: print]
@@ -134,7 +138,9 @@ choices:
 
   Compliance standards (for --comply):
     bsi         BSI TR-03183-2 v2.1.0 content requirements
-    fsct3-min   2024 CISA Framing Software Component Transparency (minimum expected)
+    fsct3       2024 CISA Framing Software Component Transparency (minimum expectation)
+    fsct3-min   2024 CISA Framing Software Component Transparency (minimum expectation) (deprecated; use fsct3)
+    g7ai        G7 2026 SBOM for AI Minimum Elements
     ntia        2021 NTIA SBOM Minimum Elements
 
   Report output types (for --output):
@@ -145,7 +151,7 @@ choices:
 
 Examples:
   sbomcheck sbom.spdx
-  sbomcheck -s spdx3 -c fsct3-min -v sbom.json
+  sbomcheck -s spdx3 -c fsct3 -v sbom.json
   sbomcheck sbom.yaml --output json --output-file report.json
 ```
 
@@ -182,8 +188,23 @@ from ntia_conformance_checker import SbomChecker
 
 sbom_checker = SbomChecker("SBOM_filepath")
 
-print(sbom_checker.compliant)
+print(sbom_checker.check_compliance())
 ```
+
+`check_compliance(maturity=0)` takes the maturity level to check against
+(`0` is the baseline; `ValueError` if the standard does not declare the level).
+The `compliant` attribute still works but is deprecated;
+use `check_compliance()` instead.
+
+### Rules
+
+The NTIA and FSCT3 standards are defined declaratively in
+[`rules/ntia.yaml`](ntia_conformance_checker/rules/ntia.yaml) and
+[`rules/fsct3.yaml`](ntia_conformance_checker/rules/fsct3.yaml).
+Each rule carries the question shown in the report table and the message
+shown when the requirement is not met.
+See [`rules/_example.yaml`](ntia_conformance_checker/rules/_example.yaml)
+for the format.
 
 See the API documentation at:
 <https://spdx.github.io/ntia-conformance-checker/>
@@ -264,6 +285,7 @@ Check out the [frequently asked questions](./FAQ.md) document.
 [ntia]: https://www.ntia.gov/report/2021/minimum-elements-software-bill-materials-sbom
 [ntia-spdx23]: https://spdx.github.io/spdx-spec/v2.3/how-to-use/#k22-mapping-ntia-minimum-elements-to-spdx-fields
 [fsct3]: https://www.cisa.gov/resources-tools/resources/framing-software-component-transparency-2024
+[g7ai]: https://www.bsi.bund.de/SharedDocs/Downloads/EN/BSI/KI/SBOM-for-AI_minimum-elements.pdf
 [bsi]: https://www.bsi.bund.de/SharedDocs/Downloads/EN/BSI/Publications/TechGuidelines/TR03183/BSI-TR-03183-2_v2_1_0.html
 [sbom-reqs]: https://drive.google.com/file/d/14HZGYD7pSSWEmtaHZzWrzPhxCXaCnloJ/view
 [pypi]: https://pypi.org/project/ntia-conformance-checker/

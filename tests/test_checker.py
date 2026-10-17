@@ -77,12 +77,12 @@ def test_sbomchecker_ntia_no_errors(test_file: str) -> None:
     assert not sbom.components_without_versions
     assert not sbom.components_without_suppliers
     assert not sbom.components_without_identifiers
-    assert sbom.compliant
+    assert sbom.check_compliance()
 
 
 @pytest.mark.parametrize("test_file", test_files)
 def test_sbomchecker_fsct3_no_errors(test_file: str) -> None:
-    sbom = sbom_checker.SbomChecker(test_file, compliance="fsct3-min")
+    sbom = sbom_checker.SbomChecker(test_file, compliance="fsct3")
     assert sbom.file == test_file
     assert sbom.doc_version
     assert sbom.doc_author
@@ -108,7 +108,7 @@ def test_ntiachecker_no_errors(test_file: str) -> None:
     assert not sbom.components_without_versions
     assert not sbom.components_without_suppliers
     assert not sbom.components_without_identifiers
-    assert sbom.compliant
+    assert sbom.check_compliance()
 
 
 @pytest.mark.parametrize("test_file", test_files)
@@ -141,7 +141,7 @@ def test_sbomchecker_missing_author_name(test_file: str) -> None:
     the document does not contain a creator."""
     sbom_check = sbom_checker.SbomChecker(test_file)
 
-    assert not sbom_check.compliant
+    assert not sbom_check.check_compliance()
     assert sbom_check.parsing_errors
 
 
@@ -157,7 +157,7 @@ def test_sbomchecker_missing_timestamp(test_file: str) -> None:
     the document does not contain a created date."""
     sbom_check = sbom_checker.SbomChecker(test_file)
 
-    assert not sbom_check.compliant
+    assert not sbom_check.check_compliance()
     assert sbom_check.parsing_errors
 
 
@@ -174,7 +174,7 @@ def test_sbomchecker_missing_concluded_license(test_file: str) -> None:
     sbom_check = FSCT3Checker(test_file)
 
     assert sbom_check.components_without_concluded_licenses
-    assert not sbom_check.compliant
+    assert not sbom_check.check_compliance()
 
 
 ### Test missing dependency relationships
@@ -199,7 +199,7 @@ def test_sbomchecker_missing_dependency_relationships(test_file: str) -> None:
     assert not sbom.components_without_versions
     assert not sbom.components_without_suppliers
     assert not sbom.components_without_identifiers
-    assert not sbom.compliant
+    assert not sbom.check_compliance()
 
 
 ### Test missing component version
@@ -224,7 +224,7 @@ def test_sbomchecker_missing_component_version(test_file: str) -> None:
     )
     assert not sbom.components_without_suppliers
     assert not sbom.components_without_identifiers
-    assert not sbom.compliant
+    assert not sbom.check_compliance()
 
 
 ### Test missing supplier name
@@ -248,7 +248,7 @@ def test_sbomchecker_missing_supplier_name(test_file: str) -> None:
         ["glibc", "Saxon"],
     )
     assert not sbom.components_without_identifiers
-    assert not sbom.compliant
+    assert not sbom.check_compliance()
 
 
 ### Test missing unique identifiers
@@ -266,7 +266,7 @@ def test_sbomchecker_missing_unique_identifiers(test_file: str) -> None:
 
     sbom_check = sbom_checker.SbomChecker(test_file)
 
-    assert not sbom_check.compliant
+    assert not sbom_check.check_compliance()
     assert sbom_check.parsing_errors
 
 
@@ -311,7 +311,7 @@ def test_sbomchecker_chainguard_example() -> None:
         "chainguard.spdx.json",
     )
     sbom = sbom_checker.SbomChecker(test_file)
-    assert sbom.compliant
+    assert sbom.check_compliance()
 
 
 def test_sbomchecker_alpine_no_package_supplier_name_example() -> None:
@@ -375,18 +375,18 @@ def test_sbomchecker_spdx3_no_elements_missing() -> None:
     assert sbom.doc_timestamp
     assert sbom.sbom_gen_context
     assert sbom.dependency_relationships
-    assert sbom.compliant
+    assert sbom.check_compliance()
 
 
 def test_sbomchecker_fsct3_spdx3_no_elements_missing() -> None:
     test_file = Path(__file__).parent / "data" / "spdx3" / "no_elements_missing.json"
     sbom = sbom_checker.SbomChecker(
-        str(test_file), sbom_spec="spdx3", compliance="fsct3-min"
+        str(test_file), sbom_spec="spdx3", compliance="fsct3"
     )
     assert sbom.doc is not None
     assert isinstance(sbom.doc, spdx3.SHACLObjectSet)
     assert sbom.dependency_relationships
-    assert sbom.compliant
+    assert sbom.check_compliance()
     assert len(sbom.validation_messages) == 0
 
 
@@ -402,7 +402,7 @@ def test_sbomchecker_spdx3_package_dependency_relationship() -> None:
     assert isinstance(sbom.doc, spdx3.SHACLObjectSet)
     assert len(sbom.validation_messages) == 0
     assert sbom.dependency_relationships
-    assert sbom.compliant
+    assert sbom.check_compliance()
 
 
 @pytest.mark.parametrize(
@@ -541,6 +541,9 @@ def test_sbomchecker_output_html() -> None:
         "<td class='conformance-res-tab-v'>True</td></tr>\n"
         "</tbody>\n"
         "</table>\n"
+        "<ul class='conformance-res-msg'>\n"
+        "<li>An SBOM component should have a supplier name.</li>\n"
+        "</ul>\n"
         "</div>\n"
         "<div class='conformance-mis'>\n"
         "<p class='conformance-mis-label'>"
@@ -558,7 +561,7 @@ def test_sbomchecker_fsct3_output_html() -> None:
     filepath = os.path.join(
         os.path.dirname(__file__), "data", "other_tests", "SPDXSBOMExample.spdx.yml"
     )
-    sbom = sbom_checker.SbomChecker(filepath, compliance="fsct3-min")
+    sbom = sbom_checker.SbomChecker(filepath, compliance="fsct3")
 
     got = sbom.output_html()
     expected = (
@@ -594,6 +597,11 @@ def test_sbomchecker_fsct3_output_html() -> None:
         "<td class='conformance-res-tab-v'>True</td></tr>\n"
         "</tbody>\n"
         "</table>\n"
+        "<ul class='conformance-res-msg'>\n"
+        "<li>An SBOM component should have a supplier name.</li>\n"
+        "<li>An SBOM component should have a concluded license.</li>\n"
+        "<li>An SBOM must declare its type (SBOM generation context).</li>\n"
+        "</ul>\n"
         "</div>\n"
         "<div class='conformance-mis'>\n"
         "<p class='conformance-mis-label'>"
@@ -678,9 +686,9 @@ def test_missing_relationship_target(test_file: str) -> None:
     # For SPDX 3, unknown pointer graph issues do not fail minimum elements compliance
     # because we decouple the graph validation from the minimum elements check.
     if spec == "spdx3":
-        assert sbom.compliant is True
+        assert sbom.check_compliance() is True
     else:
-        assert sbom.compliant is False
+        assert sbom.check_compliance() is False
 
     # Test that the SBOM has unknown pointers and that the unknown pointer edges are logged
     assert sbom.has_unknown_pointers is True
@@ -719,7 +727,7 @@ def test_disconnected_component(test_file: str) -> None:
     sbom = sbom_checker.SbomChecker(test_file, sbom_spec=spec)
 
     # Disconnected components do not fail minimum elements compliance
-    assert sbom.compliant is True
+    assert sbom.check_compliance() is True
 
     # Assert the valid root package was successfully reached
     assert any(

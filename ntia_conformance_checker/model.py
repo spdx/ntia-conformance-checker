@@ -1,0 +1,104 @@
+# SPDX-FileContributor: Arthit Suriyawongkul
+# SPDX-FileCopyrightText: 2026-present SPDX contributors
+# SPDX-FileType: SOURCE
+# SPDX-License-Identifier: Apache-2.0
+
+"""Shared data types for the declarative-rules engine.
+
+* :class:`Finding` -- one occurrence of a rule violation, format-agnostic.
+  Probes yield ``Finding`` objects; the SARIF / JSON / text emitters
+  convert them to their output shape.
+
+* ``ELEMENT_IDS`` -- the canonical, presence-oriented vocabulary used
+  throughout YAML rules, probes, and ``BaseChecker`` accessors.  Singular,
+  spec-aligned names.  *Document-level* and *component-level* checks use
+  the **same** vocabulary because the rule concept is the same (the
+  element must be present).
+"""
+
+from __future__ import annotations
+
+from dataclasses import dataclass
+from typing import Literal
+
+
+@dataclass(frozen=True, kw_only=True)
+class Finding:
+    """One occurrence of a rule violation.
+
+    ``component_id`` is the SPDX-style identifier (e.g. ``"SPDXRef-Pkg-foo"``)
+    for component-level findings, or the literal string ``"document"`` for
+    document-level findings.
+
+    ``component_name`` is the human-readable name when known (empty string
+    for document-level findings or anonymous components).
+
+    ``note`` is an optional, finding-specific message that overrides the
+    rule's default warning text.  Most probes leave it empty so the rule's
+    :attr:`SpecRule.warning` flows through to output.
+    """
+
+    component_id: str
+    component_name: str = ""
+    note: str = ""
+
+    @property
+    def is_document_level(self) -> bool:
+        """True if this finding is about the SBOM document, not a component."""
+        return self.component_id == "document"
+
+
+# Canonical element-id vocabulary.  These strings appear verbatim in YAML
+# rules, on probe ``params``, and in SARIF ``rule.properties.elementId``.
+# Choose them carefully -- they are public contract.
+COMPONENT_ELEMENT_IDS: frozenset[str] = frozenset(
+    {
+        "name",
+        "version",
+        "unique_identifier",
+        "supplier",
+        "concluded_license",
+        "copyright_notice",
+        "cryptographic_hash",
+        "relationship",
+    }
+)
+"""Elements checked for presence on each component."""
+
+DOCUMENT_ELEMENT_IDS: frozenset[str] = frozenset(
+    {
+        "author",
+        "timestamp",
+        "spec_version",
+        "dependency_relationship",
+        "primary_component",
+        "sbom_type",
+    }
+)
+"""Elements checked for presence on the SBOM as a whole."""
+
+ELEMENT_IDS: frozenset[str] = COMPONENT_ELEMENT_IDS | DOCUMENT_ELEMENT_IDS
+
+COMPONENT_KINDS: frozenset[str] = frozenset(
+    {"component", "ai_model", "dataset", "system"}
+)
+"""Kinds of component a probe can be scoped to: any package, an AI package, a
+dataset package, or the system itself (the SBOM's root package)."""
+
+Outcome = Literal["present", "missing", "not-applicable", "out-of-scope"]
+"""Result of one rule on one SBOM.
+
+* ``present`` / ``missing`` -- the rule applied and its probe found nothing / something.
+* ``not-applicable`` -- the SBOM has nothing the rule applies to (no component of
+  its kind, or a specification the standard does not cover).
+* ``out-of-scope`` -- the checker does not check the rule (not an active rule).
+"""
+
+
+@dataclass(frozen=True, kw_only=True)
+class RuleResult:
+    """The :data:`Outcome` of one rule and the :class:`Finding` objects behind it."""
+
+    rule_id: str
+    outcome: Outcome
+    findings: tuple[Finding, ...] = ()

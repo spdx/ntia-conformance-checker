@@ -21,6 +21,7 @@ from spdx_tools.spdx.parser.parse_anything import parse_file as parse_spdx2_file
 from .constants import (
     DEFAULT_COMPLIANCE_STANDARD,
     DEFAULT_SBOM_SPEC,
+    DEPRECATED_COMPLIANCE_IDS,
     SUPPORTED_COMPLIANCE_STANDARDS,
     SUPPORTED_COMPLIANCE_STANDARDS_DESC,
     SUPPORTED_SBOM_SPECS,
@@ -57,6 +58,11 @@ def get_parsed_args() -> argparse.Namespace:
         "  Compliance standards (for --comply):\n"
         + "\n".join(
             f"    {k:<11} {v}"
+            + (
+                f" (deprecated; use {DEPRECATED_COMPLIANCE_IDS[k]})"
+                if k in DEPRECATED_COMPLIANCE_IDS
+                else ""
+            )
             for k, v in sorted(SUPPORTED_COMPLIANCE_STANDARDS_DESC.items())
         )
         + "\n\n"
@@ -65,7 +71,7 @@ def get_parsed_args() -> argparse.Namespace:
         + "\n\n"
         "Examples:\n"
         "  sbomcheck sbom.spdx\n"
-        "  sbomcheck -s spdx3 -c fsct3-min -v sbom.json\n"
+        "  sbomcheck -s spdx3 -c fsct3 -v sbom.json\n"
         "  sbomcheck sbom.yaml --output json --output-file report.json\n"
     )
 
@@ -106,6 +112,18 @@ def get_parsed_args() -> argparse.Namespace:
         "--conform",  # alias of --comply
         dest="comply",
         help=argparse.SUPPRESS,  # hide from help
+    )
+    parser.add_argument(
+        "-m",
+        "--mature",
+        dest="maturity",
+        type=int,
+        default=0,
+        metavar="LEVEL",
+        help=(
+            "Maturity level to check against; 0 is the baseline "
+            "and higher levels add requirements [default: 0]"
+        ),
     )
     parser.add_argument(
         "-k",
@@ -302,17 +320,24 @@ def get_sbom_spec(file: str, sbom_spec: str) -> str:
 
 
 def print_output(
-    sbom: BaseChecker, *, output_type: str, output_file: str | None, verbose: bool
+    sbom: BaseChecker,
+    *,
+    output_type: str,
+    output_file: str | None,
+    verbose: bool,
+    maturity: int = 0,
 ) -> None:
     """Print or save the output report."""
+    # Only a non-default level is passed, so 6.0.0-style overrides keep working.
+    extra = {"maturity": maturity} if maturity else {}
     match output_type:
         case "print":
-            sbom.print_table_output(verbose=verbose)
+            sbom.print_table_output(verbose=verbose, **extra)
             if verbose:
-                sbom.print_components_missing_info()
+                sbom.print_components_missing_info(**extra)
 
         case "json":
-            result_dict: dict[str, Any] = sbom.output_json()
+            result_dict: dict[str, Any] = sbom.output_json(**extra)
             if output_file:
                 try:
                     with open(output_file, "w", encoding="utf-8") as outfile:
@@ -323,7 +348,7 @@ def print_output(
                 print(json.dumps(result_dict, indent=2))
 
         case "html":
-            html_output = sbom.output_html()
+            html_output = sbom.output_html(**extra)
             if output_file:
                 try:
                     with open(output_file, "w", encoding="utf-8") as outfile:

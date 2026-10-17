@@ -41,7 +41,7 @@ def test_real_world_robustness(filename: str) -> None:
 
     try:
         sbom = SbomChecker(filepath)
-        is_compliant = sbom.compliant
+        is_compliant = sbom.check_compliance()
         assert isinstance(is_compliant, bool)
 
     except Exception as e:  # pylint: disable=broad-exception-caught

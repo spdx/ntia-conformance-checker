@@ -1,0 +1,258 @@
+{
+  "@context": "https://spdx.org/rdf/3.0.1/spdx-context.jsonld",
+  "@graph": [
+    {
+      "type": "CreationInfo",
+      "@id": "_:g7ai-creationinfo",
+      "specVersion": "3.0.1",
+      "createdBy": [
+        "https://spdx.org/spdxdocs/g7ai-tests/Person1"
+      ],
+      "createdUsing": [
+        "https://spdx.org/spdxdocs/g7ai-tests/Tool1"
+      ],
+      "created": "2026-10-01T00:00:00Z"
+    },
+    {
+      "type": "Person",
+      "spdxId": "https://spdx.org/spdxdocs/g7ai-tests/Person1",
+      "creationInfo": "_:g7ai-creationinfo",
+      "name": "Test User"
+    },
+    {
+      "type": "Organization",
+      "spdxId": "https://spdx.org/spdxdocs/g7ai-tests/Org1",
+      "creationInfo": "_:g7ai-creationinfo",
+      "name": "Test Organization"
+    },
+    {
+      "type": "Tool",
+      "spdxId": "https://spdx.org/spdxdocs/g7ai-tests/Tool1",
+      "creationInfo": "_:g7ai-creationinfo",
+      "name": "g7ai-test-generator"
+    },
+    {
+      "type": "SpdxDocument",
+      "spdxId": "https://spdx.org/spdxdocs/g7ai-tests/Document1",
+      "creationInfo": "_:g7ai-creationinfo",
+      "name": "G7 AI SBOM Test",
+      "profileConformance": [
+        "core",
+        "software",
+        "ai",
+        "dataset"
+      ],
+      "rootElement": [
+        "https://spdx.org/spdxdocs/g7ai-tests/SBOM1"
+      ]
+    },
+    {
+      "type": "software_Sbom",
+      "spdxId": "https://spdx.org/spdxdocs/g7ai-tests/SBOM1",
+      "creationInfo": "_:g7ai-creationinfo",
+      "name": "G7 AI SBOM",
+      "software_sbomType": [
+        "analyzed"
+      ],
+      "rootElement": [
+        "https://spdx.org/spdxdocs/g7ai-tests/System1"
+      ]
+    },
+    {
+      "type": "ai_AIPackage",
+      "spdxId": "https://spdx.org/spdxdocs/g7ai-tests/System1",
+      "creationInfo": "_:g7ai-creationinfo",
+      "name": "Test AI System",
+      "software_packageVersion": "1.0.0",
+      "originatedBy": [
+        "https://spdx.org/spdxdocs/g7ai-tests/Org1"
+      ],
+      "suppliedBy": "https://spdx.org/spdxdocs/g7ai-tests/Org1",
+      "builtTime": "2026-09-01T00:00:00Z",
+      "releaseTime": "2026-10-01T00:00:00Z",
+      "software_primaryPurpose": "application",
+      "software_downloadLocation": "https://example.com/system",
+      "software_copyrightText": "Copyright Test Organization",
+      "ai_domain": [
+        "computer-vision"
+      ],
+      "ai_useSensitivePersonalInformation": "no",
+      "ai_informationAboutApplication": "Classifies images; input is RGB images, output is class labels.",
+      "ai_standardCompliance": [
+        "ISO/IEC 42001"
+      ]
+    },
+    {
+      "type": "ai_AIPackage",
+      "spdxId": "https://spdx.org/spdxdocs/g7ai-tests/Model1",
+      "creationInfo": "_:g7ai-creationinfo",
+      "name": "Test AI Model",
+      "description": "A neural network for image classification.",
+      "summary": "Image classifier.",
+      "software_packageVersion": "1.0.0",
+      "software_packageUrl": "pkg:huggingface/test-org/test-model@1.0.0",
+      "originatedBy": [
+        "https://spdx.org/spdxdocs/g7ai-tests/Org1"
+      ],
+      "suppliedBy": "https://spdx.org/spdxdocs/g7ai-tests/Org1",
+      "builtTime": "2026-08-01T00:00:00Z",
+      "releaseTime": "2026-09-01T00:00:00Z",
+      "software_primaryPurpose": "model",
+      "software_downloadLocation": "https://example.com/model",
+      "software_copyrightText": "Copyright Test Organization",
+      "ai_typeOfModel": [
+        "neural-network"
+      ],
+      "ai_limitation": "Not for medical use.",
+      "ai_hyperparameter": [
+        {
+          "type": "DictionaryEntry",
+          "key": "layers",
+          "value": "12"
+        }
+      ],
+      "ai_informationAboutApplication": "Input: 224x224 RGB images.",
+      "ai_informationAboutTraining": "Supervised training on Dataset1.",
+      "ai_domain": [
+        "computer-vision"
+      ],
+      "ai_useSensitivePersonalInformation": "no",
+      "verifiedUsing": [
+        {
+          "type": "Hash",
+          "algorithm": "sha256",
+          "hashValue": "a948904f2f0f479b8f936a03b89d6f55b9e4c3f7ef4c6de012d4c5d10a8c9e00"
+        }
+      ],
+      "externalRef": [
+        {
+          "type": "ExternalRef",
+          "externalRefType": "documentation",
+          "locator": [
+            "https://example.com/model-card"
+          ]
+        }
+      ]
+    },
+    {
+      "type": "dataset_DatasetPackage",
+      "spdxId": "https://spdx.org/spdxdocs/g7ai-tests/Dataset1",
+      "creationInfo": "_:g7ai-creationinfo",
+      "name": "Test Training Dataset",
+      "description": "Images used to train the test model.",
+      "software_packageVersion": "2026-01",
+      "software_packageUrl": "pkg:huggingface/test-org/test-dataset@2026-01",
+      "originatedBy": [
+        "https://spdx.org/spdxdocs/g7ai-tests/Org1"
+      ],
+      "suppliedBy": "https://spdx.org/spdxdocs/g7ai-tests/Org1",
+      "software_primaryPurpose": "data",
+      "software_downloadLocation": "https://example.com/dataset",
+      "software_copyrightText": "Copyright Test Organization",
+      "dataset_datasetType": [
+        "image"
+      ],
+      "dataset_datasetAvailability": "directDownload",
+      "dataset_confidentialityLevel": "clear",
+      "dataset_dataCollectionProcess": "Images collected from public sources.",
+      "dataset_dataPreprocessing": [
+        "resized to 224x224"
+      ],
+      "dataset_datasetSize": 1000000,
+      "dataset_hasSensitivePersonalInformation": "no",
+      "verifiedUsing": [
+        {
+          "type": "Hash",
+          "algorithm": "sha256",
+          "hashValue": "b35d20e7c1a8f49e3571c2d8f24a5e9b1d6e4c3a7f8b2e5d9c1a4f7e3b6d2a85"
+        }
+      ]
+    },
+    {
+      "type": "software_Package",
+      "spdxId": "https://spdx.org/spdxdocs/g7ai-tests/Tool2",
+      "creationInfo": "_:g7ai-creationinfo",
+      "name": "resize-tool",
+      "software_packageVersion": "0.3",
+      "software_primaryPurpose": "library",
+      "software_downloadLocation": "https://example.com/tool",
+      "software_copyrightText": "NOASSERTION",
+      "suppliedBy": "https://spdx.org/spdxdocs/g7ai-tests/Org1"
+    },
+    {
+      "type": "Relationship",
+      "spdxId": "https://spdx.org/spdxdocs/g7ai-tests/Rel-contains-model",
+      "creationInfo": "_:g7ai-creationinfo",
+      "relationshipType": "contains",
+      "from": "https://spdx.org/spdxdocs/g7ai-tests/System1",
+      "to": [
+        "https://spdx.org/spdxdocs/g7ai-tests/Model1",
+        "https://spdx.org/spdxdocs/g7ai-tests/Dataset1"
+      ]
+    },
+    {
+      "type": "Relationship",
+      "spdxId": "https://spdx.org/spdxdocs/g7ai-tests/Rel-trainedOn",
+      "creationInfo": "_:g7ai-creationinfo",
+      "relationshipType": "trainedOn",
+      "from": "https://spdx.org/spdxdocs/g7ai-tests/Model1",
+      "to": [
+        "https://spdx.org/spdxdocs/g7ai-tests/Dataset1"
+      ]
+    },
+    {
+      "type": "Relationship",
+      "spdxId": "https://spdx.org/spdxdocs/g7ai-tests/Rel-dataset-dependsOn",
+      "creationInfo": "_:g7ai-creationinfo",
+      "relationshipType": "dependsOn",
+      "from": "https://spdx.org/spdxdocs/g7ai-tests/Dataset1",
+      "to": [
+        "https://spdx.org/spdxdocs/g7ai-tests/Tool2"
+      ]
+    },
+    {
+      "type": "Relationship",
+      "spdxId": "https://spdx.org/spdxdocs/g7ai-tests/Rel-system-dependsOn",
+      "creationInfo": "_:g7ai-creationinfo",
+      "relationshipType": "dependsOn",
+      "from": "https://spdx.org/spdxdocs/g7ai-tests/System1",
+      "to": [
+        "https://spdx.org/spdxdocs/g7ai-tests/Tool2"
+      ]
+    },
+    {
+      "type": "Relationship",
+      "spdxId": "https://spdx.org/spdxdocs/g7ai-tests/Rel-model-license",
+      "creationInfo": "_:g7ai-creationinfo",
+      "relationshipType": "hasDeclaredLicense",
+      "from": "https://spdx.org/spdxdocs/g7ai-tests/Model1",
+      "to": [
+        "https://spdx.org/spdxdocs/g7ai-tests/MIT"
+      ]
+    },
+    {
+      "type": "Relationship",
+      "spdxId": "https://spdx.org/spdxdocs/g7ai-tests/Rel-dataset-license",
+      "creationInfo": "_:g7ai-creationinfo",
+      "relationshipType": "hasDeclaredLicense",
+      "from": "https://spdx.org/spdxdocs/g7ai-tests/Dataset1",
+      "to": [
+        "https://spdx.org/spdxdocs/g7ai-tests/CC-BY-4.0"
+      ]
+    },
+    {
+      "type": "simplelicensing_LicenseExpression",
+      "spdxId": "https://spdx.org/spdxdocs/g7ai-tests/MIT",
+      "creationInfo": "_:g7ai-creationinfo",
+      "simplelicensing_licenseExpression": "MIT",
+      "simplelicensing_licenseListVersion": "3.25.0"
+    },
+    {
+      "type": "simplelicensing_LicenseExpression",
+      "spdxId": "https://spdx.org/spdxdocs/g7ai-tests/CC-BY-4.0",
+      "creationInfo": "_:g7ai-creationinfo",
+      "simplelicensing_licenseExpression": "CC-BY-4.0",
+      "simplelicensing_licenseListVersion": "3.25.0"
+    }
+  ]
+}
