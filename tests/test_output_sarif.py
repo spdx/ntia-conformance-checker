@@ -19,6 +19,13 @@ from pytest import CaptureFixture, MonkeyPatch
 from ntia_conformance_checker import BSIChecker
 from ntia_conformance_checker.main import main
 from ntia_conformance_checker.rule_based_checker import RuleBasedChecker
+from ntia_conformance_checker.spec import (
+    ProbeRef,
+    Spec,
+    SpecCategory,
+    SpecMaturity,
+    SpecRule,
+)
 
 DATA = Path(__file__).parent / "data"
 G7 = DATA / "spdx3" / "g7ai" / "conformant.json"
@@ -228,3 +235,41 @@ def test_unchecked_sub_rule_is_only_relevant_to_its_parent(tmp_path: Path) -> No
     ]
     assert unchecked
     assert all(r["relationships"][-1]["kinds"] == ["relevant"] for r in unchecked)
+
+
+def _supplier_rule(number: int, **kwargs: Any) -> SpecRule:
+    return SpecRule(
+        number=number,
+        slug=f"adhoc-supplier-{number}-missing",
+        spec_category="c",
+        element_id="supplier",
+        competency_question="Supplier provided?",
+        probe=ProbeRef(
+            name="require_component_attribute", params={"attribute": "supplier"}
+        ),
+        **kwargs,
+    )
+
+
+def test_maturity_scopes_results_but_not_the_catalogue() -> None:
+    spec = Spec(
+        id="adhoc",
+        title="Ad Hoc",
+        categories=(SpecCategory(id="c", code="C", title="C"),),
+        maturity_levels=(
+            SpecMaturity(level=0, id="base"),
+            SpecMaturity(level=1, id="deep"),
+        ),
+        rules=(
+            _supplier_rule(1, maturity=1),
+            _supplier_rule(2, maturity=1, provision="recommendation"),
+        ),
+    )
+    checker = RuleBasedChecker(NTIA_NO_SUPPLIER, compliance=spec)
+    base, deep = _run(checker), _run(checker, maturity=1)
+    assert not base["results"]
+    assert len(base["tool"]["driver"]["rules"]) == 2  # the catalogue is not scoped
+    assert base["properties"]["maturityTarget"] == 0
+    levels = {r["ruleId"]: r["level"] for r in deep["results"]}
+    assert levels == {"SBOM-ADHOC-C-001": "error", "SBOM-ADHOC-C-002": "warning"}
+    assert deep["properties"]["conformant"] is False
