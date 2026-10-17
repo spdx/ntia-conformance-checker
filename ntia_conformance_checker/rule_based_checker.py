@@ -319,8 +319,8 @@ class RuleBasedChecker(BaseChecker):
         def outcome(rule: SpecRule) -> str:
             return results[self._spec.rule_id(rule)].outcome
 
-        # Nothing applied: False for now; a tri-state result (True/False/None)
-        # is an option if callers need to tell "not checked" from "failed".
+        # Nothing applied: not compliant. A tri-state result (True/False/None)
+        # would tell "not checked" from "failed".
         if not any(outcome(r) in _DECIDED for r in self._spec.active_rules(target)):
             return False
         return all(
