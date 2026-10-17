@@ -19,6 +19,8 @@ spec:
   title: G7 2026 SBOM for AI Minimum Elements
   uri: https://www.bsi.bund.de/SharedDocs/Downloads/EN/BSI/KI/SBOM-for-AI_minimum-elements.pdf
   sbom_specs: [spdx3]
+  taxonomies:
+    category: g7ai-sbom-for-ai
 
 categories:
   - id: metadata

@@ -37,6 +37,8 @@ _OUTPUT_CHOICES = {
     "print": "Report in regular text format",
     "json": "Report in JSON format",
     "html": "Report in HTML format",
+    "sarif": "Report in SARIF format",
+    "sarif-sbom": "SARIF format with the input SBOM embedded",
     "none": "No report",
 }
 
@@ -319,6 +321,20 @@ def get_sbom_spec(file: str, sbom_spec: str) -> str:
     return detected_sbom_spec
 
 
+def _emit_json(
+    data: dict[str, Any], output_file: str | None, label: str, file_indent: int | None
+) -> None:
+    """Write ``data`` as JSON to ``output_file`` (or print it indented)."""
+    if not output_file:
+        print(json.dumps(data, indent=2))
+        return
+    try:
+        with open(output_file, "w", encoding="utf-8") as outfile:
+            json.dump(data, outfile, indent=file_indent)
+    except OSError as exc:
+        logging.error("Could not write %s output file: %s", label, exc)
+
+
 def print_output(
     sbom: BaseChecker,
     *,
@@ -337,15 +353,11 @@ def print_output(
                 sbom.print_components_missing_info(**extra)
 
         case "json":
-            result_dict: dict[str, Any] = sbom.output_json(**extra)
-            if output_file:
-                try:
-                    with open(output_file, "w", encoding="utf-8") as outfile:
-                        json.dump(result_dict, outfile)
-                except OSError as exc:
-                    logging.error("Could not write JSON output file: %s", exc)
-            else:
-                print(json.dumps(result_dict, indent=2))
+            _emit_json(sbom.output_json(**extra), output_file, "JSON", None)
+
+        case "sarif" | "sarif-sbom":
+            sarif = sbom.output_sarif(embed_sbom=output_type == "sarif-sbom", **extra)
+            _emit_json(sarif, output_file, "SARIF", 2)
 
         case "html":
             html_output = sbom.output_html(**extra)

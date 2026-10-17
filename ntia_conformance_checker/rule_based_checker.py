@@ -226,9 +226,9 @@ class RuleBasedChecker(BaseChecker):
         kind = params.get("kind")
         if kind is not None and kind not in COMPONENT_KINDS:
             raise ValueError(f"{self._spec.id}: unknown component kind {kind!r}")
-        if kind is not None and not self.doc:
-            return RuleResult(rule_id=rule_id, outcome="missing", findings=(_UNPARSED,))
         component_rule = rule.element_id in COMPONENT_ELEMENT_IDS or kind is not None
+        if not self.doc:
+            return RuleResult(rule_id=rule_id, outcome="missing", findings=(_UNPARSED,))
         if component_rule and not self.components_evaluated:
             # Nothing to inspect: fail rather than pass over an empty list.
             return RuleResult(

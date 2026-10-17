@@ -30,6 +30,11 @@ and this project adheres to [Semantic Versioning][semver].
 - Text and HTML reports of YAML-defined standards (not `bsi`) list the message
   of each unmet requirement, taken from the rule's `warning`
 - JSON output adds `sbomTypeProvided`
+- SARIF 2.1.0 report (`--output sarif`, or `sarif-sbom` to embed the input
+  SBOM) and `output_sarif()`: every checker reports the tool, notifications,
+  and the verdict and standard in `runs[0].properties`; YAML-defined standards
+  also report the rule catalogue, taxonomies and one result per failing
+  component, keyed by the requirements ontology rule id
 - Partial support for the G7 SBOM for AI Minimum Elements (`-c g7ai`, SPDX 3
   only): rules from the requirements ontology, checks per kind of component
   (system, AI model, dataset), composite elements, and the outcome of each

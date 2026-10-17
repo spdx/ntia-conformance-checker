@@ -207,8 +207,9 @@ class SpecTaxonomies:
     """Name of the *clause* taxonomy (e.g. ``"ntia-clauses"``).
 
     Also named for its **taxa**: each taxon id is a literal spec clause number
-    from :attr:`SpecRule.spec_clause_number`, and every rule has an ``equal``
-    relationship to its clause taxon.  Here name and taxa line up (both
+    from :attr:`SpecRule.spec_clause_number`, and every rule has a relationship to
+    its clause taxon: ``equal`` when the rule is the clause's only rule, else
+    ``superset`` (the clause covers several rules).  Here name and taxa line up (both
     clause-flavoured), unlike :attr:`category`.  Empty disables the clause
     taxonomy and the per-rule ``equal`` relationship."""
 

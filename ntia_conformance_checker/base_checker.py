@@ -620,6 +620,29 @@ class BaseChecker(ABC):
         result.update(self._json_extras(maturity))
         return result
 
+    def output_sarif(
+        self, embed_sbom: bool = False, maturity: int = 0
+    ) -> dict[str, Any]:
+        """
+        Create a SARIF 2.1.0 log dict.
+
+        Every checker reports the base log (tool, artifact, notifications,
+        verdict in ``runs[0].properties``). A checker with per-rule outcomes
+        also reports the rule catalogue and one result per failing component.
+
+        Args:
+            embed_sbom (bool): Embed the input file's contents in the log.
+            maturity (int): Target maturity level.
+        """
+        from .report_sarif import build_sarif  # pylint: disable=import-outside-toplevel
+
+        return build_sarif(
+            self,
+            compliant=self._verdict(maturity),
+            embed_sbom=embed_sbom,
+            maturity=maturity,
+        )
+
     def _extra_graph_relationships(self) -> frozenset[str]:
         """SPDX 3 relationship types that connect elements besides the
         composition ones; subclasses override."""

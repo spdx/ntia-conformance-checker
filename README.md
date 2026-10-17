@@ -148,6 +148,8 @@ choices:
     json        Report in JSON format
     none        No report
     print       Report in regular text format
+    sarif       Report in SARIF format
+    sarif-sbom  SARIF format with the input SBOM embedded
 
 Examples:
   sbomcheck sbom.spdx
