@@ -45,6 +45,8 @@ and this project adheres to [Semantic Versioning][semver].
 
 ### Changed
 
+- Every rule of YAML-defined standards reports "The SBOM could not be parsed."
+  for an SBOM that could not be parsed (JSON `findings[].note`)
 - Pull request and release builds embed the SBOM with Pitloom 0.20.1 and fail
   on an invalid SBOM; content types are detected with magika
 - Releases publish to PyPI only after the SBOM is validated; release files are

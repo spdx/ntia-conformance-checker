@@ -14,7 +14,8 @@ catalogue, the taxonomies and one result per failing component.
   ``BOM-G7AI2026-MDL-006.1``), see :meth:`Spec.rule_id`.
 * The *category taxonomy* has one taxon per :class:`SpecCategory`; each rule has
   a ``superset`` relationship to its category. The optional *clause taxonomy*
-  has one taxon per spec clause, with an ``equal`` relationship.
+  has one taxon per spec clause, with an ``equal`` relationship for a clause
+  of one rule and a ``superset`` one for a clause shared by several.
 * Roll-up rules (``any-of`` / ``all-of``) are linked to their sub-rules (see
   :func:`_sub_rule_kinds`). A roll-up reports its failing components itself, so
   its sub-rules emit no results of their own.
@@ -184,11 +185,14 @@ def _rule_relationships(spec: "Spec", rule: "SpecRule") -> list[dict[str, Any]]:
         )
     to_sub, _ = _sub_rule_kinds(rule)
     for sub in _sub_rules(spec, rule):
-        rels.append({"target": {"id": spec.rule_id(sub)}, "kinds": [to_sub]})
+        # A sub-rule that is not checked never reports, so no containment holds.
+        kind = to_sub if sub.status == "active" else "relevant"
+        rels.append({"target": {"id": spec.rule_id(sub)}, "kinds": [kind]})
     parent = _parent_rule(spec, rule)
     if parent is not None:
         _, to_parent = _sub_rule_kinds(parent)
-        rels.append({"target": {"id": spec.rule_id(parent)}, "kinds": [to_parent]})
+        kind = to_parent if rule.status == "active" else "relevant"
+        rels.append({"target": {"id": spec.rule_id(parent)}, "kinds": [kind]})
     return rels
 
 

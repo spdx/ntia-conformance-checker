@@ -219,3 +219,12 @@ def test_artifact_index_only_when_the_run_lists_the_artifact() -> None:
         "index"
         not in run["results"][0]["locations"][0]["physicalLocation"]["artifactLocation"]
     )
+
+
+def test_unchecked_sub_rule_is_only_relevant_to_its_parent(tmp_path: Path) -> None:
+    rules = _run(_g7(tmp_path))["tool"]["driver"]["rules"]
+    unchecked = [
+        r for r in rules if "." in r["id"] and r["properties"]["status"] != "active"
+    ]
+    assert unchecked
+    assert all(r["relationships"][-1]["kinds"] == ["relevant"] for r in unchecked)

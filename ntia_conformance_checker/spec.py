@@ -211,7 +211,7 @@ class SpecTaxonomies:
     its clause taxon: ``equal`` when the rule is the clause's only rule, else
     ``superset`` (the clause covers several rules).  Here name and taxa line up (both
     clause-flavoured), unlike :attr:`category`.  Empty disables the clause
-    taxonomy and the per-rule ``equal`` relationship."""
+    taxonomy and the per-rule clause relationship."""
 
 
 @dataclass(frozen=True, kw_only=True)
