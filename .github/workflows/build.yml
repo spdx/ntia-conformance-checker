@@ -59,7 +59,7 @@ jobs:
     # the action installs Pitloom and its dependencies into this Python.
     - name: Embed SBOM into wheel
       if: matrix.os == 'ubuntu-latest' && matrix.python-version == '3.14'
-      uses: bact/pitloom@f62b54496cef37246948c4d4ce2ad6dfb4e276fa  # v0.20.1
+      uses: bact/pitloom@d95e9ed331a8463d49ef9cde8032aff5863e1e1e  # v0.20.2
       with:
         embed-wheel: "dist/*.whl"
         project-path: "."
