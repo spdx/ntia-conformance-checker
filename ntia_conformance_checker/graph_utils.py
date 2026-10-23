@@ -75,7 +75,10 @@ def _collect_spdx3_known_and_package_ids(
 
 
 def analyze_graph_connectivity(
-    sbom_spec: str, parsed_data: Any, spdx3_doc: Any = None
+    sbom_spec: str,
+    parsed_data: Any,
+    spdx3_doc: Any = None,
+    extra_relationships: frozenset[str] = frozenset(),
 ) -> tuple[set[str], set[str], dict[str, list[str]], bool]:
     """
     Analyze graph connectivity to find reachable components and unknown pointers.
@@ -83,6 +86,9 @@ def analyze_graph_connectivity(
     Connectivity is evaluated at the component (package) level because
     components represent the primary unit of software conformance in
     minimum elements standards.
+
+    ``extra_relationships`` names SPDX 3 relationship types that also connect
+    elements (for example ``trainedOn``), beyond the composition ones.
 
     Returns:
         tuple: (reachable_component_ids, floating_component_ids,
@@ -92,7 +98,7 @@ def analyze_graph_connectivity(
         return set(), set(), {}, False
 
     reachable_node_ids, connection_map = get_reachable_nodes(
-        sbom_spec, parsed_data, spdx3_doc
+        sbom_spec, parsed_data, spdx3_doc, extra_relationships
     )
     all_known_ids: set[str] = set()
     all_package_ids: set[str] = set()
@@ -175,7 +181,9 @@ def _build_spdx2_graph(spdx2_doc: "Document") -> tuple[list[str], dict[str, list
 
 
 def _extract_spdx3_relationship_edges(
-    obj: spdx3.Relationship, graph_connection_map: dict[str, list[str]]
+    obj: spdx3.Relationship,
+    graph_connection_map: dict[str, list[str]],
+    extra_relationships: frozenset[str] = frozenset(),
 ) -> None:
     """Helper to extract explicit relationship edges."""
     rel_type_iri = getattr(obj, "relationshipType", "")
@@ -185,7 +193,10 @@ def _extract_spdx3_relationship_edges(
     # Extract the actual name from the IRI (e.g., ".../contains" -> "contains")
     rel_name = rel_type_iri.split("/")[-1]
 
-    if rel_name not in VALID_SPDX3_COMPOSITION_RELATIONSHIPS:
+    if (
+        rel_name not in VALID_SPDX3_COMPOSITION_RELATIONSHIPS
+        and rel_name not in extra_relationships
+    ):
         return
 
     from_ = getattr(obj, "from_", None)
@@ -222,7 +233,9 @@ def _extract_spdx3_collection_edges(
 
 
 def _build_spdx3_graph(
-    object_set: spdx3.SHACLObjectSet, spdx3_doc: spdx3.SpdxDocument | None
+    object_set: spdx3.SHACLObjectSet,
+    spdx3_doc: spdx3.SpdxDocument | None,
+    extra_relationships: frozenset[str] = frozenset(),
 ) -> tuple[list[str], dict[str, list[str]]]:
     """Build the initial queue and connection map for SPDX 3."""
     queue: list[str] = []
@@ -256,7 +269,9 @@ def _build_spdx3_graph(
 
             # Normal relationships between packages build the map
             else:
-                _extract_spdx3_relationship_edges(obj, graph_connection_map)
+                _extract_spdx3_relationship_edges(
+                    obj, graph_connection_map, extra_relationships
+                )
 
         # Capture implicit relationships from Collections (like Sbom, Bom, etc.)
         if isinstance(obj, spdx3.ElementCollection):
@@ -266,7 +281,10 @@ def _build_spdx3_graph(
 
 
 def get_reachable_nodes(
-    sbom_spec: str, parsed_data: Any, spdx3_doc: Any = None
+    sbom_spec: str,
+    parsed_data: Any,
+    spdx3_doc: Any = None,
+    extra_relationships: frozenset[str] = frozenset(),
 ) -> tuple[set[str], dict[str, list[str]]]:
     """
     Get all nodes connected to the root by using Breadth-First Search.
@@ -286,7 +304,9 @@ def get_reachable_nodes(
 
     # SPDX 3
     if sbom_spec == "spdx3":
-        queue, graph_connection_map = _build_spdx3_graph(parsed_data, spdx3_doc)
+        queue, graph_connection_map = _build_spdx3_graph(
+            parsed_data, spdx3_doc, extra_relationships
+        )
 
     reachable_node_ids: set[str] = set(queue)
 
