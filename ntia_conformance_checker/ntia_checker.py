@@ -8,10 +8,10 @@ from __future__ import annotations
 
 import warnings
 
-from .base_checker import BaseChecker
+from .rule_based_checker import RuleBasedChecker
 
 
-class NTIAChecker(BaseChecker):
+class NTIAChecker(RuleBasedChecker):
     """
     NTIA Minimum Elements check.
 
@@ -20,6 +20,7 @@ class NTIAChecker(BaseChecker):
     """
 
     MIN_ELEMENTS = ["name", "version", "identifier", "supplier"]
+    DOCUMENT_ORDER = ("author", "timestamp", "dependency_relationship")
 
     def __init__(
         self,
@@ -37,51 +38,10 @@ class NTIAChecker(BaseChecker):
             compliance (str): The compliance standard to be used.
             sbom_spec (str): The SBOM specification to be used.
         """
-        super().__init__(
-            file=file, validate=validate, compliance=compliance, sbom_spec=sbom_spec
-        )
-
         if compliance not in {"ntia"}:
             raise ValueError("Only NTIA Minimum Element compliance is supported.")
-
-        if self.doc:
-            self.compliant = self.check_compliance()
-
-        self.table_elements = [
-            (
-                "All component names provided?",
-                self._all_provided(self.components_without_names),
-            ),
-            (
-                "All component versions provided?",
-                self._all_provided(self.components_without_versions),
-            ),
-            (
-                "All component identifiers provided?",
-                self._all_provided(self.components_without_identifiers),
-            ),
-            (
-                "All component suppliers provided?",
-                self._all_provided(self.components_without_suppliers),
-            ),
-            ("SBOM author name provided?", self.doc_author),
-            ("SBOM creation timestamp provided?", self.doc_timestamp),
-            ("Dependency relationships provided?", self.dependency_relationships),
-        ]
-
-    def check_compliance(self) -> bool:
-        """Check overall compliance with NTIA minimum elements."""
-        return all(
-            [
-                self.doc_author,
-                self.doc_timestamp,
-                self.dependency_relationships,
-                self._all_provided(self.components_without_names),
-                self._all_provided(self.components_without_versions),
-                self._all_provided(self.components_without_identifiers),
-                self._all_provided(self.components_without_suppliers),
-                not self.validation_messages,
-            ]
+        super().__init__(
+            file=file, validate=validate, compliance=compliance, sbom_spec=sbom_spec
         )
 
     def check_ntia_minimum_elements_compliance(self) -> bool:

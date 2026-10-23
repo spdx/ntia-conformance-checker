@@ -40,7 +40,7 @@ def test_bsichecker_compliant_spdx3() -> None:
     sbom = BSIChecker(test_file, compliance="bsi", sbom_spec="spdx3")
 
     # Overall Compliance
-    assert sbom.compliant
+    assert sbom.check_compliance()
 
     # Document Level (Required)
     assert sbom.doc_creator
@@ -78,7 +78,7 @@ def test_bsichecker_missing_creator() -> None:
 
     sbom = BSIChecker(test_file, compliance="bsi", sbom_spec="spdx3")
 
-    assert not sbom.compliant
+    assert not sbom.check_compliance()
     TestCase().assertCountEqual(
         _component_names(sbom.components_without_creators), ["example-component"]
     )
@@ -92,7 +92,7 @@ def test_bsichecker_missing_sha512_hash() -> None:
 
     sbom = BSIChecker(test_file, compliance="bsi", sbom_spec="spdx3")
 
-    assert not sbom.compliant
+    assert not sbom.check_compliance()
     TestCase().assertCountEqual(
         _component_names(sbom.components_without_sha512_hashes), ["example-component"]
     )
@@ -106,7 +106,7 @@ def test_bsichecker_missing_structured_property() -> None:
 
     sbom = BSIChecker(test_file, compliance="bsi", sbom_spec="spdx3")
 
-    assert not sbom.compliant
+    assert not sbom.check_compliance()
     TestCase().assertCountEqual(
         _component_names(sbom.components_without_structured_prop), ["example-component"]
     )
@@ -120,7 +120,7 @@ def test_bsichecker_missing_distribution_filename() -> None:
 
     sbom = BSIChecker(test_file, compliance="bsi", sbom_spec="spdx3")
 
-    assert not sbom.compliant
+    assert not sbom.check_compliance()
     TestCase().assertCountEqual(
         _component_names(sbom.components_without_filenames), ["example-component"]
     )
@@ -134,7 +134,7 @@ def test_bsichecker_missing_concluded_license() -> None:
 
     sbom = BSIChecker(test_file, compliance="bsi", sbom_spec="spdx3")
 
-    assert not sbom.compliant
+    assert not sbom.check_compliance()
     TestCase().assertCountEqual(
         _component_names(sbom.components_without_concluded_licenses),
         ["example-component"],
@@ -150,7 +150,7 @@ def test_bsichecker_missing_sbom_uri() -> None:
     sbom = BSIChecker(test_file, compliance="bsi", sbom_spec="spdx3")
 
     assert not sbom.doc_uri
-    assert not sbom.compliant
+    assert not sbom.check_compliance()
 
 
 def test_bsichecker_missing_optional_warnings() -> None:
@@ -165,7 +165,7 @@ def test_bsichecker_missing_optional_warnings() -> None:
     sbom = BSIChecker(test_file, compliance="bsi", sbom_spec="spdx3")
 
     # The document MUST still be compliant
-    assert sbom.compliant
+    assert sbom.check_compliance()
 
     # However, all warning lists should have exactly 1 missing package
     TestCase().assertCountEqual(
