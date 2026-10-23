@@ -54,3 +54,19 @@ def test_verbosity_flags(monkeypatch: MonkeyPatch) -> None:
 
 def test_skip_validation_shortcut(monkeypatch: MonkeyPatch) -> None:
     assert _parse(monkeypatch, ["f.json", "-k"]).skip_validation is True
+
+
+# ---- maturity and compliance standard ---------------------------------------
+
+
+def test_mature_default_and_value(monkeypatch: MonkeyPatch) -> None:
+    assert _parse(monkeypatch, ["f.json"]).maturity == 0
+    assert _parse(monkeypatch, ["f.json", "-m", "2"]).maturity == 2
+    assert _parse(monkeypatch, ["f.json", "--mature", "1"]).maturity == 1
+
+
+@pytest.mark.parametrize("standard", ["ntia", "fsct3", "fsct3-min", "bsi"])
+def test_comply_accepts_current_and_deprecated_ids(
+    monkeypatch: MonkeyPatch, standard: str
+) -> None:
+    assert _parse(monkeypatch, ["f.json", "-c", standard]).comply == standard

@@ -156,7 +156,7 @@ class BSIChecker(BaseChecker):
         )
 
         if self.doc:
-            self.compliant = self.check_compliance()
+            self.check_compliance()  # sets the flags the table below reads
 
         self.table_elements = [
             ("Creator of the SBOM", self.doc_creator),
@@ -229,8 +229,9 @@ class BSIChecker(BaseChecker):
             ),
         ]
 
-    def check_compliance(self) -> bool:
+    def check_compliance(self, maturity: int = 0) -> bool:
         """Check overall compliance with BSI minimum elements."""
+        self._validate_maturity(maturity)
         # Execute Document-Level Checks
         self.doc_creator = self.check_doc_creator()
         self.doc_uri = self.check_sbom_uri()
