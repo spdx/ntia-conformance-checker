@@ -18,7 +18,7 @@ and this project adheres to [Semantic Versioning][semver].
 ### Fixed
 
 - A relationship to an SPDX 3 individual such as `NoneElement` is no longer
-  reported as pointing to a missing element
+  reported as pointing to a missing element ([#478])
 
 ### Added
 
@@ -33,6 +33,8 @@ and this project adheres to [Semantic Versioning][semver].
 - Releases publish to PyPI only after the SBOM is validated; release files are
   attached, signed and attested after the publish, and can be re-run if that
   fails
+
+[#478]: https://github.com/spdx/ntia-conformance-checker/pull/478
 
 ## [6.0.0] - 2026-10-05
 
