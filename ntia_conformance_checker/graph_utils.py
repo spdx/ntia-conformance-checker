@@ -14,6 +14,7 @@ from .constants import (
     VALID_SPDX2_COMPOSITION_RELATIONSHIPS,
     VALID_SPDX3_COMPOSITION_RELATIONSHIPS,
 )
+from .spdx3_utils import SPDX3_INDIVIDUAL_ELEMENT_IRIS
 
 if TYPE_CHECKING:
     from spdx_tools.spdx.model.document import Document
@@ -64,7 +65,7 @@ def _collect_spdx3_known_and_package_ids(
         getattr(obj, "spdxId")
         for obj in object_set.objects
         if isinstance(getattr(obj, "spdxId", None), str)
-    }
+    } | SPDX3_INDIVIDUAL_ELEMENT_IRIS  # NoneElement and the like need no definition
     package_ids = {
         getattr(obj, "spdxId")
         for obj in object_set.objects

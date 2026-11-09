@@ -7,9 +7,12 @@
 
 # pylint: disable=missing-function-docstring,import-error,consider-using-from-import
 
+import json
 import os
+from pathlib import Path
 from unittest.mock import MagicMock
 
+import pytest
 from spdx_python_model.bindings import v3_0_1 as spdx3
 from spdx_tools.spdx.model.document import Document
 from spdx_tools.spdx.model.file import File
@@ -122,3 +125,38 @@ def test_build_spdx2_graph_described_by() -> None:
     assert floating == set()
     assert not unknown_edges
     assert has_unknown_pointers is False
+
+
+@pytest.mark.parametrize(
+    ("target", "unknown"),
+    [
+        ("NoneElement", False),  # a dependency list that is complete and empty
+        ("NoAssertionElement", False),
+        ("https://spdx.org/rdf/3.0.1/terms/ExpandedLicensing/NoneLicense", False),
+        ("SpdxOrganization", False),
+        ("https://example.com/not-in-the-document", True),
+    ],
+    ids=["none", "noassertion", "none-license", "spdx-org", "missing"],
+)
+def test_spdx3_individuals_are_not_unknown_pointers(
+    tmp_path: Path, target: str, unknown: bool
+) -> None:
+    """A relationship to an SPDX individual points to a known element."""
+    src = Path(__file__).parent / "data" / "spdx3" / "no_elements_missing.json"
+    doc = json.loads(src.read_text(encoding="utf-8"))
+    package = next(e for e in doc["@graph"] if e["type"] == "dataset_DatasetPackage")
+    doc["@graph"].append(
+        {
+            "type": "LifecycleScopedRelationship",
+            "spdxId": "https://example.com/rel-none",
+            "creationInfo": "_:creationinfo",
+            "from": package["spdxId"],
+            "relationshipType": "dependsOn",
+            "to": [target],
+            "completeness": "complete",
+        }
+    )
+    path = tmp_path / "sbom.json"
+    path.write_text(json.dumps(doc), encoding="utf-8")
+    sbom = sbom_checker.SbomChecker(str(path), sbom_spec="spdx3")
+    assert sbom.has_unknown_pointers is unknown
