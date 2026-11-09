@@ -4,7 +4,8 @@
 
 """SPDX 3.x specific data extraction adapter."""
 
-from typing import Union
+from collections.abc import Callable
+from typing import Any, Union
 
 from spdx_python_model.bindings import v3_0_1 as spdx3
 from spdx_tools.spdx.validation.validation_message import (
@@ -19,6 +20,12 @@ from ntia_conformance_checker.spdx3_utils import (
 )
 
 from .adapter_interface import SbomAdapter, is_blank_string
+
+# External identifier types that identify a component (not an email, a CVE, or a
+# urlScheme, which names a resource rather than the component).
+_IDENTIFIER_TYPES = frozenset(
+    {"packageUrl", "cpe22", "cpe23", "swid", "swhid", "gitoid"}
+)
 
 _ELEMENT_INDIVIDUALS = spdx3.IndividualElement.NAMED_INDIVIDUALS
 _LICENSE_INDIVIDUALS = spdx3.expandedlicensing_IndividualLicensingInfo.NAMED_INDIVIDUALS
@@ -170,21 +177,55 @@ class Spdx3Adapter(SbomAdapter):
         self, reachable_ids: set[str]
     ) -> list[tuple[str, str]]:
         """
-        Note that SPDX 3 requires identifiers for all elements,
-        so this should not happen in a valid SPDX 3 document.
-        The spdx-python-model JSON deserializer will raise a ValueError
-        if any element is missing an identifier.
+        Reachable packages with no identifier of their own: a package URL,
+        a content identifier, or an external identifier of an identifying type.
+        The ``spdxId`` every SPDX 3 element has does not count.
         """
+        identified = self._identified_package_ids()
         return [
             (name or "", spdx_id or "")
             for name, spdx_id, _ in iter_objects_with_property(
                 self.object_set,
                 spdx3.software_Package,
                 "spdxId",
-                reachable_ids=None,
+                reachable_ids,
             )
-            if _is_blank(spdx_id)
+            if spdx_id not in identified
         ]
+
+    def _identified_package_ids(self) -> set[str]:
+        """IDs of the packages that carry a package URL, a content identifier
+        or an identifying external identifier."""
+
+        def ids(prop: str, carries: Callable[[Any], bool]) -> set[str]:
+            return {
+                spdx_id
+                for _, spdx_id, value in iter_objects_with_property(
+                    self.object_set, spdx3.software_Package, prop
+                )
+                if carries(value)
+            }
+
+        def is_identifying(ext: Any) -> bool:
+            kind = str(getattr(ext, "externalIdentifierType", ""))
+            return kind.rsplit("/", 1)[-1] in _IDENTIFIER_TYPES and not _is_blank(
+                getattr(ext, "identifier", None), noassertion=True
+            )
+
+        return (
+            ids("software_packageUrl", lambda v: not _is_blank(v, noassertion=True))
+            | ids(
+                "software_contentIdentifier",
+                lambda v: any(
+                    not _is_blank(
+                        getattr(c, "software_contentIdentifierValue", None),
+                        noassertion=True,
+                    )
+                    for c in v or []
+                ),
+            )
+            | ids("externalIdentifier", lambda v: any(map(is_identifying, v or [])))
+        )
 
     def _is_blank_license(self, ref: str) -> bool:
         """Check whether a license reference carries no license information."""

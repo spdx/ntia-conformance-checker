@@ -15,6 +15,14 @@ and this project adheres to [Semantic Versioning][semver].
 
 ## [Unreleased]
 
+### Changed
+
+- SPDX 3 unique identifier (NTIA, FSCT3): a reachable package needs a package
+  URL, a content identifier or an external identifier of type packageUrl,
+  cpe22, cpe23, swid, swhid or gitoid; the bare `spdxId` every element has no
+  longer counts, so an SBOM that relied on it now reports the package as
+  missing an identifier
+
 ## [6.1.0] - 2026-11-26
 
 This minor release improves relationship traversal and missing element

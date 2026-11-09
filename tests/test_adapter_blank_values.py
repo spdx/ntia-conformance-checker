@@ -66,9 +66,11 @@ SPDX3_FIELDS = {
     "names": "name",
     "versions": "software_packageVersion",
     "suppliers": "suppliedBy",
-    "identifiers": "spdxId",
+    "identifiers": "software_packageUrl",
     "copyright_texts": "software_copyrightText",
 }
+# SPDX 3 reads the package URL, where NOASSERTION says nothing.
+SPDX3_NOASSERTION_FIELDS = NOASSERTION_FIELDS | {"identifiers"}
 
 SPDX3_SUPPLIERS = [
     (_agent(None), True),
@@ -88,7 +90,7 @@ CASES = [
         for method, attr in SPDX3_FIELDS.items()
         for value, blank in [
             *COMMON,
-            ("noassertion", method in NOASSERTION_FIELDS),
+            ("noassertion", method in SPDX3_NOASSERTION_FIELDS),
             *(SPDX3_SUPPLIERS if method == "suppliers" else []),
         ]
     ],
@@ -107,7 +109,7 @@ def test_blank_values(
     get_missing = getattr(build(attr, value), f"get_components_without_{method}")
 
     assert bool(get_missing({PKG_ID})) is blank
-    if method != "identifiers":  # identifiers ignore reachability
+    if method != "identifiers" or build is _spdx3:  # SPDX 2 ignores reachability
         assert get_missing(set()) == []
 
 

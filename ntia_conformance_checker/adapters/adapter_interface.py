@@ -98,7 +98,11 @@ class SbomAdapter(ABC):
         self, reachable_ids: set[str]
     ) -> list[tuple[str, str]]:
         """
-        Retrieve components missing unique identifiers (SPDX IDs).
+        Retrieve components missing unique identifiers.
+
+        SPDX 2: the SPDXID. SPDX 3: a package URL, a content identifier or an
+        identifying external identifier on a reachable package (the spdxId
+        does not count).
 
         Returns:
             list[tuple[str, str]]: A list of tuples of the form
