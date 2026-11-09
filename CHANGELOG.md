@@ -15,6 +15,11 @@ and this project adheres to [Semantic Versioning][semver].
 
 ## [Unreleased]
 
+### Fixed
+
+- A relationship to an SPDX 3 individual such as `NoneElement` is no longer
+  reported as pointing to a missing element
+
 ### Added
 
 - GitHub releases attach the wheel, the sdist and the wheel's SPDX 3 SBOM,
