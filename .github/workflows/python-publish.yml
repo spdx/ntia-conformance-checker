@@ -31,13 +31,13 @@ jobs:
         cache: 'pip'
     - name: Install dependencies
       run: |
-        pip install pip==26.2.1
+        pip install pip==26.3
         pip install build==1.6.1
     - name: Build package
       run: python -m build
     - name: Embed SBOM into wheel
       id: pitloom
-      uses: bact/pitloom@d95e9ed331a8463d49ef9cde8032aff5863e1e1e  # v0.20.2
+      uses: bact/pitloom@3b993e16bb265a9af75bbe52f8aea18c9ec49197  # v0.23.3
       with:
         embed-wheel: "dist/*.whl"
         project-path: "."
