@@ -24,6 +24,17 @@
       "copyrightText": "NOASSERTION"
     },
     {
+      "name": "Valid-Sub-Package",
+      "SPDXID": "SPDXRef-Package-Sub",
+      "versionInfo": "2.0",
+      "supplier": "Organization: Test Supplier",
+      "downloadLocation": "NOASSERTION",
+      "filesAnalyzed": false,
+      "licenseConcluded": "NOASSERTION",
+      "licenseDeclared": "NOASSERTION",
+      "copyrightText": "NOASSERTION"
+    },
+    {
       "name": "",
       "SPDXID": "SPDXRef-Package-Orphan",
       "versionInfo": "9.9.9",
@@ -39,6 +50,11 @@
       "spdxElementId": "SPDXRef-DOCUMENT",
       "relationshipType": "DESCRIBES",
       "relatedSpdxElement": "SPDXRef-Package-Valid"
+    },
+    {
+      "spdxElementId": "SPDXRef-Package-Valid",
+      "relationshipType": "CONTAINS",
+      "relatedSpdxElement": "SPDXRef-Package-Sub"
     }
   ]
 }

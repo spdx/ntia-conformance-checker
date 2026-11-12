@@ -303,7 +303,7 @@ def test_sbomchecker_bom_alpine_example() -> None:
 
 
 def test_sbomchecker_chainguard_example() -> None:
-    """Check that SBOM for alpine has component with missing version."""
+    """Check Chainguard OCI image index SBOM with VARIANT_OF relationships only."""
     test_file = os.path.join(
         os.path.dirname(__file__),
         "data",
@@ -311,7 +311,14 @@ def test_sbomchecker_chainguard_example() -> None:
         "chainguard.spdx.json",
     )
     sbom = sbom_checker.SbomChecker(test_file)
-    assert sbom.compliant
+    assert sbom.doc_author
+    assert sbom.doc_timestamp
+    assert not sbom.components_without_names
+    assert not sbom.components_without_versions
+    assert not sbom.components_without_suppliers
+    assert not sbom.components_without_identifiers
+    assert not sbom.dependency_relationships
+    assert not sbom.compliant
 
 
 def test_sbomchecker_alpine_no_package_supplier_name_example() -> None:
