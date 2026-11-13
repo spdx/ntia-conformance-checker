@@ -11,6 +11,23 @@ from spdx_tools.spdx.validation.validation_message import ValidationMessage
 
 from .adapter_interface import SbomAdapter, is_blank_string
 
+SPDX2_DEPENDENCY_RELATIONSHIP_TYPES: frozenset[RelationshipType] = frozenset(
+    {
+        RelationshipType.CONTAINS,
+        RelationshipType.CONTAINED_BY,
+        RelationshipType.DEPENDS_ON,
+        RelationshipType.DEPENDENCY_OF,
+        RelationshipType.BUILD_DEPENDENCY_OF,
+        RelationshipType.DEV_DEPENDENCY_OF,
+        RelationshipType.OPTIONAL_DEPENDENCY_OF,
+        RelationshipType.PROVIDED_DEPENDENCY_OF,
+        RelationshipType.RUNTIME_DEPENDENCY_OF,
+        RelationshipType.TEST_DEPENDENCY_OF,
+        RelationshipType.DYNAMIC_LINK,
+        RelationshipType.STATIC_LINK,
+    }
+)
+
 
 def _is_blank(value: object, noassertion: bool = False) -> bool:
     """
@@ -30,6 +47,44 @@ def _is_blank(value: object, noassertion: bool = False) -> bool:
     if value is None or isinstance(value, SpdxNoAssertion):
         return True
     return is_blank_string(value, noassertion)
+
+
+def _collect_spdx2_element_ids(doc: Document) -> set[str]:
+    """
+    Collect non-blank SPDX IDs of content elements (packages, files, snippets).
+
+    The document's own SPDX ID (e.g. ``SPDXRef-DOCUMENT``) is excluded so
+    document-level membership relationships are not treated as component
+    dependency relationships.
+    """
+    element_ids: set[str] = set()
+    for attr in ("packages", "files", "snippets"):
+        for elem in getattr(doc, attr, []):
+            spdx_id = getattr(elem, "spdx_id", None)
+            if isinstance(spdx_id, str) and not _is_blank(spdx_id):
+                element_ids.add(spdx_id)
+    return element_ids
+
+
+def has_spdx2_dependency_relationship(doc: Document) -> bool:
+    """Return True if a dependency or containment relationship connects SPDX 2 elements."""
+    relationships = getattr(doc, "relationships", [])
+    if not relationships:
+        return False
+
+    element_ids = _collect_spdx2_element_ids(doc)
+    if len(element_ids) < 2:
+        return False
+
+    return any(
+        rel.relationship_type in SPDX2_DEPENDENCY_RELATIONSHIP_TYPES
+        and isinstance(rel.spdx_element_id, str)
+        and isinstance(rel.related_spdx_element_id, str)
+        and rel.spdx_element_id != rel.related_spdx_element_id
+        and rel.spdx_element_id in element_ids
+        and rel.related_spdx_element_id in element_ids
+        for rel in relationships
+    )
 
 
 class Spdx2Adapter(SbomAdapter):
@@ -127,25 +182,8 @@ class Spdx2Adapter(SbomAdapter):
         ]
 
     def check_dependency_relationships(self) -> bool:
-        """In SPDX 2, this checks for a DESCRIBES relationship"""
-        if not getattr(self.doc, "relationships", []):
-            return False
-
-        describes_relationships = [
-            rel
-            for rel in self.doc.relationships
-            if rel.relationship_type == RelationshipType.DESCRIBES
-        ]
-        # A set of all package spdx_ids for quick lookup
-        spdx_id_set = {package.spdx_id for package in getattr(self.doc, "packages", [])}
-
-        # Check if any of the "DESCRIBES" relationships describe a Package
-        describes_package = any(
-            rel.related_spdx_element_id in spdx_id_set
-            for rel in describes_relationships
-        )
-
-        return describes_package
+        """In SPDX 2, this checks element-level dependency relationships."""
+        return has_spdx2_dependency_relationship(self.doc)
 
     def get_total_number_components(self) -> int:
         """In SPDX 2, this returns the total count of packages."""

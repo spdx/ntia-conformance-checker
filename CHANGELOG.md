@@ -28,12 +28,16 @@ and this project adheres to [Semantic Versioning][semver].
 
 ### Changed
 
+- Require a dependency or containment relationship between SPDX 2 elements
+  instead of document-level `DESCRIBES` in
+  `Spdx2Adapter.check_dependency_relationships` ([#410])
 - Pull request and release builds embed the SBOM with Pitloom 0.20.1 and fail
   on an invalid SBOM; content types are detected with magika
 - Releases publish to PyPI only after the SBOM is validated; release files are
   attached, signed and attested after the publish, and can be re-run if that
   fails
 
+[#410]: https://github.com/spdx/ntia-conformance-checker/issues/410
 [#478]: https://github.com/spdx/ntia-conformance-checker/pull/478
 
 ## [6.0.0] - 2026-10-05
