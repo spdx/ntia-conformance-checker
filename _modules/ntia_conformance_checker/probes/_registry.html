@@ -1,0 +1,224 @@
+<!DOCTYPE html>
+
+<html lang="en" data-content_root="../../../">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>ntia_conformance_checker.probes._registry &#8212; NTIA Conformance Checker  documentation</title>
+    <link rel="stylesheet" type="text/css" href="../../../_static/pygments.css?v=5ecbeea2" />
+    <link rel="stylesheet" type="text/css" href="../../../_static/basic.css?v=b08954a9" />
+    <link rel="stylesheet" type="text/css" href="../../../_static/alabaster.css?v=27fed22d" />
+    <script src="../../../_static/documentation_options.js?v=5929fcd5"></script>
+    <script src="../../../_static/doctools.js?v=fd6eb6e6"></script>
+    <script src="../../../_static/sphinx_highlight.js?v=6ffebe34"></script>
+    <link rel="index" title="Index" href="../../../genindex.html" />
+    <link rel="search" title="Search" href="../../../search.html" />
+   
+  <link rel="stylesheet" href="../../../_static/custom.css" type="text/css" />
+  
+
+  
+  
+
+  </head><body>
+  
+
+    <div class="document">
+      <div class="documentwrapper">
+        <div class="bodywrapper">
+          
+
+          <div class="body" role="main">
+            
+  <h1>Source code for ntia_conformance_checker.probes._registry</h1><div class="highlight"><pre>
+<span></span><span class="c1"># SPDX-FileContributor: Arthit Suriyawongkul</span>
+<span class="c1"># SPDX-FileCopyrightText: 2026-present SPDX contributors</span>
+<span class="c1"># SPDX-FileType: SOURCE</span>
+<span class="c1"># SPDX-License-Identifier: Apache-2.0</span>
+
+<span class="sd">"""Probe registry: name -&gt; callable.</span>
+
+<span class="sd">Probes are registered with the :func:`probe` decorator at import time and</span>
+<span class="sd">looked up by name when the rule engine processes a YAML rule's</span>
+<span class="sd">``probe.name``.</span>
+
+<span class="sd">Probe signature (informal -- enforced by convention, not types):</span>
+
+<span class="sd">    probe(checker: CheckerProtocol, **params) -&gt; Iterable[Finding]</span>
+
+<span class="sd">* ``checker`` -- the running checker instance.  Probes use the</span>
+<span class="sd">  presence-oriented accessors on it (:meth:`CheckerProtocol.components_without`</span>
+<span class="sd">  and :meth:`CheckerProtocol.document_has`) rather than poking at private</span>
+<span class="sd">  attributes, so they stay format-agnostic.</span>
+<span class="sd">* ``**params`` -- keyword arguments from the rule's ``probe.params`` YAML</span>
+<span class="sd">  block.  Probes must declare every parameter explicitly (no ``**kwargs``)</span>
+<span class="sd">  so the loader can validate parameter spelling.</span>
+<span class="sd">* Returns -- iterable of :class:`Finding`.  Empty iterable means the rule</span>
+<span class="sd">  passed.  Probes never decide severity, level, or rule id -- those live</span>
+<span class="sd">  on :class:`SpecRule`.</span>
+<span class="sd">"""</span>
+
+<span class="kn">from</span><span class="w"> </span><span class="nn">__future__</span><span class="w"> </span><span class="kn">import</span> <span class="n">annotations</span>
+
+<span class="kn">import</span><span class="w"> </span><span class="nn">inspect</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">collections.abc</span><span class="w"> </span><span class="kn">import</span> <span class="n">Callable</span><span class="p">,</span> <span class="n">Iterable</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">typing</span><span class="w"> </span><span class="kn">import</span> <span class="n">TYPE_CHECKING</span><span class="p">,</span> <span class="n">Protocol</span>
+
+<span class="k">if</span> <span class="n">TYPE_CHECKING</span><span class="p">:</span>
+    <span class="kn">from</span><span class="w"> </span><span class="nn">..model</span><span class="w"> </span><span class="kn">import</span> <span class="n">Finding</span>
+
+
+<span class="k">class</span><span class="w"> </span><span class="nc">CheckerProtocol</span><span class="p">(</span><span class="n">Protocol</span><span class="p">):</span>
+<span class="w">    </span><span class="sd">"""Structural type for the probe-facing surface of a checker.</span>
+
+<span class="sd">    Probes only need these two accessors, so they type-hint against this</span>
+<span class="sd">    protocol rather than importing the concrete ``BaseChecker`` -- any</span>
+<span class="sd">    object providing this shape satisfies it.</span>
+<span class="sd">    """</span>
+
+    <span class="k">def</span><span class="w"> </span><span class="nf">components_without</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">element_id</span><span class="p">:</span> <span class="nb">str</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">list</span><span class="p">[</span><span class="nb">tuple</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="nb">str</span><span class="p">]]:</span>
+<span class="w">        </span><span class="sd">"""Components missing ``element_id``, as ``(name, spdx_id)`` pairs."""</span>
+        <span class="k">raise</span> <span class="ne">NotImplementedError</span>
+
+    <span class="k">def</span><span class="w"> </span><span class="nf">document_has</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">element_id</span><span class="p">:</span> <span class="nb">str</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">bool</span><span class="p">:</span>
+<span class="w">        </span><span class="sd">"""True iff the SBOM document declares ``element_id``."""</span>
+        <span class="k">raise</span> <span class="ne">NotImplementedError</span>
+
+
+<span class="n">ProbeFn</span> <span class="o">=</span> <span class="n">Callable</span><span class="p">[</span><span class="o">...</span><span class="p">,</span> <span class="n">Iterable</span><span class="p">[</span><span class="s2">"Finding"</span><span class="p">]]</span>
+
+<span class="n">_PROBES</span><span class="p">:</span> <span class="nb">dict</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="n">ProbeFn</span><span class="p">]</span> <span class="o">=</span> <span class="p">{}</span>
+<span class="n">_ATTRIBUTE_SCOPES</span><span class="p">:</span> <span class="nb">dict</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="nb">frozenset</span><span class="p">[</span><span class="nb">str</span><span class="p">]]</span> <span class="o">=</span> <span class="p">{}</span>
+
+
+<div class="viewcode-block" id="probe">
+<a class="viewcode-back" href="../../../ntia_conformance_checker.probes.html#ntia_conformance_checker.probes.probe">[docs]</a>
+<span class="k">def</span><span class="w"> </span><span class="nf">probe</span><span class="p">(</span>
+    <span class="n">name</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span> <span class="o">*</span><span class="p">,</span> <span class="n">attributes</span><span class="p">:</span> <span class="nb">frozenset</span><span class="p">[</span><span class="nb">str</span><span class="p">]</span> <span class="o">|</span> <span class="kc">None</span> <span class="o">=</span> <span class="kc">None</span>
+<span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Callable</span><span class="p">[[</span><span class="n">ProbeFn</span><span class="p">],</span> <span class="n">ProbeFn</span><span class="p">]:</span>
+<span class="w">    </span><span class="sd">"""Register ``fn`` under ``name`` in the global probe registry.</span>
+
+<span class="sd">    ``attributes`` is for a probe taking an ``attribute`` param: the element</span>
+<span class="sd">    ids it accepts.  The loader then requires a rule's ``attribute`` to be one</span>
+<span class="sd">    of them and to equal the rule's ``element_id``.</span>
+
+<span class="sd">    Raises ``ValueError`` on duplicate registration so accidental overrides</span>
+<span class="sd">    fail loudly at import time, and on a probe that takes ``*args``/``**kwargs``</span>
+<span class="sd">    (the loader validates YAML params against explicit parameters) or that is</span>
+<span class="sd">    given ``attributes`` without an ``attribute`` parameter.</span>
+<span class="sd">    """</span>
+
+    <span class="k">def</span><span class="w"> </span><span class="nf">deco</span><span class="p">(</span><span class="n">fn</span><span class="p">:</span> <span class="n">ProbeFn</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">ProbeFn</span><span class="p">:</span>
+        <span class="n">params</span> <span class="o">=</span> <span class="n">inspect</span><span class="o">.</span><span class="n">signature</span><span class="p">(</span><span class="n">fn</span><span class="p">)</span><span class="o">.</span><span class="n">parameters</span>
+        <span class="k">if</span> <span class="nb">any</span><span class="p">(</span><span class="n">p</span><span class="o">.</span><span class="n">kind</span> <span class="ow">in</span> <span class="p">(</span><span class="n">p</span><span class="o">.</span><span class="n">VAR_POSITIONAL</span><span class="p">,</span> <span class="n">p</span><span class="o">.</span><span class="n">VAR_KEYWORD</span><span class="p">)</span> <span class="k">for</span> <span class="n">p</span> <span class="ow">in</span> <span class="n">params</span><span class="o">.</span><span class="n">values</span><span class="p">()):</span>
+            <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="sa">f</span><span class="s2">"Probe </span><span class="si">{</span><span class="n">name</span><span class="si">!r}</span><span class="s2"> must declare its params explicitly."</span><span class="p">)</span>
+        <span class="k">if</span> <span class="n">attributes</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span> <span class="ow">and</span> <span class="s2">"attribute"</span> <span class="ow">not</span> <span class="ow">in</span> <span class="n">params</span><span class="p">:</span>
+            <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span><span class="sa">f</span><span class="s2">"Probe </span><span class="si">{</span><span class="n">name</span><span class="si">!r}</span><span class="s2"> has attributes but no 'attribute' param."</span><span class="p">)</span>
+        <span class="k">if</span> <span class="n">name</span> <span class="ow">in</span> <span class="n">_PROBES</span><span class="p">:</span>
+            <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span>
+                <span class="sa">f</span><span class="s2">"Probe </span><span class="si">{</span><span class="n">name</span><span class="si">!r}</span><span class="s2"> already registered as </span><span class="si">{</span><span class="n">_PROBES</span><span class="p">[</span><span class="n">name</span><span class="p">]</span><span class="o">.</span><span class="vm">__qualname__</span><span class="si">}</span><span class="s2">; "</span>
+                <span class="sa">f</span><span class="s2">"refusing to overwrite with </span><span class="si">{</span><span class="n">fn</span><span class="o">.</span><span class="vm">__qualname__</span><span class="si">}</span><span class="s2">."</span>
+            <span class="p">)</span>
+        <span class="n">_PROBES</span><span class="p">[</span><span class="n">name</span><span class="p">]</span> <span class="o">=</span> <span class="n">fn</span>
+        <span class="k">if</span> <span class="n">attributes</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
+            <span class="n">_ATTRIBUTE_SCOPES</span><span class="p">[</span><span class="n">name</span><span class="p">]</span> <span class="o">=</span> <span class="n">attributes</span>
+        <span class="k">return</span> <span class="n">fn</span>
+
+    <span class="k">return</span> <span class="n">deco</span></div>
+
+
+
+<div class="viewcode-block" id="lookup">
+<a class="viewcode-back" href="../../../ntia_conformance_checker.probes.html#ntia_conformance_checker.probes.lookup">[docs]</a>
+<span class="k">def</span><span class="w"> </span><span class="nf">lookup</span><span class="p">(</span><span class="n">name</span><span class="p">:</span> <span class="nb">str</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">ProbeFn</span><span class="p">:</span>
+<span class="w">    </span><span class="sd">"""Return the probe registered under ``name``; raise ``KeyError`` if absent."""</span>
+    <span class="k">try</span><span class="p">:</span>
+        <span class="k">return</span> <span class="n">_PROBES</span><span class="p">[</span><span class="n">name</span><span class="p">]</span>
+    <span class="k">except</span> <span class="ne">KeyError</span> <span class="k">as</span> <span class="n">exc</span><span class="p">:</span>
+        <span class="k">raise</span> <span class="ne">KeyError</span><span class="p">(</span>
+            <span class="sa">f</span><span class="s2">"Probe </span><span class="si">{</span><span class="n">name</span><span class="si">!r}</span><span class="s2"> not registered.  Known probes: </span><span class="si">{</span><span class="nb">sorted</span><span class="p">(</span><span class="n">_PROBES</span><span class="p">)</span><span class="si">!r}</span><span class="s2">"</span>
+        <span class="p">)</span> <span class="kn">from</span><span class="w"> </span><span class="nn">exc</span></div>
+
+
+
+<div class="viewcode-block" id="attribute_scope">
+<a class="viewcode-back" href="../../../ntia_conformance_checker.probes.html#ntia_conformance_checker.probes.attribute_scope">[docs]</a>
+<span class="k">def</span><span class="w"> </span><span class="nf">attribute_scope</span><span class="p">(</span><span class="n">name</span><span class="p">:</span> <span class="nb">str</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">frozenset</span><span class="p">[</span><span class="nb">str</span><span class="p">]</span> <span class="o">|</span> <span class="kc">None</span><span class="p">:</span>
+<span class="w">    </span><span class="sd">"""Element ids probe ``name`` accepts as ``attribute``; ``None`` if unrestricted."""</span>
+    <span class="k">return</span> <span class="n">_ATTRIBUTE_SCOPES</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="n">name</span><span class="p">)</span></div>
+
+
+
+<div class="viewcode-block" id="registered_names">
+<a class="viewcode-back" href="../../../ntia_conformance_checker.probes.html#ntia_conformance_checker.probes.registered_names">[docs]</a>
+<span class="k">def</span><span class="w"> </span><span class="nf">registered_names</span><span class="p">()</span> <span class="o">-&gt;</span> <span class="nb">tuple</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="o">...</span><span class="p">]:</span>
+<span class="w">    </span><span class="sd">"""All registered probe names, sorted.  For tests / introspection."""</span>
+    <span class="k">return</span> <span class="nb">tuple</span><span class="p">(</span><span class="nb">sorted</span><span class="p">(</span><span class="n">_PROBES</span><span class="p">))</span></div>
+
+</pre></div>
+
+          </div>
+          
+        </div>
+      </div>
+      <div class="sphinxsidebar" role="navigation" aria-label="Main">
+        <div class="sphinxsidebarwrapper">
+<h1 class="logo"><a href="../../../index.html">NTIA Conformance Checker</a></h1>
+
+
+
+
+
+
+
+
+
+<search id="searchbox" style="display: none" role="search">
+    <div class="searchformwrapper">
+    <form class="search" action="../../../search.html" method="get">
+      <input type="text" name="q" aria-labelledby="searchlabel" autocomplete="off" autocorrect="off" autocapitalize="off" spellcheck="false" placeholder="Search"/>
+      <input type="submit" value="Go" />
+    </form>
+    </div>
+</search>
+<script>document.getElementById('searchbox').style.display = "block"</script><h3>Navigation</h3>
+<p class="caption" role="heading"><span class="caption-text">Contents:</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../../../modules.html">ntia_conformance_checker</a></li>
+</ul>
+
+<div class="relations">
+<h3>Related Topics</h3>
+<ul>
+  <li><a href="../../../index.html">Documentation overview</a><ul>
+  <li><a href="../../index.html">Module code</a><ul>
+  </ul></li>
+  </ul></li>
+</ul>
+</div>
+
+
+
+
+
+
+
+
+        </div>
+      </div>
+      <div class="clearer"></div>
+    </div>
+    <div class="footer">
+      &#169;2022-2026 SPDX contributors.
+      
+      |
+      Powered by <a href="https://www.sphinx-doc.org/">Sphinx 9.1.1</a>
+      &amp; <a href="https://alabaster.readthedocs.io">Alabaster 1.0.0</a>
+      
+    </div>
+
+    
+
+    
+  </body>
+</html>

@@ -1,0 +1,182 @@
+<!DOCTYPE html>
+
+<html lang="en" data-content_root="../../">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>ntia_conformance_checker.model &#8212; NTIA Conformance Checker  documentation</title>
+    <link rel="stylesheet" type="text/css" href="../../_static/pygments.css?v=5ecbeea2" />
+    <link rel="stylesheet" type="text/css" href="../../_static/basic.css?v=b08954a9" />
+    <link rel="stylesheet" type="text/css" href="../../_static/alabaster.css?v=27fed22d" />
+    <script src="../../_static/documentation_options.js?v=5929fcd5"></script>
+    <script src="../../_static/doctools.js?v=fd6eb6e6"></script>
+    <script src="../../_static/sphinx_highlight.js?v=6ffebe34"></script>
+    <link rel="index" title="Index" href="../../genindex.html" />
+    <link rel="search" title="Search" href="../../search.html" />
+   
+  <link rel="stylesheet" href="../../_static/custom.css" type="text/css" />
+  
+
+  
+  
+
+  </head><body>
+  
+
+    <div class="document">
+      <div class="documentwrapper">
+        <div class="bodywrapper">
+          
+
+          <div class="body" role="main">
+            
+  <h1>Source code for ntia_conformance_checker.model</h1><div class="highlight"><pre>
+<span></span><span class="c1"># SPDX-FileContributor: Arthit Suriyawongkul</span>
+<span class="c1"># SPDX-FileCopyrightText: 2026-present SPDX contributors</span>
+<span class="c1"># SPDX-FileType: SOURCE</span>
+<span class="c1"># SPDX-License-Identifier: Apache-2.0</span>
+
+<span class="sd">"""Shared data types for the declarative-rules engine.</span>
+
+<span class="sd">* :class:`Finding` -- one occurrence of a rule violation, format-agnostic.</span>
+<span class="sd">  Probes yield ``Finding`` objects; the SARIF / JSON / text emitters</span>
+<span class="sd">  convert them to their output shape.</span>
+
+<span class="sd">* ``ELEMENT_IDS`` -- the canonical, presence-oriented vocabulary used</span>
+<span class="sd">  throughout YAML rules, probes, and ``BaseChecker`` accessors.  Singular,</span>
+<span class="sd">  spec-aligned names.  *Document-level* and *component-level* checks use</span>
+<span class="sd">  the **same** vocabulary because the rule concept is the same (the</span>
+<span class="sd">  element must be present).</span>
+<span class="sd">"""</span>
+
+<span class="kn">from</span><span class="w"> </span><span class="nn">__future__</span><span class="w"> </span><span class="kn">import</span> <span class="n">annotations</span>
+
+<span class="kn">from</span><span class="w"> </span><span class="nn">dataclasses</span><span class="w"> </span><span class="kn">import</span> <span class="n">dataclass</span>
+
+
+<div class="viewcode-block" id="Finding">
+<a class="viewcode-back" href="../../ntia_conformance_checker.html#ntia_conformance_checker.model.Finding">[docs]</a>
+<span class="nd">@dataclass</span><span class="p">(</span><span class="n">frozen</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span> <span class="n">kw_only</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
+<span class="k">class</span><span class="w"> </span><span class="nc">Finding</span><span class="p">:</span>
+<span class="w">    </span><span class="sd">"""One occurrence of a rule violation.</span>
+
+<span class="sd">    ``component_id`` is the SPDX-style identifier (e.g. ``"SPDXRef-Pkg-foo"``)</span>
+<span class="sd">    for component-level findings, or the literal string ``"document"`` for</span>
+<span class="sd">    document-level findings.</span>
+
+<span class="sd">    ``component_name`` is the human-readable name when known (empty string</span>
+<span class="sd">    for document-level findings or anonymous components).</span>
+
+<span class="sd">    ``note`` is an optional, finding-specific message that overrides the</span>
+<span class="sd">    rule's default warning text.  Most probes leave it empty so the rule's</span>
+<span class="sd">    :attr:`SpecRule.warning` flows through to output.</span>
+<span class="sd">    """</span>
+
+    <span class="n">component_id</span><span class="p">:</span> <span class="nb">str</span>
+    <span class="n">component_name</span><span class="p">:</span> <span class="nb">str</span> <span class="o">=</span> <span class="s2">""</span>
+    <span class="n">note</span><span class="p">:</span> <span class="nb">str</span> <span class="o">=</span> <span class="s2">""</span>
+
+    <span class="nd">@property</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">is_document_level</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">bool</span><span class="p">:</span>
+<span class="w">        </span><span class="sd">"""True if this finding is about the SBOM document, not a component."""</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">component_id</span> <span class="o">==</span> <span class="s2">"document"</span></div>
+
+
+
+<span class="c1"># Canonical element-id vocabulary.  These strings appear verbatim in YAML</span>
+<span class="c1"># rules, on probe ``params``, and in SARIF ``rule.properties.elementId``.</span>
+<span class="c1"># Choose them carefully -- they are public contract.</span>
+<span class="n">COMPONENT_ELEMENT_IDS</span><span class="p">:</span> <span class="nb">frozenset</span><span class="p">[</span><span class="nb">str</span><span class="p">]</span> <span class="o">=</span> <span class="nb">frozenset</span><span class="p">(</span>
+    <span class="p">{</span>
+        <span class="s2">"name"</span><span class="p">,</span>
+        <span class="s2">"version"</span><span class="p">,</span>
+        <span class="s2">"unique_identifier"</span><span class="p">,</span>
+        <span class="s2">"supplier"</span><span class="p">,</span>
+        <span class="s2">"concluded_license"</span><span class="p">,</span>
+        <span class="s2">"copyright_notice"</span><span class="p">,</span>
+        <span class="s2">"cryptographic_hash"</span><span class="p">,</span>
+        <span class="s2">"relationship"</span><span class="p">,</span>
+    <span class="p">}</span>
+<span class="p">)</span>
+<span class="sd">"""Elements checked for presence on each component."""</span>
+
+<span class="n">DOCUMENT_ELEMENT_IDS</span><span class="p">:</span> <span class="nb">frozenset</span><span class="p">[</span><span class="nb">str</span><span class="p">]</span> <span class="o">=</span> <span class="nb">frozenset</span><span class="p">(</span>
+    <span class="p">{</span>
+        <span class="s2">"author"</span><span class="p">,</span>
+        <span class="s2">"timestamp"</span><span class="p">,</span>
+        <span class="s2">"spec_version"</span><span class="p">,</span>
+        <span class="s2">"dependency_relationship"</span><span class="p">,</span>
+        <span class="s2">"primary_component"</span><span class="p">,</span>
+        <span class="s2">"sbom_type"</span><span class="p">,</span>
+    <span class="p">}</span>
+<span class="p">)</span>
+<span class="sd">"""Elements checked for presence on the SBOM as a whole."""</span>
+
+<span class="n">ELEMENT_IDS</span><span class="p">:</span> <span class="nb">frozenset</span><span class="p">[</span><span class="nb">str</span><span class="p">]</span> <span class="o">=</span> <span class="n">COMPONENT_ELEMENT_IDS</span> <span class="o">|</span> <span class="n">DOCUMENT_ELEMENT_IDS</span>
+</pre></div>
+
+          </div>
+          
+        </div>
+      </div>
+      <div class="sphinxsidebar" role="navigation" aria-label="Main">
+        <div class="sphinxsidebarwrapper">
+<h1 class="logo"><a href="../../index.html">NTIA Conformance Checker</a></h1>
+
+
+
+
+
+
+
+
+
+<search id="searchbox" style="display: none" role="search">
+    <div class="searchformwrapper">
+    <form class="search" action="../../search.html" method="get">
+      <input type="text" name="q" aria-labelledby="searchlabel" autocomplete="off" autocorrect="off" autocapitalize="off" spellcheck="false" placeholder="Search"/>
+      <input type="submit" value="Go" />
+    </form>
+    </div>
+</search>
+<script>document.getElementById('searchbox').style.display = "block"</script><h3>Navigation</h3>
+<p class="caption" role="heading"><span class="caption-text">Contents:</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../../modules.html">ntia_conformance_checker</a></li>
+</ul>
+
+<div class="relations">
+<h3>Related Topics</h3>
+<ul>
+  <li><a href="../../index.html">Documentation overview</a><ul>
+  <li><a href="../index.html">Module code</a><ul>
+  </ul></li>
+  </ul></li>
+</ul>
+</div>
+
+
+
+
+
+
+
+
+        </div>
+      </div>
+      <div class="clearer"></div>
+    </div>
+    <div class="footer">
+      &#169;2022-2026 SPDX contributors.
+      
+      |
+      Powered by <a href="https://www.sphinx-doc.org/">Sphinx 9.1.1</a>
+      &amp; <a href="https://alabaster.readthedocs.io">Alabaster 1.0.0</a>
+      
+    </div>
+
+    
+
+    
+  </body>
+</html>

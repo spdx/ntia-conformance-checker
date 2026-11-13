@@ -48,6 +48,12 @@
 <li class="toctree-l4"><a class="reference internal" href="ntia_conformance_checker.adapters.html#module-ntia_conformance_checker.adapters">Module contents</a></li>
 </ul>
 </li>
+<li class="toctree-l3"><a class="reference internal" href="ntia_conformance_checker.probes.html">ntia_conformance_checker.probes package</a><ul>
+<li class="toctree-l4"><a class="reference internal" href="ntia_conformance_checker.probes.html#submodules">Submodules</a></li>
+<li class="toctree-l4"><a class="reference internal" href="ntia_conformance_checker.probes.html#module-ntia_conformance_checker.probes.presence">ntia_conformance_checker.probes.presence module</a></li>
+<li class="toctree-l4"><a class="reference internal" href="ntia_conformance_checker.probes.html#module-ntia_conformance_checker.probes">Module contents</a></li>
+</ul>
+</li>
 </ul>
 </li>
 <li class="toctree-l2"><a class="reference internal" href="ntia_conformance_checker.html#submodules">Submodules</a></li>
@@ -153,6 +159,18 @@
 <li class="toctree-l3"><a class="reference internal" href="ntia_conformance_checker.html#ntia_conformance_checker.main.main"><code class="docutils literal notranslate"><span class="pre">main()</span></code></a></li>
 </ul>
 </li>
+<li class="toctree-l2"><a class="reference internal" href="ntia_conformance_checker.html#module-ntia_conformance_checker.model">ntia_conformance_checker.model module</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="ntia_conformance_checker.html#ntia_conformance_checker.model.COMPONENT_ELEMENT_IDS"><code class="docutils literal notranslate"><span class="pre">COMPONENT_ELEMENT_IDS</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="ntia_conformance_checker.html#ntia_conformance_checker.model.DOCUMENT_ELEMENT_IDS"><code class="docutils literal notranslate"><span class="pre">DOCUMENT_ELEMENT_IDS</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="ntia_conformance_checker.html#ntia_conformance_checker.model.Finding"><code class="docutils literal notranslate"><span class="pre">Finding</span></code></a><ul>
+<li class="toctree-l4"><a class="reference internal" href="ntia_conformance_checker.html#ntia_conformance_checker.model.Finding.component_id"><code class="docutils literal notranslate"><span class="pre">Finding.component_id</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="ntia_conformance_checker.html#ntia_conformance_checker.model.Finding.component_name"><code class="docutils literal notranslate"><span class="pre">Finding.component_name</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="ntia_conformance_checker.html#ntia_conformance_checker.model.Finding.is_document_level"><code class="docutils literal notranslate"><span class="pre">Finding.is_document_level</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="ntia_conformance_checker.html#ntia_conformance_checker.model.Finding.note"><code class="docutils literal notranslate"><span class="pre">Finding.note</span></code></a></li>
+</ul>
+</li>
+</ul>
+</li>
 <li class="toctree-l2"><a class="reference internal" href="ntia_conformance_checker.html#module-ntia_conformance_checker.ntia_checker">ntia_conformance_checker.ntia_checker module</a><ul>
 <li class="toctree-l3"><a class="reference internal" href="ntia_conformance_checker.html#ntia_conformance_checker.ntia_checker.NTIAChecker"><code class="docutils literal notranslate"><span class="pre">NTIAChecker</span></code></a><ul>
 <li class="toctree-l4"><a class="reference internal" href="ntia_conformance_checker.html#ntia_conformance_checker.ntia_checker.NTIAChecker.MIN_ELEMENTS"><code class="docutils literal notranslate"><span class="pre">NTIAChecker.MIN_ELEMENTS</span></code></a></li>
@@ -160,6 +178,12 @@
 <li class="toctree-l4"><a class="reference internal" href="ntia_conformance_checker.html#ntia_conformance_checker.ntia_checker.NTIAChecker.check_ntia_minimum_elements_compliance"><code class="docutils literal notranslate"><span class="pre">NTIAChecker.check_ntia_minimum_elements_compliance()</span></code></a></li>
 </ul>
 </li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="ntia_conformance_checker.html#module-ntia_conformance_checker.registry">ntia_conformance_checker.registry module</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="ntia_conformance_checker.html#ntia_conformance_checker.registry.descriptions"><code class="docutils literal notranslate"><span class="pre">descriptions()</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="ntia_conformance_checker.html#ntia_conformance_checker.registry.get_spec"><code class="docutils literal notranslate"><span class="pre">get_spec()</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="ntia_conformance_checker.html#ntia_conformance_checker.registry.spec_ids"><code class="docutils literal notranslate"><span class="pre">spec_ids()</span></code></a></li>
 </ul>
 </li>
 <li class="toctree-l2"><a class="reference internal" href="ntia_conformance_checker.html#module-ntia_conformance_checker.report">ntia_conformance_checker.report module</a><ul>
@@ -208,6 +232,86 @@
 <li class="toctree-l3"><a class="reference internal" href="ntia_conformance_checker.html#ntia_conformance_checker.spdx3_utils.iter_relationships_by_type"><code class="docutils literal notranslate"><span class="pre">iter_relationships_by_type()</span></code></a></li>
 <li class="toctree-l3"><a class="reference internal" href="ntia_conformance_checker.html#ntia_conformance_checker.spdx3_utils.parse_spdx3_file"><code class="docutils literal notranslate"><span class="pre">parse_spdx3_file()</span></code></a></li>
 <li class="toctree-l3"><a class="reference internal" href="ntia_conformance_checker.html#ntia_conformance_checker.spdx3_utils.validate_spdx3_data"><code class="docutils literal notranslate"><span class="pre">validate_spdx3_data()</span></code></a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="ntia_conformance_checker.html#module-ntia_conformance_checker.spec">ntia_conformance_checker.spec module</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="ntia_conformance_checker.html#ntia_conformance_checker.spec.DEFAULT_MATURITY_LEVELS"><code class="docutils literal notranslate"><span class="pre">DEFAULT_MATURITY_LEVELS</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="ntia_conformance_checker.html#ntia_conformance_checker.spec.ProbeRef"><code class="docutils literal notranslate"><span class="pre">ProbeRef</span></code></a><ul>
+<li class="toctree-l4"><a class="reference internal" href="ntia_conformance_checker.html#ntia_conformance_checker.spec.ProbeRef.name"><code class="docutils literal notranslate"><span class="pre">ProbeRef.name</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="ntia_conformance_checker.html#ntia_conformance_checker.spec.ProbeRef.params"><code class="docutils literal notranslate"><span class="pre">ProbeRef.params</span></code></a></li>
+</ul>
+</li>
+<li class="toctree-l3"><a class="reference internal" href="ntia_conformance_checker.html#ntia_conformance_checker.spec.Provision"><code class="docutils literal notranslate"><span class="pre">Provision</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="ntia_conformance_checker.html#ntia_conformance_checker.spec.Severity"><code class="docutils literal notranslate"><span class="pre">Severity</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="ntia_conformance_checker.html#ntia_conformance_checker.spec.Spec"><code class="docutils literal notranslate"><span class="pre">Spec</span></code></a><ul>
+<li class="toctree-l4"><a class="reference internal" href="ntia_conformance_checker.html#ntia_conformance_checker.spec.Spec.active_rules"><code class="docutils literal notranslate"><span class="pre">Spec.active_rules()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="ntia_conformance_checker.html#ntia_conformance_checker.spec.Spec.blocking_rules"><code class="docutils literal notranslate"><span class="pre">Spec.blocking_rules()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="ntia_conformance_checker.html#ntia_conformance_checker.spec.Spec.categories"><code class="docutils literal notranslate"><span class="pre">Spec.categories</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="ntia_conformance_checker.html#ntia_conformance_checker.spec.Spec.category"><code class="docutils literal notranslate"><span class="pre">Spec.category()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="ntia_conformance_checker.html#ntia_conformance_checker.spec.Spec.emitted_rules"><code class="docutils literal notranslate"><span class="pre">Spec.emitted_rules()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="ntia_conformance_checker.html#ntia_conformance_checker.spec.Spec.id"><code class="docutils literal notranslate"><span class="pre">Spec.id</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="ntia_conformance_checker.html#ntia_conformance_checker.spec.Spec.maturity"><code class="docutils literal notranslate"><span class="pre">Spec.maturity()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="ntia_conformance_checker.html#ntia_conformance_checker.spec.Spec.maturity_id"><code class="docutils literal notranslate"><span class="pre">Spec.maturity_id()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="ntia_conformance_checker.html#ntia_conformance_checker.spec.Spec.maturity_levels"><code class="docutils literal notranslate"><span class="pre">Spec.maturity_levels</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="ntia_conformance_checker.html#ntia_conformance_checker.spec.Spec.maturity_ordinals"><code class="docutils literal notranslate"><span class="pre">Spec.maturity_ordinals()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="ntia_conformance_checker.html#ntia_conformance_checker.spec.Spec.max_maturity"><code class="docutils literal notranslate"><span class="pre">Spec.max_maturity</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="ntia_conformance_checker.html#ntia_conformance_checker.spec.Spec.oscal_control_id"><code class="docutils literal notranslate"><span class="pre">Spec.oscal_control_id()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="ntia_conformance_checker.html#ntia_conformance_checker.spec.Spec.report_name"><code class="docutils literal notranslate"><span class="pre">Spec.report_name()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="ntia_conformance_checker.html#ntia_conformance_checker.spec.Spec.rule_id"><code class="docutils literal notranslate"><span class="pre">Spec.rule_id()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="ntia_conformance_checker.html#ntia_conformance_checker.spec.Spec.rule_uri"><code class="docutils literal notranslate"><span class="pre">Spec.rule_uri()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="ntia_conformance_checker.html#ntia_conformance_checker.spec.Spec.rules"><code class="docutils literal notranslate"><span class="pre">Spec.rules</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="ntia_conformance_checker.html#ntia_conformance_checker.spec.Spec.severity"><code class="docutils literal notranslate"><span class="pre">Spec.severity()</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="ntia_conformance_checker.html#ntia_conformance_checker.spec.Spec.taxonomies"><code class="docutils literal notranslate"><span class="pre">Spec.taxonomies</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="ntia_conformance_checker.html#ntia_conformance_checker.spec.Spec.title"><code class="docutils literal notranslate"><span class="pre">Spec.title</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="ntia_conformance_checker.html#ntia_conformance_checker.spec.Spec.uri"><code class="docutils literal notranslate"><span class="pre">Spec.uri</span></code></a></li>
+</ul>
+</li>
+<li class="toctree-l3"><a class="reference internal" href="ntia_conformance_checker.html#ntia_conformance_checker.spec.SpecCategory"><code class="docutils literal notranslate"><span class="pre">SpecCategory</span></code></a><ul>
+<li class="toctree-l4"><a class="reference internal" href="ntia_conformance_checker.html#ntia_conformance_checker.spec.SpecCategory.code"><code class="docutils literal notranslate"><span class="pre">SpecCategory.code</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="ntia_conformance_checker.html#ntia_conformance_checker.spec.SpecCategory.description"><code class="docutils literal notranslate"><span class="pre">SpecCategory.description</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="ntia_conformance_checker.html#ntia_conformance_checker.spec.SpecCategory.id"><code class="docutils literal notranslate"><span class="pre">SpecCategory.id</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="ntia_conformance_checker.html#ntia_conformance_checker.spec.SpecCategory.title"><code class="docutils literal notranslate"><span class="pre">SpecCategory.title</span></code></a></li>
+</ul>
+</li>
+<li class="toctree-l3"><a class="reference internal" href="ntia_conformance_checker.html#ntia_conformance_checker.spec.SpecMaturity"><code class="docutils literal notranslate"><span class="pre">SpecMaturity</span></code></a><ul>
+<li class="toctree-l4"><a class="reference internal" href="ntia_conformance_checker.html#ntia_conformance_checker.spec.SpecMaturity.description"><code class="docutils literal notranslate"><span class="pre">SpecMaturity.description</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="ntia_conformance_checker.html#ntia_conformance_checker.spec.SpecMaturity.id"><code class="docutils literal notranslate"><span class="pre">SpecMaturity.id</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="ntia_conformance_checker.html#ntia_conformance_checker.spec.SpecMaturity.level"><code class="docutils literal notranslate"><span class="pre">SpecMaturity.level</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="ntia_conformance_checker.html#ntia_conformance_checker.spec.SpecMaturity.title"><code class="docutils literal notranslate"><span class="pre">SpecMaturity.title</span></code></a></li>
+</ul>
+</li>
+<li class="toctree-l3"><a class="reference internal" href="ntia_conformance_checker.html#ntia_conformance_checker.spec.SpecRule"><code class="docutils literal notranslate"><span class="pre">SpecRule</span></code></a><ul>
+<li class="toctree-l4"><a class="reference internal" href="ntia_conformance_checker.html#ntia_conformance_checker.spec.SpecRule.competency_question"><code class="docutils literal notranslate"><span class="pre">SpecRule.competency_question</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="ntia_conformance_checker.html#ntia_conformance_checker.spec.SpecRule.element_concept_uris"><code class="docutils literal notranslate"><span class="pre">SpecRule.element_concept_uris</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="ntia_conformance_checker.html#ntia_conformance_checker.spec.SpecRule.element_description"><code class="docutils literal notranslate"><span class="pre">SpecRule.element_description</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="ntia_conformance_checker.html#ntia_conformance_checker.spec.SpecRule.element_id"><code class="docutils literal notranslate"><span class="pre">SpecRule.element_id</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="ntia_conformance_checker.html#ntia_conformance_checker.spec.SpecRule.json_group"><code class="docutils literal notranslate"><span class="pre">SpecRule.json_group</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="ntia_conformance_checker.html#ntia_conformance_checker.spec.SpecRule.json_key"><code class="docutils literal notranslate"><span class="pre">SpecRule.json_key</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="ntia_conformance_checker.html#ntia_conformance_checker.spec.SpecRule.maturity"><code class="docutils literal notranslate"><span class="pre">SpecRule.maturity</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="ntia_conformance_checker.html#ntia_conformance_checker.spec.SpecRule.number"><code class="docutils literal notranslate"><span class="pre">SpecRule.number</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="ntia_conformance_checker.html#ntia_conformance_checker.spec.SpecRule.oscal_control_id"><code class="docutils literal notranslate"><span class="pre">SpecRule.oscal_control_id</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="ntia_conformance_checker.html#ntia_conformance_checker.spec.SpecRule.probe"><code class="docutils literal notranslate"><span class="pre">SpecRule.probe</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="ntia_conformance_checker.html#ntia_conformance_checker.spec.SpecRule.provision"><code class="docutils literal notranslate"><span class="pre">SpecRule.provision</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="ntia_conformance_checker.html#ntia_conformance_checker.spec.SpecRule.slug"><code class="docutils literal notranslate"><span class="pre">SpecRule.slug</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="ntia_conformance_checker.html#ntia_conformance_checker.spec.SpecRule.spec_category"><code class="docutils literal notranslate"><span class="pre">SpecRule.spec_category</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="ntia_conformance_checker.html#ntia_conformance_checker.spec.SpecRule.spec_clause_name"><code class="docutils literal notranslate"><span class="pre">SpecRule.spec_clause_name</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="ntia_conformance_checker.html#ntia_conformance_checker.spec.SpecRule.spec_clause_number"><code class="docutils literal notranslate"><span class="pre">SpecRule.spec_clause_number</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="ntia_conformance_checker.html#ntia_conformance_checker.spec.SpecRule.spec_clause_uri"><code class="docutils literal notranslate"><span class="pre">SpecRule.spec_clause_uri</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="ntia_conformance_checker.html#ntia_conformance_checker.spec.SpecRule.status"><code class="docutils literal notranslate"><span class="pre">SpecRule.status</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="ntia_conformance_checker.html#ntia_conformance_checker.spec.SpecRule.warning"><code class="docutils literal notranslate"><span class="pre">SpecRule.warning</span></code></a></li>
+</ul>
+</li>
+<li class="toctree-l3"><a class="reference internal" href="ntia_conformance_checker.html#ntia_conformance_checker.spec.SpecTaxonomies"><code class="docutils literal notranslate"><span class="pre">SpecTaxonomies</span></code></a><ul>
+<li class="toctree-l4"><a class="reference internal" href="ntia_conformance_checker.html#ntia_conformance_checker.spec.SpecTaxonomies.category"><code class="docutils literal notranslate"><span class="pre">SpecTaxonomies.category</span></code></a></li>
+<li class="toctree-l4"><a class="reference internal" href="ntia_conformance_checker.html#ntia_conformance_checker.spec.SpecTaxonomies.clause"><code class="docutils literal notranslate"><span class="pre">SpecTaxonomies.clause</span></code></a></li>
+</ul>
+</li>
+<li class="toctree-l3"><a class="reference internal" href="ntia_conformance_checker.html#ntia_conformance_checker.spec.Status"><code class="docutils literal notranslate"><span class="pre">Status</span></code></a></li>
+</ul>
+</li>
+<li class="toctree-l2"><a class="reference internal" href="ntia_conformance_checker.html#module-ntia_conformance_checker.spec_loader">ntia_conformance_checker.spec_loader module</a><ul>
+<li class="toctree-l3"><a class="reference internal" href="ntia_conformance_checker.html#ntia_conformance_checker.spec_loader.SpecLoadError"><code class="docutils literal notranslate"><span class="pre">SpecLoadError</span></code></a></li>
+<li class="toctree-l3"><a class="reference internal" href="ntia_conformance_checker.html#ntia_conformance_checker.spec_loader.load_spec"><code class="docutils literal notranslate"><span class="pre">load_spec()</span></code></a></li>
 </ul>
 </li>
 <li class="toctree-l2"><a class="reference internal" href="ntia_conformance_checker.html#module-ntia_conformance_checker">Module contents</a><ul>

@@ -8,6 +8,7 @@ Subpackages
    :maxdepth: 4
 
    ntia_conformance_checker.adapters
+   ntia_conformance_checker.probes
 
 Submodules
 ----------
@@ -68,10 +69,26 @@ ntia\_conformance\_checker.main module
    :show-inheritance:
    :undoc-members:
 
+ntia\_conformance\_checker.model module
+---------------------------------------
+
+.. automodule:: ntia_conformance_checker.model
+   :members:
+   :show-inheritance:
+   :undoc-members:
+
 ntia\_conformance\_checker.ntia\_checker module
 -----------------------------------------------
 
 .. automodule:: ntia_conformance_checker.ntia_checker
+   :members:
+   :show-inheritance:
+   :undoc-members:
+
+ntia\_conformance\_checker.registry module
+------------------------------------------
+
+.. automodule:: ntia_conformance_checker.registry
    :members:
    :show-inheritance:
    :undoc-members:
@@ -96,6 +113,22 @@ ntia\_conformance\_checker.spdx3\_utils module
 ----------------------------------------------
 
 .. automodule:: ntia_conformance_checker.spdx3_utils
+   :members:
+   :show-inheritance:
+   :undoc-members:
+
+ntia\_conformance\_checker.spec module
+--------------------------------------
+
+.. automodule:: ntia_conformance_checker.spec
+   :members:
+   :show-inheritance:
+   :undoc-members:
+
+ntia\_conformance\_checker.spec\_loader module
+----------------------------------------------
+
+.. automodule:: ntia_conformance_checker.spec_loader
    :members:
    :show-inheritance:
    :undoc-members:

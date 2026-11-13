@@ -1,0 +1,202 @@
+<!DOCTYPE html>
+
+<html lang="en" data-content_root="../../">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>ntia_conformance_checker.registry &#8212; NTIA Conformance Checker  documentation</title>
+    <link rel="stylesheet" type="text/css" href="../../_static/pygments.css?v=5ecbeea2" />
+    <link rel="stylesheet" type="text/css" href="../../_static/basic.css?v=b08954a9" />
+    <link rel="stylesheet" type="text/css" href="../../_static/alabaster.css?v=27fed22d" />
+    <script src="../../_static/documentation_options.js?v=5929fcd5"></script>
+    <script src="../../_static/doctools.js?v=fd6eb6e6"></script>
+    <script src="../../_static/sphinx_highlight.js?v=6ffebe34"></script>
+    <link rel="index" title="Index" href="../../genindex.html" />
+    <link rel="search" title="Search" href="../../search.html" />
+   
+  <link rel="stylesheet" href="../../_static/custom.css" type="text/css" />
+  
+
+  
+  
+
+  </head><body>
+  
+
+    <div class="document">
+      <div class="documentwrapper">
+        <div class="bodywrapper">
+          
+
+          <div class="body" role="main">
+            
+  <h1>Source code for ntia_conformance_checker.registry</h1><div class="highlight"><pre>
+<span></span><span class="c1"># SPDX-FileContributor: Arthit Suriyawongkul</span>
+<span class="c1"># SPDX-FileCopyrightText: 2026-present SPDX contributors</span>
+<span class="c1"># SPDX-FileType: SOURCE</span>
+<span class="c1"># SPDX-License-Identifier: Apache-2.0</span>
+
+<span class="sd">"""Spec registry: the single source of truth for available standards.</span>
+
+<span class="sd">Every ``rules/*.yaml`` file packaged with this library is discovered and</span>
+<span class="sd">loaded once at import time, indexed by its spec ``id``.  This makes a spec's</span>
+<span class="sd">``id`` the authoritative compliance identifier:</span>
+
+<span class="sd">* it is the string the user passes to ``--comply`` / ``compliance=``,</span>
+<span class="sd">* it keys the dispatch in :class:`SbomChecker`,</span>
+<span class="sd">* its :attr:`Spec.title` is the human-readable description shown in CLI</span>
+<span class="sd">  help and report headers.</span>
+
+<span class="sd">Adding a new standard is therefore *just dropping a YAML file* into the</span>
+<span class="sd">``rules/`` directory -- no new Python subclass, no factory edit, no</span>
+<span class="sd">hardcoded id list to update.  (A named convenience subclass such as</span>
+<span class="sd">``NTIAChecker`` is optional and only kept for backwards-compatible</span>
+<span class="sd">imports.)</span>
+
+<span class="sd">**Convention:** name each file after its spec ``id``</span>
+<span class="sd">(e.g. ``rules/ntia.yaml`` -&gt; ``id: ntia``; ``rules/fsct3.yaml`` -&gt; ``id: fsct3``).</span>
+<span class="sd">Discovery keys on the in-file ``id``, not the filename, so a mismatch is not a</span>
+<span class="sd">hard error -- but matching them keeps the directory navigable.  A new edition</span>
+<span class="sd">is a new spec with its own ``id`` (e.g. a future ``fsct4.yaml`` -&gt; ``id: fsct4``).</span>
+<span class="sd">"""</span>
+
+<span class="kn">from</span><span class="w"> </span><span class="nn">__future__</span><span class="w"> </span><span class="kn">import</span> <span class="n">annotations</span>
+
+<span class="kn">from</span><span class="w"> </span><span class="nn">pathlib</span><span class="w"> </span><span class="kn">import</span> <span class="n">Path</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">typing</span><span class="w"> </span><span class="kn">import</span> <span class="n">TYPE_CHECKING</span>
+
+<span class="kn">from</span><span class="w"> </span><span class="nn">.spec_loader</span><span class="w"> </span><span class="kn">import</span> <span class="n">load_spec</span>
+
+<span class="k">if</span> <span class="n">TYPE_CHECKING</span><span class="p">:</span>
+    <span class="kn">from</span><span class="w"> </span><span class="nn">.spec</span><span class="w"> </span><span class="kn">import</span> <span class="n">Spec</span>
+
+<span class="n">_RULES_DIR</span> <span class="o">=</span> <span class="n">Path</span><span class="p">(</span><span class="vm">__file__</span><span class="p">)</span><span class="o">.</span><span class="n">parent</span> <span class="o">/</span> <span class="s2">"rules"</span>
+
+
+<span class="k">def</span><span class="w"> </span><span class="nf">_discover</span><span class="p">()</span> <span class="o">-&gt;</span> <span class="nb">dict</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="n">Spec</span><span class="p">]:</span>
+<span class="w">    </span><span class="sd">"""Load every packaged ``rules/*.yaml`` and index by spec ``id``.</span>
+
+<span class="sd">    Files whose name starts with ``_`` (e.g. ``_example.yaml``) are skipped:</span>
+<span class="sd">    they are documentation / templates, not shippable specs.</span>
+<span class="sd">    """</span>
+    <span class="n">registry</span><span class="p">:</span> <span class="nb">dict</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="n">Spec</span><span class="p">]</span> <span class="o">=</span> <span class="p">{}</span>
+    <span class="k">for</span> <span class="n">yaml_path</span> <span class="ow">in</span> <span class="nb">sorted</span><span class="p">(</span><span class="n">_RULES_DIR</span><span class="o">.</span><span class="n">glob</span><span class="p">(</span><span class="s2">"*.yaml"</span><span class="p">)):</span>
+        <span class="k">if</span> <span class="n">yaml_path</span><span class="o">.</span><span class="n">name</span><span class="o">.</span><span class="n">startswith</span><span class="p">(</span><span class="s2">"_"</span><span class="p">):</span>
+            <span class="k">continue</span>
+        <span class="n">spec</span> <span class="o">=</span> <span class="n">load_spec</span><span class="p">(</span><span class="n">yaml_path</span><span class="p">)</span>
+        <span class="k">if</span> <span class="n">spec</span><span class="o">.</span><span class="n">id</span> <span class="ow">in</span> <span class="n">registry</span><span class="p">:</span>
+            <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span>
+                <span class="sa">f</span><span class="s2">"Duplicate spec id </span><span class="si">{</span><span class="n">spec</span><span class="o">.</span><span class="n">id</span><span class="si">!r}</span><span class="s2">: "</span>
+                <span class="sa">f</span><span class="s2">"</span><span class="si">{</span><span class="n">yaml_path</span><span class="o">.</span><span class="n">name</span><span class="si">}</span><span class="s2"> collides with an already-loaded spec."</span>
+            <span class="p">)</span>
+        <span class="n">registry</span><span class="p">[</span><span class="n">spec</span><span class="o">.</span><span class="n">id</span><span class="p">]</span> <span class="o">=</span> <span class="n">spec</span>
+    <span class="k">return</span> <span class="n">registry</span>
+
+
+<span class="c1"># Loaded once at import.  Keyed by spec id (e.g. "ntia", "fsct3").</span>
+<span class="n">_REGISTRY</span><span class="p">:</span> <span class="nb">dict</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="n">Spec</span><span class="p">]</span> <span class="o">=</span> <span class="n">_discover</span><span class="p">()</span>
+
+
+<span class="c1"># ---- Public API ----------------------------------------------------------</span>
+
+
+<div class="viewcode-block" id="descriptions">
+<a class="viewcode-back" href="../../ntia_conformance_checker.html#ntia_conformance_checker.registry.descriptions">[docs]</a>
+<span class="k">def</span><span class="w"> </span><span class="nf">descriptions</span><span class="p">()</span> <span class="o">-&gt;</span> <span class="nb">dict</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="nb">str</span><span class="p">]:</span>
+<span class="w">    </span><span class="sd">"""Map each spec ``id`` to its human-readable :attr:`Spec.title`."""</span>
+    <span class="k">return</span> <span class="p">{</span><span class="n">spec_id</span><span class="p">:</span> <span class="n">spec</span><span class="o">.</span><span class="n">title</span> <span class="k">for</span> <span class="n">spec_id</span><span class="p">,</span> <span class="n">spec</span> <span class="ow">in</span> <span class="n">_REGISTRY</span><span class="o">.</span><span class="n">items</span><span class="p">()}</span></div>
+
+
+
+<div class="viewcode-block" id="get_spec">
+<a class="viewcode-back" href="../../ntia_conformance_checker.html#ntia_conformance_checker.registry.get_spec">[docs]</a>
+<span class="k">def</span><span class="w"> </span><span class="nf">get_spec</span><span class="p">(</span><span class="n">spec_id</span><span class="p">:</span> <span class="nb">str</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Spec</span><span class="p">:</span>
+<span class="w">    </span><span class="sd">"""Return the :class:`Spec` for ``spec_id``.</span>
+
+<span class="sd">    Raises:</span>
+<span class="sd">        ValueError: ``spec_id`` is not a known standard.  The message lists the</span>
+<span class="sd">            known ids so the caller can surface a useful error.</span>
+<span class="sd">    """</span>
+    <span class="k">try</span><span class="p">:</span>
+        <span class="k">return</span> <span class="n">_REGISTRY</span><span class="p">[</span><span class="n">spec_id</span><span class="p">]</span>
+    <span class="k">except</span> <span class="ne">KeyError</span> <span class="k">as</span> <span class="n">exc</span><span class="p">:</span>
+        <span class="n">known</span> <span class="o">=</span> <span class="s2">", "</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="nb">sorted</span><span class="p">(</span><span class="n">_REGISTRY</span><span class="p">))</span>
+        <span class="k">raise</span> <span class="ne">ValueError</span><span class="p">(</span>
+            <span class="sa">f</span><span class="s2">"Unknown compliance standard: </span><span class="si">{</span><span class="n">spec_id</span><span class="si">!r}</span><span class="s2">.  Known: </span><span class="si">{</span><span class="n">known</span><span class="si">}</span><span class="s2">"</span>
+        <span class="p">)</span> <span class="kn">from</span><span class="w"> </span><span class="nn">exc</span></div>
+
+
+
+<div class="viewcode-block" id="spec_ids">
+<a class="viewcode-back" href="../../ntia_conformance_checker.html#ntia_conformance_checker.registry.spec_ids">[docs]</a>
+<span class="k">def</span><span class="w"> </span><span class="nf">spec_ids</span><span class="p">()</span> <span class="o">-&gt;</span> <span class="nb">tuple</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="o">...</span><span class="p">]:</span>
+<span class="w">    </span><span class="sd">"""All known compliance spec ``id`` values, sorted."""</span>
+    <span class="k">return</span> <span class="nb">tuple</span><span class="p">(</span><span class="nb">sorted</span><span class="p">(</span><span class="n">_REGISTRY</span><span class="p">))</span></div>
+
+</pre></div>
+
+          </div>
+          
+        </div>
+      </div>
+      <div class="sphinxsidebar" role="navigation" aria-label="Main">
+        <div class="sphinxsidebarwrapper">
+<h1 class="logo"><a href="../../index.html">NTIA Conformance Checker</a></h1>
+
+
+
+
+
+
+
+
+
+<search id="searchbox" style="display: none" role="search">
+    <div class="searchformwrapper">
+    <form class="search" action="../../search.html" method="get">
+      <input type="text" name="q" aria-labelledby="searchlabel" autocomplete="off" autocorrect="off" autocapitalize="off" spellcheck="false" placeholder="Search"/>
+      <input type="submit" value="Go" />
+    </form>
+    </div>
+</search>
+<script>document.getElementById('searchbox').style.display = "block"</script><h3>Navigation</h3>
+<p class="caption" role="heading"><span class="caption-text">Contents:</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../../modules.html">ntia_conformance_checker</a></li>
+</ul>
+
+<div class="relations">
+<h3>Related Topics</h3>
+<ul>
+  <li><a href="../../index.html">Documentation overview</a><ul>
+  <li><a href="../index.html">Module code</a><ul>
+  </ul></li>
+  </ul></li>
+</ul>
+</div>
+
+
+
+
+
+
+
+
+        </div>
+      </div>
+      <div class="clearer"></div>
+    </div>
+    <div class="footer">
+      &#169;2022-2026 SPDX contributors.
+      
+      |
+      Powered by <a href="https://www.sphinx-doc.org/">Sphinx 9.1.1</a>
+      &amp; <a href="https://alabaster.readthedocs.io">Alabaster 1.0.0</a>
+      
+    </div>
+
+    
+
+    
+  </body>
+</html>

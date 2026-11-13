@@ -1,0 +1,646 @@
+<!DOCTYPE html>
+
+<html lang="en" data-content_root="../../">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>ntia_conformance_checker.spec &#8212; NTIA Conformance Checker  documentation</title>
+    <link rel="stylesheet" type="text/css" href="../../_static/pygments.css?v=5ecbeea2" />
+    <link rel="stylesheet" type="text/css" href="../../_static/basic.css?v=b08954a9" />
+    <link rel="stylesheet" type="text/css" href="../../_static/alabaster.css?v=27fed22d" />
+    <script src="../../_static/documentation_options.js?v=5929fcd5"></script>
+    <script src="../../_static/doctools.js?v=fd6eb6e6"></script>
+    <script src="../../_static/sphinx_highlight.js?v=6ffebe34"></script>
+    <link rel="index" title="Index" href="../../genindex.html" />
+    <link rel="search" title="Search" href="../../search.html" />
+   
+  <link rel="stylesheet" href="../../_static/custom.css" type="text/css" />
+  
+
+  
+  
+
+  </head><body>
+  
+
+    <div class="document">
+      <div class="documentwrapper">
+        <div class="bodywrapper">
+          
+
+          <div class="body" role="main">
+            
+  <h1>Source code for ntia_conformance_checker.spec</h1><div class="highlight"><pre>
+<span></span><span class="c1"># SPDX-FileContributor: Arthit Suriyawongkul</span>
+<span class="c1"># SPDX-FileCopyrightText: 2026-present SPDX contributors</span>
+<span class="c1"># SPDX-FileType: SOURCE</span>
+<span class="c1"># SPDX-License-Identifier: Apache-2.0</span>
+
+<span class="sd">"""Generic per-element and per-standard specification for compliance checkers.</span>
+
+<span class="sd">Defines three frozen dataclasses used as the single source of truth for every</span>
+<span class="sd">output format (text table, JSON, SARIF, future OSCAL):</span>
+
+<span class="sd">* :class:`SpecCategory` -- one category / cluster within a standard.  Maps to a</span>
+<span class="sd">  SARIF taxon in the per-spec *category* taxonomy and to an OSCAL ``group``.</span>
+
+<span class="sd">* :class:`SpecRule` -- one minimum-element check.  Holds rule identity, its</span>
+<span class="sd">  location in the source spec (category + clause), the element under test, the</span>
+<span class="sd">  human-facing meaning (element description, competency question, warning),</span>
+<span class="sd">  maturity (which tier requires it), provision (how strong the requirement</span>
+<span class="sd">  is), status, the probe that performs the check, and optional output</span>
+<span class="sd">  mappings.</span>
+
+<span class="sd">* :class:`Spec` -- a compliance standard's full rule catalogue.  Holds the</span>
+<span class="sd">  standard id/title, general help URL (used as a fallback when a rule has</span>
+<span class="sd">  no rule-specific URL), the categories and rules, and the taxonomy names.</span>
+
+<span class="sd">Rule identifiers follow the ``SBOM-[SPEC]-[CATEGORY]-[NNN]`` convention</span>
+<span class="sd">documented in ``RULES.md``.  ``SPEC`` is the uppercased :attr:`Spec.id`</span>
+<span class="sd">(e.g. ``NTIA``, ``FSCT3``) -- the edition is part of the id because each</span>
+<span class="sd">edition is a distinct standard with its own requirements; ``CATEGORY`` is</span>
+<span class="sd">:attr:`SpecCategory.code` (e.g. ``DF``, ``COMP``); ``NNN`` is</span>
+<span class="sd">:attr:`SpecRule.number` zero-padded to three digits.</span>
+<span class="sd">"""</span>
+
+<span class="kn">from</span><span class="w"> </span><span class="nn">__future__</span><span class="w"> </span><span class="kn">import</span> <span class="n">annotations</span>
+
+<span class="kn">from</span><span class="w"> </span><span class="nn">dataclasses</span><span class="w"> </span><span class="kn">import</span> <span class="n">dataclass</span><span class="p">,</span> <span class="n">field</span>
+<span class="kn">from</span><span class="w"> </span><span class="nn">typing</span><span class="w"> </span><span class="kn">import</span> <span class="n">Any</span><span class="p">,</span> <span class="n">Literal</span>
+
+<span class="n">Status</span> <span class="o">=</span> <span class="n">Literal</span><span class="p">[</span><span class="s2">"active"</span><span class="p">,</span> <span class="s2">"catalogue-only"</span><span class="p">,</span> <span class="s2">"tbd"</span><span class="p">]</span>
+<span class="sd">"""Per-rule emission status.</span>
+
+<span class="sd">* ``active`` -- rule appears in the SARIF rule catalogue *and* results are</span>
+<span class="sd">  emitted when the check fails.</span>
+<span class="sd">* ``catalogue-only`` -- rule appears in the catalogue (consumers can show</span>
+<span class="sd">  the full spec surface) but the checker never emits results for it; either</span>
+<span class="sd">  the attribute is aspirational or the check is not yet implemented.</span>
+<span class="sd">* ``tbd`` -- identifier is reserved in :file:`RULES.md` only.  The rule is</span>
+<span class="sd">  *not* added to the catalogue; it exists so that wiring up the check later</span>
+<span class="sd">  does not require renumbering existing rules.</span>
+<span class="sd">"""</span>
+
+<span class="n">Severity</span> <span class="o">=</span> <span class="n">Literal</span><span class="p">[</span><span class="s2">"error"</span><span class="p">,</span> <span class="s2">"warning"</span><span class="p">,</span> <span class="s2">"note"</span><span class="p">,</span> <span class="s2">"none"</span><span class="p">]</span>
+<span class="sd">"""Unified severity scale, ordered ``error &gt; warning &gt; note &gt; none``.</span>
+
+<span class="sd">Shared vocabulary for SARIF ``result.level``, a rule's default severity, and</span>
+<span class="sd">the CLI log/verbosity threshold.  ``note`` is the informational band (logs and</span>
+<span class="sd">tool notifications); no rule provision maps to it.</span>
+<span class="sd">"""</span>
+
+<span class="n">Provision</span> <span class="o">=</span> <span class="n">Literal</span><span class="p">[</span><span class="s2">"requirement"</span><span class="p">,</span> <span class="s2">"recommendation"</span><span class="p">,</span> <span class="s2">"permission"</span><span class="p">]</span>
+<span class="sd">"""ISO/IEC Directives provision type -- the kind of provision a rule states,</span>
+<span class="sd">independent of its maturity.  Determines severity and whether failure blocks</span>
+<span class="sd">conformance:</span>
+
+<span class="sd">* ``requirement`` -&gt; ``error``, blocks compliance.</span>
+<span class="sd">* ``recommendation`` -&gt; ``warning``, advisory.</span>
+<span class="sd">* ``permission`` -&gt; ``none``, advisory (a permission cannot be *violated* by</span>
+<span class="sd">  absence, so it never produces an actionable finding).</span>
+
+<span class="sd">A single maturity level can mix all three.</span>
+<span class="sd">"""</span>
+
+<span class="n">_PROVISION_TO_SEVERITY</span><span class="p">:</span> <span class="nb">dict</span><span class="p">[</span><span class="n">Provision</span><span class="p">,</span> <span class="n">Severity</span><span class="p">]</span> <span class="o">=</span> <span class="p">{</span>
+    <span class="s2">"requirement"</span><span class="p">:</span> <span class="s2">"error"</span><span class="p">,</span>
+    <span class="s2">"recommendation"</span><span class="p">:</span> <span class="s2">"warning"</span><span class="p">,</span>
+    <span class="s2">"permission"</span><span class="p">:</span> <span class="s2">"none"</span><span class="p">,</span>
+<span class="p">}</span>
+
+
+<div class="viewcode-block" id="ProbeRef">
+<a class="viewcode-back" href="../../ntia_conformance_checker.html#ntia_conformance_checker.spec.ProbeRef">[docs]</a>
+<span class="nd">@dataclass</span><span class="p">(</span><span class="n">frozen</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span> <span class="n">kw_only</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
+<span class="k">class</span><span class="w"> </span><span class="nc">ProbeRef</span><span class="p">:</span>
+<span class="w">    </span><span class="sd">"""Reference to a registered probe, with bound parameters.</span>
+
+<span class="sd">    Loaded from the ``probe:`` block of a YAML rule.  The engine resolves</span>
+<span class="sd">    ``name`` against :mod:`ntia_conformance_checker.probes._registry` and</span>
+<span class="sd">    calls the probe with ``params`` as keyword arguments.</span>
+<span class="sd">    """</span>
+
+    <span class="n">name</span><span class="p">:</span> <span class="nb">str</span>
+<span class="w">    </span><span class="sd">"""Probe name as registered with :func:`probes.probe`."""</span>
+
+    <span class="n">params</span><span class="p">:</span> <span class="nb">dict</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="n">Any</span><span class="p">]</span> <span class="o">=</span> <span class="n">field</span><span class="p">(</span><span class="n">default_factory</span><span class="o">=</span><span class="nb">dict</span><span class="p">)</span>
+<span class="w">    </span><span class="sd">"""Keyword arguments passed to the probe; treat as read-only.  Probe</span>
+<span class="sd">    functions declare every accepted parameter explicitly, and the loader</span>
+<span class="sd">    rejects params that do not fit the probe's signature."""</span></div>
+
+
+
+<div class="viewcode-block" id="SpecMaturity">
+<a class="viewcode-back" href="../../ntia_conformance_checker.html#ntia_conformance_checker.spec.SpecMaturity">[docs]</a>
+<span class="nd">@dataclass</span><span class="p">(</span><span class="n">frozen</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span> <span class="n">kw_only</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
+<span class="k">class</span><span class="w"> </span><span class="nc">SpecMaturity</span><span class="p">:</span>
+<span class="w">    </span><span class="sd">"""One maturity level within a :class:`Spec`.</span>
+
+<span class="sd">    Declaring maturity levels is **optional** -- a flat spec with no tiers</span>
+<span class="sd">    simply omits :attr:`Spec.maturity_levels`, and the loader substitutes</span>
+<span class="sd">    :data:`DEFAULT_MATURITY_LEVELS` (a single ``required`` / level ``0`` /</span>
+<span class="sd">    ``required`` baseline) so every rule still has a named level.</span>
+
+<span class="sd">    When a spec *does* declare levels, :attr:`level` is a **universal ordinal**</span>
+<span class="sd">    -- ``0`` is the baseline, higher numbers demand more depth / completeness.</span>
+<span class="sd">    This ordering is shared across specs (level 0 = baseline everywhere), so it</span>
+<span class="sd">    supports "is this rule within target level N?" and cross-spec comparison.</span>
+
+<span class="sd">    The :attr:`id` is a **spec-defined** machine slug for the level (FSCT v3:</span>
+<span class="sd">    ``minimum`` / ``recommended`` / ``aspirational``; NTIA: ``required``); the</span>
+<span class="sd">    :attr:`title` is its human label.  Rules still reference the level by its</span>
+<span class="sd">    integer :attr:`level`; ``id`` is for output and possible name-based</span>
+<span class="sd">    selection.</span>
+
+<span class="sd">    Maturity carries **no severity** -- it only scopes *which* requirements</span>
+<span class="sd">    apply at a target level.  How bad a missing requirement is comes from the</span>
+<span class="sd">    rule's :attr:`SpecRule.provision`, an orthogonal axis.</span>
+<span class="sd">    """</span>
+
+    <span class="n">level</span><span class="p">:</span> <span class="nb">int</span>
+<span class="w">    </span><span class="sd">"""Universal maturity ordinal (``0`` = baseline; higher = deeper)."""</span>
+
+    <span class="nb">id</span><span class="p">:</span> <span class="nb">str</span>
+<span class="w">    </span><span class="sd">"""Spec-specific machine slug for the level (e.g. ``"minimum"``,</span>
+<span class="sd">    ``"required"``).  Lowercase, hyphen/underscore-friendly."""</span>
+
+    <span class="n">title</span><span class="p">:</span> <span class="nb">str</span> <span class="o">=</span> <span class="s2">""</span>
+<span class="w">    </span><span class="sd">"""Optional human-readable label (e.g. ``"Minimum Expected"``)."""</span>
+
+    <span class="n">description</span><span class="p">:</span> <span class="nb">str</span> <span class="o">=</span> <span class="s2">""</span>
+<span class="w">    </span><span class="sd">"""Optional one-line description of the maturity level."""</span></div>
+
+
+
+<span class="n">DEFAULT_MATURITY_LEVELS</span><span class="p">:</span> <span class="nb">tuple</span><span class="p">[</span><span class="s2">"SpecMaturity"</span><span class="p">,</span> <span class="o">...</span><span class="p">]</span> <span class="o">=</span> <span class="p">(</span>
+    <span class="n">SpecMaturity</span><span class="p">(</span>
+        <span class="n">level</span><span class="o">=</span><span class="mi">0</span><span class="p">,</span>
+        <span class="nb">id</span><span class="o">=</span><span class="s2">"required"</span><span class="p">,</span>
+        <span class="n">title</span><span class="o">=</span><span class="s2">"Required"</span><span class="p">,</span>
+        <span class="n">description</span><span class="o">=</span><span class="s2">"A minimum element that the SBOM must provide."</span><span class="p">,</span>
+    <span class="p">),</span>
+<span class="p">)</span>
+<span class="sd">"""Applied to any spec that does not declare its own ``maturity_levels`` -- a</span>
+<span class="sd">flat spec then has a single, named baseline level (``required``) instead of an</span>
+<span class="sd">anonymous one.  Severity comes from each rule's provision, not the tier."""</span>
+
+
+<div class="viewcode-block" id="SpecCategory">
+<a class="viewcode-back" href="../../ntia_conformance_checker.html#ntia_conformance_checker.spec.SpecCategory">[docs]</a>
+<span class="nd">@dataclass</span><span class="p">(</span><span class="n">frozen</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span> <span class="n">kw_only</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
+<span class="k">class</span><span class="w"> </span><span class="nc">SpecCategory</span><span class="p">:</span>
+<span class="w">    </span><span class="sd">"""A grouping within a :class:`Spec` (e.g. NTIA Data Fields, a G7 cluster).</span>
+
+<span class="sd">    Renders as a SARIF taxon in the spec's *category taxonomy* and as an</span>
+<span class="sd">    OSCAL ``group`` in a future OSCAL exporter.</span>
+<span class="sd">    """</span>
+
+    <span class="nb">id</span><span class="p">:</span> <span class="nb">str</span>
+<span class="w">    </span><span class="sd">"""Lowercase kebab-case category id (SARIF taxon id / OSCAL group id).</span>
+<span class="sd">    Example: ``"data-fields"`` for NTIA §IV Data Fields.  Referenced by</span>
+<span class="sd">    :attr:`SpecRule.spec_category`."""</span>
+
+    <span class="n">code</span><span class="p">:</span> <span class="nb">str</span>
+<span class="w">    </span><span class="sd">"""Uppercase short, hyphen-free token used as the ``CATEGORY`` segment of</span>
+<span class="sd">    a rule id.  Example: ``"DF"`` -&gt; ``SBOM-NTIA-DF-001``."""</span>
+
+    <span class="n">title</span><span class="p">:</span> <span class="nb">str</span>
+<span class="w">    </span><span class="sd">"""Human-readable category title.  Example: ``"Data Fields"``."""</span>
+
+    <span class="n">description</span><span class="p">:</span> <span class="nb">str</span> <span class="o">=</span> <span class="s2">""</span>
+<span class="w">    </span><span class="sd">"""Optional one-line category description for SARIF taxon</span>
+<span class="sd">    ``shortDescription.text``."""</span></div>
+
+
+
+<div class="viewcode-block" id="SpecTaxonomies">
+<a class="viewcode-back" href="../../ntia_conformance_checker.html#ntia_conformance_checker.spec.SpecTaxonomies">[docs]</a>
+<span class="nd">@dataclass</span><span class="p">(</span><span class="n">frozen</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span> <span class="n">kw_only</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
+<span class="k">class</span><span class="w"> </span><span class="nc">SpecTaxonomies</span><span class="p">:</span>
+<span class="w">    </span><span class="sd">"""Names of a standard's two taxonomies (output-format agnostic).</span>
+
+<span class="sd">    Each taxonomy groups the rules along one axis and is materialised per</span>
+<span class="sd">    output format -- a SARIF ``ToolComponent`` (``toolComponent.name``) today,</span>
+<span class="sd">    an OSCAL catalog/group id later.  Despite the SARIF wording these names are</span>
+<span class="sd">    *not* SARIF-specific, hence no ``sarif_`` prefix.</span>
+<span class="sd">    """</span>
+
+    <span class="n">category</span><span class="p">:</span> <span class="nb">str</span> <span class="o">=</span> <span class="s2">""</span>
+<span class="w">    </span><span class="sd">"""Name of the *category* taxonomy (e.g. ``"ntia-minimum-elements"``).</span>
+
+<span class="sd">    Named for its **taxa**: each taxon is a :class:`SpecCategory`, and every</span>
+<span class="sd">    rule has a ``superset`` relationship to its category taxon.  Mind the</span>
+<span class="sd">    level mismatch -- the field names the taxonomy *by what it contains*</span>
+<span class="sd">    (categories), but the **taxonomy as a whole is the standard's catalog**,</span>
+<span class="sd">    so the value is the catalog/standard identifier (``"ntia-minimum-elements"``,</span>
+<span class="sd">    not ``"ntia-categories"``) and doubles as the OSCAL **catalog** id; the</span>
+<span class="sd">    categories within are the OSCAL **groups**."""</span>
+
+    <span class="n">clause</span><span class="p">:</span> <span class="nb">str</span> <span class="o">=</span> <span class="s2">""</span>
+<span class="w">    </span><span class="sd">"""Name of the *clause* taxonomy (e.g. ``"ntia-clauses"``).</span>
+
+<span class="sd">    Also named for its **taxa**: each taxon id is a literal spec clause number</span>
+<span class="sd">    from :attr:`SpecRule.spec_clause_number`, and every rule has an ``equal``</span>
+<span class="sd">    relationship to its clause taxon.  Here name and taxa line up (both</span>
+<span class="sd">    clause-flavoured), unlike :attr:`category`.  Empty disables the clause</span>
+<span class="sd">    taxonomy and the per-rule ``equal`` relationship."""</span></div>
+
+
+
+<div class="viewcode-block" id="SpecRule">
+<a class="viewcode-back" href="../../ntia_conformance_checker.html#ntia_conformance_checker.spec.SpecRule">[docs]</a>
+<span class="nd">@dataclass</span><span class="p">(</span><span class="n">frozen</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span> <span class="n">kw_only</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
+<span class="c1"># pylint: disable=too-many-instance-attributes</span>
+<span class="k">class</span><span class="w"> </span><span class="nc">SpecRule</span><span class="p">:</span>
+<span class="w">    </span><span class="sd">"""Per-element check specification, reusable across compliance checkers."""</span>
+
+    <span class="c1"># -- Rule identity ----------------------------------------------------</span>
+
+    <span class="n">number</span><span class="p">:</span> <span class="nb">int</span>
+<span class="w">    </span><span class="sd">"""Sequence number within ``(spec, category)``, in the order the spec</span>
+<span class="sd">    lists the attribute.  Zero-padded to three digits as ``NNN`` in the</span>
+<span class="sd">    rule id."""</span>
+
+    <span class="n">slug</span><span class="p">:</span> <span class="nb">str</span>
+<span class="w">    </span><span class="sd">"""Human-readable rule slug, lowercase kebab-case, **prefixed with the</span>
+<span class="sd">    spec id** to avoid cross-spec collisions.</span>
+
+<span class="sd">    Frames the *finding* (the rule's failure condition), not the attribute --</span>
+<span class="sd">    e.g. ``"ntia-component-supplier-missing"``, ``"fsct3-component-name-missing"``.</span>
+<span class="sd">    Most rules are "...-missing" today, but the framing generalises</span>
+<span class="sd">    (``"fsct3-timestamp-not-iso-format"``).</span>
+
+<span class="sd">    This is the single human-readable identifier for a rule: the PascalCase</span>
+<span class="sd">    :meth:`Spec.report_name` (SARIF ``reportingDescriptor.name`` etc.) is</span>
+<span class="sd">    *derived* from it, so the two never drift -- they differ only in casing to</span>
+<span class="sd">    suit each output format's convention."""</span>
+
+    <span class="c1"># -- Spec mapping (location in the source spec) -----------------------</span>
+
+    <span class="n">spec_category</span><span class="p">:</span> <span class="nb">str</span>
+<span class="w">    </span><span class="sd">"""Id of the :class:`SpecCategory` this rule belongs to (matches</span>
+<span class="sd">    :attr:`SpecCategory.id`).  Determines the ``CATEGORY`` segment of the</span>
+<span class="sd">    rule id (via the category's ``code``) and the category taxon the rule's</span>
+<span class="sd">    ``relationships`` point at."""</span>
+
+    <span class="n">spec_clause_number</span><span class="p">:</span> <span class="nb">str</span> <span class="o">=</span> <span class="s2">""</span>
+<span class="w">    </span><span class="sd">"""Literal clause / section designator from the source spec (e.g. ``"IV"``</span>
+<span class="sd">    or ``"2.2.2.7"``).  Becomes the id of the rule's clause taxon and -- when</span>
+<span class="sd">    paired with :attr:`SpecTaxonomies.clause` -- a clause taxonomy entry."""</span>
+
+    <span class="n">spec_clause_name</span><span class="p">:</span> <span class="nb">str</span> <span class="o">=</span> <span class="s2">""</span>
+<span class="w">    </span><span class="sd">"""Human-readable clause title (e.g. ``"License"``)."""</span>
+
+    <span class="n">spec_clause_uri</span><span class="p">:</span> <span class="nb">str</span> <span class="o">=</span> <span class="s2">""</span>
+<span class="w">    </span><span class="sd">"""Deep link to the exact spec clause.  When empty, consumers fall back</span>
+<span class="sd">    to :attr:`Spec.uri` via :meth:`Spec.rule_uri`."""</span>
+
+    <span class="c1"># -- Element &amp; meaning ------------------------------------------------</span>
+
+    <span class="n">element_id</span><span class="p">:</span> <span class="nb">str</span> <span class="o">=</span> <span class="s2">""</span>
+<span class="w">    </span><span class="sd">"""Canonical element id from</span>
+<span class="sd">    :data:`ntia_conformance_checker.model.ELEMENT_IDS` (e.g. ``"name"``,</span>
+<span class="sd">    ``"supplier"``, ``"timestamp"``).  Carries the semantic key that survives</span>
+<span class="sd">    across specs -- different specs may name the same underlying concept</span>
+<span class="sd">    differently, but the ``element_id`` matches as long as the probe queries</span>
+<span class="sd">    the same SBOM-model field."""</span>
+
+    <span class="n">element_description</span><span class="p">:</span> <span class="nb">str</span> <span class="o">=</span> <span class="s2">""</span>
+<span class="w">    </span><span class="sd">"""Short noun phrase naming the element (e.g. ``"component supplier"``).</span>
+<span class="sd">    Used in per-finding result messages.  For the canonical user-facing</span>
+<span class="sd">    prose, see :attr:`warning`."""</span>
+
+    <span class="n">element_concept_uris</span><span class="p">:</span> <span class="nb">tuple</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="o">...</span><span class="p">]</span> <span class="o">=</span> <span class="p">()</span>
+<span class="w">    </span><span class="sd">"""IRIs of this element's concept in external vocabularies -- the</span>
+<span class="sd">    external-identifier counterpart to :attr:`element_id`.</span>
+<span class="sd">    Consumers may treat each entry as ``skos:exactMatch``."""</span>
+
+    <span class="n">competency_question</span><span class="p">:</span> <span class="nb">str</span> <span class="o">=</span> <span class="s2">""</span>
+<span class="w">    </span><span class="sd">"""The yes/no competency question the rule answers, used as the label in</span>
+<span class="sd">    text/HTML report tables (e.g. ``"All component suppliers provided?"``)."""</span>
+
+    <span class="n">warning</span><span class="p">:</span> <span class="nb">str</span> <span class="o">=</span> <span class="s2">""</span>
+<span class="w">    </span><span class="sd">"""Canonical, single-sentence diagnostic prose for the rule, following</span>
+<span class="sd">    the parallel pattern documented in :file:`RULES.md`:</span>
+
+<span class="sd">    * component-level: ``"An SBOM component should have a {X}."``</span>
+<span class="sd">    * document-level:  ``"An SBOM should {X}."``</span>
+
+<span class="sd">    This string is the source of truth for the user-facing warning text.</span>
+<span class="sd">    SARIF emits it as the rule's ``shortDescription.text``; CLI / HTML /</span>
+<span class="sd">    future localisers should consume it from here rather than re-inventing</span>
+<span class="sd">    wording in code.  Empty falls back to</span>
+<span class="sd">    ``"{element_description.capitalize()} is missing."``."""</span>
+
+    <span class="c1"># -- Maturity / provision / status ------------------------------------</span>
+
+    <span class="n">maturity</span><span class="p">:</span> <span class="nb">int</span> <span class="o">=</span> <span class="mi">0</span>
+<span class="w">    </span><span class="sd">"""Universal maturity ordinal this rule sits at -- *which* tier requires</span>
+<span class="sd">    it.  Defaults to ``0`` (the baseline).  Must match one of the owning</span>
+<span class="sd">    :class:`Spec`'s :attr:`SpecMaturity.level` values -- for a flat spec that</span>
+<span class="sd">    is the substituted :data:`DEFAULT_MATURITY_LEVELS` (just level ``0``).</span>
+<span class="sd">    Lets a spec carry several rules for the same ``element_id`` at increasing</span>
+<span class="sd">    levels (each with its own deeper probe).  Carries **no** severity."""</span>
+
+    <span class="n">provision</span><span class="p">:</span> <span class="n">Provision</span> <span class="o">=</span> <span class="s2">"requirement"</span>
+<span class="w">    </span><span class="sd">"""ISO provision type -- *how bad* it is when missing.  Maps to severity</span>
+<span class="sd">    (``requirement`` -&gt; ``error``, ``recommendation`` -&gt; ``warning``,</span>
+<span class="sd">    ``permission`` -&gt; ``none``) and decides whether failure blocks compliance</span>
+<span class="sd">    (only ``requirement`` does).  Orthogonal to :attr:`maturity`."""</span>
+
+    <span class="n">status</span><span class="p">:</span> <span class="n">Status</span> <span class="o">=</span> <span class="s2">"active"</span>
+<span class="w">    </span><span class="sd">"""Whether the rule is emitted in the catalogue / as results.</span>
+<span class="sd">    See :data:`Status` for semantics."""</span>
+
+    <span class="c1"># -- The check --------------------------------------------------------</span>
+
+    <span class="n">probe</span><span class="p">:</span> <span class="n">ProbeRef</span> <span class="o">|</span> <span class="kc">None</span> <span class="o">=</span> <span class="kc">None</span>
+<span class="w">    </span><span class="sd">"""Probe to run for this rule.  ``None`` for catalogue-only and TBD</span>
+<span class="sd">    rules (they appear in the catalogue but no probe is invoked)."""</span>
+
+    <span class="c1"># -- Output mappings --------------------------------------------------</span>
+
+    <span class="n">oscal_control_id</span><span class="p">:</span> <span class="nb">str</span> <span class="o">=</span> <span class="s2">""</span>
+<span class="w">    </span><span class="sd">"""Optional override for the future OSCAL ``control-id``.  When empty,</span>
+<span class="sd">    the OSCAL exporter is expected to lowercase the SARIF rule id."""</span>
+
+    <span class="n">json_group</span><span class="p">:</span> <span class="nb">str</span> <span class="o">|</span> <span class="kc">None</span> <span class="o">=</span> <span class="kc">None</span>
+<span class="w">    </span><span class="sd">"""JSON output group / key prefix (e.g. ``"aiPackages"``).  ``None`` means</span>
+<span class="sd">    the rule, if emitted, lives at the top level of the JSON output."""</span>
+
+    <span class="n">json_key</span><span class="p">:</span> <span class="nb">str</span> <span class="o">|</span> <span class="kc">None</span> <span class="o">=</span> <span class="kc">None</span>
+<span class="w">    </span><span class="sd">"""JSON output key within ``json_group``.  ``None`` means the rule is</span>
+<span class="sd">    not emitted in JSON output."""</span></div>
+
+
+
+<div class="viewcode-block" id="Spec">
+<a class="viewcode-back" href="../../ntia_conformance_checker.html#ntia_conformance_checker.spec.Spec">[docs]</a>
+<span class="nd">@dataclass</span><span class="p">(</span><span class="n">frozen</span><span class="o">=</span><span class="kc">True</span><span class="p">,</span> <span class="n">kw_only</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
+<span class="k">class</span><span class="w"> </span><span class="nc">Spec</span><span class="p">:</span>
+<span class="w">    </span><span class="sd">"""A compliance standard's full rule catalogue.</span>
+
+<span class="sd">    Shared metadata at the standard level (general help URL, taxonomy</span>
+<span class="sd">    names) lives here; per-rule overrides live on :class:`SpecRule`.</span>
+<span class="sd">    """</span>
+
+    <span class="c1"># -- Identity ---------------------------------------------------------</span>
+
+    <span class="nb">id</span><span class="p">:</span> <span class="nb">str</span>
+<span class="w">    </span><span class="sd">"""Compliance-standard identifier, e.g. ``"ntia"`` / ``"fsct3"``.  Registry</span>
+<span class="sd">    key, YAML filename, and the value emitted in SARIF</span>
+<span class="sd">    ``run.properties.complianceStandard``.  Its uppercase form is the ``SPEC``</span>
+<span class="sd">    segment of every rule id, so it must be a hyphen-free, uppercase-safe</span>
+<span class="sd">    token (lowercase ASCII letters/digits, starting with a letter)."""</span>
+
+    <span class="n">title</span><span class="p">:</span> <span class="nb">str</span>
+<span class="w">    </span><span class="sd">"""Human-readable standard name, e.g. ``"2021 NTIA SBOM Minimum</span>
+<span class="sd">    Elements"``."""</span>
+
+    <span class="n">uri</span><span class="p">:</span> <span class="nb">str</span> <span class="o">=</span> <span class="s2">""</span>
+<span class="w">    </span><span class="sd">"""General documentation URL for the standard.  Used as the fallback</span>
+<span class="sd">    when a :class:`SpecRule` does not provide its own ``spec_clause_uri``."""</span>
+
+    <span class="c1"># -- Content ----------------------------------------------------------</span>
+
+    <span class="n">categories</span><span class="p">:</span> <span class="nb">tuple</span><span class="p">[</span><span class="n">SpecCategory</span><span class="p">,</span> <span class="o">...</span><span class="p">]</span> <span class="o">=</span> <span class="n">field</span><span class="p">(</span><span class="n">default_factory</span><span class="o">=</span><span class="nb">tuple</span><span class="p">)</span>
+<span class="w">    </span><span class="sd">"""The standard's categories / clusters.  Each becomes a SARIF taxon in</span>
+<span class="sd">    the category taxonomy."""</span>
+
+    <span class="n">maturity_levels</span><span class="p">:</span> <span class="nb">tuple</span><span class="p">[</span><span class="n">SpecMaturity</span><span class="p">,</span> <span class="o">...</span><span class="p">]</span> <span class="o">=</span> <span class="n">field</span><span class="p">(</span>
+        <span class="n">default_factory</span><span class="o">=</span><span class="k">lambda</span><span class="p">:</span> <span class="n">DEFAULT_MATURITY_LEVELS</span>
+    <span class="p">)</span>
+<span class="w">    </span><span class="sd">"""The standard's maturity vocabulary, keyed by universal ordinal.</span>
+<span class="sd">    **Optional in YAML** -- a flat spec omits it and the loader substitutes</span>
+<span class="sd">    :data:`DEFAULT_MATURITY_LEVELS` (a single ``required`` / level ``0`` /</span>
+<span class="sd">    ``required`` baseline).  When declared it must include level ``0``."""</span>
+
+    <span class="n">rules</span><span class="p">:</span> <span class="nb">tuple</span><span class="p">[</span><span class="n">SpecRule</span><span class="p">,</span> <span class="o">...</span><span class="p">]</span> <span class="o">=</span> <span class="n">field</span><span class="p">(</span><span class="n">default_factory</span><span class="o">=</span><span class="nb">tuple</span><span class="p">)</span>
+<span class="w">    </span><span class="sd">"""The standard's rule catalogue.  Rules with ``status == "tbd"`` are</span>
+<span class="sd">    excluded from SARIF emission entirely; rules with</span>
+<span class="sd">    ``status == "catalogue-only"`` appear in the catalogue but never as</span>
+<span class="sd">    results."""</span>
+
+    <span class="c1"># -- Taxonomies -------------------------------------------------------</span>
+
+    <span class="n">taxonomies</span><span class="p">:</span> <span class="n">SpecTaxonomies</span> <span class="o">=</span> <span class="n">field</span><span class="p">(</span><span class="n">default_factory</span><span class="o">=</span><span class="n">SpecTaxonomies</span><span class="p">)</span>
+<span class="w">    </span><span class="sd">"""The standard's :class:`SpecTaxonomies` (category + clause names).</span>
+<span class="sd">    Output-format agnostic; consumed by the SARIF emitter as</span>
+<span class="sd">    ``ToolComponent.name`` and by a future OSCAL exporter."""</span>
+
+    <span class="c1"># -- Lookups by key ---------------------------------------------------</span>
+
+<div class="viewcode-block" id="Spec.category">
+<a class="viewcode-back" href="../../ntia_conformance_checker.html#ntia_conformance_checker.spec.Spec.category">[docs]</a>
+    <span class="k">def</span><span class="w"> </span><span class="nf">category</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">category_id</span><span class="p">:</span> <span class="nb">str</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">SpecCategory</span><span class="p">:</span>
+<span class="w">        </span><span class="sd">"""Look up a :class:`SpecCategory` by id; raise KeyError if absent."""</span>
+        <span class="k">for</span> <span class="n">cat</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">categories</span><span class="p">:</span>
+            <span class="k">if</span> <span class="n">cat</span><span class="o">.</span><span class="n">id</span> <span class="o">==</span> <span class="n">category_id</span><span class="p">:</span>
+                <span class="k">return</span> <span class="n">cat</span>
+        <span class="k">raise</span> <span class="ne">KeyError</span><span class="p">(</span><span class="sa">f</span><span class="s2">"Spec </span><span class="si">{</span><span class="bp">self</span><span class="o">.</span><span class="n">id</span><span class="si">!r}</span><span class="s2"> has no category </span><span class="si">{</span><span class="n">category_id</span><span class="si">!r}</span><span class="s2">"</span><span class="p">)</span></div>
+
+
+<div class="viewcode-block" id="Spec.maturity">
+<a class="viewcode-back" href="../../ntia_conformance_checker.html#ntia_conformance_checker.spec.Spec.maturity">[docs]</a>
+    <span class="k">def</span><span class="w"> </span><span class="nf">maturity</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">level</span><span class="p">:</span> <span class="nb">int</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">SpecMaturity</span><span class="p">:</span>
+<span class="w">        </span><span class="sd">"""Look up a :class:`SpecMaturity` by its ordinal; KeyError if absent."""</span>
+        <span class="k">for</span> <span class="n">mat</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">maturity_levels</span><span class="p">:</span>
+            <span class="k">if</span> <span class="n">mat</span><span class="o">.</span><span class="n">level</span> <span class="o">==</span> <span class="n">level</span><span class="p">:</span>
+                <span class="k">return</span> <span class="n">mat</span>
+        <span class="k">raise</span> <span class="ne">KeyError</span><span class="p">(</span><span class="sa">f</span><span class="s2">"Spec </span><span class="si">{</span><span class="bp">self</span><span class="o">.</span><span class="n">id</span><span class="si">!r}</span><span class="s2"> has no maturity level </span><span class="si">{</span><span class="n">level</span><span class="si">!r}</span><span class="s2">"</span><span class="p">)</span></div>
+
+
+    <span class="c1"># -- Per-rule derived values ------------------------------------------</span>
+
+<div class="viewcode-block" id="Spec.maturity_id">
+<a class="viewcode-back" href="../../ntia_conformance_checker.html#ntia_conformance_checker.spec.Spec.maturity_id">[docs]</a>
+    <span class="k">def</span><span class="w"> </span><span class="nf">maturity_id</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">rule</span><span class="p">:</span> <span class="n">SpecRule</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">str</span><span class="p">:</span>
+<span class="w">        </span><span class="sd">"""Spec-specific slug of ``rule``'s maturity level (``""`` if none)."""</span>
+        <span class="k">for</span> <span class="n">mat</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">maturity_levels</span><span class="p">:</span>
+            <span class="k">if</span> <span class="n">mat</span><span class="o">.</span><span class="n">level</span> <span class="o">==</span> <span class="n">rule</span><span class="o">.</span><span class="n">maturity</span><span class="p">:</span>
+                <span class="k">return</span> <span class="n">mat</span><span class="o">.</span><span class="n">id</span>
+        <span class="k">return</span> <span class="s2">""</span></div>
+
+
+<div class="viewcode-block" id="Spec.oscal_control_id">
+<a class="viewcode-back" href="../../ntia_conformance_checker.html#ntia_conformance_checker.spec.Spec.oscal_control_id">[docs]</a>
+    <span class="k">def</span><span class="w"> </span><span class="nf">oscal_control_id</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">rule</span><span class="p">:</span> <span class="n">SpecRule</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">str</span><span class="p">:</span>
+<span class="w">        </span><span class="sd">"""Return the rule's OSCAL control id (override or lowercased rule id)."""</span>
+        <span class="k">return</span> <span class="n">rule</span><span class="o">.</span><span class="n">oscal_control_id</span> <span class="ow">or</span> <span class="bp">self</span><span class="o">.</span><span class="n">rule_id</span><span class="p">(</span><span class="n">rule</span><span class="p">)</span><span class="o">.</span><span class="n">lower</span><span class="p">()</span></div>
+
+
+<div class="viewcode-block" id="Spec.report_name">
+<a class="viewcode-back" href="../../ntia_conformance_checker.html#ntia_conformance_checker.spec.Spec.report_name">[docs]</a>
+    <span class="nd">@staticmethod</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">report_name</span><span class="p">(</span><span class="n">rule</span><span class="p">:</span> <span class="n">SpecRule</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">str</span><span class="p">:</span>
+<span class="w">        </span><span class="sd">"""PascalCase reporting name for ``rule``, derived from its slug.</span>
+
+<span class="sd">        Used as the SARIF ``reportingDescriptor.name`` (and any other</span>
+<span class="sd">        output format wanting a whitespace-free, human-readable rule name).</span>
+<span class="sd">        Derived -- never stored -- so it cannot drift from :attr:`SpecRule.slug`;</span>
+<span class="sd">        the two differ only in casing.  E.g. ``"ntia-component-supplier-missing"``</span>
+<span class="sd">        -&gt; ``"NtiaComponentSupplierMissing"``.</span>
+<span class="sd">        """</span>
+        <span class="k">return</span> <span class="s2">""</span><span class="o">.</span><span class="n">join</span><span class="p">(</span><span class="n">seg</span><span class="o">.</span><span class="n">capitalize</span><span class="p">()</span> <span class="k">for</span> <span class="n">seg</span> <span class="ow">in</span> <span class="n">rule</span><span class="o">.</span><span class="n">slug</span><span class="o">.</span><span class="n">split</span><span class="p">(</span><span class="s2">"-"</span><span class="p">))</span></div>
+
+
+<div class="viewcode-block" id="Spec.rule_id">
+<a class="viewcode-back" href="../../ntia_conformance_checker.html#ntia_conformance_checker.spec.Spec.rule_id">[docs]</a>
+    <span class="k">def</span><span class="w"> </span><span class="nf">rule_id</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">rule</span><span class="p">:</span> <span class="n">SpecRule</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">str</span><span class="p">:</span>
+<span class="w">        </span><span class="sd">"""Compose the canonical ``SBOM-[SPEC]-[CAT]-[NNN]`` rule id.</span>
+
+<span class="sd">        The ``SPEC`` segment is :attr:`id` uppercased.</span>
+<span class="sd">        """</span>
+        <span class="n">cat</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">category</span><span class="p">(</span><span class="n">rule</span><span class="o">.</span><span class="n">spec_category</span><span class="p">)</span>
+        <span class="k">return</span> <span class="sa">f</span><span class="s2">"SBOM-</span><span class="si">{</span><span class="bp">self</span><span class="o">.</span><span class="n">id</span><span class="o">.</span><span class="n">upper</span><span class="p">()</span><span class="si">}</span><span class="s2">-</span><span class="si">{</span><span class="n">cat</span><span class="o">.</span><span class="n">code</span><span class="si">}</span><span class="s2">-</span><span class="si">{</span><span class="n">rule</span><span class="o">.</span><span class="n">number</span><span class="si">:</span><span class="s2">03d</span><span class="si">}</span><span class="s2">"</span></div>
+
+
+<div class="viewcode-block" id="Spec.rule_uri">
+<a class="viewcode-back" href="../../ntia_conformance_checker.html#ntia_conformance_checker.spec.Spec.rule_uri">[docs]</a>
+    <span class="k">def</span><span class="w"> </span><span class="nf">rule_uri</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">rule</span><span class="p">:</span> <span class="n">SpecRule</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">str</span><span class="p">:</span>
+<span class="w">        </span><span class="sd">"""Rule's source-spec clause URL if set, otherwise the standard URL."""</span>
+        <span class="k">return</span> <span class="n">rule</span><span class="o">.</span><span class="n">spec_clause_uri</span> <span class="ow">or</span> <span class="bp">self</span><span class="o">.</span><span class="n">uri</span></div>
+
+
+<div class="viewcode-block" id="Spec.severity">
+<a class="viewcode-back" href="../../ntia_conformance_checker.html#ntia_conformance_checker.spec.Spec.severity">[docs]</a>
+    <span class="k">def</span><span class="w"> </span><span class="nf">severity</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">rule</span><span class="p">:</span> <span class="n">SpecRule</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">Severity</span><span class="p">:</span>
+<span class="w">        </span><span class="sd">"""The rule's severity, from its provision (emitted as SARIF ``level``)."""</span>
+        <span class="k">return</span> <span class="n">_PROVISION_TO_SEVERITY</span><span class="p">[</span><span class="n">rule</span><span class="o">.</span><span class="n">provision</span><span class="p">]</span></div>
+
+
+    <span class="c1"># -- Maturity levels --------------------------------------------------</span>
+
+    <span class="nd">@property</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">max_maturity</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">int</span><span class="p">:</span>
+<span class="w">        </span><span class="sd">"""Highest declared maturity ordinal (``0`` for a flat spec)."""</span>
+        <span class="k">return</span> <span class="nb">max</span><span class="p">((</span><span class="n">m</span><span class="o">.</span><span class="n">level</span> <span class="k">for</span> <span class="n">m</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">maturity_levels</span><span class="p">),</span> <span class="n">default</span><span class="o">=</span><span class="mi">0</span><span class="p">)</span>
+
+<div class="viewcode-block" id="Spec.maturity_ordinals">
+<a class="viewcode-back" href="../../ntia_conformance_checker.html#ntia_conformance_checker.spec.Spec.maturity_ordinals">[docs]</a>
+    <span class="k">def</span><span class="w"> </span><span class="nf">maturity_ordinals</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">tuple</span><span class="p">[</span><span class="nb">int</span><span class="p">,</span> <span class="o">...</span><span class="p">]:</span>
+<span class="w">        </span><span class="sd">"""Declared maturity ordinals, ascending -- the valid assessment targets."""</span>
+        <span class="k">return</span> <span class="nb">tuple</span><span class="p">(</span><span class="nb">sorted</span><span class="p">(</span><span class="n">m</span><span class="o">.</span><span class="n">level</span> <span class="k">for</span> <span class="n">m</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">maturity_levels</span><span class="p">))</span></div>
+
+
+    <span class="c1"># -- Rule selection ---------------------------------------------------</span>
+
+    <span class="nd">@staticmethod</span>
+    <span class="k">def</span><span class="w"> </span><span class="nf">_in_scope</span><span class="p">(</span><span class="n">rule</span><span class="p">:</span> <span class="n">SpecRule</span><span class="p">,</span> <span class="n">target</span><span class="p">:</span> <span class="nb">int</span> <span class="o">|</span> <span class="kc">None</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">bool</span><span class="p">:</span>
+<span class="w">        </span><span class="sd">"""True if ``rule`` applies when assessing at ``target`` (``maturity &lt;=</span>
+<span class="sd">        target``).  ``target is None`` means no maturity filter (all tiers)."""</span>
+        <span class="k">return</span> <span class="n">target</span> <span class="ow">is</span> <span class="kc">None</span> <span class="ow">or</span> <span class="n">rule</span><span class="o">.</span><span class="n">maturity</span> <span class="o">&lt;=</span> <span class="n">target</span>
+
+<div class="viewcode-block" id="Spec.active_rules">
+<a class="viewcode-back" href="../../ntia_conformance_checker.html#ntia_conformance_checker.spec.Spec.active_rules">[docs]</a>
+    <span class="k">def</span><span class="w"> </span><span class="nf">active_rules</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">target</span><span class="p">:</span> <span class="nb">int</span> <span class="o">|</span> <span class="kc">None</span> <span class="o">=</span> <span class="kc">None</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">tuple</span><span class="p">[</span><span class="n">SpecRule</span><span class="p">,</span> <span class="o">...</span><span class="p">]:</span>
+<span class="w">        </span><span class="sd">"""Active rules in scope for an assessment ``target`` maturity.</span>
+
+<span class="sd">        Excludes TBD + catalogue-only.  With ``target`` set, also excludes</span>
+<span class="sd">        rules above the target (``maturity &gt; target``) -- they are out of scope</span>
+<span class="sd">        and are neither evaluated nor reported.  ``target is None`` keeps every</span>
+<span class="sd">        active rule (all tiers).</span>
+<span class="sd">        """</span>
+        <span class="k">return</span> <span class="nb">tuple</span><span class="p">(</span>
+            <span class="n">r</span> <span class="k">for</span> <span class="n">r</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">rules</span> <span class="k">if</span> <span class="n">r</span><span class="o">.</span><span class="n">status</span> <span class="o">==</span> <span class="s2">"active"</span> <span class="ow">and</span> <span class="bp">self</span><span class="o">.</span><span class="n">_in_scope</span><span class="p">(</span><span class="n">r</span><span class="p">,</span> <span class="n">target</span><span class="p">)</span>
+        <span class="p">)</span></div>
+
+
+<div class="viewcode-block" id="Spec.blocking_rules">
+<a class="viewcode-back" href="../../ntia_conformance_checker.html#ntia_conformance_checker.spec.Spec.blocking_rules">[docs]</a>
+    <span class="k">def</span><span class="w"> </span><span class="nf">blocking_rules</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="n">target</span><span class="p">:</span> <span class="nb">int</span> <span class="o">|</span> <span class="kc">None</span> <span class="o">=</span> <span class="kc">None</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">tuple</span><span class="p">[</span><span class="n">SpecRule</span><span class="p">,</span> <span class="o">...</span><span class="p">]:</span>
+<span class="w">        </span><span class="sd">"""In-scope active rules whose failure breaks compliance.</span>
+
+<span class="sd">        Only ``requirement`` provisions are blocking; ``recommendation`` /</span>
+<span class="sd">        ``permission`` rules are still emitted as findings (warning / none) but</span>
+<span class="sd">        are advisory -- a present-but-implausible value, say, is reported</span>
+<span class="sd">        without making the SBOM non-conformant.  Honours the assessment</span>
+<span class="sd">        ``target`` the same way as :meth:`active_rules`.</span>
+<span class="sd">        """</span>
+        <span class="k">return</span> <span class="nb">tuple</span><span class="p">(</span>
+            <span class="n">r</span>
+            <span class="k">for</span> <span class="n">r</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">rules</span>
+            <span class="k">if</span> <span class="n">r</span><span class="o">.</span><span class="n">status</span> <span class="o">==</span> <span class="s2">"active"</span>
+            <span class="ow">and</span> <span class="n">r</span><span class="o">.</span><span class="n">provision</span> <span class="o">==</span> <span class="s2">"requirement"</span>
+            <span class="ow">and</span> <span class="bp">self</span><span class="o">.</span><span class="n">_in_scope</span><span class="p">(</span><span class="n">r</span><span class="p">,</span> <span class="n">target</span><span class="p">)</span>
+        <span class="p">)</span></div>
+
+
+<div class="viewcode-block" id="Spec.emitted_rules">
+<a class="viewcode-back" href="../../ntia_conformance_checker.html#ntia_conformance_checker.spec.Spec.emitted_rules">[docs]</a>
+    <span class="k">def</span><span class="w"> </span><span class="nf">emitted_rules</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">tuple</span><span class="p">[</span><span class="n">SpecRule</span><span class="p">,</span> <span class="o">...</span><span class="p">]:</span>
+<span class="w">        </span><span class="sd">"""Rules that appear in the SARIF catalogue (everything except TBD).</span>
+
+<span class="sd">        Not maturity-filtered: the catalogue advertises the full rule surface</span>
+<span class="sd">        of the spec regardless of the assessment target.</span>
+<span class="sd">        """</span>
+        <span class="k">return</span> <span class="nb">tuple</span><span class="p">(</span><span class="n">r</span> <span class="k">for</span> <span class="n">r</span> <span class="ow">in</span> <span class="bp">self</span><span class="o">.</span><span class="n">rules</span> <span class="k">if</span> <span class="n">r</span><span class="o">.</span><span class="n">status</span> <span class="o">!=</span> <span class="s2">"tbd"</span><span class="p">)</span></div>
+</div>
+
+</pre></div>
+
+          </div>
+          
+        </div>
+      </div>
+      <div class="sphinxsidebar" role="navigation" aria-label="Main">
+        <div class="sphinxsidebarwrapper">
+<h1 class="logo"><a href="../../index.html">NTIA Conformance Checker</a></h1>
+
+
+
+
+
+
+
+
+
+<search id="searchbox" style="display: none" role="search">
+    <div class="searchformwrapper">
+    <form class="search" action="../../search.html" method="get">
+      <input type="text" name="q" aria-labelledby="searchlabel" autocomplete="off" autocorrect="off" autocapitalize="off" spellcheck="false" placeholder="Search"/>
+      <input type="submit" value="Go" />
+    </form>
+    </div>
+</search>
+<script>document.getElementById('searchbox').style.display = "block"</script><h3>Navigation</h3>
+<p class="caption" role="heading"><span class="caption-text">Contents:</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../../modules.html">ntia_conformance_checker</a></li>
+</ul>
+
+<div class="relations">
+<h3>Related Topics</h3>
+<ul>
+  <li><a href="../../index.html">Documentation overview</a><ul>
+  <li><a href="../index.html">Module code</a><ul>
+  </ul></li>
+  </ul></li>
+</ul>
+</div>
+
+
+
+
+
+
+
+
+        </div>
+      </div>
+      <div class="clearer"></div>
+    </div>
+    <div class="footer">
+      &#169;2022-2026 SPDX contributors.
+      
+      |
+      Powered by <a href="https://www.sphinx-doc.org/">Sphinx 9.1.1</a>
+      &amp; <a href="https://alabaster.readthedocs.io">Alabaster 1.0.0</a>
+      
+    </div>
+
+    
+
+    
+  </body>
+</html>
