@@ -26,17 +26,33 @@ and this project adheres to [Semantic Versioning][semver].
 
 ### Added
 
+- JSON output lists missing element IDs in
+  `graphValidation.unknownPointers.missingElementIds`
 - GitHub releases attach the wheel, the sdist and the wheel's SPDX 3 SBOM,
   each with a Sigstore bundle and a build provenance attestation;
   see "Verify release files" in `SECURITY.md`
 
 ### Changed
 
+- Relationship directions follow the SPDX 3.0 Annex A.1 translation, and tool
+  and provenance relationships are followed, so more components may be
+  checked; see "Which relationships connect an element to the tree?" in
+  `FAQ.md`
+- Missing elements are checked at both ends of a relationship and at the
+  roots, and reported as written; see "The CLI output reports that a
+  relationship points to a missing element" in `FAQ.md`
+- `get_reachable_nodes` returns edges from parent to child
 - Pull request and release builds embed the SBOM with Pitloom 0.20.1 and fail
   on an invalid SBOM; content types are detected with magika
 - Releases publish to PyPI only after the SBOM is validated; release files are
   attached, signed and attested after the publish, and can be re-run if that
   fails
+
+### Deprecated
+
+- `VALID_SPDX2_COMPOSITION_RELATIONSHIPS` and
+  `VALID_SPDX3_COMPOSITION_RELATIONSHIPS`; use `SPDX2_RELATIONSHIP_TRAVERSAL`
+  and `SPDX3_RELATIONSHIP_TRAVERSAL`
 
 [#478]: https://github.com/spdx/ntia-conformance-checker/pull/478
 [#481]: https://github.com/spdx/ntia-conformance-checker/issues/481
