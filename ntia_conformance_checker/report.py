@@ -19,6 +19,8 @@ from .constants import (
 )
 
 if TYPE_CHECKING:
+    from collections.abc import Iterator
+
     from spdx_tools.spdx.validation.validation_message import ValidationMessage
 
     from .base_checker import BaseChecker
@@ -38,6 +40,7 @@ class ReportContext:
     conformance_messages: list[ValidationMessage] | None = None
     parsing_errors: list[str] | None = None
     unknown_pointer_edges: dict[str, list[str]] | None = None
+    missing_element_ids: set[str] | None = None
     floating_component_ids: set[str] | None = None
     components_evaluated: bool = True
 
@@ -160,6 +163,26 @@ def get_validation_messages_json(
     return json_output
 
 
+def _iter_missing_links(rc: ReportContext) -> Iterator[tuple[str, str, str, str]]:
+    """
+    Yield the links with a missing end, with a label for each end.
+
+    Links are as written, from source to target. An end is labeled
+    "missing element" if it is missing and "element" otherwise, so a line
+    reads, for example, "Element 'A' links to missing element 'B'".
+
+    Yields:
+        tuple: (source label, source ID, target label, target ID), with the
+            source label capitalized.
+    """
+    missing_ids = rc.missing_element_ids or set()
+    for source, targets in (rc.unknown_pointer_edges or {}).items():
+        source_label = "Missing element" if source in missing_ids else "Element"
+        for target in targets:
+            target_label = "missing element" if target in missing_ids else "element"
+            yield source_label, source, target_label, target
+
+
 def _generate_graph_text_report(rc: ReportContext) -> list[str]:
     """Generates a text report for graph structural issues."""
     graph_issues_report: list[str] = []
@@ -177,11 +200,10 @@ def _generate_graph_text_report(rc: ReportContext) -> list[str]:
             "Unknown components detected! A relationship points to a missing element."
         )
         graph_issues_report.append("  -> Broken dependency linkages found:")
-        for source, targets in rc.unknown_pointer_edges.items():
-            for target in targets:
-                graph_issues_report.append(
-                    f"    * Component '{source}' links to missing element '{target}'"
-                )
+        for source_label, source, target_label, target in _iter_missing_links(rc):
+            graph_issues_report.append(
+                f"    * {source_label} '{source}' links to {target_label} '{target}'"
+            )
 
     if rc.floating_component_ids:
         floating_ids = sorted(rc.floating_component_ids)
@@ -321,12 +343,11 @@ def _generate_graph_html_report(rc: ReportContext) -> list[str]:
             " Unknown components detected! A relationship points to a missing element.</p>"
         )
         graph_issues_report.append("<ul class='conformance-err-list'>")
-        for source, targets in rc.unknown_pointer_edges.items():
-            for target in targets:
-                graph_issues_report.append(
-                    f"<li>Component '<b>{source}</b>' links to missing element "
-                    f"'<b>{target}</b>'</li>"
-                )
+        for source_label, source, target_label, target in _iter_missing_links(rc):
+            graph_issues_report.append(
+                f"<li>{source_label} '<b>{source}</b>' links to {target_label} "
+                f"'<b>{target}</b>'</li>"
+            )
         graph_issues_report.append("</ul>")
 
     if rc.floating_component_ids:
@@ -493,6 +514,9 @@ def report_json(checker_instance: "BaseChecker") -> dict[str, Any]:
                 ),
                 "unknownPointerEdges": getattr(
                     checker_instance, "unknown_pointer_edges", {}
+                ),
+                "missingElementIds": sorted(
+                    getattr(checker_instance, "missing_element_ids", set())
                 ),
             },
             "floatingComponents": {

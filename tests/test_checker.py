@@ -243,9 +243,10 @@ def test_sbomchecker_missing_supplier_name(test_file: str) -> None:
     assert sbom.dependency_relationships
     assert not sbom.components_without_names
     assert not sbom.components_without_versions
+    # Jena is reached by "SPDXRef-File GENERATED_FROM SPDXRef-fromDoap-0"
     TestCase().assertCountEqual(
         _component_names(sbom.components_without_suppliers),
-        ["glibc", "Saxon"],
+        ["glibc", "Saxon", "Jena"],
     )
     assert not sbom.components_without_identifiers
     assert not sbom.compliant
@@ -762,6 +763,7 @@ def test_generate_graph_text_report_with_issues() -> None:
     """Test that the plain-text graph report formats exact strings correctly."""
     rc = ReportContext(
         unknown_pointer_edges={"SPDXRef-Package-Valid": ["SPDXRef-Package-Missing"]},
+        missing_element_ids={"SPDXRef-Package-Missing"},
         floating_component_ids={"SPDXRef-Package-Orphan"},
     )
 
@@ -776,7 +778,7 @@ def test_generate_graph_text_report_with_issues() -> None:
         "Unknown components detected! A relationship points to a missing element.",
         "  -> Broken dependency linkages found:",
         (
-            "    * Component 'SPDXRef-Package-Valid' links to"
+            "    * Element 'SPDXRef-Package-Valid' links to"
             " missing element 'SPDXRef-Package-Missing'"
         ),
         "\n************ WARNING ************",
@@ -806,6 +808,7 @@ def test_generate_graph_html_report_with_issues() -> None:
     """Test that the HTML graph report formats exact tags correctly."""
     rc = ReportContext(
         unknown_pointer_edges={"SPDXRef-Package-Valid": ["SPDXRef-Package-Missing"]},
+        missing_element_ids={"SPDXRef-Package-Missing"},
         floating_component_ids={"SPDXRef-Package-Orphan"},
     )
 
@@ -821,7 +824,7 @@ def test_generate_graph_html_report_with_issues() -> None:
         ),
         "<ul class='conformance-err-list'>",
         (
-            "<li>Component '<b>SPDXRef-Package-Valid</b>' links to"
+            "<li>Element '<b>SPDXRef-Package-Valid</b>' links to"
             " missing element '<b>SPDXRef-Package-Missing</b>'</li>"
         ),
         "</ul>",
@@ -958,3 +961,35 @@ def test_get_boms_from_spdx_document() -> None:
     boms = get_boms_from_spdx_document(doc_with_bom)
     assert boms
     assert boms == [bom]
+
+
+@pytest.mark.parametrize(
+    ("missing_element_ids", "expected"),
+    [
+        ({"SPDXRef-B"}, ("Element", "missing element")),
+        ({"SPDXRef-A"}, ("Missing element", "element")),
+        ({"SPDXRef-A", "SPDXRef-B"}, ("Missing element", "missing element")),
+    ],
+    ids=["target-missing", "source-missing", "both-missing"],
+)
+def test_generate_graph_report_labels_each_end(
+    missing_element_ids: set[str], expected: tuple[str, str]
+) -> None:
+    """A link is reported as written, with each end labeled missing or not."""
+    rc = ReportContext(
+        unknown_pointer_edges={"SPDXRef-A": ["SPDXRef-B"]},
+        missing_element_ids=missing_element_ids,
+        floating_component_ids=set(),
+    )
+    source_label, target_label = expected
+
+    text = "\n".join(_generate_graph_text_report(rc))
+    html = "\n".join(_generate_graph_html_report(rc))
+
+    assert (
+        f"    * {source_label} 'SPDXRef-A' links to {target_label} 'SPDXRef-B'" in text
+    )
+    assert (
+        f"<li>{source_label} '<b>SPDXRef-A</b>' links to {target_label} "
+        "'<b>SPDXRef-B</b>'</li>" in html
+    )

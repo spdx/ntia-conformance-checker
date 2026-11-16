@@ -18,7 +18,7 @@ from spdx_tools.spdx.validation.document_validator import validate_full_spdx_doc
 
 from .adapters import NullAdapter, SbomAdapter, Spdx2Adapter, Spdx3Adapter
 from .constants import DEFAULT_SBOM_SPEC
-from .graph_utils import analyze_graph_connectivity
+from .graph_utils import analyze_graph
 from .report import (
     ReportContext,
     report_html,
@@ -184,12 +184,7 @@ class BaseChecker(ABC):
 
         self._init_result_lists()
 
-        self.reachable_component_ids: set[str] = set()
-        self.floating_component_ids: set[str] = set()
-        self.unknown_pointer_edges: dict[str, list[str]] = {}
-
-        # "Pointers" refers to relationship edges targeting unknown/missing elements in the graph.
-        self.has_unknown_pointers: bool = False
+        self._init_graph_results()
 
         self.adapter: SbomAdapter = NullAdapter()
 
@@ -253,6 +248,18 @@ class BaseChecker(ABC):
             self.all_components_without_info = self._get_all_components_without_info()
 
         self.table_elements: list[tuple[str, bool]] = []
+
+    def _init_graph_results(self) -> None:
+        """Initialize the results of the graph connectivity analysis."""
+        self.reachable_component_ids: set[str] = set()
+        self.floating_component_ids: set[str] = set()
+        self.unknown_pointer_edges: dict[str, list[str]] = {}
+        # IDs of elements that a root or a followed relationship refers to,
+        # but that the SBOM does not define.
+        self.missing_element_ids: set[str] = set()
+
+        # "Pointers" refers to relationship edges targeting unknown/missing elements in the graph.
+        self.has_unknown_pointers: bool = False
 
     def _init_result_lists(self) -> None:
         """
@@ -504,6 +511,7 @@ class BaseChecker(ABC):
             conformance_messages=self._conformance_messages,
             parsing_errors=self._parsing_errors,
             unknown_pointer_edges=getattr(self, "unknown_pointer_edges", {}),
+            missing_element_ids=getattr(self, "missing_element_ids", set()),
             floating_component_ids=getattr(self, "floating_component_ids", set()),
             components_evaluated=self.components_evaluated,
         )
@@ -527,6 +535,7 @@ class BaseChecker(ABC):
             conformance_messages=self._conformance_messages,
             parsing_errors=self._parsing_errors,
             unknown_pointer_edges=getattr(self, "unknown_pointer_edges", {}),
+            missing_element_ids=getattr(self, "missing_element_ids", set()),
             floating_component_ids=getattr(self, "floating_component_ids", set()),
             components_evaluated=self.components_evaluated,
         )
@@ -544,17 +553,16 @@ class BaseChecker(ABC):
     def _evaluate_graph_connectivity(self) -> None:
         """Evaluate graph connectivity to isolate floating nodes and unknown pointers."""
 
-        reachable, floating, unknown_pointer_edges, has_unknown_pointers = (
-            analyze_graph_connectivity(
-                self.sbom_spec, self.doc, getattr(self, "_BaseChecker__spdx3_doc", None)
-            )
+        result = analyze_graph(
+            self.sbom_spec, self.doc, getattr(self, "_BaseChecker__spdx3_doc", None)
         )
 
-        self.reachable_component_ids = reachable
-        self.components_evaluated = bool(reachable)
-        self.floating_component_ids = floating
-        self.unknown_pointer_edges = unknown_pointer_edges
-        self.has_unknown_pointers = has_unknown_pointers
+        self.reachable_component_ids = result.reachable_component_ids
+        self.components_evaluated = bool(result.reachable_component_ids)
+        self.floating_component_ids = result.floating_component_ids
+        self.unknown_pointer_edges = result.unknown_pointer_edges
+        self.missing_element_ids = result.missing_element_ids
+        self.has_unknown_pointers = result.has_unknown_pointers
 
         if self.floating_component_ids:
             logging.warning(

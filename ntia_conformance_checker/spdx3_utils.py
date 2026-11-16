@@ -42,6 +42,25 @@ SPDX3_PACKAGE_DEPENDENCY_RELATIONSHIP_TYPES = (
 )
 
 
+def get_spdx3_element_id(value: Any) -> str:
+    """
+    Return the SPDX ID of an SPDX 3 element, or of an element reference.
+
+    A reference to an element may be the element itself or its IRI as a
+    string, as in ``Relationship.from_`` and ``Relationship.to``.
+
+    Args:
+        value: An SPDX 3 element, an IRI, or None.
+
+    Returns:
+        str: The SPDX ID, or an empty string if there is none.
+    """
+    if isinstance(value, str):
+        return value
+    spdx_id = getattr(value, "spdxId", "")
+    return spdx_id if isinstance(spdx_id, str) else ""
+
+
 def validate_spdx3_data(
     object_set: spdx3.SHACLObjectSet,
 ) -> tuple[spdx3.SpdxDocument | None, list[ValidationMessage]]:
@@ -239,12 +258,10 @@ def iter_relationships_by_type(
         if not from_ or not to_elements:
             continue
 
-        from_id = from_ if isinstance(from_, str) else getattr(from_, "spdxId", "")
+        from_id = get_spdx3_element_id(from_)
         to_ids = []
         for to_item in to_elements:
-            to_id = (
-                to_item if isinstance(to_item, str) else getattr(to_item, "spdxId", "")
-            )
+            to_id = get_spdx3_element_id(to_item)
             if to_id:
                 to_ids.append(to_id)
 
@@ -370,8 +387,7 @@ def get_dependency_relationships_completeness(
         # Remove the IRI prefix of entry name before compare
         rel_type_name = str(rel_type).rsplit("/", maxsplit=1)[-1]
         if rel_type_name in ("contains", "dependsOn"):
-            from_ = getattr(obj, "from_", None)
-            from_id = from_ if isinstance(from_, str) else getattr(from_, "spdxId", "")
+            from_id = get_spdx3_element_id(getattr(obj, "from_", None))
 
             if from_id:
                 completeness_iri = getattr(obj, "completeness", None)
