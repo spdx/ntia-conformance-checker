@@ -358,8 +358,8 @@ def _build_spdx2_graph(
         source_id = rel.spdx_element_id
         target_id = rel.related_spdx_element_id
 
-        if not isinstance(source_id, str):
-            continue
+        # spdx_element_id is always an ID; related_spdx_element_id can also
+        # be NONE or NOASSERTION
         if not isinstance(target_id, str):
             # NONE or NOASSERTION: no element to link to, but the source must
             # exist, as in SPDX 3 for a relationship to NoneElement
