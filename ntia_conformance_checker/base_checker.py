@@ -566,12 +566,13 @@ class BaseChecker(ABC):
 
         if self.floating_component_ids:
             logging.warning(
-                "Found %d disconnected 'floating' elements. They will be ignored for compliance.",
+                "Found %d disconnected 'floating' components."
+                " They will be ignored for compliance.",
                 len(self.floating_component_ids),
             )
 
         if self.has_unknown_pointers:
             logging.error(
-                "Unknown components detected!"
+                "Unknown elements detected!"
                 " A relationship points to a missing element."
             )

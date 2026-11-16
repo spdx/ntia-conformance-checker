@@ -775,15 +775,15 @@ def test_generate_graph_text_report_with_issues() -> None:
         "Structural Graph Issues".center(55),
         "=" * 55,
         "\n************* ERROR *************",
-        "Unknown components detected! A relationship points to a missing element.",
+        "Unknown elements detected! A relationship points to a missing element.",
         "  -> Broken dependency linkages found:",
         (
             "    * Element 'SPDXRef-Package-Valid' links to"
             " missing element 'SPDXRef-Package-Missing'"
         ),
         "\n************ WARNING ************",
-        "Found 1 disconnected 'floating' elements.",
-        "  -> These elements are not attached to the primary software tree",
+        "Found 1 disconnected 'floating' components.",
+        "  -> These components are not attached to the primary software tree",
         "     and were ignored during the compliance check.\n",
         "    * SPDXRef-Package-Orphan",
         "\n" + "-" * 55,
@@ -820,7 +820,7 @@ def test_generate_graph_html_report_with_issues() -> None:
         "<h2 class='conformance-res-title'>Structural Graph Issues</h2>",
         (
             "<p class='conformance-err-label'><strong>ERROR:</strong>"
-            " Unknown components detected! A relationship points to a missing element.</p>"
+            " Unknown elements detected! A relationship points to a missing element.</p>"
         ),
         "<ul class='conformance-err-list'>",
         (
@@ -830,7 +830,7 @@ def test_generate_graph_html_report_with_issues() -> None:
         "</ul>",
         (
             "<p class='conformance-msg-label' style='margin-top: 15px;'>"
-            "<strong>WARNING:</strong> Found 1 disconnected 'floating' elements"
+            "<strong>WARNING:</strong> Found 1 disconnected 'floating' components"
             " ignored during compliance.</p>"
         ),
         "<ul class='conformance-msg-list'>",

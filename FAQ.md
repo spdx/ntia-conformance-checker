@@ -23,12 +23,13 @@ it cannot be instantiated directly. You must change the type to a concrete
 subclass, such as `software_File`, `software_Package`, or `software_Snippet`.
 
 **Q: The CLI output warns me that it "Found X disconnected 'floating'
-elements." What does this mean?**
+components." What does this mean?**
 
 A: The checker walks the relationship graph from the root elements. A
-floating element is a package that no root reaches. It is ignored for
+floating component is a package that no root reaches. It is ignored for
 compliance, but it often means the SBOM generator left unlinked data in the
-file. Only packages are reported as floating.
+file. Only packages, the components that minimum elements apply to, are
+reported as floating.
 
 **Q: Which relationships connect an element to the tree?**
 

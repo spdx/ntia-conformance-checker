@@ -197,7 +197,7 @@ def _generate_graph_text_report(rc: ReportContext) -> list[str]:
     if rc.unknown_pointer_edges:
         graph_issues_report.append("\n************* ERROR *************")
         graph_issues_report.append(
-            "Unknown components detected! A relationship points to a missing element."
+            "Unknown elements detected! A relationship points to a missing element."
         )
         graph_issues_report.append("  -> Broken dependency linkages found:")
         for source_label, source, target_label, target in _iter_missing_links(rc):
@@ -209,10 +209,10 @@ def _generate_graph_text_report(rc: ReportContext) -> list[str]:
         floating_ids = sorted(rc.floating_component_ids)
         graph_issues_report.append("\n************ WARNING ************")
         graph_issues_report.append(
-            f"Found {len(floating_ids)} disconnected 'floating' elements."
+            f"Found {len(floating_ids)} disconnected 'floating' components."
         )
         graph_issues_report.append(
-            "  -> These elements are not attached to the primary software tree"
+            "  -> These components are not attached to the primary software tree"
         )
         graph_issues_report.append(
             "     and were ignored during the compliance check.\n"
@@ -340,7 +340,7 @@ def _generate_graph_html_report(rc: ReportContext) -> list[str]:
     if rc.unknown_pointer_edges:
         graph_issues_report.append(
             "<p class='conformance-err-label'><strong>ERROR:</strong>"
-            " Unknown components detected! A relationship points to a missing element.</p>"
+            " Unknown elements detected! A relationship points to a missing element.</p>"
         )
         graph_issues_report.append("<ul class='conformance-err-list'>")
         for source_label, source, target_label, target in _iter_missing_links(rc):
@@ -355,7 +355,7 @@ def _generate_graph_html_report(rc: ReportContext) -> list[str]:
         graph_issues_report.append(
             "<p class='conformance-msg-label' style='margin-top: 15px;'>"
             f"<strong>WARNING:</strong> Found {len(floating_ids)} disconnected "
-            "'floating' elements ignored during compliance.</p>"
+            "'floating' components ignored during compliance.</p>"
         )
         graph_issues_report.append("<ul class='conformance-msg-list'>")
         for spdx_id in floating_ids[:10]:

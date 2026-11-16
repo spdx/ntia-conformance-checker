@@ -20,7 +20,7 @@ and this project adheres to [Semantic Versioning][semver].
 - A relationship to an SPDX 3 individual such as `NoneElement` is no longer
   reported as pointing to a missing element ([#478])
 - SPDX 2 reverse relationships, such as `BUILD_DEPENDENCY_OF`, no longer leave
-  packages floating ([#481])
+  components floating ([#481])
 - Elements in a declared SPDX 2 `ExternalDocumentRef` or an SPDX 3 `import`
   are no longer reported as missing ([#482])
 
@@ -42,6 +42,9 @@ and this project adheres to [Semantic Versioning][semver].
   roots, and reported as written; see "The CLI output reports that a
   relationship points to a missing element" in `FAQ.md`
 - `get_reachable_nodes` returns edges from parent to child
+- Reports call floating packages "components", as in minimum elements, and
+  relationship ends "elements", as in SPDX: "Found X disconnected 'floating'
+  components" and "Unknown elements detected!"
 - Pull request and release builds embed the SBOM with Pitloom 0.20.1 and fail
   on an invalid SBOM; content types are detected with magika
 - Releases publish to PyPI only after the SBOM is validated; release files are
