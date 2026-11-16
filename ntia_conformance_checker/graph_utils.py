@@ -26,6 +26,12 @@ if TYPE_CHECKING:
 
 # SPDX 2 element ID: "SPDXRef-"[idstring], where idstring has letters,
 # numbers, "." and "-" (SPDX 2.3 clauses 7.2, 8.2, 9.1).
+# Values that SPDX 2.3 clause 11.1 (Table 69) allows as the related element
+# of a relationship instead of an element: there are no other relationships
+# (NONE), or it is not known (NOASSERTION). spdx-tools reads them as
+# SpdxNone and SpdxNoAssertion, whose str() is the keyword.
+_SPDX2_NO_ELEMENT_VALUES = frozenset({"NONE", "NOASSERTION"})
+
 _SPDX2_SPDXID_PATTERN = re.compile(r"SPDXRef-[A-Za-z0-9.\-]+")
 
 
@@ -209,8 +215,10 @@ def _get_known_predicate_and_package_ids(
         external_doc_ref_ids = _collect_spdx2_external_document_ref_ids(spdx2_doc)
 
         def is_known(element_id: str) -> bool:
-            return element_id in known_ids or _is_spdx2_external_element_id(
-                element_id, external_doc_ref_ids
+            return (
+                element_id in known_ids
+                or element_id in _SPDX2_NO_ELEMENT_VALUES
+                or _is_spdx2_external_element_id(element_id, external_doc_ref_ids)
             )
 
         return is_known, package_ids
@@ -331,8 +339,9 @@ def _build_spdx2_graph(
     type.
 
     ``NONE`` and ``NOASSERTION`` state that there are no relationships or
-    that it is not known (Table 69). They are not elements, so they are
-    skipped.
+    that it is not known (Table 69). They are not elements, so they add no
+    edge, but a followed relationship to them is still a link, so that its
+    ``spdxElementId`` is checked.
 
     Returns:
         tuple: (queue, graph_connection_map, links), where links are the
@@ -349,7 +358,13 @@ def _build_spdx2_graph(
         source_id = rel.spdx_element_id
         target_id = rel.related_spdx_element_id
 
-        if not isinstance(source_id, str) or not isinstance(target_id, str):
+        if not isinstance(source_id, str):
+            continue
+        if not isinstance(target_id, str):
+            # NONE or NOASSERTION: no element to link to, but the source must
+            # exist, as in SPDX 3 for a relationship to NoneElement
+            if rel.relationship_type.name in SPDX2_RELATIONSHIP_TRAVERSAL:
+                links.append((source_id, str(target_id)))
             continue
 
         # Get the root elements

@@ -22,6 +22,8 @@ from spdx_tools.spdx.model.file import File
 from spdx_tools.spdx.model.package import Package
 from spdx_tools.spdx.model.relationship import Relationship, RelationshipType
 from spdx_tools.spdx.model.snippet import Snippet
+from spdx_tools.spdx.model.spdx_no_assertion import SpdxNoAssertion
+from spdx_tools.spdx.model.spdx_none import SpdxNone
 
 import ntia_conformance_checker.sbom_checker as sbom_checker
 from ntia_conformance_checker.constants import (
@@ -263,6 +265,11 @@ def test_spdx2_forward_relationship_connects_child(rel_name: str) -> None:
 @pytest.mark.parametrize(
     ("relationship", "floating_id"),
     [
+        # Parent DEPENDENCY_OF Child: written the wrong way round
+        (
+            ("SPDXRef-Root", RelationshipType.DEPENDENCY_OF, "SPDXRef-Other"),
+            "SPDXRef-Other",
+        ),
         # Product BUILD_TOOL_OF Tool: written the wrong way round
         (
             ("SPDXRef-Root", RelationshipType.BUILD_TOOL_OF, "SPDXRef-Other"),
@@ -284,7 +291,7 @@ def test_spdx2_forward_relationship_connects_child(rel_name: str) -> None:
             "SPDXRef-Other",
         ),
     ],
-    ids=["build-tool-of", "generated-from", "generates", "other"],
+    ids=["dependency-of", "build-tool-of", "generated-from", "generates", "other"],
 )
 def test_spdx2_relationship_is_followed_only_in_its_direction(
     relationship: tuple[str, RelationshipType, str], floating_id: str
@@ -824,13 +831,50 @@ def test_missing_source_is_reported_end_to_end(tmp_path: Path) -> None:
 def test_reported_issue_sboms(
     caplog: pytest.LogCaptureFixture, file_path: Path, reachable: set[str]
 ) -> None:
-    """The tag-value SBOMs from issues #481 and #482 have no graph problems."""
+    """The tag-value SBOMs from issues #481 and #482 are valid and conformant."""
     test_file = Path(__file__).parent / "data" / "graph_connectivity" / file_path
     sbom = sbom_checker.SbomChecker(str(test_file), sbom_spec="spdx2")
     assert not sbom.parsing_errors
+    assert not sbom.validation_messages
+    assert sbom.dependency_relationships is True
+    assert sbom.compliant is True
     assert sbom.reachable_component_ids == reachable
     assert sbom.floating_component_ids == set()
     assert sbom.has_unknown_pointers is False
     assert not sbom.unknown_pointer_edges
     assert "floating" not in caplog.text
     assert "missing element" not in caplog.text
+
+
+@pytest.mark.parametrize("no_element", [SpdxNone(), SpdxNoAssertion()], ids=str)
+@pytest.mark.parametrize(
+    ("source", "rel_type", "expected_unknown_edges"),
+    [
+        ("SPDXRef-A", RelationshipType.DEPENDS_ON, {}),
+        ("SPDXRef-Missing", RelationshipType.DEPENDS_ON, "missing"),
+        ("SPDXRef-Missing", RelationshipType.CONTAINED_BY, "missing"),
+        ("SPDXRef-Missing", RelationshipType.OTHER, {}),  # not followed
+    ],
+    ids=["known-source", "missing-source", "missing-reverse-source", "not-followed"],
+)
+def test_spdx2_relationship_to_none_checks_source(
+    caplog: pytest.LogCaptureFixture,
+    no_element: SpdxNone | SpdxNoAssertion,
+    source: str,
+    rel_type: RelationshipType,
+    expected_unknown_edges: dict[str, list[str]] | str,
+) -> None:
+    """A followed relationship to NONE or NOASSERTION still checks its source."""
+    doc = _make_spdx2_doc(
+        ["SPDXRef-A"],
+        [("SPDXRef-DOCUMENT", RelationshipType.DESCRIBES, "SPDXRef-A")],
+    )
+    doc.relationships.append(Relationship(source, rel_type, no_element))
+    result = analyze_graph("spdx2", doc)
+
+    if expected_unknown_edges == "missing":
+        expected_unknown_edges = {source: [str(no_element)]}
+    assert result.unknown_pointer_edges == expected_unknown_edges
+    assert result.missing_element_ids == ({source} if expected_unknown_edges else set())
+    assert result.reachable_component_ids == {"SPDXRef-A"}
+    assert "Traversal bug" not in caplog.text

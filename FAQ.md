@@ -115,7 +115,7 @@ The JSON output lists every missing ID in
 Not missing:
 
 - `NONE` and `NOASSERTION` (SPDX 2.3 Table 69), and SPDX 3 individuals such
-  as `NoneElement`.
+  as `NoneElement`. The other end of such a relationship is still checked.
 - An SPDX 2 element in another document, written
   `DocumentRef-<id>:SPDXRef-<idstring>` (Table 69), when `DocumentRef-<id>`
   is declared in an `ExternalDocumentRef` (clause 6.6). The external document
