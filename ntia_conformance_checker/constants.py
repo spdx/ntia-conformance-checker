@@ -19,6 +19,27 @@ VALID_SPDX2_COMPOSITION_RELATIONSHIPS = {
     "STATIC_LINK",
     "HAS_PREREQUISITE",
 }
+# SPDX 2 relationships "A <type> B" where B is the parent (the whole or the
+# dependent) and A is the child. Traversal follows them from B to A, as it
+# follows "B CONTAINS A" or "B DEPENDS_ON A". SPDX 2.3 clause 11.1 (Table 68)
+# describes each from the child's side, such as "SPDXRef-A is contained by
+# SPDXRef-B". The SPDX 3.0 Annex A.1 translation table maps each to a type in
+# VALID_SPDX3_COMPOSITION_RELATIONSHIPS with "Swap to and from? Y".
+VALID_SPDX2_REVERSE_COMPOSITION_RELATIONSHIPS = {
+    # Composition
+    "CONTAINED_BY",
+    "OPTIONAL_COMPONENT_OF",
+    "PACKAGE_OF",
+    # Dependencies
+    "DEPENDENCY_OF",
+    "BUILD_DEPENDENCY_OF",
+    "DEV_DEPENDENCY_OF",
+    "OPTIONAL_DEPENDENCY_OF",
+    "PROVIDED_DEPENDENCY_OF",
+    "RUNTIME_DEPENDENCY_OF",
+    "TEST_DEPENDENCY_OF",
+    "PREREQUISITE_FOR",
+}
 VALID_SPDX3_COMPOSITION_RELATIONSHIPS = {
     # Composition
     "contains",
