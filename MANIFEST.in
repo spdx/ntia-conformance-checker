@@ -1,0 +1,8 @@
+# SPDX-FileCopyrightText: 2026-present SPDX contributors
+# SPDX-FileType: OTHER
+# SPDX-License-Identifier: Apache-2.0
+#
+# setuptools-scm adds every git-tracked file to the sdist.
+# refs/ holds reference copies of standards (large PDFs) for contributors and
+# AI agents; it is not needed to build or use the package.
+prune refs
