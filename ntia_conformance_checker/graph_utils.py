@@ -18,7 +18,11 @@ from .constants import (
     SPDX3_RELATIONSHIP_TRAVERSAL,
     TraversalDirection,
 )
-from .spdx3_utils import SPDX3_INDIVIDUAL_ELEMENT_IRIS, get_spdx3_element_id
+from .spdx3_utils import (
+    SPDX3_INDIVIDUAL_ELEMENT_IRIS,
+    SPDX3_NONE_AND_NOASSERTION_IRIS,
+    get_spdx3_element_id,
+)
 
 if TYPE_CHECKING:
     from spdx_tools.spdx.model.document import Document
@@ -423,6 +427,17 @@ def _extract_spdx3_relationship_edges(
     to_ids = [t for t in map(get_spdx3_element_id, getattr(obj, "to", [])) if t]
 
     links.extend((from_id, to_id) for to_id in to_ids)
+
+    # NoneElement, NoAssertionElement, NoneLicense and NoAssertionLicense
+    # stand for no value or an unknown value, not for an element (see
+    # SPDX3_NONE_AND_NOASSERTION_IRIS). Many unrelated relationships share
+    # each of them, so as graph nodes they would link unrelated elements.
+    # They get no edges; their links above still check the other end.
+    # Other individuals, such as SpdxOrganization, are one real element and
+    # stay nodes.
+    if from_id in SPDX3_NONE_AND_NOASSERTION_IRIS:
+        return
+    to_ids = [t for t in to_ids if t not in SPDX3_NONE_AND_NOASSERTION_IRIS]
     if direction is TraversalDirection.FORWARD:
         graph_connection_map.setdefault(from_id, []).extend(to_ids)
     else:

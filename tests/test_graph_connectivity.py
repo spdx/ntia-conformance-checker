@@ -39,6 +39,10 @@ from ntia_conformance_checker.graph_utils import (
     analyze_graph_connectivity,
     get_reachable_nodes,
 )
+from ntia_conformance_checker.spdx3_utils import (
+    SPDX3_INDIVIDUAL_ELEMENT_IRIS,
+    SPDX3_NONE_AND_NOASSERTION_IRIS,
+)
 
 
 def test_disconnected_component_spdx3_floating_contains_only_orphan_package() -> None:
@@ -476,9 +480,12 @@ def _spdx3_element_id(name: str) -> str:
     """
     Return the SPDX ID for a test element name in ``_SPDX3_BASE_SBOM``.
 
-    "ROOT" is the root package, "DOC" is the SpdxDocument and any other name
-    is ``https://example.com/<name>``.
+    "ROOT" is the root package, "DOC" is the SpdxDocument, a full IRI (such as
+    an SPDX 3 individual) is itself, and any other name is
+    ``https://example.com/<name>``.
     """
+    if name.startswith("https://"):
+        return name
     return _spdx3_special_ids().get(name, f"https://example.com/{name}")
 
 
@@ -500,15 +507,16 @@ def _spdx3_checker_with(
     Check an SPDX 3 SBOM whose root package has extra packages and relationships.
 
     Each relationship is (from, relationshipType, to), where "ROOT" is the
-    root package, "DOC" is the SpdxDocument and any other name is an extra
-    package, or a missing one if it starts with "missing".
+    root package, "DOC" is the SpdxDocument, a full IRI is used as is (no
+    element is added for it) and any other name is an extra package, or a
+    missing one if it starts with "missing".
     """
     doc = json.loads(_SPDX3_BASE_SBOM.read_text(encoding="utf-8"))
     element_id = _spdx3_element_id
 
     names = {n for rel in relationships for n in (rel[0], rel[2])}
     for name in sorted(names - {"ROOT", "DOC"}):
-        if not name.startswith("missing"):
+        if not name.startswith(("missing", "https://")):
             doc["@graph"].append(
                 {
                     "type": "software_Package",
@@ -878,3 +886,64 @@ def test_spdx2_relationship_to_none_checks_source(
     assert result.missing_element_ids == ({source} if expected_unknown_edges else set())
     assert result.reachable_component_ids == {"SPDXRef-A"}
     assert "Traversal bug" not in caplog.text
+
+
+_SPDX3_TERMS = "https://spdx.org/rdf/3.0.1/terms"
+
+
+@pytest.mark.parametrize(
+    "individual",
+    [
+        f"{_SPDX3_TERMS}/Core/NoneElement",
+        f"{_SPDX3_TERMS}/Core/NoAssertionElement",
+        f"{_SPDX3_TERMS}/ExpandedLicensing/NoneLicense",
+        f"{_SPDX3_TERMS}/ExpandedLicensing/NoAssertionLicense",
+    ],
+    ids=lambda iri: iri.rsplit("/", 1)[-1],
+)
+@pytest.mark.parametrize(
+    "orphan_relationship",
+    [
+        ("orphan", "generates", "INDIVIDUAL"),  # reverse: to -> from
+        ("INDIVIDUAL", "contains", "orphan"),  # forward: from -> to
+    ],
+    ids=["reverse-generates", "forward-contains"],
+)
+def test_spdx3_none_and_noassertion_do_not_connect_components(
+    tmp_path: Path, individual: str, orphan_relationship: tuple[str, str, str]
+) -> None:
+    """A none or no-assertion individual is not a node, so it links nothing."""
+    from_name, rel_type, to_name = (
+        individual if name == "INDIVIDUAL" else name for name in orphan_relationship
+    )
+    sbom = _spdx3_checker_with(
+        tmp_path,
+        [("ROOT", "dependsOn", individual), (from_name, rel_type, to_name)],
+    )
+    orphan_id = _spdx3_element_id("orphan")
+    assert orphan_id in sbom.floating_component_ids
+    assert orphan_id not in sbom.reachable_component_ids
+    assert sbom.has_unknown_pointers is False
+
+
+def test_spdx3_spdx_organization_is_a_node(tmp_path: Path) -> None:
+    """SpdxOrganization is one real element, so it connects like any node."""
+    organization = f"{_SPDX3_TERMS}/Core/SpdxOrganization"
+    sbom = _spdx3_checker_with(
+        tmp_path,
+        [("ROOT", "dependsOn", organization), (organization, "contains", "orphan")],
+    )
+    assert _spdx3_element_id("orphan") in sbom.reachable_component_ids
+    assert sbom.floating_component_ids == set()
+    assert sbom.has_unknown_pointers is False
+
+
+def test_spdx3_none_and_noassertion_iris() -> None:
+    """The placeholders are the four none and no-assertion individuals only."""
+    assert {iri.rsplit("/", 1)[-1] for iri in SPDX3_NONE_AND_NOASSERTION_IRIS} == {
+        "NoneElement",
+        "NoAssertionElement",
+        "NoneLicense",
+        "NoAssertionLicense",
+    }
+    assert SPDX3_NONE_AND_NOASSERTION_IRIS < SPDX3_INDIVIDUAL_ELEMENT_IRIS
