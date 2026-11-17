@@ -509,12 +509,13 @@ def _spdx3_checker_with(
     Each relationship is (from, relationshipType, to), where "ROOT" is the
     root package, "DOC" is the SpdxDocument, a full IRI is used as is (no
     element is added for it) and any other name is an extra package, or a
-    missing one if it starts with "missing".
+    missing one if it starts with "missing". Separate several ``to`` names
+    with "|".
     """
     doc = json.loads(_SPDX3_BASE_SBOM.read_text(encoding="utf-8"))
     element_id = _spdx3_element_id
 
-    names = {n for rel in relationships for n in (rel[0], rel[2])}
+    names = {n for rel in relationships for n in (rel[0], *rel[2].split("|"))}
     for name in sorted(names - {"ROOT", "DOC"}):
         if not name.startswith(("missing", "https://")):
             doc["@graph"].append(
@@ -533,7 +534,7 @@ def _spdx3_checker_with(
                 "creationInfo": "_:creationinfo",
                 "from": element_id(from_name),
                 "relationshipType": rel_type,
-                "to": [element_id(to_name)],
+                "to": [element_id(n) for n in to_name.split("|")],
             }
         )
     path = tmp_path / "sbom.json"
@@ -891,39 +892,86 @@ def test_spdx2_relationship_to_none_checks_source(
 _SPDX3_TERMS = "https://spdx.org/rdf/3.0.1/terms"
 
 
+_PLACEHOLDERS = [
+    f"{_SPDX3_TERMS}/Core/NoneElement",
+    f"{_SPDX3_TERMS}/Core/NoAssertionElement",
+    f"{_SPDX3_TERMS}/ExpandedLicensing/NoneLicense",
+    f"{_SPDX3_TERMS}/ExpandedLicensing/NoAssertionLicense",
+]
+
+
 @pytest.mark.parametrize(
-    "individual",
-    [
-        f"{_SPDX3_TERMS}/Core/NoneElement",
-        f"{_SPDX3_TERMS}/Core/NoAssertionElement",
-        f"{_SPDX3_TERMS}/ExpandedLicensing/NoneLicense",
-        f"{_SPDX3_TERMS}/ExpandedLicensing/NoAssertionLicense",
-    ],
-    ids=lambda iri: iri.rsplit("/", 1)[-1],
+    "placeholder", _PLACEHOLDERS, ids=lambda iri: iri.rsplit("/", 1)[-1]
 )
 @pytest.mark.parametrize(
-    "orphan_relationship",
+    ("relationships", "reachable", "missing"),
     [
-        ("orphan", "generates", "INDIVIDUAL"),  # reverse: to -> from
-        ("INDIVIDUAL", "contains", "orphan"),  # forward: from -> to
+        # Regression, review on #485: reverse edge from P to the orphan
+        ([("ROOT", "dependsOn", "P"), ("orphan", "generates", "P")], [], []),
+        # Forward edge from P to the orphan
+        ([("ROOT", "dependsOn", "P"), ("P", "contains", "orphan")], [], []),
+        # P shared by a reachable package and the orphan
+        (
+            [
+                ("ROOT", "dependsOn", "a"),
+                ("a", "generates", "P"),
+                ("orphan", "generates", "P"),
+            ],
+            ["a"],
+            [],
+        ),
+        # P as a root of the document
+        ([("DOC", "describes", "P"), ("orphan", "generates", "P")], [], []),
+        # P next to a real element in one relationship
+        ([("ROOT", "dependsOn", "P|a"), ("P", "contains", "orphan")], ["a"], []),
+        # A missing element linked to P is still reported
+        (
+            [("ROOT", "dependsOn", "P"), ("missing-x", "generates", "P")],
+            [],
+            ["missing-x"],
+        ),
     ],
-    ids=["reverse-generates", "forward-contains"],
+    ids=["reverse", "forward", "shared", "root", "mixed-to", "missing-end"],
 )
-def test_spdx3_none_and_noassertion_do_not_connect_components(
-    tmp_path: Path, individual: str, orphan_relationship: tuple[str, str, str]
+def test_spdx3_none_and_noassertion_connect_nothing(
+    tmp_path: Path,
+    placeholder: str,
+    relationships: list[tuple[str, str, str]],
+    reachable: list[str],
+    missing: list[str],
 ) -> None:
-    """A none or no-assertion individual is not a node, so it links nothing."""
-    from_name, rel_type, to_name = (
-        individual if name == "INDIVIDUAL" else name for name in orphan_relationship
-    )
+    """A none or no-assertion value is not a node, so it links no elements."""
+
+    def sub(names: str) -> str:  # "P" stands for the placeholder
+        return "|".join(placeholder if n == "P" else n for n in names.split("|"))
+
     sbom = _spdx3_checker_with(
-        tmp_path,
-        [("ROOT", "dependsOn", individual), (from_name, rel_type, to_name)],
+        tmp_path, [(sub(f), rel_type, sub(t)) for f, rel_type, t in relationships]
     )
-    orphan_id = _spdx3_element_id("orphan")
-    assert orphan_id in sbom.floating_component_ids
-    assert orphan_id not in sbom.reachable_component_ids
-    assert sbom.has_unknown_pointers is False
+    ids = _spdx3_element_id
+    assert sbom.reachable_component_ids == {ids("ROOT"), *map(ids, reachable)}
+    assert ids("orphan") not in sbom.reachable_component_ids
+    assert sbom.missing_element_ids == set(map(ids, missing))
+
+
+@pytest.mark.parametrize("no_element", [SpdxNone(), SpdxNoAssertion()], ids=str)
+def test_spdx2_none_and_noassertion_connect_nothing(
+    no_element: SpdxNone | SpdxNoAssertion,
+) -> None:
+    """SPDX 2 NONE and NOASSERTION link no elements in either direction."""
+    doc = _make_spdx2_doc(
+        ["SPDXRef-A", "SPDXRef-Orphan"],
+        [("SPDXRef-DOCUMENT", RelationshipType.DESCRIBES, "SPDXRef-A")],
+    )
+    doc.relationships += [
+        Relationship("SPDXRef-A", RelationshipType.DEPENDS_ON, no_element),
+        Relationship("SPDXRef-Orphan", RelationshipType.DEPENDENCY_OF, no_element),
+        Relationship("SPDXRef-Orphan", RelationshipType.GENERATES, no_element),
+    ]
+    result = analyze_graph("spdx2", doc)
+    assert result.reachable_component_ids == {"SPDXRef-A"}
+    assert result.floating_component_ids == {"SPDXRef-Orphan"}
+    assert not result.has_unknown_pointers
 
 
 def test_spdx3_spdx_organization_is_a_node(tmp_path: Path) -> None:
