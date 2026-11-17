@@ -38,6 +38,7 @@
 <span class="sd">"""Graph utilities for SPDX 2 and SPDX 3."""</span>
 
 <span class="kn">import</span><span class="w"> </span><span class="nn">logging</span>
+<span class="kn">import</span><span class="w"> </span><span class="nn">re</span>
 <span class="kn">from</span><span class="w"> </span><span class="nn">typing</span><span class="w"> </span><span class="kn">import</span> <span class="n">TYPE_CHECKING</span><span class="p">,</span> <span class="n">Any</span><span class="p">,</span> <span class="n">cast</span>
 
 <span class="kn">from</span><span class="w"> </span><span class="nn">spdx_python_model.bindings</span><span class="w"> </span><span class="kn">import</span> <span class="n">v3_0_1</span> <span class="k">as</span> <span class="n">spdx3</span>
@@ -45,12 +46,93 @@
 
 <span class="kn">from</span><span class="w"> </span><span class="nn">.constants</span><span class="w"> </span><span class="kn">import</span> <span class="p">(</span>
     <span class="n">VALID_SPDX2_COMPOSITION_RELATIONSHIPS</span><span class="p">,</span>
+    <span class="n">VALID_SPDX2_REVERSE_COMPOSITION_RELATIONSHIPS</span><span class="p">,</span>
     <span class="n">VALID_SPDX3_COMPOSITION_RELATIONSHIPS</span><span class="p">,</span>
 <span class="p">)</span>
 <span class="kn">from</span><span class="w"> </span><span class="nn">.spdx3_utils</span><span class="w"> </span><span class="kn">import</span> <span class="n">SPDX3_INDIVIDUAL_ELEMENT_IRIS</span>
 
 <span class="k">if</span> <span class="n">TYPE_CHECKING</span><span class="p">:</span>
     <span class="kn">from</span><span class="w"> </span><span class="nn">spdx_tools.spdx.model.document</span><span class="w"> </span><span class="kn">import</span> <span class="n">Document</span>
+
+
+<span class="c1"># SPDX 2 element ID: "SPDXRef-"[idstring], where idstring has letters,</span>
+<span class="c1"># numbers, "." and "-" (SPDX 2.3 clauses 7.2, 8.2, 9.1).</span>
+<span class="n">_SPDX2_SPDXID_PATTERN</span> <span class="o">=</span> <span class="n">re</span><span class="o">.</span><span class="n">compile</span><span class="p">(</span><span class="sa">r</span><span class="s2">"SPDXRef-[A-Za-z0-9.\-]+"</span><span class="p">)</span>
+
+
+<span class="k">def</span><span class="w"> </span><span class="nf">_collect_spdx2_external_document_ref_ids</span><span class="p">(</span><span class="n">spdx2_doc</span><span class="p">:</span> <span class="s2">"Document"</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">set</span><span class="p">[</span><span class="nb">str</span><span class="p">]:</span>
+<span class="w">    </span><span class="sd">"""</span>
+<span class="sd">    Retrieve the IDs of external documents declared in an SPDX 2 document.</span>
+
+<span class="sd">    These are the ``DocumentRef-&lt;idstring&gt;`` values of ``ExternalDocumentRef``</span>
+<span class="sd">    (SPDX 2.3 clause 6.6, External document references field).</span>
+
+<span class="sd">    Returns:</span>
+<span class="sd">        set[str]: Declared external document reference IDs.</span>
+<span class="sd">    """</span>
+    <span class="n">creation_info</span> <span class="o">=</span> <span class="nb">getattr</span><span class="p">(</span><span class="n">spdx2_doc</span><span class="p">,</span> <span class="s2">"creation_info"</span><span class="p">,</span> <span class="kc">None</span><span class="p">)</span>
+    <span class="n">ext_refs</span> <span class="o">=</span> <span class="nb">getattr</span><span class="p">(</span><span class="n">creation_info</span><span class="p">,</span> <span class="s2">"external_document_refs"</span><span class="p">,</span> <span class="kc">None</span><span class="p">)</span> <span class="ow">or</span> <span class="p">[]</span>
+    <span class="k">return</span> <span class="p">{</span>
+        <span class="n">ref</span><span class="o">.</span><span class="n">document_ref_id</span>
+        <span class="k">for</span> <span class="n">ref</span> <span class="ow">in</span> <span class="n">ext_refs</span>
+        <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="nb">getattr</span><span class="p">(</span><span class="n">ref</span><span class="p">,</span> <span class="s2">"document_ref_id"</span><span class="p">,</span> <span class="kc">None</span><span class="p">),</span> <span class="nb">str</span><span class="p">)</span>
+    <span class="p">}</span>
+
+
+<span class="k">def</span><span class="w"> </span><span class="nf">_is_spdx2_external_element_id</span><span class="p">(</span>
+    <span class="n">element_id</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span> <span class="n">external_doc_ref_ids</span><span class="p">:</span> <span class="nb">set</span><span class="p">[</span><span class="nb">str</span><span class="p">]</span>
+<span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">bool</span><span class="p">:</span>
+<span class="w">    </span><span class="sd">"""</span>
+<span class="sd">    Check whether an SPDX 2 element ID refers to an element in a declared external document.</span>
+
+<span class="sd">    SPDX 2.3 clause 11.1 (Table 69) writes an element in another document as</span>
+<span class="sd">    ``"DocumentRef-"[idstring]":"SPDXID``, where the prefix is "an optional</span>
+<span class="sd">    reference to an external SPDX Document as described in 6.6". Clause 6.6</span>
+<span class="sd">    declares the prefix in an ``ExternalDocumentRef``. The element is defined</span>
+<span class="sd">    in the external document, so it exists when its prefix is declared.</span>
+
+<span class="sd">    Args:</span>
+<span class="sd">        element_id: Element ID used in a relationship.</span>
+<span class="sd">        external_doc_ref_ids: Declared external document reference IDs.</span>
+
+<span class="sd">    Returns:</span>
+<span class="sd">        bool: True if the ID is ``&lt;declared DocumentRef&gt;:SPDXRef-&lt;idstring&gt;``.</span>
+<span class="sd">    """</span>
+    <span class="n">doc_ref_id</span><span class="p">,</span> <span class="n">separator</span><span class="p">,</span> <span class="n">local_id</span> <span class="o">=</span> <span class="n">element_id</span><span class="o">.</span><span class="n">partition</span><span class="p">(</span><span class="s2">":"</span><span class="p">)</span>
+    <span class="k">return</span> <span class="p">(</span>
+        <span class="nb">bool</span><span class="p">(</span><span class="n">separator</span><span class="p">)</span>
+        <span class="ow">and</span> <span class="n">doc_ref_id</span> <span class="ow">in</span> <span class="n">external_doc_ref_ids</span>
+        <span class="ow">and</span> <span class="n">_SPDX2_SPDXID_PATTERN</span><span class="o">.</span><span class="n">fullmatch</span><span class="p">(</span><span class="n">local_id</span><span class="p">)</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span>
+    <span class="p">)</span>
+
+
+<span class="k">def</span><span class="w"> </span><span class="nf">_collect_spdx2_external_element_ids</span><span class="p">(</span>
+    <span class="n">spdx2_doc</span><span class="p">:</span> <span class="s2">"Document"</span><span class="p">,</span>
+    <span class="n">connection_map</span><span class="p">:</span> <span class="nb">dict</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="nb">list</span><span class="p">[</span><span class="nb">str</span><span class="p">]],</span>
+    <span class="n">reachable_node_ids</span><span class="p">:</span> <span class="nb">set</span><span class="p">[</span><span class="nb">str</span><span class="p">],</span>
+<span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">set</span><span class="p">[</span><span class="nb">str</span><span class="p">]:</span>
+<span class="w">    </span><span class="sd">"""</span>
+<span class="sd">    Retrieve the graph nodes that are elements in declared external documents.</span>
+
+<span class="sd">    These elements exist, but not in this document; see</span>
+<span class="sd">    ``_is_spdx2_external_element_id``.</span>
+
+<span class="sd">    Args:</span>
+<span class="sd">        spdx2_doc: Parsed SPDX 2 document.</span>
+<span class="sd">        connection_map: Edges from parent to children.</span>
+<span class="sd">        reachable_node_ids: Node IDs reachable from the roots.</span>
+
+<span class="sd">    Returns:</span>
+<span class="sd">        set[str]: External element IDs among the edge targets and the</span>
+<span class="sd">            reachable nodes.</span>
+<span class="sd">    """</span>
+    <span class="n">external_doc_ref_ids</span> <span class="o">=</span> <span class="n">_collect_spdx2_external_document_ref_ids</span><span class="p">(</span><span class="n">spdx2_doc</span><span class="p">)</span>
+    <span class="n">node_ids</span> <span class="o">=</span> <span class="n">reachable_node_ids</span><span class="o">.</span><span class="n">union</span><span class="p">(</span><span class="o">*</span><span class="n">connection_map</span><span class="o">.</span><span class="n">values</span><span class="p">())</span>
+    <span class="k">return</span> <span class="p">{</span>
+        <span class="n">node_id</span>
+        <span class="k">for</span> <span class="n">node_id</span> <span class="ow">in</span> <span class="n">node_ids</span>
+        <span class="k">if</span> <span class="n">_is_spdx2_external_element_id</span><span class="p">(</span><span class="n">node_id</span><span class="p">,</span> <span class="n">external_doc_ref_ids</span><span class="p">)</span>
+    <span class="p">}</span>
 
 
 <span class="k">def</span><span class="w"> </span><span class="nf">_collect_spdx2_known_and_package_ids</span><span class="p">(</span>
@@ -91,6 +173,10 @@
 <span class="w">    </span><span class="sd">"""</span>
 <span class="sd">    Retrieve all known object IDs and package IDs for SPDX 3.</span>
 
+<span class="sd">    Known IDs are the objects in the document, the SPDX 3 individuals such as</span>
+<span class="sd">    ``NoneElement``, and the elements that a collection imports: the</span>
+<span class="sd">    ``externalSpdxId`` of each ``ExternalMap`` in ``import``.</span>
+
 <span class="sd">    Returns:</span>
 <span class="sd">        tuple: (all_known_ids, all_package_ids)</span>
 <span class="sd">    """</span>
@@ -99,6 +185,12 @@
         <span class="k">for</span> <span class="n">obj</span> <span class="ow">in</span> <span class="n">object_set</span><span class="o">.</span><span class="n">objects</span>
         <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="nb">getattr</span><span class="p">(</span><span class="n">obj</span><span class="p">,</span> <span class="s2">"spdxId"</span><span class="p">,</span> <span class="kc">None</span><span class="p">),</span> <span class="nb">str</span><span class="p">)</span>
     <span class="p">}</span> <span class="o">|</span> <span class="n">SPDX3_INDIVIDUAL_ELEMENT_IRIS</span>  <span class="c1"># NoneElement and the like need no definition</span>
+    <span class="n">all_known_ids</span> <span class="o">|=</span> <span class="p">{</span>
+        <span class="n">external_id</span>
+        <span class="k">for</span> <span class="n">obj</span> <span class="ow">in</span> <span class="n">object_set</span><span class="o">.</span><span class="n">objects</span>
+        <span class="k">for</span> <span class="n">ext_map</span> <span class="ow">in</span> <span class="nb">getattr</span><span class="p">(</span><span class="n">obj</span><span class="p">,</span> <span class="s2">"import_"</span><span class="p">,</span> <span class="kc">None</span><span class="p">)</span> <span class="ow">or</span> <span class="p">[]</span>
+        <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">external_id</span> <span class="o">:=</span> <span class="nb">getattr</span><span class="p">(</span><span class="n">ext_map</span><span class="p">,</span> <span class="s2">"externalSpdxId"</span><span class="p">,</span> <span class="kc">None</span><span class="p">),</span> <span class="nb">str</span><span class="p">)</span>
+    <span class="p">}</span>
     <span class="n">package_ids</span> <span class="o">=</span> <span class="p">{</span>
         <span class="nb">getattr</span><span class="p">(</span><span class="n">obj</span><span class="p">,</span> <span class="s2">"spdxId"</span><span class="p">)</span>
         <span class="k">for</span> <span class="n">obj</span> <span class="ow">in</span> <span class="n">object_set</span><span class="o">.</span><span class="n">objects</span>
@@ -134,8 +226,10 @@
     <span class="n">all_package_ids</span><span class="p">:</span> <span class="nb">set</span><span class="p">[</span><span class="nb">str</span><span class="p">]</span> <span class="o">=</span> <span class="nb">set</span><span class="p">()</span>
 
     <span class="k">if</span> <span class="n">sbom_spec</span> <span class="o">==</span> <span class="s2">"spdx2"</span><span class="p">:</span>
-        <span class="n">all_known_ids</span><span class="p">,</span> <span class="n">all_package_ids</span> <span class="o">=</span> <span class="n">_collect_spdx2_known_and_package_ids</span><span class="p">(</span>
-            <span class="n">cast</span><span class="p">(</span><span class="s2">"Document"</span><span class="p">,</span> <span class="n">parsed_data</span><span class="p">)</span>
+        <span class="n">spdx2_doc</span> <span class="o">=</span> <span class="n">cast</span><span class="p">(</span><span class="s2">"Document"</span><span class="p">,</span> <span class="n">parsed_data</span><span class="p">)</span>
+        <span class="n">all_known_ids</span><span class="p">,</span> <span class="n">all_package_ids</span> <span class="o">=</span> <span class="n">_collect_spdx2_known_and_package_ids</span><span class="p">(</span><span class="n">spdx2_doc</span><span class="p">)</span>
+        <span class="n">all_known_ids</span> <span class="o">|=</span> <span class="n">_collect_spdx2_external_element_ids</span><span class="p">(</span>
+            <span class="n">spdx2_doc</span><span class="p">,</span> <span class="n">connection_map</span><span class="p">,</span> <span class="n">reachable_node_ids</span>
         <span class="p">)</span>
     <span class="k">elif</span> <span class="n">sbom_spec</span> <span class="o">==</span> <span class="s2">"spdx3"</span><span class="p">:</span>
         <span class="n">all_known_ids</span><span class="p">,</span> <span class="n">all_package_ids</span> <span class="o">=</span> <span class="n">_collect_spdx3_known_and_package_ids</span><span class="p">(</span>
@@ -170,7 +264,14 @@
 
 
 <span class="k">def</span><span class="w"> </span><span class="nf">_build_spdx2_graph</span><span class="p">(</span><span class="n">spdx2_doc</span><span class="p">:</span> <span class="s2">"Document"</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">tuple</span><span class="p">[</span><span class="nb">list</span><span class="p">[</span><span class="nb">str</span><span class="p">],</span> <span class="nb">dict</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="nb">list</span><span class="p">[</span><span class="nb">str</span><span class="p">]]]:</span>
-<span class="w">    </span><span class="sd">"""Build the initial queue and connection map for SPDX 2."""</span>
+<span class="w">    </span><span class="sd">"""</span>
+<span class="sd">    Build the initial queue and connection map for SPDX 2.</span>
+
+<span class="sd">    Edges point from parent to child. A forward relationship such as</span>
+<span class="sd">    ``A CONTAINS B`` adds an edge from A to B. A reverse relationship such as</span>
+<span class="sd">    ``B CONTAINED_BY A`` or ``B BUILD_DEPENDENCY_OF A`` also adds an edge</span>
+<span class="sd">    from A to B (see ``VALID_SPDX2_REVERSE_COMPOSITION_RELATIONSHIPS``).</span>
+<span class="sd">    """</span>
     <span class="n">queue</span><span class="p">:</span> <span class="nb">list</span><span class="p">[</span><span class="nb">str</span><span class="p">]</span> <span class="o">=</span> <span class="p">[]</span>
     <span class="n">graph_connection_map</span><span class="p">:</span> <span class="nb">dict</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="nb">list</span><span class="p">[</span><span class="nb">str</span><span class="p">]]</span> <span class="o">=</span> <span class="p">{}</span>
 
@@ -204,10 +305,11 @@
             <span class="n">queue</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">source_id</span><span class="p">)</span>
 
         <span class="c1"># Build the graph connection map</span>
-        <span class="k">if</span> <span class="n">rel</span><span class="o">.</span><span class="n">relationship_type</span><span class="o">.</span><span class="n">name</span> <span class="ow">in</span> <span class="n">VALID_SPDX2_COMPOSITION_RELATIONSHIPS</span><span class="p">:</span>
-            <span class="k">if</span> <span class="n">source_id</span> <span class="ow">not</span> <span class="ow">in</span> <span class="n">graph_connection_map</span><span class="p">:</span>
-                <span class="n">graph_connection_map</span><span class="p">[</span><span class="n">source_id</span><span class="p">]</span> <span class="o">=</span> <span class="p">[]</span>
-            <span class="n">graph_connection_map</span><span class="p">[</span><span class="n">source_id</span><span class="p">]</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">target_id</span><span class="p">)</span>
+        <span class="n">rel_name</span> <span class="o">=</span> <span class="n">rel</span><span class="o">.</span><span class="n">relationship_type</span><span class="o">.</span><span class="n">name</span>
+        <span class="k">if</span> <span class="n">rel_name</span> <span class="ow">in</span> <span class="n">VALID_SPDX2_COMPOSITION_RELATIONSHIPS</span><span class="p">:</span>
+            <span class="n">graph_connection_map</span><span class="o">.</span><span class="n">setdefault</span><span class="p">(</span><span class="n">source_id</span><span class="p">,</span> <span class="p">[])</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">target_id</span><span class="p">)</span>
+        <span class="k">elif</span> <span class="n">rel_name</span> <span class="ow">in</span> <span class="n">VALID_SPDX2_REVERSE_COMPOSITION_RELATIONSHIPS</span><span class="p">:</span>
+            <span class="n">graph_connection_map</span><span class="o">.</span><span class="n">setdefault</span><span class="p">(</span><span class="n">target_id</span><span class="p">,</span> <span class="p">[])</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">source_id</span><span class="p">)</span>
     <span class="k">return</span> <span class="n">queue</span><span class="p">,</span> <span class="n">graph_connection_map</span>
 
 
