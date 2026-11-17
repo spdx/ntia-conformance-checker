@@ -33,12 +33,24 @@ reported as floating.
 
 **Q: Which relationships connect an element to the tree?**
 
-A: The checker follows relationships from parent to child only. In SPDX 2,
-`A <type> B` is `spdxElementId` A to `relatedSpdxElement` B; in SPDX 3, it is
-`from` A to `to` B. The checker walks each followed type either along its
-written direction, from A to B, or against it, from B to A, whichever goes
-from parent to child. Element types at either end are not restricted
-([SPDX 2.3][spdx-2.3] clause 11.1.1).
+A: Two things are separate: the graph shape, which the SBOM states, and the
+traversal, which is how the checker walks it.
+
+*Graph shape.* Each relationship `A <type> B` has a written direction: in
+SPDX 2 from `spdxElementId` A to `relatedSpdxElement` B, in SPDX 3 from
+`from` A to `to` B. Element types at either end are not restricted
+([SPDX 2.3][spdx-2.3] clause 11.1.1). SPDX 2 also has reverse types, written
+from the child's side, such as `CONTAINED_BY` (clause 11.1, Table 68); SPDX 3
+has none. Missing elements are checked on the graph shape (see the next
+question).
+
+*Traversal.* The checker starts at the roots and goes from parent to child
+only. It walks each followed type either along its written direction, from
+A to B, or against it, from B to A, whichever goes from parent to child.
+"None" and "no assertion" values (SPDX 2 `NONE` and `NOASSERTION`; SPDX 3
+`NoneElement`, `NoAssertionElement`, `NoneLicense` and `NoAssertionLicense`)
+are never walked through, so they connect nothing; `SpdxOrganization` is
+walked like any other element.
 
 Roots:
 
@@ -103,8 +115,9 @@ instead, so `describes` is not followed there.
 What does this mean?**
 
 A: A root, or a followed relationship, refers to an element that the SBOM does
-not define. Both ends are checked, in SPDX 2 and SPDX 3. Each link is
-reported once, as written, with each end labeled:
+not define. This is a check on the graph shape: both ends of the relationship
+are checked as written, whichever way the checker walks it, in SPDX 2 and
+SPDX 3. Each relationship is reported once, with each end labeled:
 
 <!-- markdownlint-disable MD013 -->
 
@@ -124,10 +137,7 @@ Not missing:
 
 - `NONE` and `NOASSERTION` (SPDX 2.3 Table 69), and SPDX 3 individuals such
   as `NoneElement` or `SpdxOrganization`. The other end of such a
-  relationship is still checked. "None" and "no assertion" values (SPDX 2
-  `NONE` and `NOASSERTION`; SPDX 3 `NoneElement`, `NoAssertionElement`,
-  `NoneLicense` and `NoAssertionLicense`) are not graph nodes, so they
-  connect nothing; `SpdxOrganization` is a node like any other element.
+  relationship is still checked.
 - An SPDX 2 element in another document, written
   `DocumentRef-<id>:SPDXRef-<idstring>` (Table 69), when `DocumentRef-<id>`
   is declared in an `ExternalDocumentRef` (clause 6.6). The external document
