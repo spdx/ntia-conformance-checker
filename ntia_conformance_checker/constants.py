@@ -16,17 +16,22 @@ SUPPORTED_SBOM_SPECS = set(SUPPORTED_SBOM_SPECS_DESC.keys())
 
 class TraversalDirection(Enum):
     """
-    Direction in which graph traversal follows a relationship type.
+    Direction in which graph traversal walks a relationship type.
 
     Traversal goes from the parent (the element closer to the root) to the
-    child. ``FORWARD`` follows a relationship from its source
-    (SPDX 2 ``spdxElementId``, SPDX 3 ``from``) to its target
-    (SPDX 2 ``relatedSpdxElement``, SPDX 3 ``to``). ``REVERSE`` follows it
-    from its target to its source.
+    child. ``ALONG`` walks a relationship in its written direction, from its
+    source (SPDX 2 ``spdxElementId``, SPDX 3 ``from``) to its target
+    (SPDX 2 ``relatedSpdxElement``, SPDX 3 ``to``). ``AGAINST`` walks it from
+    its target to its source.
+
+    This is a choice of the checker, not a property of the relationship
+    type: SPDX 3 relationship types all have one direction, and
+    ``generates`` is walked ``AGAINST`` only because the checker goes from a
+    product to its source.
     """
 
-    FORWARD = "forward"
-    REVERSE = "reverse"
+    ALONG = "along"
+    AGAINST = "against"
 
 
 # SPDX 3 relationship types that connect an element to the graph,
@@ -34,24 +39,24 @@ class TraversalDirection(Enum):
 # RelationshipType vocabulary.
 SPDX3_RELATIONSHIP_TRAVERSAL: dict[str, TraversalDirection] = {
     # Composition
-    "contains": TraversalDirection.FORWARD,
-    "hasOptionalComponent": TraversalDirection.FORWARD,
-    "packagedBy": TraversalDirection.FORWARD,
+    "contains": TraversalDirection.ALONG,
+    "hasOptionalComponent": TraversalDirection.ALONG,
+    "packagedBy": TraversalDirection.ALONG,
     # Dependencies
-    "dependsOn": TraversalDirection.FORWARD,
-    "hasDynamicLink": TraversalDirection.FORWARD,
-    "hasStaticLink": TraversalDirection.FORWARD,
-    "hasPrerequisite": TraversalDirection.FORWARD,
-    "hasOptionalDependency": TraversalDirection.FORWARD,
-    "hasProvidedDependency": TraversalDirection.FORWARD,
+    "dependsOn": TraversalDirection.ALONG,
+    "hasDynamicLink": TraversalDirection.ALONG,
+    "hasStaticLink": TraversalDirection.ALONG,
+    "hasPrerequisite": TraversalDirection.ALONG,
+    "hasOptionalDependency": TraversalDirection.ALONG,
+    "hasProvidedDependency": TraversalDirection.ALONG,
     # Tools: "The from Element uses each to Element as a tool".
     # The from Element is the product, so traversal goes from it to the tool.
-    "usesTool": TraversalDirection.FORWARD,
+    "usesTool": TraversalDirection.ALONG,
     # Provenance: "The from Element generates each to Element".
-    # The to Element is the product and the from Element is its source,
-    # so traversal goes from the product to the source, against the
-    # relationship direction.
-    "generates": TraversalDirection.REVERSE,
+    # The to Element is the product and the from Element is its source.
+    # Traversal goes from the product to the source, so it walks generates
+    # against its written direction.
+    "generates": TraversalDirection.AGAINST,
 }
 
 # Translation of SPDX 2.3 relationship types to SPDX 3.0:
@@ -119,8 +124,8 @@ SPDX2_TO_SPDX3_RELATIONSHIP_TYPES: dict[str, tuple[str, bool]] = {
 #   between other elements they are followed from the describing element to
 #   the described one, so either form connects the same elements.
 SPDX2_RELATIONSHIP_TRAVERSAL_OVERRIDES: dict[str, TraversalDirection] = {
-    "DESCRIBES": TraversalDirection.FORWARD,
-    "DESCRIBED_BY": TraversalDirection.REVERSE,
+    "DESCRIBES": TraversalDirection.ALONG,
+    "DESCRIBED_BY": TraversalDirection.AGAINST,
 }
 
 
@@ -131,15 +136,14 @@ def _derive_spdx2_relationship_traversal() -> dict[str, TraversalDirection]:
     An SPDX 2 type is followed when its SPDX 3 translation is in
     ``SPDX3_RELATIONSHIP_TRAVERSAL``. Its direction is the SPDX 3 direction,
     flipped when the translation table swaps ``to`` and ``from``. This keeps
-    SPDX 2 and
-    SPDX 3 results the same for the same SBOM.
+    SPDX 2 and SPDX 3 results the same for the same SBOM.
 
     Returns:
         dict[str, TraversalDirection]: SPDX 2 type name to direction.
     """
     flipped = {
-        TraversalDirection.FORWARD: TraversalDirection.REVERSE,
-        TraversalDirection.REVERSE: TraversalDirection.FORWARD,
+        TraversalDirection.ALONG: TraversalDirection.AGAINST,
+        TraversalDirection.AGAINST: TraversalDirection.ALONG,
     }
     traversal: dict[str, TraversalDirection] = {}
     for spdx2_type, (spdx3_type, swap) in SPDX2_TO_SPDX3_RELATIONSHIP_TYPES.items():

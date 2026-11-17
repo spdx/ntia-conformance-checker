@@ -55,17 +55,17 @@ def test_translation_table_and_traversal_use_spdx3_relationship_types() -> None:
     ("spdx2_type", "direction"),
     [
         # From the translation table
-        ("CONTAINS", TraversalDirection.FORWARD),
-        ("CONTAINED_BY", TraversalDirection.REVERSE),
-        ("BUILD_TOOL_OF", TraversalDirection.REVERSE),
-        ("DEV_TOOL_OF", TraversalDirection.REVERSE),
-        ("TEST_TOOL_OF", TraversalDirection.REVERSE),
-        ("GENERATED_FROM", TraversalDirection.FORWARD),
-        ("GENERATES", TraversalDirection.REVERSE),
-        ("DYNAMIC_LINK", TraversalDirection.FORWARD),  # fixed in spdx/using#30
+        ("CONTAINS", TraversalDirection.ALONG),
+        ("CONTAINED_BY", TraversalDirection.AGAINST),
+        ("BUILD_TOOL_OF", TraversalDirection.AGAINST),
+        ("DEV_TOOL_OF", TraversalDirection.AGAINST),
+        ("TEST_TOOL_OF", TraversalDirection.AGAINST),
+        ("GENERATED_FROM", TraversalDirection.ALONG),
+        ("GENERATES", TraversalDirection.AGAINST),
+        ("DYNAMIC_LINK", TraversalDirection.ALONG),  # fixed in spdx/using#30
         # Overrides
-        ("DESCRIBES", TraversalDirection.FORWARD),
-        ("DESCRIBED_BY", TraversalDirection.REVERSE),
+        ("DESCRIBES", TraversalDirection.ALONG),
+        ("DESCRIBED_BY", TraversalDirection.AGAINST),
         # Not followed
         ("FILE_MODIFIED", None),
         ("OTHER", None),

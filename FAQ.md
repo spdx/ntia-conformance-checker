@@ -35,8 +35,9 @@ reported as floating.
 
 A: The checker follows relationships from parent to child only. In SPDX 2,
 `A <type> B` is `spdxElementId` A to `relatedSpdxElement` B; in SPDX 3, it is
-`from` A to `to` B. A forward type is followed from A to B, a reverse type
-from B to A. Element types at either end are not restricted
+`from` A to `to` B. The checker walks each followed type either along its
+written direction, from A to B, or against it, from B to A, whichever goes
+from parent to child. Element types at either end are not restricted
 ([SPDX 2.3][spdx-2.3] clause 11.1.1).
 
 Roots:
@@ -52,7 +53,7 @@ Followed relationships:
 
 <!-- markdownlint-disable MD013 -->
 
-| SPDX 3 type | SPDX 2 forward | SPDX 2 reverse | Parent to child |
+| SPDX 3 type | SPDX 2, walked A to B | SPDX 2, walked B to A | Parent to child |
 | --- | --- | --- | --- |
 | `contains` | `CONTAINS` | `CONTAINED_BY` | Whole to part |
 | `hasOptionalComponent` | | `OPTIONAL_COMPONENT_OF` | Whole to part |
@@ -64,23 +65,25 @@ Followed relationships:
 | `hasDynamicLink` | `DYNAMIC_LINK` | | Linker to linked |
 | `hasStaticLink` | `STATIC_LINK` | | Linker to linked |
 | `usesTool` | | `BUILD_TOOL_OF`, `DEV_TOOL_OF`, `TEST_TOOL_OF` | Product to tool |
-| `generates` (reverse) | `GENERATED_FROM` | `GENERATES` | Product to source |
+| `generates` (walked B to A) | `GENERATED_FROM` | `GENERATES` | Product to source |
 | (SPDX 2 only) | `DESCRIBES` | `DESCRIBED_BY` | Describer to described |
 
 <!-- markdownlint-enable MD013 -->
 
-All SPDX 3 types are forward except `generates`: "The `from` Element
+SPDX 3 types are walked A to B, except `generates`: "The `from` Element
 generates each `to` Element" ([SPDX 3.0.1][spdx-3.0.1-reltype]
 `RelationshipType`), and the checker goes from the product (`to`) to
-its source (`from`), as it goes from a product to its tool. Other types, such
+its source (`from`), as it goes from a product to its tool. `generates` is
+not a reverse type; the checker only walks it against its written
+direction. Other types, such
 as `DESCENDANT_OF`, `FILE_MODIFIED`, `OTHER` or `hasDataFile`, are not
 followed.
 
 SPDX 2.3 does not say which end of a relationship is the parent. The checker
 derives each SPDX 2 type from its SPDX 3 translation in the
 [2.3 to 3.0 translation table][spdx-2.3-to-3.0] (Using SPDX, "Differences
-between V3.0 and V2.3"; formerly SPDX 3.0 Annex A.1): same direction,
-reversed when the table says "Swap to and from? Y". For example,
+between V3.0 and V2.3"; formerly SPDX 3.0 Annex A.1): walked the same way,
+or the other way when the table says "Swap to and from? Y". For example,
 `A BUILD_DEPENDENCY_OF B` translates to `B dependsOn A`, so the checker goes
 from B to A. The one override: `DESCRIBES` and `DESCRIBED_BY` are followed
 between any elements in SPDX 2. SPDX 3 marks roots with `rootElement`

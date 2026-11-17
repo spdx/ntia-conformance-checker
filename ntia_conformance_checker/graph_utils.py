@@ -336,9 +336,10 @@ def _build_spdx2_graph(
     DESCRIBES A`` or ``A DESCRIBED_BY SPDXRef-DOCUMENT`` (SPDX 2.3 clause 11.1,
     Table 68; the document ID is from clause 6.3).
 
-    Edges point from parent to child. A forward relationship such as
-    ``A CONTAINS B`` adds an edge from A to B. A reverse relationship such as
-    ``B CONTAINED_BY A`` or ``B BUILD_DEPENDENCY_OF A`` also adds an edge
+    Edges point from parent to child. ``A CONTAINS B`` is walked along its
+    written direction and adds an edge from A to B. A reverse relationship
+    type, written from the child's side, such as ``B CONTAINED_BY A`` or
+    ``B BUILD_DEPENDENCY_OF A``, is walked against it and also adds an edge
     from A to B. ``SPDX2_RELATIONSHIP_TRAVERSAL`` holds the direction of each
     type.
 
@@ -376,7 +377,7 @@ def _build_spdx2_graph(
         if rel.relationship_type == RelationshipType.DESCRIBES and source_id in doc_ids:
             queue.append(target_id)
             is_root_link = True
-        # DESCRIBED_BY is a reverse of DESCRIBES
+        # DESCRIBED_BY is DESCRIBES written from the described element's side
         elif (
             rel.relationship_type == RelationshipType.DESCRIBED_BY
             and target_id in doc_ids
@@ -386,9 +387,9 @@ def _build_spdx2_graph(
 
         # Build the graph connection map
         direction = SPDX2_RELATIONSHIP_TRAVERSAL.get(rel.relationship_type.name)
-        if direction is TraversalDirection.FORWARD:
+        if direction is TraversalDirection.ALONG:
             graph_connection_map.setdefault(source_id, []).append(target_id)
-        elif direction is TraversalDirection.REVERSE:
+        elif direction is TraversalDirection.AGAINST:
             graph_connection_map.setdefault(target_id, []).append(source_id)
 
         if is_root_link or direction is not None:
@@ -438,7 +439,7 @@ def _extract_spdx3_relationship_edges(
     if from_id in SPDX3_NONE_AND_NOASSERTION_IRIS:
         return
     to_ids = [t for t in to_ids if t not in SPDX3_NONE_AND_NOASSERTION_IRIS]
-    if direction is TraversalDirection.FORWARD:
+    if direction is TraversalDirection.ALONG:
         graph_connection_map.setdefault(from_id, []).extend(to_ids)
     else:
         for to_id in to_ids:
@@ -582,8 +583,10 @@ def get_reachable_nodes(
     Returns:
         tuple: (reachable_node_ids, graph_connection_map), where
             graph_connection_map holds edges in traversal direction, from
-            parent to child. A reverse relationship such as
-            ``A CONTAINED_BY B`` is an edge from B to A.
+            parent to child. A relationship walked against its written
+            direction is an edge from its target to its source, such as
+            SPDX 2 ``A CONTAINED_BY B`` or SPDX 3 ``A generates B`` (from B
+            to A).
     """
     reachable_node_ids, graph_connection_map, _ = _reach(
         sbom_spec, parsed_data, spdx3_doc

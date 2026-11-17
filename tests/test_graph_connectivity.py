@@ -211,7 +211,7 @@ def _make_spdx2_doc(
     sorted(
         name
         for name, direction in SPDX2_RELATIONSHIP_TRAVERSAL.items()
-        if direction is TraversalDirection.REVERSE
+        if direction is TraversalDirection.AGAINST
     ),
 )
 def test_spdx2_reverse_relationship_connects_child(rel_name: str) -> None:
@@ -237,11 +237,11 @@ def test_spdx2_reverse_relationship_connects_child(rel_name: str) -> None:
     sorted(
         name
         for name, direction in SPDX2_RELATIONSHIP_TRAVERSAL.items()
-        if direction is TraversalDirection.FORWARD
+        if direction is TraversalDirection.ALONG
     ),
 )
-def test_spdx2_forward_relationship_connects_child(rel_name: str) -> None:
-    """A forward relationship "Parent X Child" links Parent to Child."""
+def test_spdx2_relationship_walked_along_connects_child(rel_name: str) -> None:
+    """A relationship walked along, "Parent X Child", links Parent to Child."""
     doc = _make_spdx2_doc(
         ["SPDXRef-Parent", "SPDXRef-Child"],
         [
@@ -321,7 +321,7 @@ def test_spdx2_relationship_is_followed_only_in_its_direction(
             {"SPDXRef-A": ["SPDXRef-Missing"]},
         ),
     ],
-    ids=["reverse-missing-parent", "reverse-missing-child", "forward-missing"],
+    ids=["reverse-missing-parent", "reverse-missing-child", "depends-on-missing"],
 )
 def test_spdx2_relationship_to_missing_element(
     relationship: tuple[str, RelationshipType, str],
@@ -501,7 +501,7 @@ def _spdx3_checker_with(
         (("source", "generates", "ROOT"), True),
         (("ROOT", "generates", "product"), False),
     ],
-    ids=["uses-tool", "uses-tool-reversed", "generates", "generates-reversed"],
+    ids=["uses-tool", "uses-tool-swapped", "generates", "generates-swapped"],
 )
 def test_spdx3_uses_tool_and_generates(
     tmp_path: Path, relationship: tuple[str, str, str], connected: bool
@@ -548,7 +548,7 @@ def test_spdx3_uses_tool_and_generates_missing_element(
             {"SPDXRef-Missing1": ["SPDXRef-Missing2"]},
         ),
     ],
-    ids=["forward-missing-source", "missing-root", "both-missing"],
+    ids=["contains-missing-source", "missing-root", "both-missing"],
 )
 def test_spdx2_missing_source_or_root(
     caplog: pytest.LogCaptureFixture,
@@ -577,7 +577,7 @@ def test_spdx2_missing_source_or_root(
         ("DocumentRef-other:SPDXRef-B", RelationshipType.DEPENDENCY_OF, "SPDXRef-A"),
         ("DocumentRef-other:SPDXRef-B", RelationshipType.CONTAINS, "SPDXRef-A"),
     ],
-    ids=["target", "reverse-source", "forward-source"],
+    ids=["target", "reverse-source", "contains-source"],
 )
 def test_spdx2_external_element_at_either_end(
     caplog: pytest.LogCaptureFixture, relationship: tuple[str, RelationshipType, str]
@@ -616,7 +616,7 @@ def test_spdx2_external_element_at_either_end(
             {"DOC": ["missing-root"]},
         ),
     ],
-    ids=["forward-missing-from", "both-missing", "missing-root"],
+    ids=["contains-missing-from", "both-missing", "missing-root"],
 )
 def test_spdx3_missing_from_or_root(
     tmp_path: Path,
@@ -840,9 +840,10 @@ _PLACEHOLDERS = [
 @pytest.mark.parametrize(
     ("relationships", "reachable", "missing"),
     [
-        # Regression, review on #485: reverse edge from P to the orphan
+        # Regression, review on #485: "orphan generates P" is walked
+        # against its written direction, from P to the orphan
         ([("ROOT", "dependsOn", "P"), ("orphan", "generates", "P")], [], []),
-        # Forward edge from P to the orphan
+        # "P contains orphan" is walked along it, from P to the orphan
         ([("ROOT", "dependsOn", "P"), ("P", "contains", "orphan")], [], []),
         # P shared by a reachable package and the orphan
         (
@@ -865,7 +866,7 @@ _PLACEHOLDERS = [
             ["missing-x"],
         ),
     ],
-    ids=["reverse", "forward", "shared", "root", "mixed-to", "missing-end"],
+    ids=["against", "along", "shared", "root", "mixed-to", "missing-end"],
 )
 def test_spdx3_none_and_noassertion_connect_nothing(
     tmp_path: Path,
