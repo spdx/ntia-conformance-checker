@@ -42,6 +42,10 @@ SPDX3_RELATIONSHIP_TRAVERSAL: dict[str, TraversalDirection] = {
     "hasPrerequisite": TraversalDirection.ALONG,
     "hasOptionalDependency": TraversalDirection.ALONG,
     "hasProvidedDependency": TraversalDirection.ALONG,
+    # AI and dataset: "The from Element has been trained on (tested on) the
+    # to Element(s)": model first, walked from the model to the dataset.
+    "trainedOn": TraversalDirection.ALONG,
+    "testedOn": TraversalDirection.ALONG,
     # Inputs (tools, sources): walked from the product to the input, as for
     # dependencies. Following them is our reading, not a minimum elements
     # requirement (see FAQ.md).
@@ -166,9 +170,6 @@ VALID_SPDX3_COMPOSITION_RELATIONSHIPS = {
     "hasPrerequisite",
     "hasOptionalDependency",
     "hasProvidedDependency",
-    # AI and Dataset
-    "trainedOn",
-    "testedOn",
 }
 
 SUPPORTED_COMPLIANCE_STANDARDS_DESC = {

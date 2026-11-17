@@ -88,8 +88,8 @@ def test_deprecated_relationship_sets_are_unchanged() -> None:
         "STATIC_LINK",
         "HAS_PREREQUISITE",
     }
-    assert "usesTool" not in VALID_SPDX3_COMPOSITION_RELATIONSHIPS
-    assert "generates" not in VALID_SPDX3_COMPOSITION_RELATIONSHIPS
+    for added in ("usesTool", "generates", "trainedOn", "testedOn"):
+        assert added not in VALID_SPDX3_COMPOSITION_RELATIONSHIPS
 
 
 def test_spdx3_none_and_noassertion_iris() -> None:

@@ -71,6 +71,7 @@ Followed relationships:
 | `hasPrerequisite` | `HAS_PREREQUISITE` | `PREREQUISITE_FOR` | Dependent to prerequisite |
 | `hasDynamicLink` | `DYNAMIC_LINK` | | Linker to linked |
 | `hasStaticLink` | `STATIC_LINK` | | Linker to linked |
+| `trainedOn`, `testedOn` | | | Model to dataset |
 | `usesTool` | | `BUILD_TOOL_OF`, `DEV_TOOL_OF`, `TEST_TOOL_OF` | Product to tool |
 | `generates` (walked B to A) | `GENERATED_FROM` | `GENERATES` | Product to source |
 | (SPDX 2 only) | `DESCRIBES` | `DESCRIBED_BY` | Describer to described |
