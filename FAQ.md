@@ -70,26 +70,21 @@ Followed relationships:
 <!-- markdownlint-enable MD013 -->
 
 All SPDX 3 types are forward except `generates`: "The `from` Element
-generates each `to` Element", and the checker goes from the product (`to`) to
+generates each `to` Element" ([SPDX 3.0.1][spdx-3.0.1-reltype]
+`RelationshipType`), and the checker goes from the product (`to`) to
 its source (`from`), as it goes from a product to its tool. Other types, such
 as `DESCENDANT_OF`, `FILE_MODIFIED`, `OTHER` or `hasDataFile`, are not
 followed.
 
 SPDX 2.3 does not say which end of a relationship is the parent. The checker
 derives each SPDX 2 type from its SPDX 3 translation in the
-[SPDX 3.0 Annex A.1 table][spdx-3.0-a1]: same direction, reversed when the
-table says "Swap to and from? Y". For example, `A BUILD_DEPENDENCY_OF B`
-translates to `B dependsOn A`, so the checker goes from B to A. Two overrides:
-
-- `DESCRIBES` and `DESCRIBED_BY` are followed between any elements in SPDX 2.
-  SPDX 3 marks roots with `rootElement` instead, so `describes` is not
-  followed there.
-- `DYNAMIC_LINK` is forward. Annex A.1 marks it as swapped, but Table 68 ("A
-  dynamically links to B") and [SPDX 3.0.1][spdx-3.0.1-reltype]
-  `hasDynamicLink` ("The `from` Element dynamically links in each `to`
-  Element") read the same way. The `FILE_MODIFIED` row has the opposite
-  error; it is not followed. Both rows are corrected in
-  [spdx/using#30][spdx-using-30].
+[2.3 to 3.0 translation table][spdx-2.3-to-3.0] (Using SPDX, "Differences
+between V3.0 and V2.3"; formerly SPDX 3.0 Annex A.1): same direction,
+reversed when the table says "Swap to and from? Y". For example,
+`A BUILD_DEPENDENCY_OF B` translates to `B dependsOn A`, so the checker goes
+from B to A. The one override: `DESCRIBES` and `DESCRIBED_BY` are followed
+between any elements in SPDX 2. SPDX 3 marks roots with `rootElement`
+instead, so `describes` is not followed there.
 
 **Q: The CLI output reports that a relationship points to a missing element.
 What does this mean?**
@@ -133,6 +128,5 @@ External elements are neither checked for conformance nor reported as
 floating.
 
 [spdx-2.3]: https://spdx.github.io/spdx-spec/v2.3.1/
-[spdx-3.0-a1]: https://github.com/spdx/using/blob/10e4b14c9cc5642aa4b4ce629e2b0560b771cf34/docs/diffs-from-previous-editions.md
+[spdx-2.3-to-3.0]: https://github.com/spdx/using/blob/80eba34d23f48e242a54a78b584e7a87ad2b9afa/docs/diff/v2.3-v3.0.md#translating-from-23-to-30-8
 [spdx-3.0.1-reltype]: https://spdx.github.io/spdx-spec/v3.0.1/model/Core/Vocabularies/RelationshipType/
-[spdx-using-30]: https://github.com/spdx/using/pull/30

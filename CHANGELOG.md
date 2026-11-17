@@ -34,7 +34,7 @@ and this project adheres to [Semantic Versioning][semver].
 
 ### Changed
 
-- Relationship directions follow the SPDX 3.0 Annex A.1 translation, and tool
+- Relationship directions follow the SPDX 2.3 to 3.0 translation table, and tool
   and provenance relationships are followed, so more components may be
   checked; see "Which relationships connect an element to the tree?" in
   `FAQ.md`

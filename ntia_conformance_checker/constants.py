@@ -54,22 +54,14 @@ SPDX3_RELATIONSHIP_TRAVERSAL: dict[str, TraversalDirection] = {
     "generates": TraversalDirection.REVERSE,
 }
 
-# Translation of SPDX 2.3 relationship types to SPDX 3.0, copied from the
-# "Relationship" table in SPDX 3.0 Annex A.1 "Differences between V3.0 and
-# V2.3": SPDX 2 type -> (SPDX 3 type, swap to and from?).
-# https://github.com/spdx/using/blob/10e4b14c9cc5642aa4b4ce629e2b0560b771cf34/docs/diffs-from-previous-editions.md
-# (spdx/using main branch, commit 10e4b14).
-# Checked against SPDX 2.3 clause 11.1 (Table 68) and the SPDX 3.0.1
-# RelationshipType descriptions, two rows disagree in direction:
-# - DYNAMIC_LINK is marked swapped, but "SPDXRef-A dynamically links to
-#   SPDXRef-B" and "The from Element dynamically links in each to Element"
-#   read the same way, as STATIC_LINK and hasStaticLink do.
-#   See SPDX2_RELATIONSHIP_TRAVERSAL_OVERRIDES.
-# - FILE_MODIFIED is not marked swapped, but "SPDXRef-A is a file that was
-#   modified from SPDXRef-B" reads as "B modifiedBy A".
-#   Traversal does not follow it.
-# Both rows are corrected in https://github.com/spdx/using/pull/30.
-# The table is copied as published, so that a later edition can be compared.
+# Translation of SPDX 2.3 relationship types to SPDX 3.0:
+# SPDX 2 type -> (SPDX 3 type, swap to and from?). Copied as published from
+# Using SPDX, "Differences between V3.0 and V2.3" > Structural Differences >
+# Relationship > "Translating from 2.3 to 3.0" (non-normative), at
+# spdx/using commit 80eba34, which corrects the DYNAMIC_LINK and
+# FILE_MODIFIED rows (spdx/using#30):
+# https://github.com/spdx/using/blob/80eba34d23f48e242a54a78b584e7a87ad2b9afa/docs/diff/v2.3-v3.0.md#translating-from-23-to-30-8
+# Earlier editions were SPDX 3.0 Annex A.1.
 SPDX2_TO_SPDX3_RELATIONSHIP_TYPES: dict[str, tuple[str, bool]] = {
     "AMENDS": ("amendedBy", True),
     "ANCESTOR_OF": ("ancestorOf", False),
@@ -89,12 +81,12 @@ SPDX2_TO_SPDX3_RELATIONSHIP_TYPES: dict[str, tuple[str, bool]] = {
     "DEV_TOOL_OF": ("usesTool", True),
     "DISTRIBUTION_ARTIFACT": ("hasDistributionArtifact", False),
     "DOCUMENTATION_OF": ("hasDocumentation", True),
-    "DYNAMIC_LINK": ("hasDynamicLink", True),
+    "DYNAMIC_LINK": ("hasDynamicLink", False),
     "EXAMPLE_OF": ("hasExample", True),
     "EXPANDED_FROM_ARCHIVE": ("expandsTo", True),
     "FILE_ADDED": ("hasAddedFile", True),
     "FILE_DELETED": ("hasDeletedFile", True),
-    "FILE_MODIFIED": ("modifiedBy", False),
+    "FILE_MODIFIED": ("modifiedBy", True),
     "GENERATED_FROM": ("generates", True),
     "GENERATES": ("generates", False),
     "HAS_PREREQUISITE": ("hasPrerequisite", False),
@@ -126,11 +118,9 @@ SPDX2_TO_SPDX3_RELATIONSHIP_TYPES: dict[str, tuple[str, bool]] = {
 #   "SPDXRef-A DESCRIBED_BY SPDXRef-DOCUMENT" (Table 68) mark roots, and
 #   between other elements they are followed from the describing element to
 #   the described one, so either form connects the same elements.
-# - DYNAMIC_LINK: the Annex A.1 row is marked swapped; Table 68 reads forward.
 SPDX2_RELATIONSHIP_TRAVERSAL_OVERRIDES: dict[str, TraversalDirection] = {
     "DESCRIBES": TraversalDirection.FORWARD,
     "DESCRIBED_BY": TraversalDirection.REVERSE,
-    "DYNAMIC_LINK": TraversalDirection.FORWARD,
 }
 
 
@@ -140,7 +130,8 @@ def _derive_spdx2_relationship_traversal() -> dict[str, TraversalDirection]:
 
     An SPDX 2 type is followed when its SPDX 3 translation is in
     ``SPDX3_RELATIONSHIP_TRAVERSAL``. Its direction is the SPDX 3 direction,
-    flipped when Annex A.1 swaps ``to`` and ``from``. This keeps SPDX 2 and
+    flipped when the translation table swaps ``to`` and ``from``. This keeps
+    SPDX 2 and
     SPDX 3 results the same for the same SBOM.
 
     Returns:

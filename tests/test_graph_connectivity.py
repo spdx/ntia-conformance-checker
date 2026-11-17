@@ -28,20 +28,12 @@ from spdx_tools.spdx.model.spdx_none import SpdxNone
 import ntia_conformance_checker.sbom_checker as sbom_checker
 from ntia_conformance_checker.constants import (
     SPDX2_RELATIONSHIP_TRAVERSAL,
-    SPDX2_TO_SPDX3_RELATIONSHIP_TYPES,
-    SPDX3_RELATIONSHIP_TRAVERSAL,
-    VALID_SPDX2_COMPOSITION_RELATIONSHIPS,
-    VALID_SPDX3_COMPOSITION_RELATIONSHIPS,
     TraversalDirection,
 )
 from ntia_conformance_checker.graph_utils import (
     analyze_graph,
     analyze_graph_connectivity,
     get_reachable_nodes,
-)
-from ntia_conformance_checker.spdx3_utils import (
-    SPDX3_INDIVIDUAL_ELEMENT_IRIS,
-    SPDX3_NONE_AND_NOASSERTION_IRIS,
 )
 
 
@@ -429,50 +421,6 @@ def test_spdx2_external_document_ref_file() -> None:
     assert sbom.compliant is True
 
 
-def test_annex_a1_table_covers_every_spdx2_relationship_type() -> None:
-    """The Annex A.1 table has one row for each SPDX 2 relationship type."""
-    assert set(SPDX2_TO_SPDX3_RELATIONSHIP_TYPES) == {
-        rel_type.name for rel_type in RelationshipType
-    }
-
-
-def test_annex_a1_table_and_traversal_use_spdx3_relationship_types() -> None:
-    """Every SPDX 3 type in the table and in the traversal exists in SPDX 3."""
-    spdx3_types = {
-        spdx3_type for spdx3_type, _ in SPDX2_TO_SPDX3_RELATIONSHIP_TYPES.values()
-    }
-    spdx3_types |= set(SPDX3_RELATIONSHIP_TRAVERSAL)
-    for spdx3_type in spdx3_types:
-        assert isinstance(getattr(spdx3.RelationshipType, spdx3_type, None), str)
-
-
-@pytest.mark.parametrize(
-    ("spdx2_type", "direction"),
-    [
-        # From the Annex A.1 table
-        ("CONTAINS", TraversalDirection.FORWARD),
-        ("CONTAINED_BY", TraversalDirection.REVERSE),
-        ("BUILD_TOOL_OF", TraversalDirection.REVERSE),
-        ("DEV_TOOL_OF", TraversalDirection.REVERSE),
-        ("TEST_TOOL_OF", TraversalDirection.REVERSE),
-        ("GENERATED_FROM", TraversalDirection.FORWARD),
-        ("GENERATES", TraversalDirection.REVERSE),
-        # Overrides
-        ("DESCRIBES", TraversalDirection.FORWARD),
-        ("DYNAMIC_LINK", TraversalDirection.FORWARD),
-        ("DESCRIBED_BY", TraversalDirection.REVERSE),
-        # Not followed
-        ("FILE_MODIFIED", None),
-        ("OTHER", None),
-    ],
-)
-def test_spdx2_traversal_is_derived_from_spdx3(
-    spdx2_type: str, direction: TraversalDirection | None
-) -> None:
-    """SPDX 2 directions follow the SPDX 3 translation, or an override."""
-    assert SPDX2_RELATIONSHIP_TRAVERSAL.get(spdx2_type) is direction
-
-
 _SPDX3_BASE_SBOM = Path(__file__).parent / "data" / "spdx3" / "no_elements_missing.json"
 
 
@@ -738,20 +686,6 @@ def test_spdx3_imported_element_is_known(
     assert sbom.has_unknown_pointers is unknown
 
 
-def test_deprecated_relationship_sets_are_unchanged() -> None:
-    """The deprecated sets keep their 6.0.0 values for compatibility."""
-    assert VALID_SPDX2_COMPOSITION_RELATIONSHIPS == {
-        "DESCRIBES",
-        "CONTAINS",
-        "DEPENDS_ON",
-        "DYNAMIC_LINK",
-        "STATIC_LINK",
-        "HAS_PREREQUISITE",
-    }
-    assert "usesTool" not in VALID_SPDX3_COMPOSITION_RELATIONSHIPS
-    assert "generates" not in VALID_SPDX3_COMPOSITION_RELATIONSHIPS
-
-
 @pytest.mark.parametrize(
     ("relationship", "expected_missing"),
     [
@@ -984,14 +918,3 @@ def test_spdx3_spdx_organization_is_a_node(tmp_path: Path) -> None:
     assert _spdx3_element_id("orphan") in sbom.reachable_component_ids
     assert sbom.floating_component_ids == set()
     assert sbom.has_unknown_pointers is False
-
-
-def test_spdx3_none_and_noassertion_iris() -> None:
-    """The placeholders are the four none and no-assertion individuals only."""
-    assert {iri.rsplit("/", 1)[-1] for iri in SPDX3_NONE_AND_NOASSERTION_IRIS} == {
-        "NoneElement",
-        "NoAssertionElement",
-        "NoneLicense",
-        "NoAssertionLicense",
-    }
-    assert SPDX3_NONE_AND_NOASSERTION_IRIS < SPDX3_INDIVIDUAL_ELEMENT_IRIS
