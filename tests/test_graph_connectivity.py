@@ -160,3 +160,24 @@ def test_spdx3_individuals_are_not_unknown_pointers(
     path.write_text(json.dumps(doc), encoding="utf-8")
     sbom = sbom_checker.SbomChecker(str(path), sbom_spec="spdx3")
     assert sbom.has_unknown_pointers is unknown
+
+
+def test_spdx3_trained_on_and_tested_on_reach_datasets() -> None:
+    """Datasets linked to a reachable model by trainedOn/testedOn are evaluated."""
+    test_file = os.path.join(
+        os.path.dirname(__file__),
+        "data",
+        "graph_connectivity",
+        "ai_training_dataset",
+        "ai_training_dataset_spdx3.json",
+    )
+    sbom = sbom_checker.SbomChecker(test_file, sbom_spec="spdx3")
+    assert not sbom.floating_component_ids
+    assert {
+        "https://example.com/dataset",
+        "https://example.com/test-dataset",
+    } <= sbom.reachable_component_ids
+    assert sbom.components_without_versions == [
+        ("TrainingData", "https://example.com/dataset")
+    ]
+    assert not sbom.compliant

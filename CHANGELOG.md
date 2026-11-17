@@ -19,6 +19,8 @@ and this project adheres to [Semantic Versioning][semver].
 
 - A relationship to an SPDX 3 individual such as `NoneElement` is no longer
   reported as pointing to a missing element ([#478])
+- SPDX 3 datasets linked to a model by `trainedOn` or `testedOn` are no
+  longer reported as floating and skipped by the component checks ([#486])
 
 ### Added
 
@@ -35,6 +37,7 @@ and this project adheres to [Semantic Versioning][semver].
   fails
 
 [#478]: https://github.com/spdx/ntia-conformance-checker/pull/478
+[#486]: https://github.com/spdx/ntia-conformance-checker/issues/486
 
 ## [6.0.0] - 2026-10-05
 
