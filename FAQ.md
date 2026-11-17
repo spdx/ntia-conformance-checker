@@ -70,14 +70,24 @@ Followed relationships:
 
 <!-- markdownlint-enable MD013 -->
 
-SPDX 3 types are walked A to B, except `generates`: "The `from` Element
-generates each `to` Element" ([SPDX 3.0.1][spdx-3.0.1-reltype]
-`RelationshipType`), and the checker goes from the product (`to`) to
-its source (`from`), as it goes from a product to its tool. `generates` is
-not a reverse type; the checker only walks it against its written
-direction. Other types, such
-as `DESCENDANT_OF`, `FILE_MODIFIED`, `OTHER` or `hasDataFile`, are not
-followed.
+SPDX 3 types are walked A to B, except `generates`. Tools and sources are
+inputs of a product, and the checker goes from a product to its inputs, as
+from a dependent to its dependencies, so that a product root reaches them.
+SPDX 3 writes `usesTool` from the product ("The `from` Element uses each
+`to` Element as a tool") but `generates` from the source ("The `from`
+Element generates each `to` Element"; [SPDX 3.0.1][spdx-3.0.1-reltype]
+`RelationshipType`). So `generates` is walked against its written
+direction; it is not a reverse type. It is not walked both ways, or a source
+shared by two products would link them.
+
+Following tools and sources at all is our reading, not a requirement. NTIA
+2021 (IV. Minimum Elements > Data Fields > Dependency Relationship) relates
+a component "included in" software, and CISA 2026 (Data Fields > Component
+Data > Component Dependency Relationship) one "necessary for the operation"
+of another. Following them means more components are checked.
+
+Other types, such as `DESCENDANT_OF`, `FILE_MODIFIED`, `OTHER` or
+`hasDataFile`, are not followed.
 
 SPDX 2.3 does not say which end of a relationship is the parent. The checker
 derives each SPDX 2 type from its SPDX 3 translation in the

@@ -49,13 +49,16 @@ SPDX3_RELATIONSHIP_TRAVERSAL: dict[str, TraversalDirection] = {
     "hasPrerequisite": TraversalDirection.ALONG,
     "hasOptionalDependency": TraversalDirection.ALONG,
     "hasProvidedDependency": TraversalDirection.ALONG,
-    # Tools: "The from Element uses each to Element as a tool".
-    # The from Element is the product, so traversal goes from it to the tool.
+    # Inputs: tools and sources go into making a product. Traversal goes from
+    # the product to its inputs, as from a dependent to its dependencies, so
+    # a product root reaches them. Following inputs at all is our reading,
+    # not a minimum elements requirement (see FAQ.md).
+    # usesTool, written from the product: "The from Element uses each to
+    # Element as a tool". Walked along.
     "usesTool": TraversalDirection.ALONG,
-    # Provenance: "The from Element generates each to Element".
-    # The to Element is the product and the from Element is its source.
-    # Traversal goes from the product to the source, so it walks generates
-    # against its written direction.
+    # generates, written from the source: "The from Element generates each
+    # to Element". Walked against, to go from the product to the source.
+    # Not walked both ways: a shared source would then link its products.
     "generates": TraversalDirection.AGAINST,
 }
 
