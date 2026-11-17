@@ -5,6 +5,7 @@
 """Graph utilities for SPDX 2 and SPDX 3."""
 
 import logging
+import re
 from typing import TYPE_CHECKING, Any, cast
 
 from spdx_python_model.bindings import v3_0_1 as spdx3
@@ -12,12 +13,93 @@ from spdx_tools.spdx.model.relationship import RelationshipType
 
 from .constants import (
     VALID_SPDX2_COMPOSITION_RELATIONSHIPS,
+    VALID_SPDX2_REVERSE_COMPOSITION_RELATIONSHIPS,
     VALID_SPDX3_COMPOSITION_RELATIONSHIPS,
 )
 from .spdx3_utils import SPDX3_INDIVIDUAL_ELEMENT_IRIS
 
 if TYPE_CHECKING:
     from spdx_tools.spdx.model.document import Document
+
+
+# SPDX 2 element ID: "SPDXRef-"[idstring], where idstring has letters,
+# numbers, "." and "-" (SPDX 2.3 clauses 7.2, 8.2, 9.1).
+_SPDX2_SPDXID_PATTERN = re.compile(r"SPDXRef-[A-Za-z0-9.\-]+")
+
+
+def _collect_spdx2_external_document_ref_ids(spdx2_doc: "Document") -> set[str]:
+    """
+    Retrieve the IDs of external documents declared in an SPDX 2 document.
+
+    These are the ``DocumentRef-<idstring>`` values of ``ExternalDocumentRef``
+    (SPDX 2.3 clause 6.6, External document references field).
+
+    Returns:
+        set[str]: Declared external document reference IDs.
+    """
+    creation_info = getattr(spdx2_doc, "creation_info", None)
+    ext_refs = getattr(creation_info, "external_document_refs", None) or []
+    return {
+        ref.document_ref_id
+        for ref in ext_refs
+        if isinstance(getattr(ref, "document_ref_id", None), str)
+    }
+
+
+def _is_spdx2_external_element_id(
+    element_id: str, external_doc_ref_ids: set[str]
+) -> bool:
+    """
+    Check whether an SPDX 2 element ID refers to an element in a declared external document.
+
+    SPDX 2.3 clause 11.1 (Table 69) writes an element in another document as
+    ``"DocumentRef-"[idstring]":"SPDXID``, where the prefix is "an optional
+    reference to an external SPDX Document as described in 6.6". Clause 6.6
+    declares the prefix in an ``ExternalDocumentRef``. The element is defined
+    in the external document, so it exists when its prefix is declared.
+
+    Args:
+        element_id: Element ID used in a relationship.
+        external_doc_ref_ids: Declared external document reference IDs.
+
+    Returns:
+        bool: True if the ID is ``<declared DocumentRef>:SPDXRef-<idstring>``.
+    """
+    doc_ref_id, separator, local_id = element_id.partition(":")
+    return (
+        bool(separator)
+        and doc_ref_id in external_doc_ref_ids
+        and _SPDX2_SPDXID_PATTERN.fullmatch(local_id) is not None
+    )
+
+
+def _collect_spdx2_external_element_ids(
+    spdx2_doc: "Document",
+    connection_map: dict[str, list[str]],
+    reachable_node_ids: set[str],
+) -> set[str]:
+    """
+    Retrieve the graph nodes that are elements in declared external documents.
+
+    These elements exist, but not in this document; see
+    ``_is_spdx2_external_element_id``.
+
+    Args:
+        spdx2_doc: Parsed SPDX 2 document.
+        connection_map: Edges from parent to children.
+        reachable_node_ids: Node IDs reachable from the roots.
+
+    Returns:
+        set[str]: External element IDs among the edge targets and the
+            reachable nodes.
+    """
+    external_doc_ref_ids = _collect_spdx2_external_document_ref_ids(spdx2_doc)
+    node_ids = reachable_node_ids.union(*connection_map.values())
+    return {
+        node_id
+        for node_id in node_ids
+        if _is_spdx2_external_element_id(node_id, external_doc_ref_ids)
+    }
 
 
 def _collect_spdx2_known_and_package_ids(
@@ -58,6 +140,10 @@ def _collect_spdx3_known_and_package_ids(
     """
     Retrieve all known object IDs and package IDs for SPDX 3.
 
+    Known IDs are the objects in the document, the SPDX 3 individuals such as
+    ``NoneElement``, and the elements that a collection imports: the
+    ``externalSpdxId`` of each ``ExternalMap`` in ``import``.
+
     Returns:
         tuple: (all_known_ids, all_package_ids)
     """
@@ -66,6 +152,12 @@ def _collect_spdx3_known_and_package_ids(
         for obj in object_set.objects
         if isinstance(getattr(obj, "spdxId", None), str)
     } | SPDX3_INDIVIDUAL_ELEMENT_IRIS  # NoneElement and the like need no definition
+    all_known_ids |= {
+        external_id
+        for obj in object_set.objects
+        for ext_map in getattr(obj, "import_", None) or []
+        if isinstance(external_id := getattr(ext_map, "externalSpdxId", None), str)
+    }
     package_ids = {
         getattr(obj, "spdxId")
         for obj in object_set.objects
@@ -99,8 +191,10 @@ def analyze_graph_connectivity(
     all_package_ids: set[str] = set()
 
     if sbom_spec == "spdx2":
-        all_known_ids, all_package_ids = _collect_spdx2_known_and_package_ids(
-            cast("Document", parsed_data)
+        spdx2_doc = cast("Document", parsed_data)
+        all_known_ids, all_package_ids = _collect_spdx2_known_and_package_ids(spdx2_doc)
+        all_known_ids |= _collect_spdx2_external_element_ids(
+            spdx2_doc, connection_map, reachable_node_ids
         )
     elif sbom_spec == "spdx3":
         all_known_ids, all_package_ids = _collect_spdx3_known_and_package_ids(
@@ -134,7 +228,14 @@ def analyze_graph_connectivity(
 
 
 def _build_spdx2_graph(spdx2_doc: "Document") -> tuple[list[str], dict[str, list[str]]]:
-    """Build the initial queue and connection map for SPDX 2."""
+    """
+    Build the initial queue and connection map for SPDX 2.
+
+    Edges point from parent to child. A forward relationship such as
+    ``A CONTAINS B`` adds an edge from A to B. A reverse relationship such as
+    ``B CONTAINED_BY A`` or ``B BUILD_DEPENDENCY_OF A`` also adds an edge
+    from A to B (see ``VALID_SPDX2_REVERSE_COMPOSITION_RELATIONSHIPS``).
+    """
     queue: list[str] = []
     graph_connection_map: dict[str, list[str]] = {}
 
@@ -168,10 +269,11 @@ def _build_spdx2_graph(spdx2_doc: "Document") -> tuple[list[str], dict[str, list
             queue.append(source_id)
 
         # Build the graph connection map
-        if rel.relationship_type.name in VALID_SPDX2_COMPOSITION_RELATIONSHIPS:
-            if source_id not in graph_connection_map:
-                graph_connection_map[source_id] = []
-            graph_connection_map[source_id].append(target_id)
+        rel_name = rel.relationship_type.name
+        if rel_name in VALID_SPDX2_COMPOSITION_RELATIONSHIPS:
+            graph_connection_map.setdefault(source_id, []).append(target_id)
+        elif rel_name in VALID_SPDX2_REVERSE_COMPOSITION_RELATIONSHIPS:
+            graph_connection_map.setdefault(target_id, []).append(source_id)
     return queue, graph_connection_map
 
 

@@ -1,0 +1,97 @@
+{
+  "SPDXID": "SPDXRef-DOCUMENT",
+  "spdxVersion": "SPDX-2.3",
+  "name": "SPDX2-Reverse-Relationship-Test",
+  "dataLicense": "CC0-1.0",
+  "documentNamespace": "https://example.com/spdxdocs/reverse-relationship",
+  "creationInfo": {
+    "creators": [
+      "Tool: ntia-conformance-checker-tests"
+    ],
+    "created": "2026-11-12T00:00:00Z"
+  },
+  "packages": [
+    {
+      "name": "app",
+      "SPDXID": "SPDXRef-Package-A",
+      "versionInfo": "1.0.0",
+      "supplier": "Organization: Test Supplier",
+      "downloadLocation": "NOASSERTION",
+      "filesAnalyzed": false,
+      "licenseConcluded": "CC0-1.0",
+      "licenseDeclared": "CC0-1.0",
+      "copyrightText": "Copyright 2026 SPDX contributors"
+    },
+    {
+      "name": "build-tool",
+      "SPDXID": "SPDXRef-Package-Tool",
+      "versionInfo": "1.0.0",
+      "supplier": "Organization: Test Supplier",
+      "downloadLocation": "NOASSERTION",
+      "filesAnalyzed": false,
+      "licenseConcluded": "CC0-1.0",
+      "licenseDeclared": "CC0-1.0",
+      "copyrightText": "Copyright 2026 SPDX contributors"
+    },
+    {
+      "name": "lib",
+      "SPDXID": "SPDXRef-Package-Lib",
+      "versionInfo": "1.0.0",
+      "supplier": "Organization: Test Supplier",
+      "downloadLocation": "NOASSERTION",
+      "filesAnalyzed": false,
+      "licenseConcluded": "CC0-1.0",
+      "licenseDeclared": "CC0-1.0",
+      "copyrightText": "Copyright 2026 SPDX contributors"
+    },
+    {
+      "name": "sub",
+      "SPDXID": "SPDXRef-Package-Sub",
+      "versionInfo": "1.0.0",
+      "supplier": "Organization: Test Supplier",
+      "downloadLocation": "NOASSERTION",
+      "filesAnalyzed": false,
+      "licenseConcluded": "CC0-1.0",
+      "licenseDeclared": "CC0-1.0",
+      "copyrightText": "Copyright 2026 SPDX contributors"
+    },
+    {
+      "name": "test-framework",
+      "SPDXID": "SPDXRef-Package-Test",
+      "versionInfo": "1.0.0",
+      "supplier": "Organization: Test Supplier",
+      "downloadLocation": "NOASSERTION",
+      "filesAnalyzed": false,
+      "licenseConcluded": "CC0-1.0",
+      "licenseDeclared": "CC0-1.0",
+      "copyrightText": "Copyright 2026 SPDX contributors"
+    }
+  ],
+  "relationships": [
+    {
+      "spdxElementId": "SPDXRef-DOCUMENT",
+      "relationshipType": "DESCRIBES",
+      "relatedSpdxElement": "SPDXRef-Package-A"
+    },
+    {
+      "spdxElementId": "SPDXRef-Package-Tool",
+      "relationshipType": "BUILD_DEPENDENCY_OF",
+      "relatedSpdxElement": "SPDXRef-Package-A"
+    },
+    {
+      "spdxElementId": "SPDXRef-Package-Lib",
+      "relationshipType": "DEPENDENCY_OF",
+      "relatedSpdxElement": "SPDXRef-Package-A"
+    },
+    {
+      "spdxElementId": "SPDXRef-Package-Sub",
+      "relationshipType": "CONTAINED_BY",
+      "relatedSpdxElement": "SPDXRef-Package-Lib"
+    },
+    {
+      "spdxElementId": "SPDXRef-Package-Test",
+      "relationshipType": "TEST_DEPENDENCY_OF",
+      "relatedSpdxElement": "SPDXRef-Package-Sub"
+    }
+  ]
+}

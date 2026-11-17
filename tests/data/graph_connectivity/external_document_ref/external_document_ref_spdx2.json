@@ -1,0 +1,48 @@
+{
+  "SPDXID": "SPDXRef-DOCUMENT",
+  "spdxVersion": "SPDX-2.3",
+  "name": "SPDX2-External-Document-Ref-Test",
+  "dataLicense": "CC0-1.0",
+  "documentNamespace": "https://example.com/spdxdocs/external-document-ref",
+  "creationInfo": {
+    "creators": [
+      "Tool: ntia-conformance-checker-tests"
+    ],
+    "created": "2026-11-12T00:00:00Z"
+  },
+  "packages": [
+    {
+      "name": "app",
+      "SPDXID": "SPDXRef-Package-A",
+      "versionInfo": "1.0.0",
+      "supplier": "Organization: Test Supplier",
+      "downloadLocation": "NOASSERTION",
+      "filesAnalyzed": false,
+      "licenseConcluded": "CC0-1.0",
+      "licenseDeclared": "CC0-1.0",
+      "copyrightText": "Copyright 2026 SPDX contributors"
+    }
+  ],
+  "relationships": [
+    {
+      "spdxElementId": "SPDXRef-DOCUMENT",
+      "relationshipType": "DESCRIBES",
+      "relatedSpdxElement": "SPDXRef-Package-A"
+    },
+    {
+      "spdxElementId": "SPDXRef-Package-A",
+      "relationshipType": "DEPENDS_ON",
+      "relatedSpdxElement": "DocumentRef-other:SPDXRef-Package-B"
+    }
+  ],
+  "externalDocumentRefs": [
+    {
+      "externalDocumentId": "DocumentRef-other",
+      "spdxDocument": "https://example.com/spdxdocs/other-1234",
+      "checksum": {
+        "algorithm": "SHA1",
+        "checksumValue": "d6a770ba38583ed4bb4525bd96e50461655d2759"
+      }
+    }
+  ]
+}

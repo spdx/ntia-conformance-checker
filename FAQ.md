@@ -31,3 +31,24 @@ are not connected to the primary software tree via relationships.
 The checker safely ignores these floating elements during compliance
 validation, but it is a sign that the tool which generated your SBOM may be
 leaving unlinked "garbage" data in the file.
+
+For SPDX 2, the checker follows `DESCRIBES`, `CONTAINS`, `DEPENDS_ON`,
+`DYNAMIC_LINK`, `STATIC_LINK` and `HAS_PREREQUISITE` from A to B in
+`A <type> B`, and their reverse forms `CONTAINED_BY`,
+`OPTIONAL_COMPONENT_OF`, `PACKAGE_OF`, `DEPENDENCY_OF`, `*_DEPENDENCY_OF` and
+`PREREQUISITE_FOR` from B to A ([SPDX 2.3][spdx-2.3] clause 11.1, Table 68).
+
+**Q: The CLI output reports that a relationship points to a missing element.
+What does this mean?**
+
+A: A relationship that the checker follows points to an element that the SBOM
+does not define. These are not missing:
+
+- An SPDX 2 element in another document, written
+  `DocumentRef-<id>:SPDXRef-<idstring>`, when `DocumentRef-<id>` is declared
+  in an `ExternalDocumentRef` (SPDX 2.3 clause 6.6, clause 11.1 Table 69).
+  The checker does not fetch the external document.
+- An SPDX 3 element in the `externalSpdxId` of an `ExternalMap` in an
+  `import`.
+
+[spdx-2.3]: https://spdx.github.io/spdx-spec/v2.3.1/
