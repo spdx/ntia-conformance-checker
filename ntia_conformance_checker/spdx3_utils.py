@@ -21,12 +21,12 @@ if TYPE_CHECKING:
     from collections.abc import Iterator
 
 
-#: IRIs of the SPDX 3.0.1 individuals that stand for no value or an unknown
-#: value, not for an element: Core/Individuals/NoneElement ("a set of Elements
-#: with cardinality (number/count) of zero"), NoAssertionElement ("a set of
-#: Elements of unknown identify or cardinality (number)"), and
-#: ExpandedLicensing/Individuals/NoneLicense ("no license is present") and
-#: NoAssertionLicense ("no assertion can be made about its actual value").
+#: SPDX 3.0.1 individuals for no value or an unknown value, not an element:
+#: Core NoneElement ("a set of Elements with cardinality (number/count) of
+#: zero"), NoAssertionElement ("a set of Elements of unknown identify or
+#: cardinality (number)"), ExpandedLicensing NoneLicense ("no license is
+#: present") and NoAssertionLicense ("no assertion can be made about its
+#: actual value").
 SPDX3_NONE_AND_NOASSERTION_IRIS: frozenset[str] = frozenset(
     iri
     for cls in (
@@ -36,9 +36,8 @@ SPDX3_NONE_AND_NOASSERTION_IRIS: frozenset[str] = frozenset(
     for iri in cls.NAMED_INDIVIDUALS.values()
 )
 
-#: IRIs of the SPDX 3.0.1 individuals that stand for an element, such as
-#: ``NoneElement`` (a relationship to nothing), ``NoAssertionLicense`` or
-#: ``SpdxOrganization``. A document refers to them without defining them.
+#: SPDX 3.0.1 individuals a document may refer to without defining them: the
+#: none and no-assertion values above, and ``SpdxOrganization``.
 SPDX3_INDIVIDUAL_ELEMENT_IRIS: frozenset[str] = (
     SPDX3_NONE_AND_NOASSERTION_IRIS
     | frozenset(spdx3.Organization.NAMED_INDIVIDUALS.values())

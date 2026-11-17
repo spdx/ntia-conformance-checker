@@ -16,27 +16,20 @@ SUPPORTED_SBOM_SPECS = set(SUPPORTED_SBOM_SPECS_DESC.keys())
 
 class TraversalDirection(Enum):
     """
-    Direction in which graph traversal walks a relationship type.
+    How traversal walks a relationship type, from parent to child.
 
-    Traversal goes from the parent (the element closer to the root) to the
-    child. ``ALONG`` walks a relationship in its written direction, from its
-    source (SPDX 2 ``spdxElementId``, SPDX 3 ``from``) to its target
-    (SPDX 2 ``relatedSpdxElement``, SPDX 3 ``to``). ``AGAINST`` walks it from
-    its target to its source.
-
-    This is a choice of the checker, not a property of the relationship
-    type: SPDX 3 relationship types all have one direction, and
-    ``generates`` is walked ``AGAINST`` only because the checker goes from a
-    product to its source.
+    ``ALONG`` walks it as written, from source (SPDX 2 ``spdxElementId``,
+    SPDX 3 ``from``) to target (``relatedSpdxElement``, ``to``); ``AGAINST``
+    walks it from target to source. This is the checker's choice, not a
+    property of the type: e.g. ``generates`` is not a reverse type.
     """
 
     ALONG = "along"
     AGAINST = "against"
 
 
-# SPDX 3 relationship types that connect an element to the graph,
-# with their traversal direction. Descriptions are from the SPDX 3.0.1
-# RelationshipType vocabulary.
+# SPDX 3 relationship types the traversal follows, with their direction.
+# Quotes: SPDX 3.0.1 Core/Vocabularies/RelationshipType.
 SPDX3_RELATIONSHIP_TRAVERSAL: dict[str, TraversalDirection] = {
     # Composition
     "contains": TraversalDirection.ALONG,
@@ -49,27 +42,21 @@ SPDX3_RELATIONSHIP_TRAVERSAL: dict[str, TraversalDirection] = {
     "hasPrerequisite": TraversalDirection.ALONG,
     "hasOptionalDependency": TraversalDirection.ALONG,
     "hasProvidedDependency": TraversalDirection.ALONG,
-    # Inputs: tools and sources go into making a product. Traversal goes from
-    # the product to its inputs, as from a dependent to its dependencies, so
-    # a product root reaches them. Following inputs at all is our reading,
-    # not a minimum elements requirement (see FAQ.md).
-    # usesTool, written from the product: "The from Element uses each to
-    # Element as a tool". Walked along.
+    # Inputs (tools, sources): walked from the product to the input, as for
+    # dependencies. Following them is our reading, not a minimum elements
+    # requirement (see FAQ.md).
+    # "The from Element uses each to Element as a tool": product first.
     "usesTool": TraversalDirection.ALONG,
-    # generates, written from the source: "The from Element generates each
-    # to Element". Walked against, to go from the product to the source.
-    # Not walked both ways: a shared source would then link its products.
+    # "The from Element generates each to Element": source first, so walked
+    # against. Not both ways, or a shared source would link its products.
     "generates": TraversalDirection.AGAINST,
 }
 
-# Translation of SPDX 2.3 relationship types to SPDX 3.0:
-# SPDX 2 type -> (SPDX 3 type, swap to and from?). Copied as published from
-# Using SPDX, "Differences between V3.0 and V2.3" > Structural Differences >
-# Relationship > "Translating from 2.3 to 3.0" (non-normative), at
-# spdx/using commit 80eba34, which corrects the DYNAMIC_LINK and
-# FILE_MODIFIED rows (spdx/using#30):
+# SPDX 2 type -> (SPDX 3 type, swap to and from?), copied as published from
+# Using SPDX, "Differences between V3.0 and V2.3" > Relationship >
+# "Translating from 2.3 to 3.0" (non-normative; formerly SPDX 3.0 Annex A.1)
+# at spdx/using 80eba34, with the rows corrected in spdx/using#30:
 # https://github.com/spdx/using/blob/80eba34d23f48e242a54a78b584e7a87ad2b9afa/docs/diff/v2.3-v3.0.md#translating-from-23-to-30-8
-# Earlier editions were SPDX 3.0 Annex A.1.
 SPDX2_TO_SPDX3_RELATIONSHIP_TYPES: dict[str, tuple[str, bool]] = {
     "AMENDS": ("amendedBy", True),
     "ANCESTOR_OF": ("ancestorOf", False),
@@ -118,14 +105,10 @@ SPDX2_TO_SPDX3_RELATIONSHIP_TYPES: dict[str, tuple[str, bool]] = {
     "VARIANT_OF": ("hasVariant", True),
 }
 
-# SPDX 2 relationship types whose traversal is not derived from
-# SPDX2_TO_SPDX3_RELATIONSHIP_TYPES:
-# - DESCRIBES and DESCRIBED_BY: SPDX 3 marks roots with rootElement, so
-#   describes is not in SPDX3_RELATIONSHIP_TRAVERSAL. SPDX 2 has no
-#   rootElement. "SPDXRef-DOCUMENT DESCRIBES SPDXRef-A" and
-#   "SPDXRef-A DESCRIBED_BY SPDXRef-DOCUMENT" (Table 68) mark roots, and
-#   between other elements they are followed from the describing element to
-#   the described one, so either form connects the same elements.
+# SPDX 2 types not derived from the table. SPDX 2 has no rootElement, so
+# DESCRIBES and DESCRIBED_BY mark roots (SPDX 2.3 §11.1 Table 68) and,
+# between other elements, are walked from describer to described; SPDX 3
+# does not follow describes.
 SPDX2_RELATIONSHIP_TRAVERSAL_OVERRIDES: dict[str, TraversalDirection] = {
     "DESCRIBES": TraversalDirection.ALONG,
     "DESCRIBED_BY": TraversalDirection.AGAINST,
@@ -136,10 +119,9 @@ def _derive_spdx2_relationship_traversal() -> dict[str, TraversalDirection]:
     """
     Derive SPDX 2 traversal directions from their SPDX 3 translations.
 
-    An SPDX 2 type is followed when its SPDX 3 translation is in
-    ``SPDX3_RELATIONSHIP_TRAVERSAL``. Its direction is the SPDX 3 direction,
-    flipped when the translation table swaps ``to`` and ``from``. This keeps
-    SPDX 2 and SPDX 3 results the same for the same SBOM.
+    An SPDX 2 type is followed if its SPDX 3 type is, in the same direction,
+    flipped when the table swaps ``to`` and ``from``, so SPDX 2 and SPDX 3
+    give the same result.
 
     Returns:
         dict[str, TraversalDirection]: SPDX 2 type name to direction.
@@ -157,16 +139,13 @@ def _derive_spdx2_relationship_traversal() -> dict[str, TraversalDirection]:
     return traversal
 
 
-# SPDX 2 relationship types that connect an element to the graph,
-# with their traversal direction.
+# SPDX 2 relationship types the traversal follows, with their direction.
 SPDX2_RELATIONSHIP_TRAVERSAL: dict[str, TraversalDirection] = (
     _derive_spdx2_relationship_traversal()
 )
 
-# Deprecated: the relationship types that version 6.0.0 followed, kept
-# unchanged for compatibility. The checker no longer uses them; use
-# SPDX2_RELATIONSHIP_TRAVERSAL and SPDX3_RELATIONSHIP_TRAVERSAL to get every
-# followed type with its direction.
+# Deprecated: the types 6.0.0 followed, unchanged and unused. Use
+# SPDX2_RELATIONSHIP_TRAVERSAL and SPDX3_RELATIONSHIP_TRAVERSAL.
 VALID_SPDX2_COMPOSITION_RELATIONSHIPS = {
     "DESCRIBES",
     "CONTAINS",

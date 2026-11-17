@@ -170,14 +170,11 @@ def _find_unknown_pointer_edges(
     written_relationships: list[tuple[str, str]], is_known: Callable[[str], bool]
 ) -> tuple[dict[str, list[str]], set[str]]:
     """
-    Find relationships, as written, that have a missing element at either end.
+    Find relationships, as written, with a missing element at either end.
 
-    This checks the graph shape, what the SBOM states, not the traversal.
-    ``written_relationships`` holds followed relationships and root
-    relationships as written in the document: (source, target). SPDX 2.3
-    clause 11.1 (Table 69) allows an element ID at both ends of a
-    relationship, so either end can be missing. The result keeps them as
-    written, whichever end is missing; the missing element IDs tell which.
+    This checks the graph shape, not the traversal. Either end can be an
+    element ID (SPDX 2.3 §11.1 Table 69), so either can be missing; the
+    missing element IDs tell which.
 
     Args:
         written_relationships: (source ID, target ID) pairs as written.
@@ -433,14 +430,10 @@ def _extract_spdx3_relationship_edges(
 
     written_relationships.extend((from_id, to_id) for to_id in to_ids)
 
-    # NoneElement, NoAssertionElement, NoneLicense and NoAssertionLicense
-    # stand for no value or an unknown value, not for an element (see
-    # SPDX3_NONE_AND_NOASSERTION_IRIS). Many unrelated relationships share
-    # each of them, so as graph nodes they would link unrelated elements.
-    # They get no traversal edges; their written relationships above still
-    # check the other end.
-    # Other individuals, such as SpdxOrganization, are one real element and
-    # stay nodes.
+    # None and no-assertion values (SPDX3_NONE_AND_NOASSERTION_IRIS) are not
+    # elements, and unrelated relationships share them, so they get no
+    # traversal edges; the written relationship still checks the other end.
+    # SpdxOrganization is one real element and stays a node.
     if from_id in SPDX3_NONE_AND_NOASSERTION_IRIS:
         return
     to_ids = [t for t in to_ids if t not in SPDX3_NONE_AND_NOASSERTION_IRIS]
