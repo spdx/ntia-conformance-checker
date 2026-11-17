@@ -23,6 +23,8 @@ and this project adheres to [Semantic Versioning][semver].
   components floating ([#481])
 - Elements in a declared SPDX 2 `ExternalDocumentRef` or an SPDX 3 `import`
   are no longer reported as missing ([#482])
+- SPDX 3 datasets linked to a model by `trainedOn` or `testedOn` are no
+  longer reported as floating and skipped by the component checks ([#486])
 
 ### Added
 
@@ -60,6 +62,7 @@ and this project adheres to [Semantic Versioning][semver].
 [#478]: https://github.com/spdx/ntia-conformance-checker/pull/478
 [#481]: https://github.com/spdx/ntia-conformance-checker/issues/481
 [#482]: https://github.com/spdx/ntia-conformance-checker/issues/482
+[#486]: https://github.com/spdx/ntia-conformance-checker/issues/486
 
 ## [6.0.0] - 2026-10-05
 

@@ -166,6 +166,9 @@ VALID_SPDX3_COMPOSITION_RELATIONSHIPS = {
     "hasPrerequisite",
     "hasOptionalDependency",
     "hasProvidedDependency",
+    # AI and Dataset
+    "trainedOn",
+    "testedOn",
 }
 
 SUPPORTED_COMPLIANCE_STANDARDS_DESC = {
