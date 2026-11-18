@@ -1,0 +1,294 @@
+<!DOCTYPE html>
+
+<html lang="en" data-content_root="../../">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>ntia_conformance_checker.constants &#8212; NTIA Conformance Checker  documentation</title>
+    <link rel="stylesheet" type="text/css" href="../../_static/pygments.css?v=5ecbeea2" />
+    <link rel="stylesheet" type="text/css" href="../../_static/basic.css?v=b08954a9" />
+    <link rel="stylesheet" type="text/css" href="../../_static/alabaster.css?v=27fed22d" />
+    <script src="../../_static/documentation_options.js?v=5929fcd5"></script>
+    <script src="../../_static/doctools.js?v=fd6eb6e6"></script>
+    <script src="../../_static/sphinx_highlight.js?v=6ffebe34"></script>
+    <link rel="index" title="Index" href="../../genindex.html" />
+    <link rel="search" title="Search" href="../../search.html" />
+   
+  <link rel="stylesheet" href="../../_static/custom.css" type="text/css" />
+  
+
+  
+  
+
+  </head><body>
+  
+
+    <div class="document">
+      <div class="documentwrapper">
+        <div class="bodywrapper">
+          
+
+          <div class="body" role="main">
+            
+  <h1>Source code for ntia_conformance_checker.constants</h1><div class="highlight"><pre>
+<span></span><span class="c1"># SPDX-FileCopyrightText: 2025 SPDX contributors</span>
+<span class="c1"># SPDX-FileType: SOURCE</span>
+<span class="c1"># SPDX-License-Identifier: Apache-2.0</span>
+
+<span class="sd">"""Constants."""</span>
+
+<span class="kn">from</span><span class="w"> </span><span class="nn">enum</span><span class="w"> </span><span class="kn">import</span> <span class="n">Enum</span>
+
+<span class="n">SUPPORTED_SBOM_SPECS_DESC</span> <span class="o">=</span> <span class="p">{</span>
+    <span class="s2">"spdx2"</span><span class="p">:</span> <span class="s2">"Software Package Data Exchange (SPDX) 2.x"</span><span class="p">,</span>
+    <span class="s2">"spdx3"</span><span class="p">:</span> <span class="s2">"System Package Data Exchange (SPDX) 3.x"</span><span class="p">,</span>
+<span class="p">}</span>
+<span class="n">DEFAULT_SBOM_SPEC</span> <span class="o">=</span> <span class="s2">"spdx2"</span>
+<span class="n">SUPPORTED_SBOM_SPECS</span> <span class="o">=</span> <span class="nb">set</span><span class="p">(</span><span class="n">SUPPORTED_SBOM_SPECS_DESC</span><span class="o">.</span><span class="n">keys</span><span class="p">())</span>
+
+
+<div class="viewcode-block" id="TraversalDirection">
+<a class="viewcode-back" href="../../ntia_conformance_checker.html#ntia_conformance_checker.constants.TraversalDirection">[docs]</a>
+<span class="k">class</span><span class="w"> </span><span class="nc">TraversalDirection</span><span class="p">(</span><span class="n">Enum</span><span class="p">):</span>
+<span class="w">    </span><span class="sd">"""</span>
+<span class="sd">    How traversal walks a relationship type, from parent to child.</span>
+
+<span class="sd">    ``ALONG`` walks it as written, from source (SPDX 2 ``spdxElementId``,</span>
+<span class="sd">    SPDX 3 ``from``) to target (``relatedSpdxElement``, ``to``); ``AGAINST``</span>
+<span class="sd">    walks it from target to source. This is the checker's choice, not a</span>
+<span class="sd">    property of the type: e.g. ``generates`` is not a reverse type.</span>
+<span class="sd">    """</span>
+
+    <span class="n">ALONG</span> <span class="o">=</span> <span class="s2">"along"</span>
+    <span class="n">AGAINST</span> <span class="o">=</span> <span class="s2">"against"</span></div>
+
+
+
+<span class="c1"># SPDX 3 relationship types the traversal follows, with their direction.</span>
+<span class="c1"># Quotes: SPDX 3.0.1 Core/Vocabularies/RelationshipType.</span>
+<span class="n">SPDX3_RELATIONSHIP_TRAVERSAL</span><span class="p">:</span> <span class="nb">dict</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="n">TraversalDirection</span><span class="p">]</span> <span class="o">=</span> <span class="p">{</span>
+    <span class="c1"># Composition</span>
+    <span class="s2">"contains"</span><span class="p">:</span> <span class="n">TraversalDirection</span><span class="o">.</span><span class="n">ALONG</span><span class="p">,</span>
+    <span class="s2">"hasOptionalComponent"</span><span class="p">:</span> <span class="n">TraversalDirection</span><span class="o">.</span><span class="n">ALONG</span><span class="p">,</span>
+    <span class="s2">"packagedBy"</span><span class="p">:</span> <span class="n">TraversalDirection</span><span class="o">.</span><span class="n">ALONG</span><span class="p">,</span>
+    <span class="c1"># Dependencies</span>
+    <span class="s2">"dependsOn"</span><span class="p">:</span> <span class="n">TraversalDirection</span><span class="o">.</span><span class="n">ALONG</span><span class="p">,</span>
+    <span class="s2">"hasDynamicLink"</span><span class="p">:</span> <span class="n">TraversalDirection</span><span class="o">.</span><span class="n">ALONG</span><span class="p">,</span>
+    <span class="s2">"hasStaticLink"</span><span class="p">:</span> <span class="n">TraversalDirection</span><span class="o">.</span><span class="n">ALONG</span><span class="p">,</span>
+    <span class="s2">"hasPrerequisite"</span><span class="p">:</span> <span class="n">TraversalDirection</span><span class="o">.</span><span class="n">ALONG</span><span class="p">,</span>
+    <span class="s2">"hasOptionalDependency"</span><span class="p">:</span> <span class="n">TraversalDirection</span><span class="o">.</span><span class="n">ALONG</span><span class="p">,</span>
+    <span class="s2">"hasProvidedDependency"</span><span class="p">:</span> <span class="n">TraversalDirection</span><span class="o">.</span><span class="n">ALONG</span><span class="p">,</span>
+    <span class="c1"># AI and dataset: "The from Element has been trained on (tested on) the</span>
+    <span class="c1"># to Element(s)": model first, walked from the model to the dataset.</span>
+    <span class="s2">"trainedOn"</span><span class="p">:</span> <span class="n">TraversalDirection</span><span class="o">.</span><span class="n">ALONG</span><span class="p">,</span>
+    <span class="s2">"testedOn"</span><span class="p">:</span> <span class="n">TraversalDirection</span><span class="o">.</span><span class="n">ALONG</span><span class="p">,</span>
+    <span class="c1"># Inputs (tools, sources): walked from the product to the input, as for</span>
+    <span class="c1"># dependencies. Following them is our reading, not a minimum elements</span>
+    <span class="c1"># requirement (see FAQ.md).</span>
+    <span class="c1"># "The from Element uses each to Element as a tool": product first.</span>
+    <span class="s2">"usesTool"</span><span class="p">:</span> <span class="n">TraversalDirection</span><span class="o">.</span><span class="n">ALONG</span><span class="p">,</span>
+    <span class="c1"># "The from Element generates each to Element": source first, so walked</span>
+    <span class="c1"># against. Not both ways, or a shared source would link its products.</span>
+    <span class="s2">"generates"</span><span class="p">:</span> <span class="n">TraversalDirection</span><span class="o">.</span><span class="n">AGAINST</span><span class="p">,</span>
+<span class="p">}</span>
+
+<span class="c1"># SPDX 2 type -&gt; (SPDX 3 type, swap to and from?), copied as published from</span>
+<span class="c1"># Using SPDX, "Differences between V3.0 and V2.3" &gt; Relationship &gt;</span>
+<span class="c1"># "Translating from 2.3 to 3.0" (non-normative; formerly SPDX 3.0 Annex A.1)</span>
+<span class="c1"># at spdx/using 80eba34, with the rows corrected in spdx/using#30:</span>
+<span class="c1"># https://github.com/spdx/using/blob/80eba34d23f48e242a54a78b584e7a87ad2b9afa/docs/diff/v2.3-v3.0.md#translating-from-23-to-30-8</span>
+<span class="n">SPDX2_TO_SPDX3_RELATIONSHIP_TYPES</span><span class="p">:</span> <span class="nb">dict</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="nb">tuple</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="nb">bool</span><span class="p">]]</span> <span class="o">=</span> <span class="p">{</span>
+    <span class="s2">"AMENDS"</span><span class="p">:</span> <span class="p">(</span><span class="s2">"amendedBy"</span><span class="p">,</span> <span class="kc">True</span><span class="p">),</span>
+    <span class="s2">"ANCESTOR_OF"</span><span class="p">:</span> <span class="p">(</span><span class="s2">"ancestorOf"</span><span class="p">,</span> <span class="kc">False</span><span class="p">),</span>
+    <span class="s2">"BUILD_DEPENDENCY_OF"</span><span class="p">:</span> <span class="p">(</span><span class="s2">"dependsOn"</span><span class="p">,</span> <span class="kc">True</span><span class="p">),</span>
+    <span class="s2">"BUILD_TOOL_OF"</span><span class="p">:</span> <span class="p">(</span><span class="s2">"usesTool"</span><span class="p">,</span> <span class="kc">True</span><span class="p">),</span>
+    <span class="s2">"CONTAINED_BY"</span><span class="p">:</span> <span class="p">(</span><span class="s2">"contains"</span><span class="p">,</span> <span class="kc">True</span><span class="p">),</span>
+    <span class="s2">"CONTAINS"</span><span class="p">:</span> <span class="p">(</span><span class="s2">"contains"</span><span class="p">,</span> <span class="kc">False</span><span class="p">),</span>
+    <span class="s2">"COPY_OF"</span><span class="p">:</span> <span class="p">(</span><span class="s2">"copiedTo"</span><span class="p">,</span> <span class="kc">True</span><span class="p">),</span>
+    <span class="s2">"DATA_FILE_OF"</span><span class="p">:</span> <span class="p">(</span><span class="s2">"hasDataFile"</span><span class="p">,</span> <span class="kc">True</span><span class="p">),</span>
+    <span class="s2">"DEPENDENCY_MANIFEST_OF"</span><span class="p">:</span> <span class="p">(</span><span class="s2">"hasDependencyManifest"</span><span class="p">,</span> <span class="kc">True</span><span class="p">),</span>
+    <span class="s2">"DEPENDENCY_OF"</span><span class="p">:</span> <span class="p">(</span><span class="s2">"dependsOn"</span><span class="p">,</span> <span class="kc">True</span><span class="p">),</span>
+    <span class="s2">"DEPENDS_ON"</span><span class="p">:</span> <span class="p">(</span><span class="s2">"dependsOn"</span><span class="p">,</span> <span class="kc">False</span><span class="p">),</span>
+    <span class="s2">"DESCENDANT_OF"</span><span class="p">:</span> <span class="p">(</span><span class="s2">"descendantOf"</span><span class="p">,</span> <span class="kc">False</span><span class="p">),</span>
+    <span class="s2">"DESCRIBED_BY"</span><span class="p">:</span> <span class="p">(</span><span class="s2">"describes"</span><span class="p">,</span> <span class="kc">True</span><span class="p">),</span>
+    <span class="s2">"DESCRIBES"</span><span class="p">:</span> <span class="p">(</span><span class="s2">"describes"</span><span class="p">,</span> <span class="kc">False</span><span class="p">),</span>
+    <span class="s2">"DEV_DEPENDENCY_OF"</span><span class="p">:</span> <span class="p">(</span><span class="s2">"dependsOn"</span><span class="p">,</span> <span class="kc">True</span><span class="p">),</span>
+    <span class="s2">"DEV_TOOL_OF"</span><span class="p">:</span> <span class="p">(</span><span class="s2">"usesTool"</span><span class="p">,</span> <span class="kc">True</span><span class="p">),</span>
+    <span class="s2">"DISTRIBUTION_ARTIFACT"</span><span class="p">:</span> <span class="p">(</span><span class="s2">"hasDistributionArtifact"</span><span class="p">,</span> <span class="kc">False</span><span class="p">),</span>
+    <span class="s2">"DOCUMENTATION_OF"</span><span class="p">:</span> <span class="p">(</span><span class="s2">"hasDocumentation"</span><span class="p">,</span> <span class="kc">True</span><span class="p">),</span>
+    <span class="s2">"DYNAMIC_LINK"</span><span class="p">:</span> <span class="p">(</span><span class="s2">"hasDynamicLink"</span><span class="p">,</span> <span class="kc">False</span><span class="p">),</span>
+    <span class="s2">"EXAMPLE_OF"</span><span class="p">:</span> <span class="p">(</span><span class="s2">"hasExample"</span><span class="p">,</span> <span class="kc">True</span><span class="p">),</span>
+    <span class="s2">"EXPANDED_FROM_ARCHIVE"</span><span class="p">:</span> <span class="p">(</span><span class="s2">"expandsTo"</span><span class="p">,</span> <span class="kc">True</span><span class="p">),</span>
+    <span class="s2">"FILE_ADDED"</span><span class="p">:</span> <span class="p">(</span><span class="s2">"hasAddedFile"</span><span class="p">,</span> <span class="kc">True</span><span class="p">),</span>
+    <span class="s2">"FILE_DELETED"</span><span class="p">:</span> <span class="p">(</span><span class="s2">"hasDeletedFile"</span><span class="p">,</span> <span class="kc">True</span><span class="p">),</span>
+    <span class="s2">"FILE_MODIFIED"</span><span class="p">:</span> <span class="p">(</span><span class="s2">"modifiedBy"</span><span class="p">,</span> <span class="kc">True</span><span class="p">),</span>
+    <span class="s2">"GENERATED_FROM"</span><span class="p">:</span> <span class="p">(</span><span class="s2">"generates"</span><span class="p">,</span> <span class="kc">True</span><span class="p">),</span>
+    <span class="s2">"GENERATES"</span><span class="p">:</span> <span class="p">(</span><span class="s2">"generates"</span><span class="p">,</span> <span class="kc">False</span><span class="p">),</span>
+    <span class="s2">"HAS_PREREQUISITE"</span><span class="p">:</span> <span class="p">(</span><span class="s2">"hasPrerequisite"</span><span class="p">,</span> <span class="kc">False</span><span class="p">),</span>
+    <span class="s2">"METAFILE_OF"</span><span class="p">:</span> <span class="p">(</span><span class="s2">"hasMetadata"</span><span class="p">,</span> <span class="kc">True</span><span class="p">),</span>
+    <span class="s2">"OPTIONAL_COMPONENT_OF"</span><span class="p">:</span> <span class="p">(</span><span class="s2">"hasOptionalComponent"</span><span class="p">,</span> <span class="kc">True</span><span class="p">),</span>
+    <span class="s2">"OPTIONAL_DEPENDENCY_OF"</span><span class="p">:</span> <span class="p">(</span><span class="s2">"hasOptionalDependency"</span><span class="p">,</span> <span class="kc">True</span><span class="p">),</span>
+    <span class="s2">"OTHER"</span><span class="p">:</span> <span class="p">(</span><span class="s2">"other"</span><span class="p">,</span> <span class="kc">False</span><span class="p">),</span>
+    <span class="s2">"PACKAGE_OF"</span><span class="p">:</span> <span class="p">(</span><span class="s2">"packagedBy"</span><span class="p">,</span> <span class="kc">True</span><span class="p">),</span>
+    <span class="s2">"PATCH_FOR"</span><span class="p">:</span> <span class="p">(</span><span class="s2">"patchedBy"</span><span class="p">,</span> <span class="kc">True</span><span class="p">),</span>
+    <span class="s2">"PATCH_APPLIED"</span><span class="p">:</span> <span class="p">(</span><span class="s2">"patchedBy"</span><span class="p">,</span> <span class="kc">True</span><span class="p">),</span>
+    <span class="s2">"PREREQUISITE_FOR"</span><span class="p">:</span> <span class="p">(</span><span class="s2">"hasPrerequisite"</span><span class="p">,</span> <span class="kc">True</span><span class="p">),</span>
+    <span class="s2">"PROVIDED_DEPENDENCY_OF"</span><span class="p">:</span> <span class="p">(</span><span class="s2">"hasProvidedDependency"</span><span class="p">,</span> <span class="kc">True</span><span class="p">),</span>
+    <span class="s2">"REQUIREMENT_DESCRIPTION_FOR"</span><span class="p">:</span> <span class="p">(</span><span class="s2">"hasRequirement"</span><span class="p">,</span> <span class="kc">True</span><span class="p">),</span>
+    <span class="s2">"RUNTIME_DEPENDENCY_OF"</span><span class="p">:</span> <span class="p">(</span><span class="s2">"dependsOn"</span><span class="p">,</span> <span class="kc">True</span><span class="p">),</span>
+    <span class="s2">"SPECIFICATION_FOR"</span><span class="p">:</span> <span class="p">(</span><span class="s2">"hasSpecification"</span><span class="p">,</span> <span class="kc">True</span><span class="p">),</span>
+    <span class="s2">"STATIC_LINK"</span><span class="p">:</span> <span class="p">(</span><span class="s2">"hasStaticLink"</span><span class="p">,</span> <span class="kc">False</span><span class="p">),</span>
+    <span class="s2">"TEST_CASE_OF"</span><span class="p">:</span> <span class="p">(</span><span class="s2">"hasTestCase"</span><span class="p">,</span> <span class="kc">True</span><span class="p">),</span>
+    <span class="s2">"TEST_DEPENDENCY_OF"</span><span class="p">:</span> <span class="p">(</span><span class="s2">"dependsOn"</span><span class="p">,</span> <span class="kc">True</span><span class="p">),</span>
+    <span class="s2">"TEST_OF"</span><span class="p">:</span> <span class="p">(</span><span class="s2">"hasTest"</span><span class="p">,</span> <span class="kc">True</span><span class="p">),</span>
+    <span class="s2">"TEST_TOOL_OF"</span><span class="p">:</span> <span class="p">(</span><span class="s2">"usesTool"</span><span class="p">,</span> <span class="kc">True</span><span class="p">),</span>
+    <span class="s2">"VARIANT_OF"</span><span class="p">:</span> <span class="p">(</span><span class="s2">"hasVariant"</span><span class="p">,</span> <span class="kc">True</span><span class="p">),</span>
+<span class="p">}</span>
+
+<span class="c1"># SPDX 2 types not derived from the table. SPDX 2 has no rootElement, so</span>
+<span class="c1"># DESCRIBES and DESCRIBED_BY mark roots (SPDX 2.3 §11.1 Table 68) and,</span>
+<span class="c1"># between other elements, are walked from describer to described; SPDX 3</span>
+<span class="c1"># does not follow describes.</span>
+<span class="n">SPDX2_RELATIONSHIP_TRAVERSAL_OVERRIDES</span><span class="p">:</span> <span class="nb">dict</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="n">TraversalDirection</span><span class="p">]</span> <span class="o">=</span> <span class="p">{</span>
+    <span class="s2">"DESCRIBES"</span><span class="p">:</span> <span class="n">TraversalDirection</span><span class="o">.</span><span class="n">ALONG</span><span class="p">,</span>
+    <span class="s2">"DESCRIBED_BY"</span><span class="p">:</span> <span class="n">TraversalDirection</span><span class="o">.</span><span class="n">AGAINST</span><span class="p">,</span>
+<span class="p">}</span>
+
+
+<span class="k">def</span><span class="w"> </span><span class="nf">_derive_spdx2_relationship_traversal</span><span class="p">()</span> <span class="o">-&gt;</span> <span class="nb">dict</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="n">TraversalDirection</span><span class="p">]:</span>
+<span class="w">    </span><span class="sd">"""</span>
+<span class="sd">    Derive SPDX 2 traversal directions from their SPDX 3 translations.</span>
+
+<span class="sd">    An SPDX 2 type is followed if its SPDX 3 type is, in the same direction,</span>
+<span class="sd">    flipped when the table swaps ``to`` and ``from``, so SPDX 2 and SPDX 3</span>
+<span class="sd">    give the same result.</span>
+
+<span class="sd">    Returns:</span>
+<span class="sd">        dict[str, TraversalDirection]: SPDX 2 type name to direction.</span>
+<span class="sd">    """</span>
+    <span class="n">flipped</span> <span class="o">=</span> <span class="p">{</span>
+        <span class="n">TraversalDirection</span><span class="o">.</span><span class="n">ALONG</span><span class="p">:</span> <span class="n">TraversalDirection</span><span class="o">.</span><span class="n">AGAINST</span><span class="p">,</span>
+        <span class="n">TraversalDirection</span><span class="o">.</span><span class="n">AGAINST</span><span class="p">:</span> <span class="n">TraversalDirection</span><span class="o">.</span><span class="n">ALONG</span><span class="p">,</span>
+    <span class="p">}</span>
+    <span class="n">traversal</span><span class="p">:</span> <span class="nb">dict</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="n">TraversalDirection</span><span class="p">]</span> <span class="o">=</span> <span class="p">{}</span>
+    <span class="k">for</span> <span class="n">spdx2_type</span><span class="p">,</span> <span class="p">(</span><span class="n">spdx3_type</span><span class="p">,</span> <span class="n">swap</span><span class="p">)</span> <span class="ow">in</span> <span class="n">SPDX2_TO_SPDX3_RELATIONSHIP_TYPES</span><span class="o">.</span><span class="n">items</span><span class="p">():</span>
+        <span class="n">direction</span> <span class="o">=</span> <span class="n">SPDX3_RELATIONSHIP_TRAVERSAL</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="n">spdx3_type</span><span class="p">)</span>
+        <span class="k">if</span> <span class="n">direction</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
+            <span class="n">traversal</span><span class="p">[</span><span class="n">spdx2_type</span><span class="p">]</span> <span class="o">=</span> <span class="n">flipped</span><span class="p">[</span><span class="n">direction</span><span class="p">]</span> <span class="k">if</span> <span class="n">swap</span> <span class="k">else</span> <span class="n">direction</span>
+    <span class="n">traversal</span><span class="o">.</span><span class="n">update</span><span class="p">(</span><span class="n">SPDX2_RELATIONSHIP_TRAVERSAL_OVERRIDES</span><span class="p">)</span>
+    <span class="k">return</span> <span class="n">traversal</span>
+
+
+<span class="c1"># SPDX 2 relationship types the traversal follows, with their direction.</span>
+<span class="n">SPDX2_RELATIONSHIP_TRAVERSAL</span><span class="p">:</span> <span class="nb">dict</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="n">TraversalDirection</span><span class="p">]</span> <span class="o">=</span> <span class="p">(</span>
+    <span class="n">_derive_spdx2_relationship_traversal</span><span class="p">()</span>
+<span class="p">)</span>
+
+<span class="c1"># Deprecated: the types 6.0.0 followed, unchanged and unused. Use</span>
+<span class="c1"># SPDX2_RELATIONSHIP_TRAVERSAL and SPDX3_RELATIONSHIP_TRAVERSAL.</span>
+<span class="n">VALID_SPDX2_COMPOSITION_RELATIONSHIPS</span> <span class="o">=</span> <span class="p">{</span>
+    <span class="s2">"DESCRIBES"</span><span class="p">,</span>
+    <span class="s2">"CONTAINS"</span><span class="p">,</span>
+    <span class="s2">"DEPENDS_ON"</span><span class="p">,</span>
+    <span class="s2">"DYNAMIC_LINK"</span><span class="p">,</span>
+    <span class="s2">"STATIC_LINK"</span><span class="p">,</span>
+    <span class="s2">"HAS_PREREQUISITE"</span><span class="p">,</span>
+<span class="p">}</span>
+<span class="n">VALID_SPDX3_COMPOSITION_RELATIONSHIPS</span> <span class="o">=</span> <span class="p">{</span>
+    <span class="c1"># Composition</span>
+    <span class="s2">"contains"</span><span class="p">,</span>
+    <span class="s2">"hasOptionalComponent"</span><span class="p">,</span>
+    <span class="s2">"packagedBy"</span><span class="p">,</span>
+    <span class="c1"># Dependencies</span>
+    <span class="s2">"dependsOn"</span><span class="p">,</span>
+    <span class="s2">"hasDynamicLink"</span><span class="p">,</span>
+    <span class="s2">"hasStaticLink"</span><span class="p">,</span>
+    <span class="s2">"hasPrerequisite"</span><span class="p">,</span>
+    <span class="s2">"hasOptionalDependency"</span><span class="p">,</span>
+    <span class="s2">"hasProvidedDependency"</span><span class="p">,</span>
+<span class="p">}</span>
+
+<span class="n">SUPPORTED_COMPLIANCE_STANDARDS_DESC</span> <span class="o">=</span> <span class="p">{</span>
+    <span class="c1"># "cisasbom2025": "2025 CISA SBOM Minimum Elements",</span>
+    <span class="c1"># https://www.cisa.gov/resources-tools/resources/2025-minimum-elements-software-bill-materials-sbom</span>
+    <span class="s2">"bsi"</span><span class="p">:</span> <span class="s2">"BSI TR-03183-2 v2.1.0 Cyber Resilience Requirements for Manufacturers and Products"</span><span class="p">,</span>
+    <span class="s2">"fsct3-min"</span><span class="p">:</span> <span class="s2">"2024 CISA Framing Software Component Transparency (minimum expectation)"</span><span class="p">,</span>
+    <span class="s2">"ntia"</span><span class="p">:</span> <span class="s2">"2021 NTIA SBOM Minimum Elements"</span><span class="p">,</span>
+<span class="p">}</span>
+<span class="n">DEFAULT_COMPLIANCE_STANDARD</span> <span class="o">=</span> <span class="s2">"ntia"</span>
+<span class="n">SUPPORTED_COMPLIANCE_STANDARDS</span> <span class="o">=</span> <span class="nb">set</span><span class="p">(</span><span class="n">SUPPORTED_COMPLIANCE_STANDARDS_DESC</span><span class="o">.</span><span class="n">keys</span><span class="p">())</span>
+
+<span class="n">SUPPORTED_SPDX_VERSIONS</span> <span class="o">=</span> <span class="p">{(</span><span class="mi">2</span><span class="p">,</span> <span class="mi">2</span><span class="p">),</span> <span class="p">(</span><span class="mi">2</span><span class="p">,</span> <span class="mi">3</span><span class="p">),</span> <span class="p">(</span><span class="mi">3</span><span class="p">,</span> <span class="mi">0</span><span class="p">)}</span>  <span class="c1"># (Major, Minor)</span>
+<span class="n">SUPPORTED_SPDX2_VERSION_STRINGS</span> <span class="o">=</span> <span class="p">{</span>
+    <span class="sa">f</span><span class="s2">"SPDX-</span><span class="si">{</span><span class="n">maj</span><span class="si">}</span><span class="s2">.</span><span class="si">{</span><span class="nb">min</span><span class="si">}</span><span class="s2">"</span> <span class="k">for</span> <span class="p">(</span><span class="n">maj</span><span class="p">,</span> <span class="nb">min</span><span class="p">)</span> <span class="ow">in</span> <span class="n">SUPPORTED_SPDX_VERSIONS</span> <span class="k">if</span> <span class="n">maj</span> <span class="o">==</span> <span class="mi">2</span>
+<span class="p">}</span>  <span class="c1"># e.g. "SPDX-2.2", "SPDX-2.3"</span>
+<span class="n">SUPPORTED_SPDX3_VERSION_STRINGS</span> <span class="o">=</span> <span class="p">{</span>
+    <span class="sa">f</span><span class="s2">"</span><span class="si">{</span><span class="n">maj</span><span class="si">}</span><span class="s2">.</span><span class="si">{</span><span class="nb">min</span><span class="si">}</span><span class="s2">"</span> <span class="k">for</span> <span class="p">(</span><span class="n">maj</span><span class="p">,</span> <span class="nb">min</span><span class="p">)</span> <span class="ow">in</span> <span class="n">SUPPORTED_SPDX_VERSIONS</span> <span class="k">if</span> <span class="n">maj</span> <span class="o">==</span> <span class="mi">3</span>
+<span class="p">}</span>  <span class="c1"># e.g. "3.0"</span>
+</pre></div>
+
+          </div>
+          
+        </div>
+      </div>
+      <div class="sphinxsidebar" role="navigation" aria-label="Main">
+        <div class="sphinxsidebarwrapper">
+<h1 class="logo"><a href="../../index.html">NTIA Conformance Checker</a></h1>
+
+
+
+
+
+
+
+
+
+<search id="searchbox" style="display: none" role="search">
+    <div class="searchformwrapper">
+    <form class="search" action="../../search.html" method="get">
+      <input type="text" name="q" aria-labelledby="searchlabel" autocomplete="off" autocorrect="off" autocapitalize="off" spellcheck="false" placeholder="Search"/>
+      <input type="submit" value="Go" />
+    </form>
+    </div>
+</search>
+<script>document.getElementById('searchbox').style.display = "block"</script><h3>Navigation</h3>
+<p class="caption" role="heading"><span class="caption-text">Contents:</span></p>
+<ul>
+<li class="toctree-l1"><a class="reference internal" href="../../modules.html">ntia_conformance_checker</a></li>
+</ul>
+
+<div class="relations">
+<h3>Related Topics</h3>
+<ul>
+  <li><a href="../../index.html">Documentation overview</a><ul>
+  <li><a href="../index.html">Module code</a><ul>
+  </ul></li>
+  </ul></li>
+</ul>
+</div>
+
+
+
+
+
+
+
+
+        </div>
+      </div>
+      <div class="clearer"></div>
+    </div>
+    <div class="footer">
+      &#169;2022-2026 SPDX contributors.
+      
+      |
+      Powered by <a href="https://www.sphinx-doc.org/">Sphinx 9.1.1</a>
+      &amp; <a href="https://alabaster.readthedocs.io">Alabaster 1.0.0</a>
+      
+    </div>
+
+    
+
+    
+  </body>
+</html>

@@ -791,6 +791,27 @@ Returns None if the version cannot be determined.</p>
 <section id="module-ntia_conformance_checker.constants">
 <span id="ntia-conformance-checker-constants-module"></span><h2>ntia_conformance_checker.constants module<a class="headerlink" href="#module-ntia_conformance_checker.constants" title="Link to this heading">¶</a></h2>
 <p>Constants.</p>
+<dl class="py class">
+<dt class="sig sig-object py" id="ntia_conformance_checker.constants.TraversalDirection">
+<span class="property"><span class="k"><span class="pre">class</span></span><span class="w"> </span></span><span class="sig-prename descclassname"><span class="pre">ntia_conformance_checker.constants.</span></span><span class="sig-name descname"><span class="pre">TraversalDirection</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="o"><span class="pre">*</span></span><span class="n"><span class="pre">values</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/ntia_conformance_checker/constants.html#TraversalDirection"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#ntia_conformance_checker.constants.TraversalDirection" title="Link to this definition">¶</a></dt>
+<dd><p>Bases: <code class="xref py py-class docutils literal notranslate"><span class="pre">Enum</span></code></p>
+<p>How traversal walks a relationship type, from parent to child.</p>
+<p><code class="docutils literal notranslate"><span class="pre">ALONG</span></code> walks it as written, from source (SPDX 2 <code class="docutils literal notranslate"><span class="pre">spdxElementId</span></code>,
+SPDX 3 <code class="docutils literal notranslate"><span class="pre">from</span></code>) to target (<code class="docutils literal notranslate"><span class="pre">relatedSpdxElement</span></code>, <code class="docutils literal notranslate"><span class="pre">to</span></code>); <code class="docutils literal notranslate"><span class="pre">AGAINST</span></code>
+walks it from target to source. This is the checker’s choice, not a
+property of the type: e.g. <code class="docutils literal notranslate"><span class="pre">generates</span></code> is not a reverse type.</p>
+<dl class="py attribute">
+<dt class="sig sig-object py" id="ntia_conformance_checker.constants.TraversalDirection.AGAINST">
+<span class="sig-name descname"><span class="pre">AGAINST</span></span><span class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">'against'</span></span><a class="headerlink" href="#ntia_conformance_checker.constants.TraversalDirection.AGAINST" title="Link to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="ntia_conformance_checker.constants.TraversalDirection.ALONG">
+<span class="sig-name descname"><span class="pre">ALONG</span></span><span class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">'along'</span></span><a class="headerlink" href="#ntia_conformance_checker.constants.TraversalDirection.ALONG" title="Link to this definition">¶</a></dt>
+<dd></dd></dl>
+
+</dd></dl>
+
 </section>
 <section id="module-ntia_conformance_checker.fsct_checker">
 <span id="ntia-conformance-checker-fsct-checker-module"></span><h2>ntia_conformance_checker.fsct_checker module<a class="headerlink" href="#module-ntia_conformance_checker.fsct_checker" title="Link to this heading">¶</a></h2>
@@ -827,17 +848,119 @@ and Aspirational Goal) for content provided in Attribute entries.</p>
 <section id="module-ntia_conformance_checker.graph_utils">
 <span id="ntia-conformance-checker-graph-utils-module"></span><h2>ntia_conformance_checker.graph_utils module<a class="headerlink" href="#module-ntia_conformance_checker.graph_utils" title="Link to this heading">¶</a></h2>
 <p>Graph utilities for SPDX 2 and SPDX 3.</p>
+<dl class="py class">
+<dt class="sig sig-object py" id="ntia_conformance_checker.graph_utils.GraphConnectivity">
+<span class="property"><span class="k"><span class="pre">class</span></span><span class="w"> </span></span><span class="sig-prename descclassname"><span class="pre">ntia_conformance_checker.graph_utils.</span></span><span class="sig-name descname"><span class="pre">GraphConnectivity</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">reachable_component_ids</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">set</span><span class="p"><span class="pre">[</span></span><span class="pre">str</span><span class="p"><span class="pre">]</span></span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">&lt;factory&gt;</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">floating_component_ids</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">set</span><span class="p"><span class="pre">[</span></span><span class="pre">str</span><span class="p"><span class="pre">]</span></span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">&lt;factory&gt;</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">unknown_pointer_edges</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">dict[str</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">list[str]]</span></span><span class="o"><span class="pre">=</span></span><span class="default_value"><span class="pre">&lt;factory&gt;</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">missing_element_ids</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">set</span><span class="p"><span class="pre">[</span></span><span class="pre">str</span><span class="p"><span class="pre">]</span></span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">&lt;factory&gt;</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/ntia_conformance_checker/graph_utils.html#GraphConnectivity"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#ntia_conformance_checker.graph_utils.GraphConnectivity" title="Link to this definition">¶</a></dt>
+<dd><p>Bases: <code class="xref py py-class docutils literal notranslate"><span class="pre">object</span></code></p>
+<p>Result of a graph connectivity analysis.</p>
+<dl class="py attribute">
+<dt class="sig sig-object py" id="ntia_conformance_checker.graph_utils.GraphConnectivity.reachable_component_ids">
+<span class="sig-name descname"><span class="pre">reachable_component_ids</span></span><a class="headerlink" href="#ntia_conformance_checker.graph_utils.GraphConnectivity.reachable_component_ids" title="Link to this definition">¶</a></dt>
+<dd><p>Packages reachable from the roots.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Type<span class="colon">:</span></dt>
+<dd class="field-odd"><p>set[str]</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="ntia_conformance_checker.graph_utils.GraphConnectivity.floating_component_ids">
+<span class="sig-name descname"><span class="pre">floating_component_ids</span></span><a class="headerlink" href="#ntia_conformance_checker.graph_utils.GraphConnectivity.floating_component_ids" title="Link to this definition">¶</a></dt>
+<dd><p>Packages not reachable from the roots.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Type<span class="colon">:</span></dt>
+<dd class="field-odd"><p>set[str]</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="ntia_conformance_checker.graph_utils.GraphConnectivity.unknown_pointer_edges">
+<span class="sig-name descname"><span class="pre">unknown_pointer_edges</span></span><a class="headerlink" href="#ntia_conformance_checker.graph_utils.GraphConnectivity.unknown_pointer_edges" title="Link to this definition">¶</a></dt>
+<dd><p>Relationships with a missing end, as written:
+source ID to target IDs (see <code class="docutils literal notranslate"><span class="pre">_find_unknown_pointer_edges</span></code>).</p>
+<dl class="field-list simple">
+<dt class="field-odd">Type<span class="colon">:</span></dt>
+<dd class="field-odd"><p>dict[str, list[str]]</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="ntia_conformance_checker.graph_utils.GraphConnectivity.missing_element_ids">
+<span class="sig-name descname"><span class="pre">missing_element_ids</span></span><a class="headerlink" href="#ntia_conformance_checker.graph_utils.GraphConnectivity.missing_element_ids" title="Link to this definition">¶</a></dt>
+<dd><p>IDs of the missing elements, at either end of
+those relationships.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Type<span class="colon">:</span></dt>
+<dd class="field-odd"><p>set[str]</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="id0">
+<span class="sig-name descname"><span class="pre">floating_component_ids</span></span><span class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="pre">set</span><span class="p"><span class="pre">[</span></span><span class="pre">str</span><span class="p"><span class="pre">]</span></span></span><a class="headerlink" href="#id0" title="Link to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="py property">
+<dt class="sig sig-object py" id="ntia_conformance_checker.graph_utils.GraphConnectivity.has_unknown_pointers">
+<span class="property"><span class="k"><span class="pre">property</span></span><span class="w"> </span></span><span class="sig-name descname"><span class="pre">has_unknown_pointers</span></span><span class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="pre">bool</span></span><a class="headerlink" href="#ntia_conformance_checker.graph_utils.GraphConnectivity.has_unknown_pointers" title="Link to this definition">¶</a></dt>
+<dd><p>Whether a root or a followed relationship links to a missing element.</p>
+</dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="id1">
+<span class="sig-name descname"><span class="pre">missing_element_ids</span></span><span class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="pre">set</span><span class="p"><span class="pre">[</span></span><span class="pre">str</span><span class="p"><span class="pre">]</span></span></span><a class="headerlink" href="#id1" title="Link to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="id2">
+<span class="sig-name descname"><span class="pre">reachable_component_ids</span></span><span class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="pre">set</span><span class="p"><span class="pre">[</span></span><span class="pre">str</span><span class="p"><span class="pre">]</span></span></span><a class="headerlink" href="#id2" title="Link to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="id3">
+<span class="sig-name descname"><span class="pre">unknown_pointer_edges</span></span><span class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="pre">dict</span><span class="p"><span class="pre">[</span></span><span class="pre">str</span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="pre">list</span><span class="p"><span class="pre">[</span></span><span class="pre">str</span><span class="p"><span class="pre">]</span></span><span class="p"><span class="pre">]</span></span></span><a class="headerlink" href="#id3" title="Link to this definition">¶</a></dt>
+<dd></dd></dl>
+
+</dd></dl>
+
 <dl class="py function">
-<dt class="sig sig-object py" id="ntia_conformance_checker.graph_utils.analyze_graph_connectivity">
-<span class="sig-prename descclassname"><span class="pre">ntia_conformance_checker.graph_utils.</span></span><span class="sig-name descname"><span class="pre">analyze_graph_connectivity</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">sbom_spec</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">parsed_data</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Any</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">spdx3_doc</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Any</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">tuple</span><span class="p"><span class="pre">[</span></span><span class="pre">set</span><span class="p"><span class="pre">[</span></span><span class="pre">str</span><span class="p"><span class="pre">]</span></span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="pre">set</span><span class="p"><span class="pre">[</span></span><span class="pre">str</span><span class="p"><span class="pre">]</span></span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="pre">dict</span><span class="p"><span class="pre">[</span></span><span class="pre">str</span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="pre">list</span><span class="p"><span class="pre">[</span></span><span class="pre">str</span><span class="p"><span class="pre">]</span></span><span class="p"><span class="pre">]</span></span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="pre">bool</span><span class="p"><span class="pre">]</span></span></span></span><a class="reference internal" href="_modules/ntia_conformance_checker/graph_utils.html#analyze_graph_connectivity"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#ntia_conformance_checker.graph_utils.analyze_graph_connectivity" title="Link to this definition">¶</a></dt>
-<dd><p>Analyze graph connectivity to find reachable components and unknown pointers.</p>
+<dt class="sig sig-object py" id="ntia_conformance_checker.graph_utils.analyze_graph">
+<span class="sig-prename descclassname"><span class="pre">ntia_conformance_checker.graph_utils.</span></span><span class="sig-name descname"><span class="pre">analyze_graph</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">sbom_spec</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">parsed_data</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Any</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">spdx3_doc</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Any</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><a class="reference internal" href="#ntia_conformance_checker.graph_utils.GraphConnectivity" title="ntia_conformance_checker.graph_utils.GraphConnectivity"><span class="pre">GraphConnectivity</span></a></span></span><a class="reference internal" href="_modules/ntia_conformance_checker/graph_utils.html#analyze_graph"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#ntia_conformance_checker.graph_utils.analyze_graph" title="Link to this definition">¶</a></dt>
+<dd><p>Analyze graph connectivity to find reachable components and missing elements.</p>
 <p>Connectivity is evaluated at the component (package) level because
 components represent the primary unit of software conformance in
 minimum elements standards.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Returns<span class="colon">:</span></dt>
 <dd class="field-odd"><p><dl class="simple">
-<dt>(reachable_component_ids, floating_component_ids,</dt><dd><p>unknown_pointer_edges, has_unknown_pointers)</p>
+<dt>Reachable and floating components, links to</dt><dd><p>missing elements and the missing element IDs.</p>
+</dd>
+</dl>
+</p>
+</dd>
+<dt class="field-even">Return type<span class="colon">:</span></dt>
+<dd class="field-even"><p><a class="reference internal" href="#ntia_conformance_checker.graph_utils.GraphConnectivity" title="ntia_conformance_checker.graph_utils.GraphConnectivity">GraphConnectivity</a></p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="ntia_conformance_checker.graph_utils.analyze_graph_connectivity">
+<span class="sig-prename descclassname"><span class="pre">ntia_conformance_checker.graph_utils.</span></span><span class="sig-name descname"><span class="pre">analyze_graph_connectivity</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">sbom_spec</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">parsed_data</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Any</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">spdx3_doc</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Any</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">tuple</span><span class="p"><span class="pre">[</span></span><span class="pre">set</span><span class="p"><span class="pre">[</span></span><span class="pre">str</span><span class="p"><span class="pre">]</span></span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="pre">set</span><span class="p"><span class="pre">[</span></span><span class="pre">str</span><span class="p"><span class="pre">]</span></span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="pre">dict</span><span class="p"><span class="pre">[</span></span><span class="pre">str</span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="pre">list</span><span class="p"><span class="pre">[</span></span><span class="pre">str</span><span class="p"><span class="pre">]</span></span><span class="p"><span class="pre">]</span></span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="pre">bool</span><span class="p"><span class="pre">]</span></span></span></span><a class="reference internal" href="_modules/ntia_conformance_checker/graph_utils.html#analyze_graph_connectivity"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#ntia_conformance_checker.graph_utils.analyze_graph_connectivity" title="Link to this definition">¶</a></dt>
+<dd><p>Analyze graph connectivity to find reachable components and unknown pointers.</p>
+<p>Kept for compatibility; <code class="docutils literal notranslate"><span class="pre">analyze_graph</span></code> also returns the missing
+element IDs.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Returns<span class="colon">:</span></dt>
+<dd class="field-odd"><p><dl class="simple">
+<dt>(reachable_component_ids, floating_component_ids,</dt><dd><p>unknown_pointer_edges, has_unknown_pointers), where
+unknown_pointer_edges maps a source ID to target IDs, for
+relationships with a missing end, as written (see
+<code class="docutils literal notranslate"><span class="pre">_find_unknown_pointer_edges</span></code>).</p>
 </dd>
 </dl>
 </p>
@@ -854,7 +977,15 @@ minimum elements standards.</p>
 <dd><p>Get all nodes connected to the root by using Breadth-First Search.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Returns<span class="colon">:</span></dt>
-<dd class="field-odd"><p>(reachable_node_ids, graph_connection_map)</p>
+<dd class="field-odd"><p><dl class="simple">
+<dt>(reachable_node_ids, traversal_edges), where</dt><dd><p>traversal_edges holds edges in traversal direction, from
+parent to child. A relationship walked against its written
+direction is an edge from its target to its source, such as
+SPDX 2 <code class="docutils literal notranslate"><span class="pre">A</span> <span class="pre">CONTAINED_BY</span> <span class="pre">B</span></code> or SPDX 3 <code class="docutils literal notranslate"><span class="pre">A</span> <span class="pre">generates</span> <span class="pre">B</span></code> (from B
+to A).</p>
+</dd>
+</dl>
+</p>
 </dd>
 <dt class="field-even">Return type<span class="colon">:</span></dt>
 <dd class="field-even"><p>tuple</p>
@@ -1022,7 +1153,7 @@ is a new spec with its own <code class="docutils literal notranslate"><span clas
 <p>Some of the code here was originally in the BaseChecker class.</p>
 <dl class="py class">
 <dt class="sig sig-object py" id="ntia_conformance_checker.report.ReportContext">
-<span class="property"><span class="k"><span class="pre">class</span></span><span class="w"> </span></span><span class="sig-prename descclassname"><span class="pre">ntia_conformance_checker.report.</span></span><span class="sig-name descname"><span class="pre">ReportContext</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">sbom_spec</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">''</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">compliance_standard</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">''</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">compliant</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">bool</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">False</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">requirement_results</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">list</span><span class="p"><span class="pre">[</span></span><span class="pre">tuple</span><span class="p"><span class="pre">[</span></span><span class="pre">str</span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="pre">bool</span><span class="p"><span class="pre">]</span></span><span class="p"><span class="pre">]</span></span><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><span class="pre">None</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">components_without_info</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">list</span><span class="p"><span class="pre">[</span></span><span class="pre">tuple</span><span class="p"><span class="pre">[</span></span><span class="pre">str</span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="pre">list</span><span class="p"><span class="pre">[</span></span><span class="pre">tuple</span><span class="p"><span class="pre">[</span></span><span class="pre">str</span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="pre">str</span><span class="p"><span class="pre">]</span></span><span class="p"><span class="pre">]</span></span><span class="p"><span class="pre">]</span></span><span class="p"><span class="pre">]</span></span><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><span class="pre">None</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">validation_messages</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">list</span><span class="p"><span class="pre">[</span></span><span class="pre">ValidationMessage</span><span class="p"><span class="pre">]</span></span><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><span class="pre">None</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">conformance_messages</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">list</span><span class="p"><span class="pre">[</span></span><span class="pre">ValidationMessage</span><span class="p"><span class="pre">]</span></span><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><span class="pre">None</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">parsing_errors</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">list</span><span class="p"><span class="pre">[</span></span><span class="pre">str</span><span class="p"><span class="pre">]</span></span><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><span class="pre">None</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">unknown_pointer_edges</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">dict</span><span class="p"><span class="pre">[</span></span><span class="pre">str</span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="pre">list</span><span class="p"><span class="pre">[</span></span><span class="pre">str</span><span class="p"><span class="pre">]</span></span><span class="p"><span class="pre">]</span></span><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><span class="pre">None</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">floating_component_ids</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">set</span><span class="p"><span class="pre">[</span></span><span class="pre">str</span><span class="p"><span class="pre">]</span></span><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><span class="pre">None</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">components_evaluated</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">bool</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">True</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/ntia_conformance_checker/report.html#ReportContext"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#ntia_conformance_checker.report.ReportContext" title="Link to this definition">¶</a></dt>
+<span class="property"><span class="k"><span class="pre">class</span></span><span class="w"> </span></span><span class="sig-prename descclassname"><span class="pre">ntia_conformance_checker.report.</span></span><span class="sig-name descname"><span class="pre">ReportContext</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">sbom_spec</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">''</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">compliance_standard</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">''</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">compliant</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">bool</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">False</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">requirement_results</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">list</span><span class="p"><span class="pre">[</span></span><span class="pre">tuple</span><span class="p"><span class="pre">[</span></span><span class="pre">str</span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="pre">bool</span><span class="p"><span class="pre">]</span></span><span class="p"><span class="pre">]</span></span><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><span class="pre">None</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">components_without_info</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">list</span><span class="p"><span class="pre">[</span></span><span class="pre">tuple</span><span class="p"><span class="pre">[</span></span><span class="pre">str</span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="pre">list</span><span class="p"><span class="pre">[</span></span><span class="pre">tuple</span><span class="p"><span class="pre">[</span></span><span class="pre">str</span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="pre">str</span><span class="p"><span class="pre">]</span></span><span class="p"><span class="pre">]</span></span><span class="p"><span class="pre">]</span></span><span class="p"><span class="pre">]</span></span><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><span class="pre">None</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">validation_messages</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">list</span><span class="p"><span class="pre">[</span></span><span class="pre">ValidationMessage</span><span class="p"><span class="pre">]</span></span><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><span class="pre">None</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">conformance_messages</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">list</span><span class="p"><span class="pre">[</span></span><span class="pre">ValidationMessage</span><span class="p"><span class="pre">]</span></span><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><span class="pre">None</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">parsing_errors</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">list</span><span class="p"><span class="pre">[</span></span><span class="pre">str</span><span class="p"><span class="pre">]</span></span><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><span class="pre">None</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">unknown_pointer_edges</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">dict</span><span class="p"><span class="pre">[</span></span><span class="pre">str</span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="pre">list</span><span class="p"><span class="pre">[</span></span><span class="pre">str</span><span class="p"><span class="pre">]</span></span><span class="p"><span class="pre">]</span></span><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><span class="pre">None</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">missing_element_ids</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">set</span><span class="p"><span class="pre">[</span></span><span class="pre">str</span><span class="p"><span class="pre">]</span></span><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><span class="pre">None</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">floating_component_ids</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">set</span><span class="p"><span class="pre">[</span></span><span class="pre">str</span><span class="p"><span class="pre">]</span></span><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><span class="pre">None</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">components_evaluated</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">bool</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">True</span></span></em><span class="sig-paren">)</span><a class="reference internal" href="_modules/ntia_conformance_checker/report.html#ReportContext"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#ntia_conformance_checker.report.ReportContext" title="Link to this definition">¶</a></dt>
 <dd><p>Bases: <code class="xref py py-class docutils literal notranslate"><span class="pre">object</span></code></p>
 <p>Context for generating conformance reports.</p>
 <dl class="py attribute">
@@ -1053,6 +1184,11 @@ is a new spec with its own <code class="docutils literal notranslate"><span clas
 <dl class="py attribute">
 <dt class="sig sig-object py" id="ntia_conformance_checker.report.ReportContext.floating_component_ids">
 <span class="sig-name descname"><span class="pre">floating_component_ids</span></span><span class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="pre">set</span><span class="p"><span class="pre">[</span></span><span class="pre">str</span><span class="p"><span class="pre">]</span></span><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><span class="pre">None</span></span><span class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">None</span></span><a class="headerlink" href="#ntia_conformance_checker.report.ReportContext.floating_component_ids" title="Link to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="ntia_conformance_checker.report.ReportContext.missing_element_ids">
+<span class="sig-name descname"><span class="pre">missing_element_ids</span></span><span class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="pre">set</span><span class="p"><span class="pre">[</span></span><span class="pre">str</span><span class="p"><span class="pre">]</span></span><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><span class="pre">None</span></span><span class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">None</span></span><a class="headerlink" href="#ntia_conformance_checker.report.ReportContext.missing_element_ids" title="Link to this definition">¶</a></dt>
 <dd></dd></dl>
 
 <dl class="py attribute">
@@ -1238,9 +1374,24 @@ during instantiation.</p>
 <dl class="py data">
 <dt class="sig sig-object py" id="ntia_conformance_checker.spdx3_utils.SPDX3_INDIVIDUAL_ELEMENT_IRIS">
 <span class="sig-prename descclassname"><span class="pre">ntia_conformance_checker.spdx3_utils.</span></span><span class="sig-name descname"><span class="pre">SPDX3_INDIVIDUAL_ELEMENT_IRIS</span></span><span class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="pre">frozenset</span><span class="p"><span class="pre">[</span></span><span class="pre">str</span><span class="p"><span class="pre">]</span></span></span><span class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">frozenset({'https://spdx.org/rdf/3.0.1/terms/Core/NoAssertionElement',</span> <span class="pre">'https://spdx.org/rdf/3.0.1/terms/Core/NoneElement',</span> <span class="pre">'https://spdx.org/rdf/3.0.1/terms/Core/SpdxOrganization',</span> <span class="pre">'https://spdx.org/rdf/3.0.1/terms/ExpandedLicensing/NoAssertionLicense',</span> <span class="pre">'https://spdx.org/rdf/3.0.1/terms/ExpandedLicensing/NoneLicense'})</span></span><a class="headerlink" href="#ntia_conformance_checker.spdx3_utils.SPDX3_INDIVIDUAL_ELEMENT_IRIS" title="Link to this definition">¶</a></dt>
-<dd><p>IRIs of the SPDX 3.0.1 individuals that stand for an element, such as
-<code class="docutils literal notranslate"><span class="pre">NoneElement</span></code> (a relationship to nothing) or <code class="docutils literal notranslate"><span class="pre">NoAssertionLicense</span></code>. A
-document refers to them without defining them.</p>
+<dd><p>the
+none and no-assertion values above, and <code class="docutils literal notranslate"><span class="pre">SpdxOrganization</span></code>.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Type<span class="colon">:</span></dt>
+<dd class="field-odd"><p>SPDX 3.0.1 individuals a document may refer to without defining them</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py data">
+<dt class="sig sig-object py" id="ntia_conformance_checker.spdx3_utils.SPDX3_NONE_AND_NOASSERTION_IRIS">
+<span class="sig-prename descclassname"><span class="pre">ntia_conformance_checker.spdx3_utils.</span></span><span class="sig-name descname"><span class="pre">SPDX3_NONE_AND_NOASSERTION_IRIS</span></span><span class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="pre">frozenset</span><span class="p"><span class="pre">[</span></span><span class="pre">str</span><span class="p"><span class="pre">]</span></span></span><span class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">frozenset({'https://spdx.org/rdf/3.0.1/terms/Core/NoAssertionElement',</span> <span class="pre">'https://spdx.org/rdf/3.0.1/terms/Core/NoneElement',</span> <span class="pre">'https://spdx.org/rdf/3.0.1/terms/ExpandedLicensing/NoAssertionLicense',</span> <span class="pre">'https://spdx.org/rdf/3.0.1/terms/ExpandedLicensing/NoneLicense'})</span></span><a class="headerlink" href="#ntia_conformance_checker.spdx3_utils.SPDX3_NONE_AND_NOASSERTION_IRIS" title="Link to this definition">¶</a></dt>
+<dd><p>SPDX 3.0.1 individuals for no value or an unknown value, not an element:
+Core NoneElement (“a set of Elements with cardinality (number/count) of
+zero”), NoAssertionElement (“a set of Elements of unknown identify or
+cardinality (number)”), ExpandedLicensing NoneLicense (“no license is
+present”) and NoAssertionLicense (“no assertion can be made about its
+actual value”).</p>
 </dd></dl>
 
 <dl class="py function">
@@ -1324,6 +1475,25 @@ linked software_File objects.</p>
 </dd>
 <dt class="field-odd">Return type<span class="colon">:</span></dt>
 <dd class="field-odd"><p>list[spdx3.software_Package]</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="ntia_conformance_checker.spdx3_utils.get_spdx3_element_id">
+<span class="sig-prename descclassname"><span class="pre">ntia_conformance_checker.spdx3_utils.</span></span><span class="sig-name descname"><span class="pre">get_spdx3_element_id</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">value</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Any</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">str</span></span></span><a class="reference internal" href="_modules/ntia_conformance_checker/spdx3_utils.html#get_spdx3_element_id"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#ntia_conformance_checker.spdx3_utils.get_spdx3_element_id" title="Link to this definition">¶</a></dt>
+<dd><p>Return the SPDX ID of an SPDX 3 element, or of an element reference.</p>
+<p>A reference to an element may be the element itself or its IRI as a
+string, as in <code class="docutils literal notranslate"><span class="pre">Relationship.from_</span></code> and <code class="docutils literal notranslate"><span class="pre">Relationship.to</span></code>.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><p><strong>value</strong> – An SPDX 3 element, an IRI, or None.</p>
+</dd>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
+<dd class="field-even"><p>The SPDX ID, or an empty string if there is none.</p>
+</dd>
+<dt class="field-odd">Return type<span class="colon">:</span></dt>
+<dd class="field-odd"><p>str</p>
 </dd>
 </dl>
 </dd></dl>
@@ -2390,11 +2560,6 @@ such as <cite>check_compliance</cite> and <cite>output_json</cite>.</p>
 <span class="sig-name descname"><span class="pre">file</span></span><span class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="pre">str</span></span><span class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">''</span></span><a class="headerlink" href="#ntia_conformance_checker.BaseChecker.file" title="Link to this definition">¶</a></dt>
 <dd></dd></dl>
 
-<dl class="py attribute">
-<dt class="sig sig-object py" id="ntia_conformance_checker.BaseChecker.floating_component_ids">
-<span class="sig-name descname"><span class="pre">floating_component_ids</span></span><span class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="pre">set</span><span class="p"><span class="pre">[</span></span><span class="pre">str</span><span class="p"><span class="pre">]</span></span></span><a class="headerlink" href="#ntia_conformance_checker.BaseChecker.floating_component_ids" title="Link to this definition">¶</a></dt>
-<dd></dd></dl>
-
 <dl class="py method">
 <dt class="sig sig-object py" id="ntia_conformance_checker.BaseChecker.get_components_without_concluded_licenses">
 <span class="sig-name descname"><span class="pre">get_components_without_concluded_licenses</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">list</span><span class="p"><span class="pre">[</span></span><span class="pre">tuple</span><span class="p"><span class="pre">[</span></span><span class="pre">str</span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="pre">str</span><span class="p"><span class="pre">]</span></span><span class="p"><span class="pre">]</span></span></span></span><a class="reference internal" href="_modules/ntia_conformance_checker/base_checker.html#BaseChecker.get_components_without_concluded_licenses"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#ntia_conformance_checker.BaseChecker.get_components_without_concluded_licenses" title="Link to this definition">¶</a></dt>
@@ -2526,11 +2691,6 @@ preferred value (name or SPDX ID) as needed.</p>
 </dl>
 </dd></dl>
 
-<dl class="py attribute">
-<dt class="sig sig-object py" id="ntia_conformance_checker.BaseChecker.has_unknown_pointers">
-<span class="sig-name descname"><span class="pre">has_unknown_pointers</span></span><span class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="pre">bool</span></span><a class="headerlink" href="#ntia_conformance_checker.BaseChecker.has_unknown_pointers" title="Link to this definition">¶</a></dt>
-<dd></dd></dl>
-
 <dl class="py property">
 <dt class="sig sig-object py" id="ntia_conformance_checker.BaseChecker.ntia_minimum_elements_compliant">
 <span class="property"><span class="k"><span class="pre">property</span></span><span class="w"> </span></span><span class="sig-name descname"><span class="pre">ntia_minimum_elements_compliant</span></span><span class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="pre">bool</span></span><a class="headerlink" href="#ntia_conformance_checker.BaseChecker.ntia_minimum_elements_compliant" title="Link to this definition">¶</a></dt>
@@ -2622,11 +2782,6 @@ Subclasses may override this method to provide custom behavior.</p>
 </dd></dl>
 
 <dl class="py attribute">
-<dt class="sig sig-object py" id="ntia_conformance_checker.BaseChecker.reachable_component_ids">
-<span class="sig-name descname"><span class="pre">reachable_component_ids</span></span><span class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="pre">set</span><span class="p"><span class="pre">[</span></span><span class="pre">str</span><span class="p"><span class="pre">]</span></span></span><a class="headerlink" href="#ntia_conformance_checker.BaseChecker.reachable_component_ids" title="Link to this definition">¶</a></dt>
-<dd></dd></dl>
-
-<dl class="py attribute">
 <dt class="sig sig-object py" id="ntia_conformance_checker.BaseChecker.sbom_gen_context">
 <span class="sig-name descname"><span class="pre">sbom_gen_context</span></span><span class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="pre">list</span><span class="p"><span class="pre">[</span></span><span class="pre">str</span><span class="p"><span class="pre">]</span></span></span><a class="headerlink" href="#ntia_conformance_checker.BaseChecker.sbom_gen_context" title="Link to this definition">¶</a></dt>
 <dd></dd></dl>
@@ -2644,11 +2799,6 @@ Subclasses may override this method to provide custom behavior.</p>
 <dl class="py attribute">
 <dt class="sig sig-object py" id="ntia_conformance_checker.BaseChecker.table_elements">
 <span class="sig-name descname"><span class="pre">table_elements</span></span><span class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="pre">list</span><span class="p"><span class="pre">[</span></span><span class="pre">tuple</span><span class="p"><span class="pre">[</span></span><span class="pre">str</span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="pre">bool</span><span class="p"><span class="pre">]</span></span><span class="p"><span class="pre">]</span></span></span><a class="headerlink" href="#ntia_conformance_checker.BaseChecker.table_elements" title="Link to this definition">¶</a></dt>
-<dd></dd></dl>
-
-<dl class="py attribute">
-<dt class="sig sig-object py" id="ntia_conformance_checker.BaseChecker.unknown_pointer_edges">
-<span class="sig-name descname"><span class="pre">unknown_pointer_edges</span></span><span class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="pre">dict</span><span class="p"><span class="pre">[</span></span><span class="pre">str</span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="pre">list</span><span class="p"><span class="pre">[</span></span><span class="pre">str</span><span class="p"><span class="pre">]</span></span><span class="p"><span class="pre">]</span></span></span><a class="headerlink" href="#ntia_conformance_checker.BaseChecker.unknown_pointer_edges" title="Link to this definition">¶</a></dt>
 <dd></dd></dl>
 
 <dl class="py property">

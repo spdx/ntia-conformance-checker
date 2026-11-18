@@ -54,17 +54,26 @@
     <span class="kn">from</span><span class="w"> </span><span class="nn">collections.abc</span><span class="w"> </span><span class="kn">import</span> <span class="n">Iterator</span>
 
 
-<span class="c1">#: IRIs of the SPDX 3.0.1 individuals that stand for an element, such as</span>
-<span class="c1">#: ``NoneElement`` (a relationship to nothing) or ``NoAssertionLicense``. A</span>
-<span class="c1">#: document refers to them without defining them.</span>
-<span class="n">SPDX3_INDIVIDUAL_ELEMENT_IRIS</span><span class="p">:</span> <span class="nb">frozenset</span><span class="p">[</span><span class="nb">str</span><span class="p">]</span> <span class="o">=</span> <span class="nb">frozenset</span><span class="p">(</span>
+<span class="c1">#: SPDX 3.0.1 individuals for no value or an unknown value, not an element:</span>
+<span class="c1">#: Core NoneElement ("a set of Elements with cardinality (number/count) of</span>
+<span class="c1">#: zero"), NoAssertionElement ("a set of Elements of unknown identify or</span>
+<span class="c1">#: cardinality (number)"), ExpandedLicensing NoneLicense ("no license is</span>
+<span class="c1">#: present") and NoAssertionLicense ("no assertion can be made about its</span>
+<span class="c1">#: actual value").</span>
+<span class="n">SPDX3_NONE_AND_NOASSERTION_IRIS</span><span class="p">:</span> <span class="nb">frozenset</span><span class="p">[</span><span class="nb">str</span><span class="p">]</span> <span class="o">=</span> <span class="nb">frozenset</span><span class="p">(</span>
     <span class="n">iri</span>
     <span class="k">for</span> <span class="bp">cls</span> <span class="ow">in</span> <span class="p">(</span>
         <span class="n">spdx3</span><span class="o">.</span><span class="n">IndividualElement</span><span class="p">,</span>
         <span class="n">spdx3</span><span class="o">.</span><span class="n">expandedlicensing_IndividualLicensingInfo</span><span class="p">,</span>
-        <span class="n">spdx3</span><span class="o">.</span><span class="n">Organization</span><span class="p">,</span>
     <span class="p">)</span>
     <span class="k">for</span> <span class="n">iri</span> <span class="ow">in</span> <span class="bp">cls</span><span class="o">.</span><span class="n">NAMED_INDIVIDUALS</span><span class="o">.</span><span class="n">values</span><span class="p">()</span>
+<span class="p">)</span>
+
+<span class="c1">#: SPDX 3.0.1 individuals a document may refer to without defining them: the</span>
+<span class="c1">#: none and no-assertion values above, and ``SpdxOrganization``.</span>
+<span class="n">SPDX3_INDIVIDUAL_ELEMENT_IRIS</span><span class="p">:</span> <span class="nb">frozenset</span><span class="p">[</span><span class="nb">str</span><span class="p">]</span> <span class="o">=</span> <span class="p">(</span>
+    <span class="n">SPDX3_NONE_AND_NOASSERTION_IRIS</span>
+    <span class="o">|</span> <span class="nb">frozenset</span><span class="p">(</span><span class="n">spdx3</span><span class="o">.</span><span class="n">Organization</span><span class="o">.</span><span class="n">NAMED_INDIVIDUALS</span><span class="o">.</span><span class="n">values</span><span class="p">())</span>
 <span class="p">)</span>
 
 <span class="n">SPDX3_PACKAGE_DEPENDENCY_RELATIONSHIP_TYPES</span> <span class="o">=</span> <span class="p">(</span>
@@ -73,6 +82,28 @@
     <span class="s2">"hasDynamicLink"</span><span class="p">,</span>
     <span class="s2">"hasStaticLink"</span><span class="p">,</span>
 <span class="p">)</span>
+
+
+<div class="viewcode-block" id="get_spdx3_element_id">
+<a class="viewcode-back" href="../../ntia_conformance_checker.html#ntia_conformance_checker.spdx3_utils.get_spdx3_element_id">[docs]</a>
+<span class="k">def</span><span class="w"> </span><span class="nf">get_spdx3_element_id</span><span class="p">(</span><span class="n">value</span><span class="p">:</span> <span class="n">Any</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">str</span><span class="p">:</span>
+<span class="w">    </span><span class="sd">"""</span>
+<span class="sd">    Return the SPDX ID of an SPDX 3 element, or of an element reference.</span>
+
+<span class="sd">    A reference to an element may be the element itself or its IRI as a</span>
+<span class="sd">    string, as in ``Relationship.from_`` and ``Relationship.to``.</span>
+
+<span class="sd">    Args:</span>
+<span class="sd">        value: An SPDX 3 element, an IRI, or None.</span>
+
+<span class="sd">    Returns:</span>
+<span class="sd">        str: The SPDX ID, or an empty string if there is none.</span>
+<span class="sd">    """</span>
+    <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">value</span><span class="p">,</span> <span class="nb">str</span><span class="p">):</span>
+        <span class="k">return</span> <span class="n">value</span>
+    <span class="n">spdx_id</span> <span class="o">=</span> <span class="nb">getattr</span><span class="p">(</span><span class="n">value</span><span class="p">,</span> <span class="s2">"spdxId"</span><span class="p">,</span> <span class="s2">""</span><span class="p">)</span>
+    <span class="k">return</span> <span class="n">spdx_id</span> <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">spdx_id</span><span class="p">,</span> <span class="nb">str</span><span class="p">)</span> <span class="k">else</span> <span class="s2">""</span></div>
+
 
 
 <div class="viewcode-block" id="validate_spdx3_data">
@@ -286,12 +317,10 @@
         <span class="k">if</span> <span class="ow">not</span> <span class="n">from_</span> <span class="ow">or</span> <span class="ow">not</span> <span class="n">to_elements</span><span class="p">:</span>
             <span class="k">continue</span>
 
-        <span class="n">from_id</span> <span class="o">=</span> <span class="n">from_</span> <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">from_</span><span class="p">,</span> <span class="nb">str</span><span class="p">)</span> <span class="k">else</span> <span class="nb">getattr</span><span class="p">(</span><span class="n">from_</span><span class="p">,</span> <span class="s2">"spdxId"</span><span class="p">,</span> <span class="s2">""</span><span class="p">)</span>
+        <span class="n">from_id</span> <span class="o">=</span> <span class="n">get_spdx3_element_id</span><span class="p">(</span><span class="n">from_</span><span class="p">)</span>
         <span class="n">to_ids</span> <span class="o">=</span> <span class="p">[]</span>
         <span class="k">for</span> <span class="n">to_item</span> <span class="ow">in</span> <span class="n">to_elements</span><span class="p">:</span>
-            <span class="n">to_id</span> <span class="o">=</span> <span class="p">(</span>
-                <span class="n">to_item</span> <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">to_item</span><span class="p">,</span> <span class="nb">str</span><span class="p">)</span> <span class="k">else</span> <span class="nb">getattr</span><span class="p">(</span><span class="n">to_item</span><span class="p">,</span> <span class="s2">"spdxId"</span><span class="p">,</span> <span class="s2">""</span><span class="p">)</span>
-            <span class="p">)</span>
+            <span class="n">to_id</span> <span class="o">=</span> <span class="n">get_spdx3_element_id</span><span class="p">(</span><span class="n">to_item</span><span class="p">)</span>
             <span class="k">if</span> <span class="n">to_id</span><span class="p">:</span>
                 <span class="n">to_ids</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">to_id</span><span class="p">)</span>
 
@@ -438,8 +467,7 @@
         <span class="c1"># Remove the IRI prefix of entry name before compare</span>
         <span class="n">rel_type_name</span> <span class="o">=</span> <span class="nb">str</span><span class="p">(</span><span class="n">rel_type</span><span class="p">)</span><span class="o">.</span><span class="n">rsplit</span><span class="p">(</span><span class="s2">"/"</span><span class="p">,</span> <span class="n">maxsplit</span><span class="o">=</span><span class="mi">1</span><span class="p">)[</span><span class="o">-</span><span class="mi">1</span><span class="p">]</span>
         <span class="k">if</span> <span class="n">rel_type_name</span> <span class="ow">in</span> <span class="p">(</span><span class="s2">"contains"</span><span class="p">,</span> <span class="s2">"dependsOn"</span><span class="p">):</span>
-            <span class="n">from_</span> <span class="o">=</span> <span class="nb">getattr</span><span class="p">(</span><span class="n">obj</span><span class="p">,</span> <span class="s2">"from_"</span><span class="p">,</span> <span class="kc">None</span><span class="p">)</span>
-            <span class="n">from_id</span> <span class="o">=</span> <span class="n">from_</span> <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">from_</span><span class="p">,</span> <span class="nb">str</span><span class="p">)</span> <span class="k">else</span> <span class="nb">getattr</span><span class="p">(</span><span class="n">from_</span><span class="p">,</span> <span class="s2">"spdxId"</span><span class="p">,</span> <span class="s2">""</span><span class="p">)</span>
+            <span class="n">from_id</span> <span class="o">=</span> <span class="n">get_spdx3_element_id</span><span class="p">(</span><span class="nb">getattr</span><span class="p">(</span><span class="n">obj</span><span class="p">,</span> <span class="s2">"from_"</span><span class="p">,</span> <span class="kc">None</span><span class="p">))</span>
 
             <span class="k">if</span> <span class="n">from_id</span><span class="p">:</span>
                 <span class="n">completeness_iri</span> <span class="o">=</span> <span class="nb">getattr</span><span class="p">(</span><span class="n">obj</span><span class="p">,</span> <span class="s2">"completeness"</span><span class="p">,</span> <span class="kc">None</span><span class="p">)</span>

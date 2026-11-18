@@ -64,6 +64,8 @@
 </li>
       <li><a href="ntia_conformance_checker.html#ntia_conformance_checker.BaseChecker.adapter">adapter (ntia_conformance_checker.BaseChecker attribute)</a>
 </li>
+      <li><a href="ntia_conformance_checker.html#ntia_conformance_checker.constants.TraversalDirection.AGAINST">AGAINST (ntia_conformance_checker.constants.TraversalDirection attribute)</a>
+</li>
       <li><a href="ntia_conformance_checker.html#ntia_conformance_checker.base_checker.BaseChecker.all_components_without_info">all_components_without_info (ntia_conformance_checker.base_checker.BaseChecker attribute)</a>
 
       <ul>
@@ -72,6 +74,10 @@
       </ul></li>
   </ul></td>
   <td style="width: 33%; vertical-align: top;"><ul>
+      <li><a href="ntia_conformance_checker.html#ntia_conformance_checker.constants.TraversalDirection.ALONG">ALONG (ntia_conformance_checker.constants.TraversalDirection attribute)</a>
+</li>
+      <li><a href="ntia_conformance_checker.html#ntia_conformance_checker.graph_utils.analyze_graph">analyze_graph() (in module ntia_conformance_checker.graph_utils)</a>
+</li>
       <li><a href="ntia_conformance_checker.html#ntia_conformance_checker.graph_utils.analyze_graph_connectivity">analyze_graph_connectivity() (in module ntia_conformance_checker.graph_utils)</a>
 </li>
       <li><a href="ntia_conformance_checker.probes.html#ntia_conformance_checker.probes.attribute_scope">attribute_scope() (in module ntia_conformance_checker.probes)</a>
@@ -432,7 +438,7 @@
 </li>
   </ul></td>
   <td style="width: 33%; vertical-align: top;"><ul>
-      <li><a href="ntia_conformance_checker.html#ntia_conformance_checker.BaseChecker.floating_component_ids">floating_component_ids (ntia_conformance_checker.BaseChecker attribute)</a>
+      <li><a href="ntia_conformance_checker.html#id0">floating_component_ids (ntia_conformance_checker.graph_utils.GraphConnectivity attribute)</a>, <a href="ntia_conformance_checker.html#ntia_conformance_checker.graph_utils.GraphConnectivity.floating_component_ids">[1]</a>
 
       <ul>
         <li><a href="ntia_conformance_checker.html#ntia_conformance_checker.report.ReportContext.floating_component_ids">(ntia_conformance_checker.report.ReportContext attribute)</a>
@@ -628,8 +634,6 @@
         <li><a href="ntia_conformance_checker.html#ntia_conformance_checker.BSIChecker.get_components_without_structured_prop">(ntia_conformance_checker.BSIChecker method)</a>
 </li>
       </ul></li>
-  </ul></td>
-  <td style="width: 33%; vertical-align: top;"><ul>
       <li><a href="ntia_conformance_checker.adapters.html#ntia_conformance_checker.adapters.adapter_interface.SbomAdapter.get_components_without_suppliers">get_components_without_suppliers() (ntia_conformance_checker.adapters.adapter_interface.SbomAdapter method)</a>
 
       <ul>
@@ -652,6 +656,8 @@
         <li><a href="ntia_conformance_checker.html#ntia_conformance_checker.BaseChecker.get_components_without_suppliers">(ntia_conformance_checker.BaseChecker method)</a>
 </li>
       </ul></li>
+  </ul></td>
+  <td style="width: 33%; vertical-align: top;"><ul>
       <li><a href="ntia_conformance_checker.html#ntia_conformance_checker.bsi_checker.BSIChecker.get_components_without_unique_identifiers">get_components_without_unique_identifiers() (ntia_conformance_checker.bsi_checker.BSIChecker method)</a>
 
       <ul>
@@ -758,6 +764,8 @@
         <li><a href="ntia_conformance_checker.html#ntia_conformance_checker.BaseChecker.get_sbom_types">(ntia_conformance_checker.BaseChecker method)</a>
 </li>
       </ul></li>
+      <li><a href="ntia_conformance_checker.html#ntia_conformance_checker.spdx3_utils.get_spdx3_element_id">get_spdx3_element_id() (in module ntia_conformance_checker.spdx3_utils)</a>
+</li>
       <li><a href="ntia_conformance_checker.html#ntia_conformance_checker.cli_utils.get_spdx_version">get_spdx_version() (in module ntia_conformance_checker.cli_utils)</a>
 </li>
       <li><a href="ntia_conformance_checker.html#ntia_conformance_checker.registry.get_spec">get_spec() (in module ntia_conformance_checker.registry)</a>
@@ -790,6 +798,8 @@
 </li>
       <li><a href="ntia_conformance_checker.html#ntia_conformance_checker.report.get_validation_messages_text">get_validation_messages_text() (in module ntia_conformance_checker.report)</a>
 </li>
+      <li><a href="ntia_conformance_checker.html#ntia_conformance_checker.graph_utils.GraphConnectivity">GraphConnectivity (class in ntia_conformance_checker.graph_utils)</a>
+</li>
   </ul></td>
 </tr></table>
 
@@ -802,7 +812,7 @@
   <td style="width: 33%; vertical-align: top;"><ul>
       <li><a href="ntia_conformance_checker.html#ntia_conformance_checker.spdx3_utils.has_sha512_hash">has_sha512_hash() (in module ntia_conformance_checker.spdx3_utils)</a>
 </li>
-      <li><a href="ntia_conformance_checker.html#ntia_conformance_checker.BaseChecker.has_unknown_pointers">has_unknown_pointers (ntia_conformance_checker.BaseChecker attribute)</a>
+      <li><a href="ntia_conformance_checker.html#ntia_conformance_checker.graph_utils.GraphConnectivity.has_unknown_pointers">has_unknown_pointers (ntia_conformance_checker.graph_utils.GraphConnectivity property)</a>
 </li>
   </ul></td>
 </tr></table>
@@ -892,6 +902,12 @@
         <li><a href="ntia_conformance_checker.html#ntia_conformance_checker.ntia_checker.NTIAChecker.MIN_ELEMENTS">(ntia_conformance_checker.ntia_checker.NTIAChecker attribute)</a>
 </li>
         <li><a href="ntia_conformance_checker.html#ntia_conformance_checker.NTIAChecker.MIN_ELEMENTS">(ntia_conformance_checker.NTIAChecker attribute)</a>
+</li>
+      </ul></li>
+      <li><a href="ntia_conformance_checker.html#id1">missing_element_ids (ntia_conformance_checker.graph_utils.GraphConnectivity attribute)</a>, <a href="ntia_conformance_checker.html#ntia_conformance_checker.graph_utils.GraphConnectivity.missing_element_ids">[1]</a>
+
+      <ul>
+        <li><a href="ntia_conformance_checker.html#ntia_conformance_checker.report.ReportContext.missing_element_ids">(ntia_conformance_checker.report.ReportContext attribute)</a>
 </li>
       </ul></li>
       <li>
@@ -1226,7 +1242,7 @@
 <h2 id="R">R</h2>
 <table style="width: 100%" class="indextable genindextable"><tr>
   <td style="width: 33%; vertical-align: top;"><ul>
-      <li><a href="ntia_conformance_checker.html#ntia_conformance_checker.BaseChecker.reachable_component_ids">reachable_component_ids (ntia_conformance_checker.BaseChecker attribute)</a>
+      <li><a href="ntia_conformance_checker.html#id2">reachable_component_ids (ntia_conformance_checker.graph_utils.GraphConnectivity attribute)</a>, <a href="ntia_conformance_checker.html#ntia_conformance_checker.graph_utils.GraphConnectivity.reachable_component_ids">[1]</a>
 </li>
       <li><a href="ntia_conformance_checker.probes.html#ntia_conformance_checker.probes.registered_names">registered_names() (in module ntia_conformance_checker.probes)</a>
 </li>
@@ -1308,6 +1324,8 @@
   <td style="width: 33%; vertical-align: top;"><ul>
       <li><a href="ntia_conformance_checker.html#ntia_conformance_checker.spdx3_utils.SPDX3_INDIVIDUAL_ELEMENT_IRIS">SPDX3_INDIVIDUAL_ELEMENT_IRIS (in module ntia_conformance_checker.spdx3_utils)</a>
 </li>
+      <li><a href="ntia_conformance_checker.html#ntia_conformance_checker.spdx3_utils.SPDX3_NONE_AND_NOASSERTION_IRIS">SPDX3_NONE_AND_NOASSERTION_IRIS (in module ntia_conformance_checker.spdx3_utils)</a>
+</li>
       <li><a href="ntia_conformance_checker.adapters.html#ntia_conformance_checker.adapters.Spdx3Adapter">Spdx3Adapter (class in ntia_conformance_checker.adapters)</a>
 
       <ul>
@@ -1350,8 +1368,6 @@
 </li>
       <li><a href="ntia_conformance_checker.html#ntia_conformance_checker.spec.Spec.taxonomies">taxonomies (ntia_conformance_checker.spec.Spec attribute)</a>
 </li>
-  </ul></td>
-  <td style="width: 33%; vertical-align: top;"><ul>
       <li><a href="ntia_conformance_checker.html#ntia_conformance_checker.spec.Spec.title">title (ntia_conformance_checker.spec.Spec attribute)</a>
 
       <ul>
@@ -1361,12 +1377,16 @@
 </li>
       </ul></li>
   </ul></td>
+  <td style="width: 33%; vertical-align: top;"><ul>
+      <li><a href="ntia_conformance_checker.html#ntia_conformance_checker.constants.TraversalDirection">TraversalDirection (class in ntia_conformance_checker.constants)</a>
+</li>
+  </ul></td>
 </tr></table>
 
 <h2 id="U">U</h2>
 <table style="width: 100%" class="indextable genindextable"><tr>
   <td style="width: 33%; vertical-align: top;"><ul>
-      <li><a href="ntia_conformance_checker.html#ntia_conformance_checker.BaseChecker.unknown_pointer_edges">unknown_pointer_edges (ntia_conformance_checker.BaseChecker attribute)</a>
+      <li><a href="ntia_conformance_checker.html#id3">unknown_pointer_edges (ntia_conformance_checker.graph_utils.GraphConnectivity attribute)</a>, <a href="ntia_conformance_checker.html#ntia_conformance_checker.graph_utils.GraphConnectivity.unknown_pointer_edges">[1]</a>
 
       <ul>
         <li><a href="ntia_conformance_checker.html#ntia_conformance_checker.report.ReportContext.unknown_pointer_edges">(ntia_conformance_checker.report.ReportContext attribute)</a>
