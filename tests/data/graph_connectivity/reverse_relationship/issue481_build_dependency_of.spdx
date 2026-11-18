@@ -1,0 +1,24 @@
+SPDXVersion: SPDX-2.3
+DataLicense: CC0-1.0
+SPDXID: SPDXRef-DOCUMENT
+DocumentName: reverse-relationship
+DocumentNamespace: https://example.com/spdxdocs/reverse-relationship-1
+Creator: Tool: example
+Created: 2026-01-01T00:00:00Z
+
+Relationship: SPDXRef-DOCUMENT DESCRIBES SPDXRef-Package-App
+Relationship: SPDXRef-Package-Tool BUILD_DEPENDENCY_OF SPDXRef-Package-App
+
+PackageName: App
+SPDXID: SPDXRef-Package-App
+PackageVersion: 1.0
+PackageSupplier: Organization: Example
+PackageDownloadLocation: NOASSERTION
+FilesAnalyzed: false
+
+PackageName: Tool
+SPDXID: SPDXRef-Package-Tool
+PackageVersion: 1.0
+PackageSupplier: Organization: Example
+PackageDownloadLocation: NOASSERTION
+FilesAnalyzed: false

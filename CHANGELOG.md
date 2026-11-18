@@ -19,9 +19,17 @@ and this project adheres to [Semantic Versioning][semver].
 
 - A relationship to an SPDX 3 individual such as `NoneElement` is no longer
   reported as pointing to a missing element ([#478])
+- SPDX 2 reverse relationships, such as `BUILD_DEPENDENCY_OF`, no longer leave
+  components floating ([#481])
+- Elements in a declared SPDX 2 `ExternalDocumentRef` or an SPDX 3 `import`
+  are no longer reported as missing ([#482])
+- SPDX 3 datasets linked to a model by `trainedOn` or `testedOn` are no
+  longer reported as floating and skipped by the component checks ([#486])
 
 ### Added
 
+- JSON output lists missing element IDs in
+  `graphValidation.unknownPointers.missingElementIds`
 - GitHub releases attach the wheel, the sdist and the wheel's SPDX 3 SBOM,
   each with a Sigstore bundle and a build provenance attestation;
   see "Verify release files" in `SECURITY.md`
@@ -31,14 +39,34 @@ and this project adheres to [Semantic Versioning][semver].
 - Require a dependency or containment relationship between SPDX 2 elements
   instead of document-level `DESCRIBES` in
   `Spdx2Adapter.check_dependency_relationships` ([#410])
+- Relationship directions follow the SPDX 2.3 to 3.0 translation table, and tool
+  and provenance relationships are followed, so more components may be
+  checked; see "Which relationships connect an element to the tree?" in
+  `FAQ.md`
+- Missing elements are checked at both ends of a relationship and at the
+  roots, and reported as written; see "The CLI output reports that a
+  relationship points to a missing element" in `FAQ.md`
+- `get_reachable_nodes` returns edges from parent to child
+- Reports call floating packages "components", as in minimum elements, and
+  relationship ends "elements", as in SPDX: "Found X disconnected 'floating'
+  components" and "Unknown elements detected!"
 - Pull request and release builds embed the SBOM with Pitloom 0.20.1 and fail
   on an invalid SBOM; content types are detected with magika
 - Releases publish to PyPI only after the SBOM is validated; release files are
   attached, signed and attested after the publish, and can be re-run if that
   fails
 
+### Deprecated
+
+- `VALID_SPDX2_COMPOSITION_RELATIONSHIPS` and
+  `VALID_SPDX3_COMPOSITION_RELATIONSHIPS`; use `SPDX2_RELATIONSHIP_TRAVERSAL`
+  and `SPDX3_RELATIONSHIP_TRAVERSAL`
+
 [#410]: https://github.com/spdx/ntia-conformance-checker/issues/410
 [#478]: https://github.com/spdx/ntia-conformance-checker/pull/478
+[#481]: https://github.com/spdx/ntia-conformance-checker/issues/481
+[#482]: https://github.com/spdx/ntia-conformance-checker/issues/482
+[#486]: https://github.com/spdx/ntia-conformance-checker/issues/486
 
 ## [6.0.0] - 2026-10-05
 

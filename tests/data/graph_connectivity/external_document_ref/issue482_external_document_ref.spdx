@@ -1,0 +1,18 @@
+SPDXVersion: SPDX-2.3
+DataLicense: CC0-1.0
+SPDXID: SPDXRef-DOCUMENT
+DocumentName: external-document-ref
+DocumentNamespace: https://example.com/spdxdocs/external-document-ref-1
+ExternalDocumentRef: DocumentRef-other https://example.com/spdxdocs/other-1 SHA1: 0123456789abcdef0123456789abcdef01234567
+Creator: Tool: example
+Created: 2026-01-01T00:00:00Z
+
+Relationship: SPDXRef-DOCUMENT DESCRIBES SPDXRef-Package-App
+Relationship: SPDXRef-Package-App DEPENDS_ON DocumentRef-other:SPDXRef-Package-Lib
+
+PackageName: App
+SPDXID: SPDXRef-Package-App
+PackageVersion: 1.0
+PackageSupplier: Organization: Example
+PackageDownloadLocation: NOASSERTION
+FilesAnalyzed: false
