@@ -7,8 +7,15 @@
 from spdx_tools.spdx.model.document import Document
 from spdx_tools.spdx.model.relationship import RelationshipType
 from spdx_tools.spdx.model.spdx_no_assertion import SpdxNoAssertion
+from spdx_tools.spdx.model.spdx_none import SpdxNone
 from spdx_tools.spdx.validation.validation_message import ValidationMessage
 
+from ..constants import SPDX2_RELATIONSHIP_TRAVERSAL, TraversalDirection
+from ..graph_utils import (
+    SPDX2_NO_ELEMENT_VALUES,
+    collect_spdx2_external_document_ref_ids,
+    is_spdx2_external_element_id,
+)
 from .adapter_interface import SbomAdapter, is_blank_string
 
 SPDX2_DEPENDENCY_RELATIONSHIP_TYPES: frozenset[RelationshipType] = frozenset(
@@ -66,25 +73,76 @@ def _collect_spdx2_element_ids(doc: Document) -> set[str]:
     return element_ids
 
 
-def has_spdx2_dependency_relationship(doc: Document) -> bool:
-    """Return True if a dependency or containment relationship connects SPDX 2 elements."""
+def _is_spdx2_no_element(value: object) -> bool:
+    """Return True if value represents SPDX 2 ``NONE`` or ``NOASSERTION``."""
+    if isinstance(value, (SpdxNone, SpdxNoAssertion)):
+        return True
+    return isinstance(value, str) and value in SPDX2_NO_ELEMENT_VALUES
+
+
+def _is_valid_spdx2_dependency_endpoint(
+    value: object,
+    element_ids: set[str],
+    external_doc_ref_ids: set[str],
+    allow_no_element: bool,
+) -> bool:
+    """Return True if value is a valid partner element, external element, or NONE/NOASSERTION."""
+    if allow_no_element and _is_spdx2_no_element(value):
+        return True
+    if not isinstance(value, str):
+        return False
+    return value in element_ids or is_spdx2_external_element_id(
+        value, external_doc_ref_ids
+    )
+
+
+def has_spdx2_dependency_relationship(
+    doc: Document, reachable_ids: set[str] | None = None
+) -> bool:
+    """Return True if a reachable element declares a dependency or containment relationship."""
     relationships = getattr(doc, "relationships", [])
     if not relationships:
         return False
 
     element_ids = _collect_spdx2_element_ids(doc)
-    if len(element_ids) < 2:
+    if not element_ids:
         return False
 
-    return any(
-        rel.relationship_type in SPDX2_DEPENDENCY_RELATIONSHIP_TYPES
-        and isinstance(rel.spdx_element_id, str)
-        and isinstance(rel.related_spdx_element_id, str)
-        and rel.spdx_element_id != rel.related_spdx_element_id
-        and rel.spdx_element_id in element_ids
-        and rel.related_spdx_element_id in element_ids
-        for rel in relationships
+    allowed_origins = (
+        element_ids & reachable_ids if reachable_ids is not None else element_ids
     )
+    if not allowed_origins:
+        return False
+
+    external_doc_ref_ids = collect_spdx2_external_document_ref_ids(doc)
+
+    for rel in relationships:
+        if rel.relationship_type not in SPDX2_DEPENDENCY_RELATIONSHIP_TYPES:
+            continue
+
+        source = rel.spdx_element_id
+        target = rel.related_spdx_element_id
+        if not isinstance(source, str) or source == target:
+            continue
+
+        direction = SPDX2_RELATIONSHIP_TRAVERSAL.get(
+            rel.relationship_type.name, TraversalDirection.ALONG
+        )
+        if direction is TraversalDirection.AGAINST:
+            origin, endpoint, allow_no_element = target, source, False
+        else:
+            origin, endpoint, allow_no_element = source, target, True
+
+        if (
+            isinstance(origin, str)
+            and origin in allowed_origins
+            and _is_valid_spdx2_dependency_endpoint(
+                endpoint, element_ids, external_doc_ref_ids, allow_no_element
+            )
+        ):
+            return True
+
+    return False
 
 
 class Spdx2Adapter(SbomAdapter):
@@ -181,9 +239,11 @@ class Spdx2Adapter(SbomAdapter):
             and _is_blank(package.copyright_text, noassertion=True)
         ]
 
-    def check_dependency_relationships(self) -> bool:
+    def check_dependency_relationships(
+        self, reachable_ids: set[str] | None = None
+    ) -> bool:
         """In SPDX 2, this checks element-level dependency relationships."""
-        return has_spdx2_dependency_relationship(self.doc)
+        return has_spdx2_dependency_relationship(self.doc, reachable_ids=reachable_ids)
 
     def get_total_number_components(self) -> int:
         """In SPDX 2, this returns the total count of packages."""

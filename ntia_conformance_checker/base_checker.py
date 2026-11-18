@@ -299,7 +299,7 @@ class BaseChecker(ABC):
 
     def check_dependency_relationships(self) -> bool:
         """Check if the SBOM document declares dependency information."""
-        return self.adapter.check_dependency_relationships()
+        return self.adapter.check_dependency_relationships(self.reachable_component_ids)
 
     def check_timestamp(self) -> bool:
         """Check if the SBOM creation timestamp exists."""

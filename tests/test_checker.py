@@ -312,12 +312,8 @@ def test_sbomchecker_chainguard_example() -> None:
         "chainguard.spdx.json",
     )
     sbom = sbom_checker.SbomChecker(test_file)
-    assert sbom.doc_author
-    assert sbom.doc_timestamp
-    assert not sbom.components_without_names
-    assert not sbom.components_without_versions
-    assert not sbom.components_without_suppliers
-    assert not sbom.components_without_identifiers
+    assert sbom.doc_author and sbom.doc_timestamp
+    assert not sbom.all_components_without_info
     assert not sbom.dependency_relationships
     assert not sbom.compliant
 
@@ -726,23 +722,17 @@ def test_disconnected_component(test_file: str) -> None:
     spec = "spdx3" if "spdx3" in test_file else "spdx2"
     sbom = sbom_checker.SbomChecker(test_file, sbom_spec=spec)
 
-    # Disconnected components do not fail minimum elements compliance
-    assert sbom.compliant is True
+    # Disconnected components pass compliance when dependency relationships exist.
+    assert sbom.doc_author and sbom.doc_timestamp
+    assert not sbom.all_components_without_info
+    assert sbom.dependency_relationships is (spec == "spdx3")
+    assert sbom.compliant is (spec == "spdx3")
 
-    # Assert the valid root package was successfully reached
-    assert any(
-        "Package-Valid" in spdx_id for spdx_id in sbom.reachable_component_ids
-    ), "The root package should be in the reachable list."
-
-    # Assert the orphan package was successfully caught as noise
-    assert any(
-        "Package-Orphan" in spdx_id for spdx_id in sbom.floating_component_ids
-    ), "The orphan package should be isolated in the floating list."
-
-    # Assert the orphan package was NOT processed for compliance
+    assert any("Package-Valid" in spdx_id for spdx_id in sbom.reachable_component_ids)
+    assert any("Package-Orphan" in spdx_id for spdx_id in sbom.floating_component_ids)
     assert not any(
         "Package-Orphan" in spdx_id for spdx_id in sbom.reachable_component_ids
-    ), "The orphan package MUST NOT be in the reachable list."
+    )
 
     # Test JSON output contains floating components metadata
     json_output = sbom.output_json()

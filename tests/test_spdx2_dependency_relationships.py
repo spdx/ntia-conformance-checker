@@ -12,6 +12,7 @@ import pytest
 from spdx_tools.spdx.model.actor import Actor, ActorType
 from spdx_tools.spdx.model.checksum import Checksum, ChecksumAlgorithm
 from spdx_tools.spdx.model.document import CreationInfo, Document
+from spdx_tools.spdx.model.external_document_ref import ExternalDocumentRef
 from spdx_tools.spdx.model.file import File
 from spdx_tools.spdx.model.package import Package
 from spdx_tools.spdx.model.relationship import Relationship, RelationshipType
@@ -175,14 +176,103 @@ def test_spdx2_dependency_relationship_accepts_file_and_snippet_elements() -> No
     [
         SpdxNone(),
         SpdxNoAssertion(),
+        "NONE",
+        "NOASSERTION",
+    ],
+)
+def test_spdx2_dependency_relationship_accepts_none_and_noassertion(
+    target: str | SpdxNone | SpdxNoAssertion,
+) -> None:
+    """Single-package SBOM stating NONE or NOASSERTION dependency returns True."""
+    doc = _build_spdx2_doc(
+        [
+            Relationship(
+                "SPDXRef-Package-App",
+                RelationshipType.DEPENDS_ON,
+                target,
+            )
+        ]
+    )
+    doc.packages = doc.packages[:1]
+    assert has_spdx2_dependency_relationship(doc)
+    assert has_spdx2_dependency_relationship(doc, reachable_ids={"SPDXRef-Package-App"})
+
+
+def test_spdx2_dependency_relationship_external_document_ref() -> None:
+    """Declared ExternalDocumentRef targets pass; undeclared prefixes fail."""
+    doc = _build_spdx2_doc(
+        [
+            Relationship(
+                "SPDXRef-Package-App",
+                RelationshipType.DEPENDS_ON,
+                "DocumentRef-other:SPDXRef-Package-Lib",
+            )
+        ]
+    )
+    doc.packages = doc.packages[:1]
+    assert not has_spdx2_dependency_relationship(doc)
+
+    doc.creation_info.external_document_refs = [
+        ExternalDocumentRef(
+            document_ref_id="DocumentRef-other",
+            document_uri="https://example.com/spdx/other",
+            checksum=Checksum(
+                ChecksumAlgorithm.SHA1,
+                "d6a770ba38583ed4bb4525bd96e50461655d2758",
+            ),
+        )
+    ]
+    assert has_spdx2_dependency_relationship(doc)
+    assert has_spdx2_dependency_relationship(doc, reachable_ids={"SPDXRef-Package-App"})
+
+    doc.relationships = [
+        Relationship(
+            "DocumentRef-other:SPDXRef-Package-Lib",
+            RelationshipType.BUILD_DEPENDENCY_OF,
+            "SPDXRef-Package-App",
+        )
+    ]
+    assert has_spdx2_dependency_relationship(doc, reachable_ids={"SPDXRef-Package-App"})
+
+
+def test_spdx2_dependency_relationship_requires_reachable_origin() -> None:
+    """Relationships outside reachable_ids do not satisfy the check."""
+    doc = _build_spdx2_doc(
+        [
+            Relationship(
+                "SPDXRef-Package-Lib",
+                RelationshipType.DEPENDS_ON,
+                SpdxNone(),
+            )
+        ]
+    )
+    assert not has_spdx2_dependency_relationship(
+        doc, reachable_ids={"SPDXRef-Package-App"}
+    )
+
+    doc.relationships = [
+        Relationship(
+            "SPDXRef-Package-Lib",
+            RelationshipType.DEPENDS_ON,
+            "SPDXRef-Package-App",
+        )
+    ]
+    assert not has_spdx2_dependency_relationship(
+        doc, reachable_ids={"SPDXRef-Package-App"}
+    )
+
+
+@pytest.mark.parametrize(
+    "target",
+    [
         "SPDXRef-Missing",
         "SPDXRef-Package-App",
     ],
 )
 def test_spdx2_dependency_relationship_rejects_invalid_targets(
-    target: str | SpdxNone | SpdxNoAssertion,
+    target: str,
 ) -> None:
-    """Targets that are NONE, NOASSERTION, missing, or self-referential return False."""
+    """Targets that are missing or self-referential return False."""
     doc = _build_spdx2_doc(
         [
             Relationship(
@@ -193,6 +283,62 @@ def test_spdx2_dependency_relationship_rejects_invalid_targets(
         ]
     )
     assert not has_spdx2_dependency_relationship(doc)
+
+
+@pytest.mark.parametrize(
+    "fixture_name",
+    [
+        "single_package_depends_on_none.spdx",
+        "single_package_depends_on_noassertion.spdx",
+    ],
+)
+def test_spdx2_single_package_no_dependencies_fixtures(fixture_name: str) -> None:
+    """Single-package SBOM fixtures stating NONE or NOASSERTION are conformant."""
+    fixture = (
+        Path(__file__).parent / "data" / "spdx2_dependency_relationships" / fixture_name
+    )
+    sbom = SbomChecker(str(fixture), sbom_spec="spdx2")
+    assert not sbom.parsing_errors
+    assert not sbom.validation_messages
+    assert sbom.dependency_relationships is True
+    assert sbom.compliant is True
+
+
+def test_spdx2_floating_packages_linked_fixture() -> None:
+    """Two floating packages linked to each other do not satisfy dependency check."""
+    fixture = (
+        Path(__file__).parent
+        / "data"
+        / "spdx2_dependency_relationships"
+        / "floating_packages_linked_spdx2.json"
+    )
+    sbom = SbomChecker(str(fixture), sbom_spec="spdx2")
+    assert not sbom.parsing_errors
+    assert not sbom.validation_messages
+    assert sbom.reachable_component_ids == {"SPDXRef-Package-Valid"}
+    assert sbom.floating_component_ids == {
+        "SPDXRef-Package-Float-A",
+        "SPDXRef-Package-Float-B",
+    }
+    assert sbom.dependency_relationships is False
+    assert sbom.compliant is False
+
+
+def test_spdx2_disconnected_with_dependency_fixture() -> None:
+    """Floating components do not fail compliance when reachable graph states NONE."""
+    fixture = (
+        Path(__file__).parent
+        / "data"
+        / "spdx2_dependency_relationships"
+        / "disconnected_with_dependency_spdx2.json"
+    )
+    sbom = SbomChecker(str(fixture), sbom_spec="spdx2")
+    assert not sbom.parsing_errors
+    assert not sbom.validation_messages
+    assert sbom.reachable_component_ids == {"SPDXRef-Package-Valid"}
+    assert sbom.floating_component_ids == {"SPDXRef-Package-Orphan"}
+    assert sbom.dependency_relationships is True
+    assert sbom.compliant is True
 
 
 def test_sbomchecker_spdx2_package_dependency_conformance(tmp_path: Path) -> None:

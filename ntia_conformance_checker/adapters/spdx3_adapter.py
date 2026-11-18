@@ -229,7 +229,9 @@ class Spdx3Adapter(SbomAdapter):
             if _is_blank(copyright_text, noassertion=True)
         ]
 
-    def check_dependency_relationships(self) -> bool:
+    def check_dependency_relationships(
+        self, reachable_ids: set[str] | None = None
+    ) -> bool:
         """In SPDX 3, this checks package-level dependency relationships."""
         return has_package_dependency_relationship(self.object_set)
 

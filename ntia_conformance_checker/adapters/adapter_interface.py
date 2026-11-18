@@ -133,7 +133,9 @@ class SbomAdapter(ABC):
         """
 
     @abstractmethod
-    def check_dependency_relationships(self) -> bool:
+    def check_dependency_relationships(
+        self, reachable_ids: set[str] | None = None
+    ) -> bool:
         """Check if the SBOM document declares dependency information."""
 
     @abstractmethod

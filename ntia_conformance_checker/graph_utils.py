@@ -34,7 +34,7 @@ if TYPE_CHECKING:
 # of a relationship instead of an element: there are no other relationships
 # (NONE), or it is not known (NOASSERTION). spdx-tools reads them as
 # SpdxNone and SpdxNoAssertion, whose str() is the keyword.
-_SPDX2_NO_ELEMENT_VALUES = frozenset({"NONE", "NOASSERTION"})
+SPDX2_NO_ELEMENT_VALUES = frozenset({"NONE", "NOASSERTION"})
 
 _SPDX2_SPDXID_PATTERN = re.compile(r"SPDXRef-[A-Za-z0-9.\-]+")
 
@@ -51,7 +51,7 @@ def _get_spdx2_doc_ids(spdx2_doc: "Document") -> set[str]:
     return {_get_spdx2_doc_id(spdx2_doc), "SPDXRef-DOCUMENT"}
 
 
-def _collect_spdx2_external_document_ref_ids(spdx2_doc: "Document") -> set[str]:
+def collect_spdx2_external_document_ref_ids(spdx2_doc: "Document") -> set[str]:
     """
     Retrieve the IDs of external documents declared in an SPDX 2 document.
 
@@ -70,7 +70,7 @@ def _collect_spdx2_external_document_ref_ids(spdx2_doc: "Document") -> set[str]:
     }
 
 
-def _is_spdx2_external_element_id(
+def is_spdx2_external_element_id(
     element_id: str, external_doc_ref_ids: set[str]
 ) -> bool:
     """
@@ -205,7 +205,7 @@ def _get_known_predicate_and_package_ids(
     Return whether an element ID refers to an element that exists, and the package IDs.
 
     For SPDX 2, an element in a declared external document exists, but not in
-    this document; see ``_is_spdx2_external_element_id``.
+    this document; see ``is_spdx2_external_element_id``.
 
     Returns:
         tuple: (is_known, all_package_ids)
@@ -213,13 +213,13 @@ def _get_known_predicate_and_package_ids(
     if sbom_spec == "spdx2":
         spdx2_doc = cast("Document", parsed_data)
         known_ids, package_ids = _collect_spdx2_known_and_package_ids(spdx2_doc)
-        external_doc_ref_ids = _collect_spdx2_external_document_ref_ids(spdx2_doc)
+        external_doc_ref_ids = collect_spdx2_external_document_ref_ids(spdx2_doc)
 
         def is_known(element_id: str) -> bool:
             return (
                 element_id in known_ids
-                or element_id in _SPDX2_NO_ELEMENT_VALUES
-                or _is_spdx2_external_element_id(element_id, external_doc_ref_ids)
+                or element_id in SPDX2_NO_ELEMENT_VALUES
+                or is_spdx2_external_element_id(element_id, external_doc_ref_ids)
             )
 
         return is_known, package_ids
