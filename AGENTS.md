@@ -72,7 +72,7 @@ tool's behavior.
   clause number, title and URL exactly as in the source:
   - Form: `<document> <edition> §<clause> "<title>"`,
     e.g. `BSI TR-03183-2 v2.1.0 §5.2.2`, `FSCT 3rd ed. §2.2.1.1 "Author
-    Name"`, `SPDX 2.3 §7.5 "Package supplier field"`,
+    Name"`, `SPDX 2.3.1 §7.5 "Package supplier field"`,
     `SPDX 3.0.1 Core/Classes/Agent`,
     `SARIF 2.1.0 §3.49 "reportingDescriptor object"`.
   - No numbered clauses: cite the heading path or table, e.g.
@@ -113,10 +113,14 @@ SBOM formats (normative):
   cardinality; JSON-LD [context][SPDX 3.0.1 context].
 - [SPDX 3.1-dev], `refs/spdx/spdx-model-3.1-dev-20261114.ttl`: unreleased;
   implement checks against it only when the task says so.
-- [SPDX 2.3] has clauses 1–13 and Annexes A–L; fields are numbered per
-  clause, e.g. [§7 Package information][SPDX 2.3 §7]. Also [SPDX 2.2].
-- [SPDX License List]; license expressions in SPDX 3.0.1 Annex B and SPDX 2.3
-  Annex D.
+- [SPDX 2.3.1][SPDX 2.3] is SPDX 2.3 with corrections; use it, not the
+  original 2.3 text (documents still declare `SPDX-2.3`). Clauses 1–13 and
+  Annexes A–L; fields are numbered per clause, e.g.
+  [§7 Package information][SPDX 2.3 §7]. Annex subclauses were renumbered
+  (the NTIA mapping moved from K.2.2 to L.1.2), so cite `SPDX 2.3.1`. Also
+  [SPDX 2.2.2][SPDX 2.2].
+- [SPDX License List]; license expressions in SPDX 3.0.1 Annex B and SPDX
+  2.3.1 Annex D.
 - Package URL: [ECMA-427] 1st edition (December 2025); purl types, schemas
   and tests at [packageurl.org]. VERS (version ranges), hosted there too, is
   not yet an approved standard.
@@ -126,7 +130,7 @@ Minimum elements (normative; the id is the `--comply` value):
 - `ntia`: [NTIA 2021] Minimum Elements (July 12, 2021),
   `refs/2021-ntia-sbom-minimum-elements.pdf`. Cite section IV, group and
   element, e.g. "IV. Minimum Elements > Data Fields > Supplier Name". SPDX
-  mapping: [SPDX 2.3 Annex K.2.2].
+  mapping: [SPDX 2.3.1 Annex L.1.2].
 - `fsct3-min`: [Framing Software Component Transparency, 3rd ed.][FSCT 3]
   (CISA, September 3, 2024), `refs/2024-cisa-sbom-baseline-attributes.pdf`.
   §2.2.1 SBOM meta-information, §2.2.2 component attributes, §2.3 undeclared
@@ -142,7 +146,8 @@ Minimum elements (normative; the id is the `--comply` value):
     [PDF][CISA 2026 PDF]), `refs/2026-sbom-minimum-elements.pdf`; replaces
     NTIA 2021. No numbered clauses: cite "Data Fields > SBOM Metadata",
     "Data Fields > Component Data" or "Practices and Processes" plus the
-    element, or Appendix A Table 1.
+    element, or Appendix A Table 1. SPDX mapping:
+    [SPDX 2.3.1 Annex L.2.2].
   - [G7 SBOM for AI: Minimum Elements][G7 SBOM for AI] (2026),
     `refs/2026-g7-sbom-for-ai-minimum-elements.pdf`. Cite the cluster (§2.1
     Metadata to §2.7 Key Performance Indicators) and element; these add to,
@@ -165,9 +170,9 @@ Report formats (normative):
 Non-normative (intent, examples, test fixtures; never requirements):
 
 - [Using SPDX] (see [complying with norms][Using SPDX norms]);
-  [spdx-examples] (incl. [conformance][spdx-examples conformance]); SPDX 2.3
-  informative [Annex K][SPDX 2.3 Annex K] (how to use) and
-  [Annex L][SPDX 2.3 Annex L] (regulation compliance).
+  [spdx-examples] (incl. [conformance][spdx-examples conformance]); SPDX
+  2.3.1 informative [Annex K][SPDX 2.3 Annex K] (how to use) and
+  [Annex L][SPDX 2.3 Annex L] (compliance with regulatory frameworks).
 - [CISA 2025 Minimum Elements draft][CISA 2025 draft] (August 2025),
   `refs/2025-cisa-sbom-minimum-elements.pdf`: superseded by CISA 2026; use it
   only to trace how an element changed, never as the basis for a check.
@@ -213,8 +218,9 @@ Non-normative (intent, examples, test fixtures; never requirements):
 [SPDX 2.3]: https://spdx.github.io/spdx-spec/v2.3.1/
 [SPDX 2.3 §7]: https://spdx.github.io/spdx-spec/v2.3.1/package-information/
 [SPDX 2.3 Annex K]: https://spdx.github.io/spdx-spec/v2.3.1/how-to-use/
-[SPDX 2.3 Annex K.2.2]: https://spdx.github.io/spdx-spec/v2.3/how-to-use/#k22-mapping-ntia-minimum-elements-to-spdx-fields
 [SPDX 2.3 Annex L]: https://spdx.github.io/spdx-spec/v2.3.1/regulations-compliance/
+[SPDX 2.3.1 Annex L.1.2]: https://spdx.github.io/spdx-spec/v2.3.1/regulations-compliance/#l12-mapping-2021-ntia-minimum-elements-to-spdx-fields
+[SPDX 2.3.1 Annex L.2.2]: https://spdx.github.io/spdx-spec/v2.3.1/regulations-compliance/#l22-mapping-2026-cisa-minimum-elements-to-spdx-fields
 [SPDX 3.0.1]: https://spdx.github.io/spdx-spec/v3.0.1/
 [SPDX 3.0.1 Agent]: https://spdx.github.io/spdx-spec/v3.0.1/model/Core/Classes/Agent/
 [SPDX 3.0.1 context]: https://spdx.org/rdf/3.0.1/spdx-context.jsonld
