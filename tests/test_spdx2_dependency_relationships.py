@@ -75,6 +75,8 @@ def _build_spdx2_doc(relationships: list[Relationship]) -> Document:
         (RelationshipType.TEST_DEPENDENCY_OF, True),
         (RelationshipType.DYNAMIC_LINK, True),
         (RelationshipType.STATIC_LINK, True),
+        (RelationshipType.HAS_PREREQUISITE, True),
+        (RelationshipType.PREREQUISITE_FOR, True),
         (RelationshipType.DESCRIBES, False),
         (RelationshipType.DESCRIBED_BY, False),
         (RelationshipType.VARIANT_OF, False),

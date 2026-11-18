@@ -32,6 +32,8 @@ SPDX2_DEPENDENCY_RELATIONSHIP_TYPES: frozenset[RelationshipType] = frozenset(
         RelationshipType.TEST_DEPENDENCY_OF,
         RelationshipType.DYNAMIC_LINK,
         RelationshipType.STATIC_LINK,
+        RelationshipType.HAS_PREREQUISITE,
+        RelationshipType.PREREQUISITE_FOR,
     }
 )
 
