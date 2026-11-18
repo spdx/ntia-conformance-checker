@@ -1,0 +1,130 @@
+{
+  "@context": "https://spdx.org/rdf/3.0.1/spdx-context.jsonld",
+  "@graph": [
+    {
+      "type": "CreationInfo",
+      "@id": "_:creationinfo",
+      "specVersion": "3.0.1",
+      "createdBy": [
+        "https://example.com/org"
+      ],
+      "created": "2026-01-01T00:00:00Z"
+    },
+    {
+      "type": "Organization",
+      "spdxId": "https://example.com/org",
+      "creationInfo": "_:creationinfo",
+      "name": "Example Org"
+    },
+    {
+      "type": "SpdxDocument",
+      "spdxId": "https://example.com/doc",
+      "creationInfo": "_:creationinfo",
+      "profileConformance": [
+        "core",
+        "software",
+        "ai",
+        "dataset"
+      ],
+      "rootElement": [
+        "https://example.com/sbom"
+      ]
+    },
+    {
+      "type": "software_Sbom",
+      "spdxId": "https://example.com/sbom",
+      "creationInfo": "_:creationinfo",
+      "software_sbomType": [
+        "build"
+      ],
+      "rootElement": [
+        "https://example.com/app"
+      ],
+      "element": [
+        "https://example.com/app",
+        "https://example.com/model",
+        "https://example.com/dataset",
+        "https://example.com/test-dataset"
+      ]
+    },
+    {
+      "type": "software_Package",
+      "spdxId": "https://example.com/app",
+      "creationInfo": "_:creationinfo",
+      "name": "App",
+      "software_packageVersion": "1.0",
+      "suppliedBy": "https://example.com/org",
+      "software_downloadLocation": "https://example.com/app.zip"
+    },
+    {
+      "type": "ai_AIPackage",
+      "spdxId": "https://example.com/model",
+      "creationInfo": "_:creationinfo",
+      "name": "Model",
+      "software_packageVersion": "1.0",
+      "suppliedBy": "https://example.com/org",
+      "releaseTime": "2026-01-01T00:00:00Z",
+      "software_downloadLocation": "https://example.com/model.bin",
+      "software_primaryPurpose": "model"
+    },
+    {
+      "type": "dataset_DatasetPackage",
+      "spdxId": "https://example.com/dataset",
+      "creationInfo": "_:creationinfo",
+      "name": "TrainingData",
+      "suppliedBy": "https://example.com/org",
+      "releaseTime": "2026-01-01T00:00:00Z",
+      "builtTime": "2026-01-01T00:00:00Z",
+      "software_downloadLocation": "https://example.com/data.tar",
+      "software_primaryPurpose": "data",
+      "dataset_datasetType": [
+        "image"
+      ]
+    },
+    {
+      "type": "dataset_DatasetPackage",
+      "spdxId": "https://example.com/test-dataset",
+      "creationInfo": "_:creationinfo",
+      "name": "TestData",
+      "suppliedBy": "https://example.com/org",
+      "releaseTime": "2026-01-01T00:00:00Z",
+      "builtTime": "2026-01-01T00:00:00Z",
+      "software_downloadLocation": "https://example.com/data.tar",
+      "software_primaryPurpose": "data",
+      "dataset_datasetType": [
+        "image"
+      ],
+      "software_packageVersion": "1.0"
+    },
+    {
+      "type": "Relationship",
+      "spdxId": "https://example.com/rel-contains",
+      "creationInfo": "_:creationinfo",
+      "from": "https://example.com/app",
+      "relationshipType": "contains",
+      "to": [
+        "https://example.com/model"
+      ]
+    },
+    {
+      "type": "Relationship",
+      "spdxId": "https://example.com/rel-trained",
+      "creationInfo": "_:creationinfo",
+      "from": "https://example.com/model",
+      "relationshipType": "trainedOn",
+      "to": [
+        "https://example.com/dataset"
+      ]
+    },
+    {
+      "type": "Relationship",
+      "spdxId": "https://example.com/rel-tested",
+      "creationInfo": "_:creationinfo",
+      "from": "https://example.com/model",
+      "relationshipType": "testedOn",
+      "to": [
+        "https://example.com/test-dataset"
+      ]
+    }
+  ]
+}
