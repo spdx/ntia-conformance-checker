@@ -62,19 +62,19 @@ Followed relationships:
 
 | SPDX 3 type | SPDX 2, walked A to B | SPDX 2, walked B to A | Parent to child | Dependency |
 | --- | --- | --- | --- | --- |
-| `contains` | `CONTAINS` | `CONTAINED_BY` | Whole to part | ✓ |
-| `hasOptionalComponent` | | `OPTIONAL_COMPONENT_OF` | Whole to part | |
-| `packagedBy` | | `PACKAGE_OF` | Element to its package | |
-| `dependsOn` | `DEPENDS_ON` | `DEPENDENCY_OF`, `BUILD_`, `DEV_`, `RUNTIME_`, `TEST_DEPENDENCY_OF` | Dependent to dependency | ✓ |
-| `hasOptionalDependency` | | `OPTIONAL_DEPENDENCY_OF` | Dependent to dependency | ✓ |
-| `hasProvidedDependency` | | `PROVIDED_DEPENDENCY_OF` | Dependent to dependency | ✓ |
-| `hasPrerequisite` | `HAS_PREREQUISITE` | `PREREQUISITE_FOR` | Dependent to prerequisite | ✓ |
-| `hasDynamicLink` | `DYNAMIC_LINK` | | Linker to linked | ✓ |
-| `hasStaticLink` | `STATIC_LINK` | | Linker to linked | ✓ |
-| `trainedOn`, `testedOn` | | | Model to dataset | |
-| `usesTool` | | `BUILD_TOOL_OF`, `DEV_TOOL_OF`, `TEST_TOOL_OF` | Product to tool | |
-| `generates` (walked B to A) | `GENERATED_FROM` | `GENERATES` | Product to source | |
-| (SPDX 2 only) | `DESCRIBES` | `DESCRIBED_BY` | Describer to described | |
+| `contains` | `CONTAINS` | `CONTAINED_BY` | Whole to part | Yes |
+| `hasOptionalComponent` | | `OPTIONAL_COMPONENT_OF` | Whole to part | No |
+| `packagedBy` | | `PACKAGE_OF` | Element to its package | No |
+| `dependsOn` | `DEPENDS_ON` | `DEPENDENCY_OF`, `BUILD_`, `DEV_`, `RUNTIME_`, `TEST_DEPENDENCY_OF` | Dependent to dependency | Yes |
+| `hasOptionalDependency` | | `OPTIONAL_DEPENDENCY_OF` | Dependent to dependency | Yes |
+| `hasProvidedDependency` | | `PROVIDED_DEPENDENCY_OF` | Dependent to dependency | Yes |
+| `hasPrerequisite` | `HAS_PREREQUISITE` | `PREREQUISITE_FOR` | Dependent to prerequisite | Yes |
+| `hasDynamicLink` | `DYNAMIC_LINK` | | Linker to linked | Yes |
+| `hasStaticLink` | `STATIC_LINK` | | Linker to linked | Yes |
+| `trainedOn`, `testedOn` | | | Model to dataset | No |
+| `usesTool` | | `BUILD_TOOL_OF`, `DEV_TOOL_OF`, `TEST_TOOL_OF` | Product to tool | No |
+| `generates` (walked B to A) | `GENERATED_FROM` | `GENERATES` | Product to source | No |
+| (SPDX 2 only) | `DESCRIBES` | `DESCRIBED_BY` | Describer to described | No |
 
 <!-- markdownlint-enable MD013 -->
 
