@@ -30,11 +30,6 @@ and this project adheres to [Semantic Versioning][semver].
 
 - JSON output lists missing element IDs in
   `graphValidation.unknownPointers.missingElementIds`
-- Public names: `graph_utils.analyze_graph` and its `GraphConnectivity`
-  result, `BaseChecker.missing_element_ids`, `TraversalDirection`,
-  `SPDX2_RELATIONSHIP_TRAVERSAL`, `SPDX3_RELATIONSHIP_TRAVERSAL`,
-  `SPDX2_DEPENDENCY_RELATIONSHIP_TYPES` and
-  `SPDX3_DEPENDENCY_RELATIONSHIP_TYPES`
 - GitHub releases attach the wheel, the sdist and the wheel's SPDX 3 SBOM,
   each with a Sigstore bundle and a build provenance attestation;
   see "Verify release files" in `SECURITY.md`
@@ -62,13 +57,6 @@ and this project adheres to [Semantic Versioning][semver].
 - Releases publish to PyPI only after the SBOM is validated; release files are
   attached, signed and attested after the publish, and can be re-run if that
   fails
-
-### Removed
-
-- `SbomAdapter.check_dependency_relationships` and its implementations,
-  `spdx3_utils.has_package_dependency_relationship` and
-  `SPDX3_PACKAGE_DEPENDENCY_RELATIONSHIP_TYPES`; the graph analysis decides
-  this now (`GraphConnectivity.has_dependency_relationship`)
 
 ### Deprecated
 
