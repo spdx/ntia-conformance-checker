@@ -144,10 +144,11 @@ Basis:
 Tools, sources and training data are followed but are not dependency
 relationships: they are inputs, not included components.
 
-Limitation: the checker does not read external or imported documents, so it
-cannot tell what type of element it finds there. Any such element counts as
-the other end, even an imported SPDX 3 document or `Sbom`; only an SPDX 2
-external document itself, `DocumentRef-x:SPDXRef-DOCUMENT`, is excluded.
+Limitation: the checker does not read external or imported documents. An
+SPDX 3 import (`ExternalMap`) gives only the element's ID, not its type, so
+any imported element counts as the other end, even a document or `Sbom`. An
+SPDX 2 external document itself, `DocumentRef-x:SPDXRef-DOCUMENT`, is
+recognized by its ID and excluded.
 
 **Q: The CLI output reports that a relationship points to a missing element.
 What does this mean?**
