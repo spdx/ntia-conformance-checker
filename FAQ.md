@@ -107,9 +107,15 @@ A: A reachable component must declare a relationship of a type marked
 "Dependency" in the table above, in either SPDX 2 form. Both ends must be
 different elements that exist (here, or in a declared external or imported
 document), or the other end must be "none" or "no assertion" (SPDX 2 `NONE`,
-`NOASSERTION`; SPDX 3 `NoneElement`, `NoAssertionElement`). Documents and collections, such as an
-`Sbom`, are not components, so `SPDXRef-DOCUMENT DESCRIBES A` alone does not
-count. The rule is the same for SPDX 2 and SPDX 3.
+`NOASSERTION`; SPDX 3 `NoneElement`, `NoAssertionElement`). Documents and
+collections, such as an `Sbom`, are not components, so
+`SPDXRef-DOCUMENT DESCRIBES A` alone does not count. The rule is the same for
+SPDX 2 and SPDX 3.
+
+Here a component is any other element, files and snippets included, as a
+relationship may link any two elements (SPDX 2.3.1 clause 11.1). The
+reachable and floating component lists, and the per-component checks, count
+packages only; this may change.
 
 Basis:
 
@@ -134,6 +140,11 @@ Basis:
 
 Tools, sources and training data are followed but are not dependency
 relationships: they are inputs, not included components.
+
+Limitation: the checker does not read external or imported documents, so it
+cannot tell what type of element it finds there. Any such element counts as
+the other end, even an imported SPDX 3 document or `Sbom`; only an SPDX 2
+external document itself, `DocumentRef-x:SPDXRef-DOCUMENT`, is excluded.
 
 **Q: The CLI output reports that a relationship points to a missing element.
 What does this mean?**

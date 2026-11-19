@@ -271,12 +271,12 @@ def _has_dependency_relationship(
     """
     Check whether a reachable component declares a dependency relationship.
 
-    The relationship links two components: the parent is reachable, both
-    ends exist (here, or external or imported) and differ, and neither is a
-    document or collection. A none or no-assertion child also counts: it
-    states that there are no further dependencies, or that they are unknown.
-    This reading is meant for any minimum elements standard; FAQ.md cites
-    NTIA 2021 and CISA 2026 for it.
+    The relationship links two different components, which are any elements
+    but documents and collections (files included): the parent is reachable
+    and both ends exist, here or external or imported. A none or no-assertion
+    child also counts: it states that there are no further dependencies, or
+    that they are unknown. This reading is meant for any minimum elements
+    standard; FAQ.md cites NTIA 2021 and CISA 2026 for it.
 
     Args:
         graph: The relationship graph.
@@ -353,10 +353,10 @@ def analyze_graph(
             missing elements, the missing element IDs, and whether a
             dependency relationship is declared.
     """
-    if not parsed_data or (sbom_spec == "spdx3" and not spdx3_doc):
+    reached = _reach(sbom_spec, parsed_data, spdx3_doc)
+    if reached is None:
         return GraphConnectivity()
-
-    reachable_node_ids, graph = _reach(sbom_spec, parsed_data, spdx3_doc)
+    reachable_node_ids, graph = reached
 
     is_known, all_package_ids = _get_known_predicate_and_package_ids(
         sbom_spec, parsed_data
@@ -621,16 +621,16 @@ def _traverse(queue: list[str], traversal_edges: dict[str, list[str]]) -> set[st
 
 def _reach(
     sbom_spec: str, parsed_data: Any, spdx3_doc: Any = None
-) -> tuple[set[str], _Graph]:
+) -> tuple[set[str], _Graph] | None:
     """
     Build the graph and find the nodes reachable from the roots.
 
     Returns:
-        tuple: (reachable_node_ids, graph); empty without data or an SPDX 3
-            document.
+        tuple | None: (reachable_node_ids, graph); None without data or an
+            SPDX 3 document.
     """
     if not parsed_data or (sbom_spec == "spdx3" and not spdx3_doc):
-        return set(), _Graph()
+        return None
 
     graph = _build_graph(sbom_spec, parsed_data, spdx3_doc)
     return _traverse(graph.roots, graph.traversal_edges), graph
@@ -650,5 +650,8 @@ def get_reachable_nodes(
             SPDX 2 ``A CONTAINED_BY B`` or SPDX 3 ``A generates B`` (from B
             to A).
     """
-    reachable_node_ids, graph = _reach(sbom_spec, parsed_data, spdx3_doc)
+    reached = _reach(sbom_spec, parsed_data, spdx3_doc)
+    if reached is None:
+        return set(), {}
+    reachable_node_ids, graph = reached
     return reachable_node_ids, graph.traversal_edges

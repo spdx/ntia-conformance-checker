@@ -28,7 +28,10 @@ EXT_REF = (
 
 
 def _spdx2_checker(
-    tmp_path: Path, relationships: list[str], packages: tuple[str, ...] = ("App",)
+    tmp_path: Path,
+    relationships: list[str],
+    packages: tuple[str, ...] = ("App",),
+    files: tuple[str, ...] = (),
 ) -> SbomChecker:
     """Check an SPDX 2 tag-value SBOM that describes the first package."""
     lines = [
@@ -44,6 +47,13 @@ def _spdx2_checker(
         f"Relationship: SPDXRef-DOCUMENT DESCRIBES SPDXRef-{packages[0]}",
         *(f"Relationship: {r}" for r in relationships),
     ]
+    for name in files:
+        lines += [
+            "",
+            f"FileName: ./{name}",
+            f"SPDXID: SPDXRef-{name}",
+            "FileChecksum: SHA1: 0123456789abcdef0123456789abcdef01234567",
+        ]
     for name in packages:
         lines += [
             "",
@@ -125,6 +135,23 @@ def test_spdx2_dependency_relationship_rule(
 ) -> None:
     checker = _spdx2_checker(tmp_path, relationships, packages=("App", "Tool"))
     assert checker.dependency_relationships is expected
+
+
+@pytest.mark.parametrize(
+    "relationships",
+    [
+        ["SPDXRef-DOCUMENT DESCRIBES SPDXRef-F", "SPDXRef-F DEPENDS_ON SPDXRef-App"],
+        ["SPDXRef-App CONTAINS SPDXRef-F"],
+    ],
+    ids=["from-file", "to-file"],
+)
+def test_spdx2_dependency_relationship_with_file(
+    tmp_path: Path, relationships: list[str]
+) -> None:
+    """A file is an element that a relationship may link (SPDX 2.3.1 clause 11.1)."""
+    checker = _spdx2_checker(tmp_path, relationships, files=("F",))
+    assert checker.dependency_relationships is True
+    assert checker.floating_component_ids == set()
 
 
 @pytest.mark.parametrize(
