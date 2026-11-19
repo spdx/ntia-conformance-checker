@@ -13,6 +13,7 @@ import copy
 import dataclasses
 import pickle
 from pathlib import Path
+from typing import TYPE_CHECKING, Any
 
 import pytest
 import yaml
@@ -33,6 +34,9 @@ from ntia_conformance_checker.spec_loader import (
 )
 
 _RULES_DIR = Path(registry.__file__).parent / "rules"
+
+if TYPE_CHECKING:
+    from ntia_conformance_checker.model import Finding
 
 
 def _demo_spec() -> Spec:
@@ -382,9 +386,18 @@ def test_unique_key_loader_allows_chained_merge_keys() -> None:
 def test_probe_registration_contract(monkeypatch: pytest.MonkeyPatch) -> None:
     monkeypatch.setattr(probe_registry, "_PROBES", {})
     scoped = frozenset({"supplier"})
+
+    def kwargs_probe(  # pylint: disable=unused-argument
+        checker: Any, **kw: Any
+    ) -> list[Finding]:
+        return []
+
+    def plain_probe(checker: Any) -> list[Finding]:  # pylint: disable=unused-argument
+        return []
+
     for fn, attributes in (
-        (lambda checker, **kw: [], None),  # **kwargs defeats param validation
-        (lambda checker: [], scoped),  # scoped probe without `attribute`
+        (kwargs_probe, None),
+        (plain_probe, scoped),
     ):
         with pytest.raises(ValueError):
             probe_registry.probe("p", attributes=attributes)(fn)
@@ -394,7 +407,9 @@ def test_probe_registration_contract(monkeypatch: pytest.MonkeyPatch) -> None:
 def test_scoped_probe_attribute_must_be_given_explicitly(
     tmp_path: Path, monkeypatch: pytest.MonkeyPatch
 ) -> None:
-    def dflt(checker, *, attribute="supplier"):  # type: ignore[no-untyped-def]  # pylint: disable=unused-argument
+    def dflt(  # pylint: disable=unused-argument
+        checker: Any, *, attribute: str = "supplier"
+    ) -> list[Finding]:
         return []
 
     monkeypatch.setitem(probe_registry._PROBES, "dflt", dflt)
