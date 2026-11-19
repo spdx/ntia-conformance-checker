@@ -152,9 +152,10 @@ SPDX2_RELATIONSHIP_TRAVERSAL: dict[str, TraversalDirection] = (
 # subset of SPDX3_RELATIONSHIP_TRAVERSAL: composition, dependency and
 # linking, not tools, provenance or training data. NTIA 2021 (IV. Minimum
 # Elements > Data Fields > Dependency Relationship): "an upstream component X
-# is included in software Y"; CISA 2026 (Data Fields > Component Data >
-# Component Dependency Relationship): "one component is necessary for the
-# operation of the other".
+# is included in software Y". CISA 2026, which replaces NTIA 2021, agrees
+# (Data Fields > Component Data > Component Dependency Relationship): "one
+# component is necessary for the operation of the other", and the element
+# "reflects that a component includes another component".
 SPDX3_DEPENDENCY_RELATIONSHIP_TYPES: frozenset[str] = frozenset(
     {
         "contains",

@@ -275,16 +275,22 @@ def _has_dependency_relationship(
     Check whether a reachable element declares a dependency relationship.
 
     NTIA 2021 (IV. Minimum Elements > Data Fields > Dependency Relationship)
-    relates components: "an upstream component X is included in software Y".
-    So the parent must be a reachable element that is not a document or a
-    collection, and the child a different element that exists, here or in a
-    declared external or imported document, and is not a document either.
+    relates components: "an upstream component X is included in software Y",
+    as does CISA 2026, which replaces it (Data Fields > Component Data >
+    Component Dependency Relationship). So the parent must be a reachable
+    element that is not a document or a collection, and the child a different
+    element that exists and is not a document either. The child may be in a
+    declared external or imported document: CISA 2026 (same element) says
+    "an SBOM document can link to separate SBOM documents for each of the
+    target component's dependencies".
 
     The child may also be a none or no-assertion value: NTIA 2021 (IV. Minimum
     Elements > Practices and Processes > Known Unknowns) says the author
     "should affirmatively state ... when a component has no further
     dependencies", and that this "is implemented in the dependency
-    relationship data field".
+    relationship data field". CISA 2026 replaced Known Unknowns with
+    "Explicitly Identifying Unknown Information" (Practices and Processes), "a
+    practice ... rather than a data field", so this part rests on NTIA 2021.
 
     Args:
         graph: The relationship graph.

@@ -111,14 +111,26 @@ document), or "none" or "no assertion" (SPDX 2 `NONE`, `NOASSERTION`; SPDX 3
 `Sbom`, are not components, so `SPDXRef-DOCUMENT DESCRIBES A` alone does not
 count. The rule is the same for SPDX 2 and SPDX 3.
 
-This follows NTIA 2021: the Dependency Relationship relates components ("an
-upstream component X is included in software Y"; IV. Minimum Elements > Data
-Fields > Dependency Relationship), and the author "should affirmatively state
-... when a component has no further dependencies", which "is implemented in
-the dependency relationship data field" (IV. Minimum Elements > Practices and
-Processes > Known Unknowns). So `A DEPENDS_ON NONE` counts. SPDX 2.3.1
-Annex L.1.2, which is informative, maps the element to `CONTAINS` and
-`DESCRIBES`; the checker is stricter and does not accept `DESCRIBES` alone.
+Basis:
+
+- The relationship is between components. NTIA 2021: "an upstream component
+  X is included in software Y" (IV. Minimum Elements > Data Fields >
+  Dependency Relationship). CISA 2026, which replaces NTIA 2021: "one
+  component is necessary for the operation of the other" (Data Fields >
+  Component Data > Component Dependency Relationship).
+- Dependencies may be in another document. CISA 2026 (same element): "an
+  SBOM document can link to separate SBOM documents for each of the target
+  component's dependencies".
+- "No dependencies" counts. NTIA 2021: the author "should affirmatively
+  state ... when a component has no further dependencies", which "is
+  implemented in the dependency relationship data field" (IV. Minimum
+  Elements > Practices and Processes > Known Unknowns). So
+  `A DEPENDS_ON NONE` counts. CISA 2026 replaced this with "Explicitly
+  Identifying Unknown Information", a practice rather than a data field, so
+  this point rests on NTIA 2021.
+- SPDX 2.3.1 Annex L.1.2, which is informative, maps the NTIA element to
+  `CONTAINS` and `DESCRIBES`; the checker is stricter and does not accept
+  `DESCRIBES` alone. Annex L.2.2 maps the CISA 2026 element to `DEPENDS_ON`.
 
 Tools, sources and training data are followed but are not dependency
 relationships: they are inputs, not included components.
