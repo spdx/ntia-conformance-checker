@@ -231,6 +231,21 @@ def test_spdx3_dependency_relationship_rule(
     assert checker.dependency_relationships is expected
 
 
+def test_spdx3_dependency_relationship_id_like_spdx2_document(
+    tmp_path: Path,
+) -> None:
+    """An SPDX 3 ID is any IRI; one ending in :SPDXRef-DOCUMENT is no document."""
+    src = DATA / "spdx3" / "package_dependency_relationship.json"
+    text = src.read_text(encoding="utf-8").replace(
+        "https://spdx.org/spdxdocs/Package-library",
+        "urn:example:library:SPDXRef-DOCUMENT",
+    )
+    path = tmp_path / "sbom.json"
+    path.write_text(text, encoding="utf-8")
+    checker = SbomChecker(str(path), sbom_spec="spdx3")
+    assert checker.dependency_relationships is True
+
+
 def _spdx3_package_dependency_checker(
     tmp_path: Path, relationship_type: str, from_id: str = "", to_id: str = ""
 ) -> SbomChecker:

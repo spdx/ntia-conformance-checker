@@ -289,23 +289,17 @@ def _has_dependency_relationship(
         bool: True if such a relationship exists.
     """
 
-    def is_content(element_id: str) -> bool:
-        return (
-            element_id not in graph.collection_ids
-            # An external document itself, e.g. DocumentRef-x:SPDXRef-DOCUMENT
-            and not element_id.endswith(":SPDXRef-DOCUMENT")
-        )
-
     for parent_id, child_id in graph.dependency_links:
         if (
             parent_id == child_id
             or parent_id not in reachable_node_ids
             or parent_id in no_element_values
-            or not (is_known(parent_id) and is_content(parent_id))
+            or not is_known(parent_id)
+            or parent_id in graph.collection_ids
         ):
             continue
         if child_id in no_element_values or (
-            is_known(child_id) and is_content(child_id)
+            is_known(child_id) and child_id not in graph.collection_ids
         ):
             return True
     return False
@@ -445,7 +439,12 @@ def _build_spdx2_graph(spdx2_doc: "Document") -> _Graph:
             (spdxElementId, relatedSpdxElement).
     """
     doc_ids = _get_spdx2_doc_ids(spdx2_doc)
-    graph = _Graph(collection_ids=set(doc_ids))
+    # This document, and each declared external document (SPDX 2.3 clause 6.6)
+    external_doc_ids = {
+        f"{ref_id}:SPDXRef-DOCUMENT"
+        for ref_id in _collect_spdx2_external_document_ref_ids(spdx2_doc)
+    }
+    graph = _Graph(collection_ids=doc_ids | external_doc_ids)
 
     for rel in spdx2_doc.relationships or []:
         source_id = rel.spdx_element_id
