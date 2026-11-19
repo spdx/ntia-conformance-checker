@@ -179,23 +179,18 @@
 <span class="sd">    Returns:</span>
 <span class="sd">        tuple: (all_known_ids, all_package_ids)</span>
 <span class="sd">    """</span>
-    <span class="n">all_known_ids</span> <span class="o">=</span> <span class="p">{</span>
-        <span class="nb">getattr</span><span class="p">(</span><span class="n">obj</span><span class="p">,</span> <span class="s2">"spdxId"</span><span class="p">)</span>
-        <span class="k">for</span> <span class="n">obj</span> <span class="ow">in</span> <span class="n">object_set</span><span class="o">.</span><span class="n">objects</span>
-        <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="nb">getattr</span><span class="p">(</span><span class="n">obj</span><span class="p">,</span> <span class="s2">"spdxId"</span><span class="p">,</span> <span class="kc">None</span><span class="p">),</span> <span class="nb">str</span><span class="p">)</span>
-    <span class="p">}</span> <span class="o">|</span> <span class="n">SPDX3_INDIVIDUAL_ELEMENT_IRIS</span>  <span class="c1"># NoneElement and the like need no definition</span>
-    <span class="n">all_known_ids</span> <span class="o">|=</span> <span class="p">{</span>
-        <span class="n">external_id</span>
-        <span class="k">for</span> <span class="n">obj</span> <span class="ow">in</span> <span class="n">object_set</span><span class="o">.</span><span class="n">objects</span>
-        <span class="k">for</span> <span class="n">ext_map</span> <span class="ow">in</span> <span class="nb">getattr</span><span class="p">(</span><span class="n">obj</span><span class="p">,</span> <span class="s2">"import_"</span><span class="p">,</span> <span class="kc">None</span><span class="p">)</span> <span class="ow">or</span> <span class="p">[]</span>
-        <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">external_id</span> <span class="o">:=</span> <span class="nb">getattr</span><span class="p">(</span><span class="n">ext_map</span><span class="p">,</span> <span class="s2">"externalSpdxId"</span><span class="p">,</span> <span class="kc">None</span><span class="p">),</span> <span class="nb">str</span><span class="p">)</span>
-    <span class="p">}</span>
-    <span class="n">package_ids</span> <span class="o">=</span> <span class="p">{</span>
-        <span class="nb">getattr</span><span class="p">(</span><span class="n">obj</span><span class="p">,</span> <span class="s2">"spdxId"</span><span class="p">)</span>
-        <span class="k">for</span> <span class="n">obj</span> <span class="ow">in</span> <span class="n">object_set</span><span class="o">.</span><span class="n">objects</span>
-        <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">obj</span><span class="p">,</span> <span class="n">spdx3</span><span class="o">.</span><span class="n">software_Package</span><span class="p">)</span>
-        <span class="ow">and</span> <span class="nb">isinstance</span><span class="p">(</span><span class="nb">getattr</span><span class="p">(</span><span class="n">obj</span><span class="p">,</span> <span class="s2">"spdxId"</span><span class="p">,</span> <span class="kc">None</span><span class="p">),</span> <span class="nb">str</span><span class="p">)</span>
-    <span class="p">}</span>
+    <span class="n">all_known_ids</span><span class="p">:</span> <span class="nb">set</span><span class="p">[</span><span class="nb">str</span><span class="p">]</span> <span class="o">=</span> <span class="nb">set</span><span class="p">(</span><span class="n">SPDX3_INDIVIDUAL_ELEMENT_IRIS</span><span class="p">)</span>  <span class="c1"># NoneElement etc.</span>
+    <span class="n">package_ids</span><span class="p">:</span> <span class="nb">set</span><span class="p">[</span><span class="nb">str</span><span class="p">]</span> <span class="o">=</span> <span class="nb">set</span><span class="p">()</span>
+    <span class="k">for</span> <span class="n">obj</span> <span class="ow">in</span> <span class="n">object_set</span><span class="o">.</span><span class="n">objects</span><span class="p">:</span>
+        <span class="n">spdx_id</span> <span class="o">=</span> <span class="nb">getattr</span><span class="p">(</span><span class="n">obj</span><span class="p">,</span> <span class="s2">"spdxId"</span><span class="p">,</span> <span class="kc">None</span><span class="p">)</span>
+        <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">spdx_id</span><span class="p">,</span> <span class="nb">str</span><span class="p">):</span>
+            <span class="n">all_known_ids</span><span class="o">.</span><span class="n">add</span><span class="p">(</span><span class="n">spdx_id</span><span class="p">)</span>
+            <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">obj</span><span class="p">,</span> <span class="n">spdx3</span><span class="o">.</span><span class="n">software_Package</span><span class="p">):</span>
+                <span class="n">package_ids</span><span class="o">.</span><span class="n">add</span><span class="p">(</span><span class="n">spdx_id</span><span class="p">)</span>
+        <span class="k">for</span> <span class="n">ext_map</span> <span class="ow">in</span> <span class="nb">getattr</span><span class="p">(</span><span class="n">obj</span><span class="p">,</span> <span class="s2">"import_"</span><span class="p">,</span> <span class="kc">None</span><span class="p">)</span> <span class="ow">or</span> <span class="p">[]:</span>
+            <span class="n">external_id</span> <span class="o">=</span> <span class="nb">getattr</span><span class="p">(</span><span class="n">ext_map</span><span class="p">,</span> <span class="s2">"externalSpdxId"</span><span class="p">,</span> <span class="kc">None</span><span class="p">)</span>
+            <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">external_id</span><span class="p">,</span> <span class="nb">str</span><span class="p">):</span>
+                <span class="n">all_known_ids</span><span class="o">.</span><span class="n">add</span><span class="p">(</span><span class="n">external_id</span><span class="p">)</span>
     <span class="k">return</span> <span class="n">all_known_ids</span><span class="p">,</span> <span class="n">package_ids</span>
 
 
