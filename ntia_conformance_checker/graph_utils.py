@@ -243,14 +243,15 @@ class _Graph:
             (source, target); checked for missing elements.
         dependency_links: Relationships of a counted dependency type, as
             (parent, child); the child may be a none or no-assertion value.
-        non_component_ids: Documents and collections.
+        collection_ids: Documents and other collections, never an end of a
+            dependency relationship.
     """
 
     roots: list[str] = field(default_factory=list)
     traversal_edges: dict[str, list[str]] = field(default_factory=dict)
     written_relationships: list[tuple[str, str]] = field(default_factory=list)
     dependency_links: list[tuple[str, str]] = field(default_factory=list)
-    non_component_ids: set[str] = field(default_factory=set)
+    collection_ids: set[str] = field(default_factory=set)
 
     def add_dependency_link(
         self, source_id: str, target_id: str, direction: TraversalDirection
@@ -269,14 +270,14 @@ def _has_dependency_relationship(
     no_element_values: frozenset[str],
 ) -> bool:
     """
-    Check whether a reachable component declares a dependency relationship.
+    Check whether a reachable element declares a dependency relationship.
 
-    The relationship links two different components, which are any elements
-    but documents and collections (files included): the parent is reachable
-    and both ends exist, here or external or imported. A none or no-assertion
-    child also counts: it states that there are no further dependencies, or
-    that they are unknown. This reading is meant for any minimum elements
-    standard; FAQ.md cites NTIA 2021 and CISA 2026 for it.
+    Both ends are different elements that exist, here or external or
+    imported; any element counts, files included, but not a document or
+    collection. The parent is reachable. A none or no-assertion child also
+    counts: it states that there are no further dependencies, or that they
+    are unknown. This reading is meant for any minimum elements standard;
+    FAQ.md cites NTIA 2021 and CISA 2026 for it.
 
     Args:
         graph: The relationship graph.
@@ -288,9 +289,9 @@ def _has_dependency_relationship(
         bool: True if such a relationship exists.
     """
 
-    def is_component(element_id: str) -> bool:
+    def is_content(element_id: str) -> bool:
         return (
-            element_id not in graph.non_component_ids
+            element_id not in graph.collection_ids
             # An external document itself, e.g. DocumentRef-x:SPDXRef-DOCUMENT
             and not element_id.endswith(":SPDXRef-DOCUMENT")
         )
@@ -300,11 +301,11 @@ def _has_dependency_relationship(
             parent_id == child_id
             or parent_id not in reachable_node_ids
             or parent_id in no_element_values
-            or not (is_known(parent_id) and is_component(parent_id))
+            or not (is_known(parent_id) and is_content(parent_id))
         ):
             continue
         if child_id in no_element_values or (
-            is_known(child_id) and is_component(child_id)
+            is_known(child_id) and is_content(child_id)
         ):
             return True
     return False
@@ -322,7 +323,7 @@ class GraphConnectivity:
             source ID to target IDs (see ``_find_unknown_pointer_edges``).
         missing_element_ids: IDs of the missing elements, at either end of
             those relationships.
-        has_dependency_relationship: Whether a reachable component declares a
+        has_dependency_relationship: Whether a reachable element declares a
             dependency relationship (see ``_has_dependency_relationship``).
     """
 
@@ -444,7 +445,7 @@ def _build_spdx2_graph(spdx2_doc: "Document") -> _Graph:
             (spdxElementId, relatedSpdxElement).
     """
     doc_ids = _get_spdx2_doc_ids(spdx2_doc)
-    graph = _Graph(non_component_ids=set(doc_ids))
+    graph = _Graph(collection_ids=set(doc_ids))
 
     for rel in spdx2_doc.relationships or []:
         source_id = rel.spdx_element_id
@@ -534,7 +535,7 @@ def _extract_spdx3_collection_edges(
     root_ids = [
         r for r in map(get_spdx3_element_id, getattr(obj, "rootElement", [])) if r
     ]
-    graph.non_component_ids.add(col_id)
+    graph.collection_ids.add(col_id)
     graph.traversal_edges.setdefault(col_id, []).extend(root_ids)
     graph.written_relationships.extend((col_id, root_id) for root_id in root_ids)
 
@@ -555,7 +556,7 @@ def _build_spdx3_graph(
 
     doc_id = get_spdx3_element_id(spdx3_doc) if spdx3_doc else ""
     if doc_id:
-        graph.non_component_ids.add(doc_id)
+        graph.collection_ids.add(doc_id)
 
     if spdx3_doc and getattr(spdx3_doc, "rootElement", None):
         graph.roots.extend(

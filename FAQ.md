@@ -103,19 +103,22 @@ SPDX 3 marks roots with `rootElement` instead.
 
 **Q: How does the checker decide "Dependency relationships provided?"?**
 
-A: A reachable component must declare a relationship of a type marked
+A: A reachable element must declare a relationship of a type marked
 "Dependency" in the table above, in either SPDX 2 form. Both ends must be
 different elements that exist (here, or in a declared external or imported
 document), or the other end must be "none" or "no assertion" (SPDX 2 `NONE`,
-`NOASSERTION`; SPDX 3 `NoneElement`, `NoAssertionElement`). Documents and
-collections, such as an `Sbom`, are not components, so
-`SPDXRef-DOCUMENT DESCRIBES A` alone does not count. The rule is the same for
-SPDX 2 and SPDX 3.
+`NOASSERTION`; SPDX 3 `NoneElement`, `NoAssertionElement`). The rule is the
+same for SPDX 2 and SPDX 3.
 
-Here a component is any other element, files and snippets included, as a
-relationship may link any two elements (SPDX 2.3.1 clause 11.1). The
-reachable and floating component lists, and the per-component checks, count
-packages only; this may change.
+Any element counts, files and snippets included, as a relationship may link
+any two elements (SPDX 2.3.1 clause 11.1). Documents and collections, such as
+an `Sbom`, do not, so `SPDXRef-DOCUMENT DESCRIBES A` alone does not count.
+
+Why elements here, but packages for the component checks? The graph, and
+this check, cover all elements: they are about how the parts relate. The
+component checks (name, version, supplier, identifier) cover packages only,
+as these are package fields (SPDX 2.3.1 clause 7); the reachable and floating
+component lists say which packages get them.
 
 Basis:
 

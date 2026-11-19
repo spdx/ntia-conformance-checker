@@ -277,7 +277,7 @@ def test_spdx3_dependency_relationship_types(
 def test_spdx3_dependency_relationship_rejects_collection_endpoints(
     tmp_path: Path,
 ) -> None:
-    """An Sbom is a collection, not a component, so "Sbom contains X" does not count."""
+    """An Sbom is a collection, so "Sbom contains X" does not count."""
     sbom = _spdx3_package_dependency_checker(
         tmp_path,
         "contains",

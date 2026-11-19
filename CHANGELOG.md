@@ -36,7 +36,7 @@ and this project adheres to [Semantic Versioning][semver].
 
 ### Changed
 
-- "Dependency relationships provided?" needs a reachable component that
+- "Dependency relationships provided?" needs a reachable element that
   declares a dependency relationship, with the same rule for SPDX 2 and
   SPDX 3; `SPDXRef-DOCUMENT DESCRIBES A` alone no longer counts, and
   `A DEPENDS_ON NONE` does; see "How does the checker decide 'Dependency

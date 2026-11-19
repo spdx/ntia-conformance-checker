@@ -299,7 +299,7 @@ class BaseChecker(ABC):
         return self.adapter.check_author()
 
     def check_dependency_relationships(self) -> bool:
-        """Check if a reachable component declares a dependency relationship."""
+        """Check if a reachable element declares a dependency relationship."""
         return self._has_dependency_relationship
 
     def check_timestamp(self) -> bool:
