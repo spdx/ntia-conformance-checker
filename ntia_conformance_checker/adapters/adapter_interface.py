@@ -133,10 +133,6 @@ class SbomAdapter(ABC):
         """
 
     @abstractmethod
-    def check_dependency_relationships(self) -> bool:
-        """Check if the SBOM document declares dependency information."""
-
-    @abstractmethod
     def get_total_number_components(self) -> int:
         """
         Retrieve total number of components.

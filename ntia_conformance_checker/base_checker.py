@@ -260,6 +260,7 @@ class BaseChecker(ABC):
 
         # "Pointers" refers to relationship edges targeting unknown/missing elements in the graph.
         self.has_unknown_pointers: bool = False
+        self._has_dependency_relationship: bool = False
 
     def _init_result_lists(self) -> None:
         """
@@ -298,8 +299,13 @@ class BaseChecker(ABC):
         return self.adapter.check_author()
 
     def check_dependency_relationships(self) -> bool:
-        """Check if the SBOM document declares dependency information."""
-        return self.adapter.check_dependency_relationships()
+        """
+        Check if a reachable component declares a dependency relationship.
+
+        The graph analysis decides this, the same way for SPDX 2 and SPDX 3;
+        see ``graph_utils._has_dependency_relationship``.
+        """
+        return self._has_dependency_relationship
 
     def check_timestamp(self) -> bool:
         """Check if the SBOM creation timestamp exists."""
@@ -563,6 +569,7 @@ class BaseChecker(ABC):
         self.unknown_pointer_edges = result.unknown_pointer_edges
         self.missing_element_ids = result.missing_element_ids
         self.has_unknown_pointers = result.has_unknown_pointers
+        self._has_dependency_relationship = result.has_dependency_relationship
 
         if self.floating_component_ids:
             logging.warning(

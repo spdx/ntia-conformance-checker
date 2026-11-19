@@ -14,7 +14,6 @@ from spdx_tools.spdx.validation.validation_message import (
 
 from ntia_conformance_checker.spdx3_utils import (
     get_all_packages,
-    has_package_dependency_relationship,
     iter_objects_with_property,
     iter_relationships_by_type,
 )
@@ -228,10 +227,6 @@ class Spdx3Adapter(SbomAdapter):
             )
             if _is_blank(copyright_text, noassertion=True)
         ]
-
-    def check_dependency_relationships(self) -> bool:
-        """In SPDX 3, this checks package-level dependency relationships."""
-        return has_package_dependency_relationship(self.object_set)
 
     def get_total_number_components(self) -> int:
         """

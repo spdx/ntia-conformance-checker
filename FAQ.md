@@ -60,21 +60,21 @@ Followed relationships:
 
 <!-- markdownlint-disable MD013 -->
 
-| SPDX 3 type | SPDX 2, walked A to B | SPDX 2, walked B to A | Parent to child |
-| --- | --- | --- | --- |
-| `contains` | `CONTAINS` | `CONTAINED_BY` | Whole to part |
-| `hasOptionalComponent` | | `OPTIONAL_COMPONENT_OF` | Whole to part |
-| `packagedBy` | | `PACKAGE_OF` | Element to its package |
-| `dependsOn` | `DEPENDS_ON` | `DEPENDENCY_OF`, `BUILD_`, `DEV_`, `RUNTIME_`, `TEST_DEPENDENCY_OF` | Dependent to dependency |
-| `hasOptionalDependency` | | `OPTIONAL_DEPENDENCY_OF` | Dependent to dependency |
-| `hasProvidedDependency` | | `PROVIDED_DEPENDENCY_OF` | Dependent to dependency |
-| `hasPrerequisite` | `HAS_PREREQUISITE` | `PREREQUISITE_FOR` | Dependent to prerequisite |
-| `hasDynamicLink` | `DYNAMIC_LINK` | | Linker to linked |
-| `hasStaticLink` | `STATIC_LINK` | | Linker to linked |
-| `trainedOn`, `testedOn` | | | Model to dataset |
-| `usesTool` | | `BUILD_TOOL_OF`, `DEV_TOOL_OF`, `TEST_TOOL_OF` | Product to tool |
-| `generates` (walked B to A) | `GENERATED_FROM` | `GENERATES` | Product to source |
-| (SPDX 2 only) | `DESCRIBES` | `DESCRIBED_BY` | Describer to described |
+| SPDX 3 type | SPDX 2, walked A to B | SPDX 2, walked B to A | Parent to child | Dependency |
+| --- | --- | --- | --- | --- |
+| `contains` | `CONTAINS` | `CONTAINED_BY` | Whole to part | ✓ |
+| `hasOptionalComponent` | | `OPTIONAL_COMPONENT_OF` | Whole to part | |
+| `packagedBy` | | `PACKAGE_OF` | Element to its package | |
+| `dependsOn` | `DEPENDS_ON` | `DEPENDENCY_OF`, `BUILD_`, `DEV_`, `RUNTIME_`, `TEST_DEPENDENCY_OF` | Dependent to dependency | ✓ |
+| `hasOptionalDependency` | | `OPTIONAL_DEPENDENCY_OF` | Dependent to dependency | ✓ |
+| `hasProvidedDependency` | | `PROVIDED_DEPENDENCY_OF` | Dependent to dependency | ✓ |
+| `hasPrerequisite` | `HAS_PREREQUISITE` | `PREREQUISITE_FOR` | Dependent to prerequisite | ✓ |
+| `hasDynamicLink` | `DYNAMIC_LINK` | | Linker to linked | ✓ |
+| `hasStaticLink` | `STATIC_LINK` | | Linker to linked | ✓ |
+| `trainedOn`, `testedOn` | | | Model to dataset | |
+| `usesTool` | | `BUILD_TOOL_OF`, `DEV_TOOL_OF`, `TEST_TOOL_OF` | Product to tool | |
+| `generates` (walked B to A) | `GENERATED_FROM` | `GENERATES` | Product to source | |
+| (SPDX 2 only) | `DESCRIBES` | `DESCRIBED_BY` | Describer to described | |
 
 <!-- markdownlint-enable MD013 -->
 
@@ -100,6 +100,28 @@ table says "Swap to and from? Y". For example, `A BUILD_DEPENDENCY_OF B` is
 `B dependsOn A`, so the checker goes from B to A. The one override:
 `DESCRIBES` and `DESCRIBED_BY` are followed between any SPDX 2 elements;
 SPDX 3 marks roots with `rootElement` instead.
+
+**Q: How does the checker decide "Dependency relationships provided?"?**
+
+A: A reachable component must declare a relationship of a type marked
+"Dependency" in the table above, in either SPDX 2 form. Its other end must be
+another element that exists (here, or in a declared external or imported
+document), or "none" or "no assertion" (SPDX 2 `NONE`, `NOASSERTION`; SPDX 3
+`NoneElement`, `NoAssertionElement`). Documents and collections, such as an
+`Sbom`, are not components, so `SPDXRef-DOCUMENT DESCRIBES A` alone does not
+count. The rule is the same for SPDX 2 and SPDX 3.
+
+This follows NTIA 2021: the Dependency Relationship relates components ("an
+upstream component X is included in software Y"; IV. Minimum Elements > Data
+Fields > Dependency Relationship), and the author "should affirmatively state
+... when a component has no further dependencies", which "is implemented in
+the dependency relationship data field" (IV. Minimum Elements > Practices and
+Processes > Known Unknowns). So `A DEPENDS_ON NONE` counts. SPDX 2.3.1
+Annex L.1.2, which is informative, maps the element to `CONTAINS` and
+`DESCRIBES`; the checker is stricter and does not accept `DESCRIBES` alone.
+
+Tools, sources and training data are followed but are not dependency
+relationships: they are inputs, not included components.
 
 **Q: The CLI output reports that a relationship points to a missing element.
 What does this mean?**

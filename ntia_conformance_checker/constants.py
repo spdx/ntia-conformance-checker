@@ -148,6 +148,34 @@ SPDX2_RELATIONSHIP_TRAVERSAL: dict[str, TraversalDirection] = (
     _derive_spdx2_relationship_traversal()
 )
 
+# SPDX 3 relationship types that count as a dependency relationship, a
+# subset of SPDX3_RELATIONSHIP_TRAVERSAL: composition, dependency and
+# linking, not tools, provenance or training data. NTIA 2021 (IV. Minimum
+# Elements > Data Fields > Dependency Relationship): "an upstream component X
+# is included in software Y"; CISA 2026 (Data Fields > Component Data >
+# Component Dependency Relationship): "one component is necessary for the
+# operation of the other".
+SPDX3_DEPENDENCY_RELATIONSHIP_TYPES: frozenset[str] = frozenset(
+    {
+        "contains",
+        "dependsOn",
+        "hasDynamicLink",
+        "hasStaticLink",
+        "hasOptionalDependency",
+        "hasProvidedDependency",
+        "hasPrerequisite",
+    }
+)
+
+# SPDX 2 relationship types that count as a dependency relationship: those
+# whose SPDX 3 translation counts, written either way.
+SPDX2_DEPENDENCY_RELATIONSHIP_TYPES: frozenset[str] = frozenset(
+    spdx2_type
+    for spdx2_type, (spdx3_type, _) in SPDX2_TO_SPDX3_RELATIONSHIP_TYPES.items()
+    if spdx3_type in SPDX3_DEPENDENCY_RELATIONSHIP_TYPES
+    and spdx2_type in SPDX2_RELATIONSHIP_TRAVERSAL
+)
+
 # Deprecated: the types 6.0.0 followed, unchanged and unused. Use
 # SPDX2_RELATIONSHIP_TRAVERSAL and SPDX3_RELATIONSHIP_TRAVERSAL.
 VALID_SPDX2_COMPOSITION_RELATIONSHIPS = {

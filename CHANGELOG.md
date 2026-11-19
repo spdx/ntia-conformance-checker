@@ -30,12 +30,22 @@ and this project adheres to [Semantic Versioning][semver].
 
 - JSON output lists missing element IDs in
   `graphValidation.unknownPointers.missingElementIds`
+- Public names: `graph_utils.analyze_graph` and its `GraphConnectivity`
+  result, `BaseChecker.missing_element_ids`, `TraversalDirection`,
+  `SPDX2_RELATIONSHIP_TRAVERSAL`, `SPDX3_RELATIONSHIP_TRAVERSAL`,
+  `SPDX2_DEPENDENCY_RELATIONSHIP_TYPES` and
+  `SPDX3_DEPENDENCY_RELATIONSHIP_TYPES`
 - GitHub releases attach the wheel, the sdist and the wheel's SPDX 3 SBOM,
   each with a Sigstore bundle and a build provenance attestation;
   see "Verify release files" in `SECURITY.md`
 
 ### Changed
 
+- "Dependency relationships provided?" needs a reachable component that
+  declares a dependency relationship, with the same rule for SPDX 2 and
+  SPDX 3; `SPDXRef-DOCUMENT DESCRIBES A` alone no longer counts, and
+  `A DEPENDS_ON NONE` does; see "How does the checker decide 'Dependency
+  relationships provided?'" in `FAQ.md` ([#410])
 - Relationship directions follow the SPDX 2.3 to 3.0 translation table, and tool
   and provenance relationships are followed, so more components may be
   checked; see "Which relationships connect an element to the tree?" in
@@ -53,12 +63,20 @@ and this project adheres to [Semantic Versioning][semver].
   attached, signed and attested after the publish, and can be re-run if that
   fails
 
+### Removed
+
+- `SbomAdapter.check_dependency_relationships` and its implementations,
+  `spdx3_utils.has_package_dependency_relationship` and
+  `SPDX3_PACKAGE_DEPENDENCY_RELATIONSHIP_TYPES`; the graph analysis decides
+  this now (`GraphConnectivity.has_dependency_relationship`)
+
 ### Deprecated
 
 - `VALID_SPDX2_COMPOSITION_RELATIONSHIPS` and
   `VALID_SPDX3_COMPOSITION_RELATIONSHIPS`; use `SPDX2_RELATIONSHIP_TRAVERSAL`
   and `SPDX3_RELATIONSHIP_TRAVERSAL`
 
+[#410]: https://github.com/spdx/ntia-conformance-checker/issues/410
 [#478]: https://github.com/spdx/ntia-conformance-checker/pull/478
 [#481]: https://github.com/spdx/ntia-conformance-checker/issues/481
 [#482]: https://github.com/spdx/ntia-conformance-checker/issues/482

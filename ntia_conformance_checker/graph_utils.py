@@ -14,7 +14,9 @@ from spdx_python_model.bindings import v3_0_1 as spdx3
 from spdx_tools.spdx.model.relationship import RelationshipType
 
 from .constants import (
+    SPDX2_DEPENDENCY_RELATIONSHIP_TYPES,
     SPDX2_RELATIONSHIP_TRAVERSAL,
+    SPDX3_DEPENDENCY_RELATIONSHIP_TYPES,
     SPDX3_RELATIONSHIP_TRAVERSAL,
     TraversalDirection,
 )
@@ -28,14 +30,17 @@ if TYPE_CHECKING:
     from spdx_tools.spdx.model.document import Document
 
 
-# SPDX 2 element ID: "SPDXRef-"[idstring], where idstring has letters,
-# numbers, "." and "-" (SPDX 2.3 clauses 7.2, 8.2, 9.1).
 # Values that SPDX 2.3 clause 11.1 (Table 69) allows as the related element
 # of a relationship instead of an element: there are no other relationships
 # (NONE), or it is not known (NOASSERTION). spdx-tools reads them as
 # SpdxNone and SpdxNoAssertion, whose str() is the keyword.
 _SPDX2_NO_ELEMENT_VALUES = frozenset({"NONE", "NOASSERTION"})
 
+# SPDX 3.0.1 NoneElement and NoAssertionElement, the element counterparts.
+_SPDX3_NO_ELEMENT_VALUES = frozenset(spdx3.IndividualElement.NAMED_INDIVIDUALS.values())
+
+# SPDX 2 element ID: "SPDXRef-"[idstring], where idstring has letters,
+# numbers, "." and "-" (SPDX 2.3 clauses 7.2, 8.2, 9.1).
 _SPDX2_SPDXID_PATTERN = re.compile(r"SPDXRef-[A-Za-z0-9.\-]+")
 
 
@@ -226,6 +231,90 @@ def _get_known_predicate_and_package_ids(
     return lambda _: False, set()
 
 
+@dataclass
+class _Graph:
+    """
+    A relationship graph built from an SBOM.
+
+    Attributes:
+        roots: Root element IDs.
+        traversal_edges: How the checker walks the graph, parent to children.
+        written_relationships: The graph shape: followed and root
+            relationships as written, (source, target), checked for missing
+            elements.
+        dependency_links: Relationships of a type that counts as a dependency
+            relationship, as (parent, child) in walking direction. The child
+            may be a none or no-assertion value.
+        non_component_ids: Documents and collections, which are never an end
+            of a dependency relationship.
+    """
+
+    roots: list[str] = field(default_factory=list)
+    traversal_edges: dict[str, list[str]] = field(default_factory=dict)
+    written_relationships: list[tuple[str, str]] = field(default_factory=list)
+    dependency_links: list[tuple[str, str]] = field(default_factory=list)
+    non_component_ids: set[str] = field(default_factory=set)
+
+    def add_dependency_link(
+        self, source_id: str, target_id: str, direction: TraversalDirection
+    ) -> None:
+        """Add a dependency relationship written from source to target."""
+        if direction is TraversalDirection.ALONG:
+            self.dependency_links.append((source_id, target_id))
+        else:
+            self.dependency_links.append((target_id, source_id))
+
+
+def _has_dependency_relationship(
+    graph: _Graph,
+    reachable_node_ids: set[str],
+    is_known: Callable[[str], bool],
+    no_element_values: frozenset[str],
+) -> bool:
+    """
+    Check whether a reachable element declares a dependency relationship.
+
+    NTIA 2021 (IV. Minimum Elements > Data Fields > Dependency Relationship)
+    relates components: "an upstream component X is included in software Y".
+    So the parent must be a reachable element that is not a document or a
+    collection, and the child a different element that exists, here or in a
+    declared external or imported document, and is not a document either.
+
+    The child may also be a none or no-assertion value: NTIA 2021 (IV. Minimum
+    Elements > Practices and Processes > Known Unknowns) says the author
+    "should affirmatively state ... when a component has no further
+    dependencies", and that this "is implemented in the dependency
+    relationship data field".
+
+    Args:
+        graph: The relationship graph.
+        reachable_node_ids: Element IDs reachable from the roots.
+        is_known: Whether an element ID refers to an element that exists.
+        no_element_values: The none and no-assertion values of the format.
+
+    Returns:
+        bool: True if such a relationship exists.
+    """
+
+    def is_component(element_id: str) -> bool:
+        return (
+            element_id not in graph.non_component_ids
+            # An external document itself, e.g. DocumentRef-x:SPDXRef-DOCUMENT
+            and not element_id.endswith(":SPDXRef-DOCUMENT")
+        )
+
+    for parent_id, child_id in graph.dependency_links:
+        if parent_id == child_id or parent_id not in reachable_node_ids:
+            continue
+        if not is_component(parent_id):
+            continue
+        if child_id in no_element_values or (
+            is_known(child_id) and is_component(child_id)
+        ):
+            return True
+    return False
+
+
 @dataclass(frozen=True)
 class GraphConnectivity:
     """
@@ -238,12 +327,15 @@ class GraphConnectivity:
             source ID to target IDs (see ``_find_unknown_pointer_edges``).
         missing_element_ids: IDs of the missing elements, at either end of
             those relationships.
+        has_dependency_relationship: Whether a reachable element declares a
+            dependency relationship (see ``_has_dependency_relationship``).
     """
 
     reachable_component_ids: set[str] = field(default_factory=set)
     floating_component_ids: set[str] = field(default_factory=set)
     unknown_pointer_edges: dict[str, list[str]] = field(default_factory=dict)
     missing_element_ids: set[str] = field(default_factory=set)
+    has_dependency_relationship: bool = False
 
     @property
     def has_unknown_pointers(self) -> bool:
@@ -263,20 +355,22 @@ def analyze_graph(
 
     Returns:
         GraphConnectivity: Reachable and floating components, links to
-            missing elements and the missing element IDs.
+            missing elements, the missing element IDs, and whether a
+            dependency relationship is declared.
     """
     if not parsed_data or (sbom_spec == "spdx3" and not spdx3_doc):
         return GraphConnectivity()
 
-    reachable_node_ids, _, written_relationships = _reach(
-        sbom_spec, parsed_data, spdx3_doc
-    )
+    reachable_node_ids, graph = _reach(sbom_spec, parsed_data, spdx3_doc)
 
     is_known, all_package_ids = _get_known_predicate_and_package_ids(
         sbom_spec, parsed_data
     )
     unknown_pointer_edges, missing_element_ids = _find_unknown_pointer_edges(
-        written_relationships, is_known
+        graph.written_relationships, is_known
+    )
+    no_element_values = (
+        _SPDX2_NO_ELEMENT_VALUES if sbom_spec == "spdx2" else _SPDX3_NO_ELEMENT_VALUES
     )
 
     reachable_component_ids = reachable_node_ids & all_package_ids
@@ -285,6 +379,9 @@ def analyze_graph(
         floating_component_ids=all_package_ids - reachable_component_ids,
         unknown_pointer_edges=unknown_pointer_edges,
         missing_element_ids=missing_element_ids,
+        has_dependency_relationship=_has_dependency_relationship(
+            graph, reachable_node_ids, is_known, no_element_values
+        ),
     )
 
     if not result.has_unknown_pointers and not all(map(is_known, reachable_node_ids)):
@@ -321,11 +418,26 @@ def analyze_graph_connectivity(
     )
 
 
-def _build_spdx2_graph(
-    spdx2_doc: "Document",
-) -> tuple[list[str], dict[str, list[str]], list[tuple[str, str]]]:
+def _get_spdx2_root_id(
+    rel_type: RelationshipType, source_id: str, target_id: str, doc_ids: set[str]
+) -> str | None:
     """
-    Build the roots, traversal edges and written relationships for SPDX 2.
+    Return the root that a relationship marks, if any.
+
+    ``SPDXRef-DOCUMENT DESCRIBES A`` marks A, and so does
+    ``A DESCRIBED_BY SPDXRef-DOCUMENT``, which is DESCRIBES written from the
+    described element's side (SPDX 2.3 clause 11.1, Table 68).
+    """
+    if rel_type == RelationshipType.DESCRIBES and source_id in doc_ids:
+        return target_id
+    if rel_type == RelationshipType.DESCRIBED_BY and target_id in doc_ids:
+        return source_id
+    return None
+
+
+def _build_spdx2_graph(spdx2_doc: "Document") -> _Graph:
+    """
+    Build the relationship graph for SPDX 2.
 
     Roots are the elements that the document describes: ``SPDXRef-DOCUMENT
     DESCRIBES A`` or ``A DESCRIBED_BY SPDXRef-DOCUMENT`` (SPDX 2.3 clause 11.1,
@@ -341,70 +453,62 @@ def _build_spdx2_graph(
     ``NONE`` and ``NOASSERTION`` state that there are no relationships or
     that it is not known (Table 69). They are not elements, so they add no
     edge, but a followed relationship to them is still a written relationship,
-    so that its ``spdxElementId`` is checked.
+    so that its ``spdxElementId`` is checked, and still a dependency link.
 
     Returns:
-        tuple: (queue, traversal_edges, written_relationships), where
-            traversal_edges go from parent to child and written_relationships
-            are the followed and root relationships as written:
+        _Graph: The graph; written relationships are
             (spdxElementId, relatedSpdxElement).
     """
-    queue: list[str] = []
-    traversal_edges: dict[str, list[str]] = {}
-    written_relationships: list[tuple[str, str]] = []
-
     doc_ids = _get_spdx2_doc_ids(spdx2_doc)
+    graph = _Graph(non_component_ids=set(doc_ids))
 
     for rel in spdx2_doc.relationships or []:
         source_id = rel.spdx_element_id
         target_id = rel.related_spdx_element_id
+        rel_name = rel.relationship_type.name
+        direction = SPDX2_RELATIONSHIP_TRAVERSAL.get(rel_name)
+        is_dependency = rel_name in SPDX2_DEPENDENCY_RELATIONSHIP_TYPES
 
         # spdx_element_id is always an ID; related_spdx_element_id can also
         # be NONE or NOASSERTION
         if not isinstance(target_id, str):
             # NONE or NOASSERTION: no element to link to, but the source must
             # exist, as in SPDX 3 for a relationship to NoneElement
-            if rel.relationship_type.name in SPDX2_RELATIONSHIP_TRAVERSAL:
-                written_relationships.append((source_id, str(target_id)))
+            if direction is not None:
+                graph.written_relationships.append((source_id, str(target_id)))
+            # Only "A <type> NONE" walked along says what A depends on
+            if is_dependency and direction is TraversalDirection.ALONG:
+                graph.dependency_links.append((source_id, str(target_id)))
             continue
 
-        # Get the root elements
-        is_root_link = False
-        if rel.relationship_type == RelationshipType.DESCRIBES and source_id in doc_ids:
-            queue.append(target_id)
-            is_root_link = True
-        # DESCRIBED_BY is DESCRIBES written from the described element's side
-        elif (
-            rel.relationship_type == RelationshipType.DESCRIBED_BY
-            and target_id in doc_ids
-        ):
-            queue.append(source_id)
-            is_root_link = True
+        root_id = _get_spdx2_root_id(
+            rel.relationship_type, source_id, target_id, doc_ids
+        )
+        is_root_link = root_id is not None
+        if root_id is not None:
+            graph.roots.append(root_id)
 
         # Build the graph connection map
-        direction = SPDX2_RELATIONSHIP_TRAVERSAL.get(rel.relationship_type.name)
         if direction is TraversalDirection.ALONG:
-            traversal_edges.setdefault(source_id, []).append(target_id)
+            graph.traversal_edges.setdefault(source_id, []).append(target_id)
         elif direction is TraversalDirection.AGAINST:
-            traversal_edges.setdefault(target_id, []).append(source_id)
+            graph.traversal_edges.setdefault(target_id, []).append(source_id)
 
         if is_root_link or direction is not None:
-            written_relationships.append((source_id, target_id))
-    return queue, traversal_edges, written_relationships
+            graph.written_relationships.append((source_id, target_id))
+        if is_dependency and direction is not None:
+            graph.add_dependency_link(source_id, target_id, direction)
+    return graph
 
 
-def _extract_spdx3_relationship_edges(
-    obj: spdx3.Relationship,
-    traversal_edges: dict[str, list[str]],
-    written_relationships: list[tuple[str, str]],
-) -> None:
+def _extract_spdx3_relationship_edges(obj: spdx3.Relationship, graph: _Graph) -> None:
     """
     Helper to extract explicit relationship edges.
 
-    ``traversal_edges`` gets edges from parent to child (see
-    ``SPDX3_RELATIONSHIP_TRAVERSAL``). ``written_relationships`` gets the
-    relationship as written, ``from`` to each ``to``, to check for missing
-    elements.
+    The graph gets traversal edges from parent to child (see
+    ``SPDX3_RELATIONSHIP_TRAVERSAL``), the relationship as written, ``from``
+    to each ``to``, to check for missing elements, and, for a type in
+    ``SPDX3_DEPENDENCY_RELATIONSHIP_TYPES``, dependency links.
     """
     rel_type_iri = getattr(obj, "relationshipType", "")
     if not rel_type_iri:
@@ -423,7 +527,10 @@ def _extract_spdx3_relationship_edges(
 
     to_ids = [t for t in map(get_spdx3_element_id, getattr(obj, "to", [])) if t]
 
-    written_relationships.extend((from_id, to_id) for to_id in to_ids)
+    graph.written_relationships.extend((from_id, to_id) for to_id in to_ids)
+    if rel_name in SPDX3_DEPENDENCY_RELATIONSHIP_TYPES:
+        for to_id in to_ids:
+            graph.add_dependency_link(from_id, to_id, direction)
 
     # None and no-assertion values (SPDX3_NONE_AND_NOASSERTION_IRIS) are not
     # elements, and unrelated relationships share them, so they get no
@@ -433,23 +540,22 @@ def _extract_spdx3_relationship_edges(
         return
     to_ids = [t for t in to_ids if t not in SPDX3_NONE_AND_NOASSERTION_IRIS]
     if direction is TraversalDirection.ALONG:
-        traversal_edges.setdefault(from_id, []).extend(to_ids)
+        graph.traversal_edges.setdefault(from_id, []).extend(to_ids)
     else:
         for to_id in to_ids:
-            traversal_edges.setdefault(to_id, []).append(from_id)
+            graph.traversal_edges.setdefault(to_id, []).append(from_id)
 
 
 def _extract_spdx3_collection_edges(
-    obj: spdx3.ElementCollection,
-    traversal_edges: dict[str, list[str]],
-    written_relationships: list[tuple[str, str]],
+    obj: spdx3.ElementCollection, graph: _Graph
 ) -> None:
     """
     Helper to extract implicit collection edges (e.g. Sbom, Document).
 
-    ``traversal_edges`` gets an edge from the collection to each of its
-    ``rootElement``. ``written_relationships`` gets the same
-    (collection, root element) pairs, to check for missing elements.
+    The graph gets a traversal edge from the collection to each of its
+    ``rootElement``, the same (collection, root element) pairs as written
+    relationships, to check for missing elements, and the collection as a
+    non-component.
     """
     col_id = get_spdx3_element_id(obj)
     if not col_id:
@@ -458,34 +564,36 @@ def _extract_spdx3_collection_edges(
     root_ids = [
         r for r in map(get_spdx3_element_id, getattr(obj, "rootElement", [])) if r
     ]
-    traversal_edges.setdefault(col_id, []).extend(root_ids)
-    written_relationships.extend((col_id, root_id) for root_id in root_ids)
+    graph.non_component_ids.add(col_id)
+    graph.traversal_edges.setdefault(col_id, []).extend(root_ids)
+    graph.written_relationships.extend((col_id, root_id) for root_id in root_ids)
 
 
 def _build_spdx3_graph(
     object_set: spdx3.SHACLObjectSet, spdx3_doc: spdx3.SpdxDocument | None
-) -> tuple[list[str], dict[str, list[str]], list[tuple[str, str]]]:
+) -> _Graph:
     """
-    Build the roots, traversal edges and written relationships for SPDX 3.
+    Build the relationship graph for SPDX 3.
 
     Roots are the ``rootElement`` of the ``SpdxDocument`` and the targets of
     relationships of any type from the ``SpdxDocument``. Each collection,
     such as an ``Sbom``, links to its own ``rootElement``.
 
     Returns:
-        tuple: (queue, traversal_edges, written_relationships), where
-            traversal_edges go from parent to child and written_relationships
-            are the followed relationships, the relationships from the
-            document and the collection roots, as written: (from, to).
+        _Graph: The graph; written relationships are the followed
+            relationships, the relationships from the document and the
+            collection roots, as written: (from, to).
     """
-    queue: list[str] = []
-    traversal_edges: dict[str, list[str]] = {}
-    written_relationships: list[tuple[str, str]] = []
+    graph = _Graph()
 
     doc_id = get_spdx3_element_id(spdx3_doc) if spdx3_doc else ""
+    if doc_id:
+        graph.non_component_ids.add(doc_id)
 
     if spdx3_doc and getattr(spdx3_doc, "rootElement", None):
-        queue.extend(r for r in map(get_spdx3_element_id, spdx3_doc.rootElement) if r)
+        graph.roots.extend(
+            r for r in map(get_spdx3_element_id, spdx3_doc.rootElement) if r
+        )
 
     # Build the graph connection map
     for obj in object_set.objects:
@@ -499,40 +607,36 @@ def _build_spdx3_graph(
                 to_ids = [
                     t for t in map(get_spdx3_element_id, getattr(obj, "to", [])) if t
                 ]
-                queue.extend(to_ids)
-                written_relationships.extend((doc_id, to_id) for to_id in to_ids)
+                graph.roots.extend(to_ids)
+                graph.written_relationships.extend((doc_id, to_id) for to_id in to_ids)
 
             # Normal relationships between packages build the map
             else:
-                _extract_spdx3_relationship_edges(
-                    obj, traversal_edges, written_relationships
-                )
+                _extract_spdx3_relationship_edges(obj, graph)
 
         # Capture implicit relationships from Collections (like Sbom, Bom, etc.)
         if isinstance(obj, spdx3.ElementCollection):
-            _extract_spdx3_collection_edges(obj, traversal_edges, written_relationships)
+            _extract_spdx3_collection_edges(obj, graph)
 
-    return queue, traversal_edges, written_relationships
+    return graph
 
 
-def _build_graph(
-    sbom_spec: str, parsed_data: Any, spdx3_doc: Any = None
-) -> tuple[list[str], dict[str, list[str]], list[tuple[str, str]]]:
+def _build_graph(sbom_spec: str, parsed_data: Any, spdx3_doc: Any = None) -> _Graph:
     """
-    Build the roots, the traversal edges and the written relationships.
+    Build the relationship graph of an SBOM.
 
     The traversal edges are how the checker walks the graph, from parent to
     child. The written relationships are the graph shape, as the SBOM states
     it, and are checked for missing elements.
 
     Returns:
-        tuple: (queue, traversal_edges, written_relationships)
+        _Graph: The graph; empty for an unsupported specification.
     """
     if sbom_spec == "spdx2":
         return _build_spdx2_graph(parsed_data)
     if sbom_spec == "spdx3":
         return _build_spdx3_graph(parsed_data, spdx3_doc)
-    return [], {}, []
+    return _Graph()
 
 
 def _traverse(queue: list[str], traversal_edges: dict[str, list[str]]) -> set[str]:
@@ -559,21 +663,19 @@ def _traverse(queue: list[str], traversal_edges: dict[str, list[str]]) -> set[st
 
 def _reach(
     sbom_spec: str, parsed_data: Any, spdx3_doc: Any = None
-) -> tuple[set[str], dict[str, list[str]], list[tuple[str, str]]]:
+) -> tuple[set[str], _Graph]:
     """
     Build the graph and find all nodes reachable from the roots.
 
     Returns:
-        tuple: (reachable_node_ids, traversal_edges, written_relationships);
-            all empty when there is no data, or no SPDX 3 document.
+        tuple: (reachable_node_ids, graph); empty when there is no data, or
+            no SPDX 3 document.
     """
     if not parsed_data or (sbom_spec == "spdx3" and not spdx3_doc):
-        return set(), {}, []
+        return set(), _Graph()
 
-    queue, traversal_edges, written_relationships = _build_graph(
-        sbom_spec, parsed_data, spdx3_doc
-    )
-    return _traverse(queue, traversal_edges), traversal_edges, written_relationships
+    graph = _build_graph(sbom_spec, parsed_data, spdx3_doc)
+    return _traverse(graph.roots, graph.traversal_edges), graph
 
 
 def get_reachable_nodes(
@@ -590,5 +692,5 @@ def get_reachable_nodes(
             SPDX 2 ``A CONTAINED_BY B`` or SPDX 3 ``A generates B`` (from B
             to A).
     """
-    reachable_node_ids, traversal_edges, _ = _reach(sbom_spec, parsed_data, spdx3_doc)
-    return reachable_node_ids, traversal_edges
+    reachable_node_ids, graph = _reach(sbom_spec, parsed_data, spdx3_doc)
+    return reachable_node_ids, graph.traversal_edges
