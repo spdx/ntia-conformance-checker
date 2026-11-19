@@ -173,7 +173,7 @@ def _find_unknown_pointer_edges(
     Find relationships, as written, with a missing element at either end.
 
     This checks the graph shape, not the traversal. Either end can be an
-    element ID (SPDX 2.3 §11.1 Table 69), so either can be missing; the
+    element ID (SPDX 2.3 clause 11.1, Table 69), so either can be missing; the
     missing element IDs tell which.
 
     Args:
@@ -271,18 +271,12 @@ def _has_dependency_relationship(
     """
     Check whether a reachable component declares a dependency relationship.
 
-    The parent must be reachable and the child a different, existing element
-    (here, external or imported); neither may be a document or collection.
-    Basis: the element relates components (NTIA 2021, IV. Minimum Elements >
-    Data Fields > Dependency Relationship; CISA 2026, which replaces it, Data
-    Fields > Component Data > Component Dependency Relationship), and CISA
-    2026 lets an SBOM "link to separate SBOM documents" for dependencies.
-
-    The child may also be a none or no-assertion value: NTIA 2021 (IV.
-    Minimum Elements > Practices and Processes > Known Unknowns) has the
-    author state "when a component has no further dependencies" in "the
-    dependency relationship data field". CISA 2026 made this "a practice ...
-    rather than a data field", so this part rests on NTIA 2021.
+    The relationship links two components: the parent is reachable, both
+    ends exist (here, or external or imported) and differ, and neither is a
+    document or collection. A none or no-assertion child also counts: it
+    states that there are no further dependencies, or that they are unknown.
+    This reading is meant for any minimum elements standard; FAQ.md cites
+    NTIA 2021 and CISA 2026 for it.
 
     Args:
         graph: The relationship graph.
@@ -302,9 +296,12 @@ def _has_dependency_relationship(
         )
 
     for parent_id, child_id in graph.dependency_links:
-        if parent_id == child_id or parent_id not in reachable_node_ids:
-            continue
-        if not is_component(parent_id):
+        if (
+            parent_id == child_id
+            or parent_id not in reachable_node_ids
+            or parent_id in no_element_values
+            or not (is_known(parent_id) and is_component(parent_id))
+        ):
             continue
         if child_id in no_element_values or (
             is_known(child_id) and is_component(child_id)
@@ -325,7 +322,7 @@ class GraphConnectivity:
             source ID to target IDs (see ``_find_unknown_pointer_edges``).
         missing_element_ids: IDs of the missing elements, at either end of
             those relationships.
-        has_dependency_relationship: Whether a reachable element declares a
+        has_dependency_relationship: Whether a reachable component declares a
             dependency relationship (see ``_has_dependency_relationship``).
     """
 

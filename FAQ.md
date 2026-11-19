@@ -104,10 +104,10 @@ SPDX 3 marks roots with `rootElement` instead.
 **Q: How does the checker decide "Dependency relationships provided?"?**
 
 A: A reachable component must declare a relationship of a type marked
-"Dependency" in the table above, in either SPDX 2 form. Its other end must be
-another element that exists (here, or in a declared external or imported
-document), or "none" or "no assertion" (SPDX 2 `NONE`, `NOASSERTION`; SPDX 3
-`NoneElement`, `NoAssertionElement`). Documents and collections, such as an
+"Dependency" in the table above, in either SPDX 2 form. Both ends must be
+different elements that exist (here, or in a declared external or imported
+document), or the other end must be "none" or "no assertion" (SPDX 2 `NONE`,
+`NOASSERTION`; SPDX 3 `NoneElement`, `NoAssertionElement`). Documents and collections, such as an
 `Sbom`, are not components, so `SPDXRef-DOCUMENT DESCRIBES A` alone does not
 count. The rule is the same for SPDX 2 and SPDX 3.
 

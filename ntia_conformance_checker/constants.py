@@ -110,7 +110,7 @@ SPDX2_TO_SPDX3_RELATIONSHIP_TYPES: dict[str, tuple[str, bool]] = {
 }
 
 # SPDX 2 types not derived from the table. SPDX 2 has no rootElement, so
-# DESCRIBES and DESCRIBED_BY mark roots (SPDX 2.3 §11.1 Table 68) and,
+# DESCRIBES and DESCRIBED_BY mark roots (SPDX 2.3 clause 11.1, Table 68) and,
 # between other elements, are walked from describer to described; SPDX 3
 # does not follow describes.
 SPDX2_RELATIONSHIP_TRAVERSAL_OVERRIDES: dict[str, TraversalDirection] = {

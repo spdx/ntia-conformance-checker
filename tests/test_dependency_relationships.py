@@ -89,6 +89,13 @@ def test_spdx2_each_dependency_type_counts(tmp_path: Path, rel_type: str) -> Non
         (["SPDXRef-App DEPENDS_ON DocumentRef-other:SPDXRef-DOCUMENT"], False),
         (["SPDXRef-App DEPENDS_ON DocumentRef-nope:SPDXRef-Lib"], False),
         (["SPDXRef-App DEPENDS_ON SPDXRef-Missing"], False),
+        (
+            [
+                "SPDXRef-DOCUMENT DESCRIBES SPDXRef-Missing",
+                "SPDXRef-Missing DEPENDS_ON NONE",
+            ],
+            False,
+        ),
         (["SPDXRef-App DEPENDENCY_OF NONE"], False),
         (["SPDXRef-App DEPENDS_ON SPDXRef-App"], False),
         (["SPDXRef-DOCUMENT CONTAINS SPDXRef-App"], False),
@@ -104,6 +111,7 @@ def test_spdx2_each_dependency_type_counts(tmp_path: Path, rel_type: str) -> Non
         "external-document-itself",
         "undeclared-prefix",
         "missing",
+        "missing-origin",
         "reverse-to-none",
         "self",
         "document",
