@@ -238,15 +238,12 @@ class _Graph:
 
     Attributes:
         roots: Root element IDs.
-        traversal_edges: How the checker walks the graph, parent to children.
-        written_relationships: The graph shape: followed and root
-            relationships as written, (source, target), checked for missing
-            elements.
-        dependency_links: Relationships of a type that counts as a dependency
-            relationship, as (parent, child) in walking direction. The child
-            may be a none or no-assertion value.
-        non_component_ids: Documents and collections, which are never an end
-            of a dependency relationship.
+        traversal_edges: Parent to children, as the checker walks the graph.
+        written_relationships: Followed and root relationships as written,
+            (source, target); checked for missing elements.
+        dependency_links: Relationships of a counted dependency type, as
+            (parent, child); the child may be a none or no-assertion value.
+        non_component_ids: Documents and collections.
     """
 
     roots: list[str] = field(default_factory=list)
@@ -272,25 +269,20 @@ def _has_dependency_relationship(
     no_element_values: frozenset[str],
 ) -> bool:
     """
-    Check whether a reachable element declares a dependency relationship.
+    Check whether a reachable component declares a dependency relationship.
 
-    NTIA 2021 (IV. Minimum Elements > Data Fields > Dependency Relationship)
-    relates components: "an upstream component X is included in software Y",
-    as does CISA 2026, which replaces it (Data Fields > Component Data >
-    Component Dependency Relationship). So the parent must be a reachable
-    element that is not a document or a collection, and the child a different
-    element that exists and is not a document either. The child may be in a
-    declared external or imported document: CISA 2026 (same element) says
-    "an SBOM document can link to separate SBOM documents for each of the
-    target component's dependencies".
+    The parent must be reachable and the child a different, existing element
+    (here, external or imported); neither may be a document or collection.
+    Basis: the element relates components (NTIA 2021, IV. Minimum Elements >
+    Data Fields > Dependency Relationship; CISA 2026, which replaces it, Data
+    Fields > Component Data > Component Dependency Relationship), and CISA
+    2026 lets an SBOM "link to separate SBOM documents" for dependencies.
 
-    The child may also be a none or no-assertion value: NTIA 2021 (IV. Minimum
-    Elements > Practices and Processes > Known Unknowns) says the author
-    "should affirmatively state ... when a component has no further
-    dependencies", and that this "is implemented in the dependency
-    relationship data field". CISA 2026 replaced Known Unknowns with
-    "Explicitly Identifying Unknown Information" (Practices and Processes), "a
-    practice ... rather than a data field", so this part rests on NTIA 2021.
+    The child may also be a none or no-assertion value: NTIA 2021 (IV.
+    Minimum Elements > Practices and Processes > Known Unknowns) has the
+    author state "when a component has no further dependencies" in "the
+    dependency relationship data field". CISA 2026 made this "a practice ...
+    rather than a data field", so this part rests on NTIA 2021.
 
     Args:
         graph: The relationship graph.
@@ -430,9 +422,8 @@ def _get_spdx2_root_id(
     """
     Return the root that a relationship marks, if any.
 
-    ``SPDXRef-DOCUMENT DESCRIBES A`` marks A, and so does
-    ``A DESCRIBED_BY SPDXRef-DOCUMENT``, which is DESCRIBES written from the
-    described element's side (SPDX 2.3 clause 11.1, Table 68).
+    ``SPDXRef-DOCUMENT DESCRIBES A`` and ``A DESCRIBED_BY SPDXRef-DOCUMENT``
+    both mark A (SPDX 2.3 clause 11.1, Table 68).
     """
     if rel_type == RelationshipType.DESCRIBES and source_id in doc_ids:
         return target_id
@@ -445,21 +436,11 @@ def _build_spdx2_graph(spdx2_doc: "Document") -> _Graph:
     """
     Build the relationship graph for SPDX 2.
 
-    Roots are the elements that the document describes: ``SPDXRef-DOCUMENT
-    DESCRIBES A`` or ``A DESCRIBED_BY SPDXRef-DOCUMENT`` (SPDX 2.3 clause 11.1,
-    Table 68; the document ID is from clause 6.3).
-
-    Edges point from parent to child. ``A CONTAINS B`` is walked along its
-    written direction and adds an edge from A to B. A reverse relationship
-    type, written from the child's side, such as ``B CONTAINED_BY A`` or
-    ``B BUILD_DEPENDENCY_OF A``, is walked against it and also adds an edge
-    from A to B. ``SPDX2_RELATIONSHIP_TRAVERSAL`` holds the direction of each
-    type.
-
-    ``NONE`` and ``NOASSERTION`` state that there are no relationships or
-    that it is not known (Table 69). They are not elements, so they add no
-    edge, but a followed relationship to them is still a written relationship,
-    so that its ``spdxElementId`` is checked, and still a dependency link.
+    Roots are the described elements (see ``_get_spdx2_root_id``). Edges go
+    from parent to child, in the direction in ``SPDX2_RELATIONSHIP_TRAVERSAL``:
+    ``A CONTAINS B`` and ``B CONTAINED_BY A`` both give A to B. ``NONE`` and
+    ``NOASSERTION`` (SPDX 2.3 clause 11.1, Table 69) are not elements: they add no
+    edge, but are kept in written relationships and dependency links.
 
     Returns:
         _Graph: The graph; written relationships are
@@ -508,14 +489,7 @@ def _build_spdx2_graph(spdx2_doc: "Document") -> _Graph:
 
 
 def _extract_spdx3_relationship_edges(obj: spdx3.Relationship, graph: _Graph) -> None:
-    """
-    Helper to extract explicit relationship edges.
-
-    The graph gets traversal edges from parent to child (see
-    ``SPDX3_RELATIONSHIP_TRAVERSAL``), the relationship as written, ``from``
-    to each ``to``, to check for missing elements, and, for a type in
-    ``SPDX3_DEPENDENCY_RELATIONSHIP_TYPES``, dependency links.
-    """
+    """Add a followed relationship's edges, written pairs and dependency links."""
     rel_type_iri = getattr(obj, "relationshipType", "")
     if not rel_type_iri:
         return
@@ -555,14 +529,7 @@ def _extract_spdx3_relationship_edges(obj: spdx3.Relationship, graph: _Graph) ->
 def _extract_spdx3_collection_edges(
     obj: spdx3.ElementCollection, graph: _Graph
 ) -> None:
-    """
-    Helper to extract implicit collection edges (e.g. Sbom, Document).
-
-    The graph gets a traversal edge from the collection to each of its
-    ``rootElement``, the same (collection, root element) pairs as written
-    relationships, to check for missing elements, and the collection as a
-    non-component.
-    """
+    """Add edges from a collection (e.g. Sbom) to its ``rootElement``."""
     col_id = get_spdx3_element_id(obj)
     if not col_id:
         return
@@ -581,14 +548,11 @@ def _build_spdx3_graph(
     """
     Build the relationship graph for SPDX 3.
 
-    Roots are the ``rootElement`` of the ``SpdxDocument`` and the targets of
-    relationships of any type from the ``SpdxDocument``. Each collection,
-    such as an ``Sbom``, links to its own ``rootElement``.
+    Roots are the ``SpdxDocument`` ``rootElement`` and the ``to`` of any
+    relationship from it; each collection links to its own ``rootElement``.
 
     Returns:
-        _Graph: The graph; written relationships are the followed
-            relationships, the relationships from the document and the
-            collection roots, as written: (from, to).
+        _Graph: The graph; written relationships are (from, to).
     """
     graph = _Graph()
 
@@ -628,16 +592,7 @@ def _build_spdx3_graph(
 
 
 def _build_graph(sbom_spec: str, parsed_data: Any, spdx3_doc: Any = None) -> _Graph:
-    """
-    Build the relationship graph of an SBOM.
-
-    The traversal edges are how the checker walks the graph, from parent to
-    child. The written relationships are the graph shape, as the SBOM states
-    it, and are checked for missing elements.
-
-    Returns:
-        _Graph: The graph; empty for an unsupported specification.
-    """
+    """Build the relationship graph of an SBOM; empty for an unsupported spec."""
     if sbom_spec == "spdx2":
         return _build_spdx2_graph(parsed_data)
     if sbom_spec == "spdx3":
@@ -671,11 +626,11 @@ def _reach(
     sbom_spec: str, parsed_data: Any, spdx3_doc: Any = None
 ) -> tuple[set[str], _Graph]:
     """
-    Build the graph and find all nodes reachable from the roots.
+    Build the graph and find the nodes reachable from the roots.
 
     Returns:
-        tuple: (reachable_node_ids, graph); empty when there is no data, or
-            no SPDX 3 document.
+        tuple: (reachable_node_ids, graph); empty without data or an SPDX 3
+            document.
     """
     if not parsed_data or (sbom_spec == "spdx3" and not spdx3_doc):
         return set(), _Graph()

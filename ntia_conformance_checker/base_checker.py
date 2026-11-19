@@ -299,12 +299,7 @@ class BaseChecker(ABC):
         return self.adapter.check_author()
 
     def check_dependency_relationships(self) -> bool:
-        """
-        Check if a reachable component declares a dependency relationship.
-
-        The graph analysis decides this, the same way for SPDX 2 and SPDX 3;
-        see ``graph_utils._has_dependency_relationship``.
-        """
+        """Check if a reachable component declares a dependency relationship."""
         return self._has_dependency_relationship
 
     def check_timestamp(self) -> bool:
