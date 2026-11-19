@@ -404,3 +404,158 @@ def test_sbomchecker_spdx2_package_dependency_conformance(tmp_path: Path) -> Non
     checker_with_dep = NTIAChecker(str(with_depends_on))
     assert checker_with_dep.dependency_relationships
     assert checker_with_dep.compliant
+
+
+def test_spdx2_external_document_id_rejected_as_dependency(tmp_path: Path) -> None:
+    """Declared ExternalDocumentRef ending in SPDXRef-DOCUMENT is not a content dep."""
+    relationships: list[dict[str, str]] = [
+        {
+            "spdxElementId": "SPDXRef-DOCUMENT",
+            "relationshipType": "DESCRIBES",
+            "relatedSpdxElement": "SPDXRef-Package-App",
+        },
+        {
+            "spdxElementId": "SPDXRef-Package-App",
+            "relationshipType": "CONTAINS",
+            "relatedSpdxElement": "DocumentRef-other:SPDXRef-DOCUMENT",
+        },
+    ]
+    sbom_data: dict[str, object] = {
+        "SPDXID": "SPDXRef-DOCUMENT",
+        "spdxVersion": "SPDX-2.3",
+        "name": "SPDX2-External-Doc-ID-Test",
+        "dataLicense": "CC0-1.0",
+        "documentNamespace": "https://example.com/spdx/external-doc-id",
+        "creationInfo": {
+            "creators": ["Organization: Example Org"],
+            "created": "2026-07-04T12:00:00Z",
+        },
+        "externalDocumentRefs": [
+            {
+                "externalDocumentId": "DocumentRef-other",
+                "spdxDocument": "https://example.com/spdx/other",
+                "checksum": {
+                    "algorithm": "SHA1",
+                    "checksumValue": "d6a770ba38583ed4bb4525bd96e50461655d2758",
+                },
+            }
+        ],
+        "packages": [
+            {
+                "name": "app",
+                "SPDXID": "SPDXRef-Package-App",
+                "versionInfo": "1.0.0",
+                "supplier": "Organization: Example Org",
+                "downloadLocation": "NOASSERTION",
+                "filesAnalyzed": False,
+            }
+        ],
+        "relationships": relationships,
+    }
+
+    ext_doc_only = tmp_path / "external_doc_only.spdx.json"
+    ext_doc_only.write_text(json.dumps(sbom_data), encoding="utf-8")
+
+    checker = SbomChecker(str(ext_doc_only), sbom_spec="spdx2")
+    assert not checker.parsing_errors
+    assert not checker.validation_messages
+    assert checker.has_unknown_pointers is False
+    assert checker.dependency_relationships is False
+    assert checker.compliant is False
+
+    # Reverse relationship from external document ID must also fail.
+    relationships[1] = {
+        "spdxElementId": "DocumentRef-other:SPDXRef-DOCUMENT",
+        "relationshipType": "DEPENDENCY_OF",
+        "relatedSpdxElement": "SPDXRef-Package-App",
+    }
+    ext_doc_reverse = tmp_path / "external_doc_reverse.spdx.json"
+    ext_doc_reverse.write_text(json.dumps(sbom_data), encoding="utf-8")
+    checker_reverse = SbomChecker(str(ext_doc_reverse), sbom_spec="spdx2")
+    assert checker_reverse.has_unknown_pointers is False
+    assert checker_reverse.dependency_relationships is False
+
+
+@pytest.mark.parametrize("origin_type", ["file", "snippet"])
+def test_sbomchecker_accepts_reachable_file_and_snippet_dependencies(
+    tmp_path: Path, origin_type: str
+) -> None:
+    """Reachable File and Snippet origins satisfy dependency checks in SbomChecker."""
+    origin_id = "SPDXRef-File-Main" if origin_type == "file" else "SPDXRef-Snippet-1"
+    sbom_data: dict[str, object] = {
+        "SPDXID": "SPDXRef-DOCUMENT",
+        "spdxVersion": "SPDX-2.3",
+        "name": f"SPDX2-{origin_type}-Dependency-Test",
+        "dataLicense": "CC0-1.0",
+        "documentNamespace": "https://example.com/spdx/file-snippet-dep",
+        "creationInfo": {
+            "creators": ["Organization: Example Org"],
+            "created": "2026-07-04T12:00:00Z",
+        },
+        "packages": [
+            {
+                "name": "lib",
+                "SPDXID": "SPDXRef-Package-Lib",
+                "versionInfo": "1.0.0",
+                "supplier": "Organization: Example Org",
+                "downloadLocation": "NOASSERTION",
+                "filesAnalyzed": False,
+            }
+        ],
+        "files": [
+            {
+                "fileName": "./src/main.c",
+                "SPDXID": "SPDXRef-File-Main",
+                "checksums": [
+                    {
+                        "algorithm": "SHA1",
+                        "checksumValue": "d6a770ba38583ed4bb4525bd96e50461655d2758",
+                    }
+                ],
+                "copyrightText": "NOASSERTION",
+            }
+        ],
+        "relationships": [
+            {
+                "spdxElementId": "SPDXRef-DOCUMENT",
+                "relationshipType": "DESCRIBES",
+                "relatedSpdxElement": origin_id,
+            },
+            {
+                "spdxElementId": origin_id,
+                "relationshipType": "DEPENDS_ON",
+                "relatedSpdxElement": "SPDXRef-Package-Lib",
+            },
+        ],
+    }
+    if origin_type == "snippet":
+        sbom_data["snippets"] = [
+            {
+                "SPDXID": "SPDXRef-Snippet-1",
+                "snippetFromFile": "SPDXRef-File-Main",
+                "ranges": [
+                    {
+                        "startPointer": {
+                            "offset": 1,
+                            "reference": "SPDXRef-File-Main",
+                        },
+                        "endPointer": {
+                            "offset": 10,
+                            "reference": "SPDXRef-File-Main",
+                        },
+                    }
+                ],
+                "copyrightText": "NOASSERTION",
+            }
+        ]
+
+    sbom_path = tmp_path / f"{origin_type}_dep.spdx.json"
+    sbom_path.write_text(json.dumps(sbom_data), encoding="utf-8")
+
+    checker = SbomChecker(str(sbom_path), sbom_spec="spdx2")
+    assert not checker.parsing_errors
+    assert not checker.validation_messages
+    assert origin_id in checker.reachable_node_ids
+    assert "SPDXRef-Package-Lib" in checker.reachable_component_ids
+    assert checker.dependency_relationships is True
+    assert checker.compliant is True

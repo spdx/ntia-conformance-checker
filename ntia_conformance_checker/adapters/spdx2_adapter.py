@@ -88,13 +88,13 @@ def _is_valid_spdx2_dependency_endpoint(
     external_doc_ref_ids: set[str],
     allow_no_element: bool,
 ) -> bool:
-    """Return True if value is a valid partner element, external element, or NONE/NOASSERTION."""
+    """Return True if value is a valid partner, external content element, or NONE/NOASSERTION."""
     if allow_no_element and _is_spdx2_no_element(value):
         return True
     if not isinstance(value, str):
         return False
     return value in element_ids or is_spdx2_external_element_id(
-        value, external_doc_ref_ids
+        value, external_doc_ref_ids, allow_document_id=False
     )
 
 

@@ -252,6 +252,7 @@ class BaseChecker(ABC):
     def _init_graph_results(self) -> None:
         """Initialize the results of the graph connectivity analysis."""
         self.reachable_component_ids: set[str] = set()
+        self.reachable_node_ids: set[str] = set()
         self.floating_component_ids: set[str] = set()
         self.unknown_pointer_edges: dict[str, list[str]] = {}
         # IDs of elements that a root or a followed relationship refers to,
@@ -299,7 +300,7 @@ class BaseChecker(ABC):
 
     def check_dependency_relationships(self) -> bool:
         """Check if the SBOM document declares dependency information."""
-        return self.adapter.check_dependency_relationships(self.reachable_component_ids)
+        return self.adapter.check_dependency_relationships(self.reachable_node_ids)
 
     def check_timestamp(self) -> bool:
         """Check if the SBOM creation timestamp exists."""
@@ -558,6 +559,7 @@ class BaseChecker(ABC):
         )
 
         self.reachable_component_ids = result.reachable_component_ids
+        self.reachable_node_ids = result.reachable_node_ids
         self.components_evaluated = bool(result.reachable_component_ids)
         self.floating_component_ids = result.floating_component_ids
         self.unknown_pointer_edges = result.unknown_pointer_edges

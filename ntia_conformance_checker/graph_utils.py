@@ -71,7 +71,10 @@ def collect_spdx2_external_document_ref_ids(spdx2_doc: "Document") -> set[str]:
 
 
 def is_spdx2_external_element_id(
-    element_id: str, external_doc_ref_ids: set[str]
+    element_id: str,
+    external_doc_ref_ids: set[str],
+    *,
+    allow_document_id: bool = True,
 ) -> bool:
     """
     Check whether an SPDX 2 element ID refers to an element in a declared external document.
@@ -87,6 +90,8 @@ def is_spdx2_external_element_id(
     Args:
         element_id: Element ID used in a relationship.
         external_doc_ref_ids: Declared external document reference IDs.
+        allow_document_id: Whether ``DocumentRef-<id>:SPDXRef-DOCUMENT``
+            (the external document itself, SPDX 2.3.1 clause 6.3) is accepted.
 
     Returns:
         bool: True if the ID is ``<declared DocumentRef>:<SPDXID>``, where
@@ -94,6 +99,8 @@ def is_spdx2_external_element_id(
             numbers, "." and "-" (clause 7.2 and others).
     """
     doc_ref_id, separator, local_id = element_id.partition(":")
+    if not allow_document_id and local_id == "SPDXRef-DOCUMENT":
+        return False
     return (
         bool(separator)
         and doc_ref_id in external_doc_ref_ids
@@ -243,12 +250,14 @@ class GraphConnectivity:
             source ID to target IDs (see ``_find_unknown_pointer_edges``).
         missing_element_ids: IDs of the missing elements, at either end of
             those relationships.
+        reachable_node_ids: All element IDs reachable from the roots.
     """
 
     reachable_component_ids: set[str] = field(default_factory=set)
     floating_component_ids: set[str] = field(default_factory=set)
     unknown_pointer_edges: dict[str, list[str]] = field(default_factory=dict)
     missing_element_ids: set[str] = field(default_factory=set)
+    reachable_node_ids: set[str] = field(default_factory=set)
 
     @property
     def has_unknown_pointers(self) -> bool:
@@ -290,6 +299,7 @@ def analyze_graph(
         floating_component_ids=all_package_ids - reachable_component_ids,
         unknown_pointer_edges=unknown_pointer_edges,
         missing_element_ids=missing_element_ids,
+        reachable_node_ids=reachable_node_ids,
     )
 
     if not result.has_unknown_pointers and not all(map(is_known, reachable_node_ids)):
