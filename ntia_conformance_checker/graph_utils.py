@@ -146,23 +146,18 @@ def _collect_spdx3_known_and_package_ids(
     Returns:
         tuple: (all_known_ids, all_package_ids)
     """
-    all_known_ids = {
-        getattr(obj, "spdxId")
-        for obj in object_set.objects
-        if isinstance(getattr(obj, "spdxId", None), str)
-    } | SPDX3_INDIVIDUAL_ELEMENT_IRIS  # NoneElement and the like need no definition
-    all_known_ids |= {
-        external_id
-        for obj in object_set.objects
-        for ext_map in getattr(obj, "import_", None) or []
-        if isinstance(external_id := getattr(ext_map, "externalSpdxId", None), str)
-    }
-    package_ids = {
-        getattr(obj, "spdxId")
-        for obj in object_set.objects
-        if isinstance(obj, spdx3.software_Package)
-        and isinstance(getattr(obj, "spdxId", None), str)
-    }
+    all_known_ids: set[str] = set(SPDX3_INDIVIDUAL_ELEMENT_IRIS)  # NoneElement etc.
+    package_ids: set[str] = set()
+    for obj in object_set.objects:
+        spdx_id = getattr(obj, "spdxId", None)
+        if isinstance(spdx_id, str):
+            all_known_ids.add(spdx_id)
+            if isinstance(obj, spdx3.software_Package):
+                package_ids.add(spdx_id)
+        for ext_map in getattr(obj, "import_", None) or []:
+            external_id = getattr(ext_map, "externalSpdxId", None)
+            if isinstance(external_id, str):
+                all_known_ids.add(external_id)
     return all_known_ids, package_ids
 
 

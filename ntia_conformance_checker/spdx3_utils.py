@@ -184,8 +184,7 @@ def get_boms_from_spdx_document(
     if not spdx_doc:
         return []
 
-    root_elements: list[Any] = getattr(spdx_doc, "rootElement", [])
-    return [elem for elem in root_elements if isinstance(elem, spdx3.Bom)]
+    return [elem for elem in spdx_doc.rootElement if isinstance(elem, spdx3.Bom)]
 
 
 def get_packages_from_bom(
@@ -203,8 +202,9 @@ def get_packages_from_bom(
     if not bom:
         return []
 
-    root_elements: list[Any] = getattr(bom, "rootElement", [])
-    return [elem for elem in root_elements if isinstance(elem, spdx3.software_Package)]
+    return [
+        elem for elem in bom.rootElement if isinstance(elem, spdx3.software_Package)
+    ]
 
 
 def iter_objects_with_property(
@@ -369,7 +369,7 @@ def has_sha512_hash(file_obj: spdx3.SHACLObject) -> bool:
             algorithm = getattr(verification, "algorithm", "")
             hash_value = getattr(verification, "hashValue", "")
 
-            if algorithm and "sha512" in str(algorithm).lower() and hash_value:
+            if algorithm and "sha512" in algorithm.lower() and hash_value:
                 return True
 
     return False
@@ -394,21 +394,19 @@ def get_dependency_relationships_completeness(
             continue
 
         # Remove the IRI prefix of entry name before compare
-        rel_type_name = str(rel_type).rsplit("/", maxsplit=1)[-1]
+        rel_type_name = rel_type.rsplit("/", maxsplit=1)[-1]
         if rel_type_name in ("contains", "dependsOn"):
             from_id = get_spdx3_element_id(getattr(obj, "from_", None))
 
             if from_id:
                 completeness_iri = getattr(obj, "completeness", None)
                 completeness_val = (
-                    str(completeness_iri).rsplit("/", maxsplit=1)[-1]
+                    completeness_iri.rsplit("/", maxsplit=1)[-1]
                     if completeness_iri
                     else "noAssertion"
                 )
                 if completeness_val:
-                    completeness_map.setdefault(from_id, []).append(
-                        str(completeness_val)
-                    )
+                    completeness_map.setdefault(from_id, []).append(completeness_val)
 
     return completeness_map
 
@@ -423,7 +421,7 @@ def parse_spdx3_file(file_path: str) -> tuple[spdx3.SHACLObjectSet | None, list[
     """
     parsing_errors: list[str] = []
 
-    if not file_path or str(file_path).strip() == "":
+    if not file_path or file_path.strip() == "":
         logging.error("No file path provided.")
         return None, parsing_errors
 

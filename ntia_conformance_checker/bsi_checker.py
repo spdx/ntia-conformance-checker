@@ -697,13 +697,10 @@ class BSIChecker(BaseChecker):
         for rel in self.doc.foreach_type(spdx3.Relationship):
             rel_type = getattr(rel, "relationshipType", "")
 
-            if (
-                rel_type
-                and str(rel_type).rsplit("/", maxsplit=1)[-1].lower() == "other"
-            ):
+            if rel_type and rel_type.rsplit("/", maxsplit=1)[-1].lower() == "other":
                 comment = getattr(rel, "comment", "")
 
-                if comment and "hasEffectiveLicense" in str(comment):
+                if comment and "hasEffectiveLicense" in comment:
                     from_obj = getattr(rel, "from_", None)
                     from_id = (
                         from_obj

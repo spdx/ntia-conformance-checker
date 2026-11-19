@@ -435,7 +435,7 @@ class BaseChecker(ABC):
         Returns:
             Document | None: An SPDX 2 SBOM document if successful, otherwise None.
         """
-        if not self.file or str(self.file).strip() == "":
+        if not self.file or self.file.strip() == "":
             logging.error("No file path provided.")
             return None
 
