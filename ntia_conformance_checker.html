@@ -777,6 +777,18 @@ Returns None if the version cannot be determined.</p>
 <dt class="sig sig-object py" id="ntia_conformance_checker.cli_utils.print_output">
 <span class="sig-prename descclassname"><span class="pre">ntia_conformance_checker.cli_utils.</span></span><span class="sig-name descname"><span class="pre">print_output</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">sbom</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference internal" href="#ntia_conformance_checker.base_checker.BaseChecker" title="ntia_conformance_checker.base_checker.BaseChecker"><span class="pre">BaseChecker</span></a></span></em>, <em class="sig-param"><span class="keyword-only-separator o"><abbr title="Keyword-only parameters separator (PEP 3102)"><span class="pre">*</span></abbr></span></em>, <em class="sig-param"><span class="n"><span class="pre">output_type</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">output_file</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><span class="pre">None</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">verbose</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">bool</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">None</span></span></span><a class="reference internal" href="_modules/ntia_conformance_checker/cli_utils.html#print_output"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#ntia_conformance_checker.cli_utils.print_output" title="Link to this definition">¶</a></dt>
 <dd><p>Print or save the output report.</p>
+<p>A JSON report saved to a file is RFC 8785 canonical. A JSON report
+printed to stdout is indented, with keys sorted.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>sbom</strong> – The checker with results to report.</p></li>
+<li><p><strong>output_type</strong> – The report format, e.g. <code class="docutils literal notranslate"><span class="pre">json</span></code> or <code class="docutils literal notranslate"><span class="pre">html</span></code>.</p></li>
+<li><p><strong>output_file</strong> – The file to save the report to, or None to print it.</p></li>
+<li><p><strong>verbose</strong> – Whether to include more details in a printed report.</p></li>
+</ul>
+</dd>
+</dl>
 </dd></dl>
 
 </section>
@@ -1326,6 +1338,19 @@ is a new spec with its own <code class="docutils literal notranslate"><span clas
 <dt class="sig sig-object py" id="ntia_conformance_checker.report.report_json">
 <span class="sig-prename descclassname"><span class="pre">ntia_conformance_checker.report.</span></span><span class="sig-name descname"><span class="pre">report_json</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">checker_instance</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><a class="reference internal" href="#ntia_conformance_checker.base_checker.BaseChecker" title="ntia_conformance_checker.base_checker.BaseChecker"><span class="pre">BaseChecker</span></a></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">dict</span><span class="p"><span class="pre">[</span></span><span class="pre">str</span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="pre">Any</span><span class="p"><span class="pre">]</span></span></span></span><a class="reference internal" href="_modules/ntia_conformance_checker/report.html#report_json"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#ntia_conformance_checker.report.report_json" title="Link to this definition">¶</a></dt>
 <dd><p>Build the JSON output dictionary.</p>
+<p>Lists built from sets or unordered collections are sorted, so the same
+SBOM always gives the same output.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><p><strong>checker_instance</strong> – The checker with results to report.</p>
+</dd>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
+<dd class="field-even"><p>The report, with JSON types only.</p>
+</dd>
+<dt class="field-odd">Return type<span class="colon">:</span></dt>
+<dd class="field-odd"><p>dict[str, Any]</p>
+</dd>
+</dl>
 </dd></dl>
 
 <dl class="py function">

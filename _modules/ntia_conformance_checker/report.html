@@ -536,10 +536,37 @@
 
 
 
+<span class="k">def</span><span class="w"> </span><span class="nf">_sorted_edges</span><span class="p">(</span><span class="n">edges</span><span class="p">:</span> <span class="nb">dict</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="nb">list</span><span class="p">[</span><span class="nb">str</span><span class="p">]])</span> <span class="o">-&gt;</span> <span class="nb">dict</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="nb">list</span><span class="p">[</span><span class="nb">str</span><span class="p">]]:</span>
+<span class="w">    </span><span class="sd">"""</span>
+<span class="sd">    Return edges with sources and their targets sorted.</span>
+
+<span class="sd">    Relationships may be collected from an unordered set of SPDX 3 objects,</span>
+<span class="sd">    so sorting keeps the JSON output the same across runs.</span>
+
+<span class="sd">    Args:</span>
+<span class="sd">        edges: Source ID to target IDs.</span>
+
+<span class="sd">    Returns:</span>
+<span class="sd">        dict[str, list[str]]: Source ID to sorted target IDs, by source ID.</span>
+<span class="sd">    """</span>
+    <span class="k">return</span> <span class="p">{</span><span class="n">source</span><span class="p">:</span> <span class="nb">sorted</span><span class="p">(</span><span class="n">edges</span><span class="p">[</span><span class="n">source</span><span class="p">])</span> <span class="k">for</span> <span class="n">source</span> <span class="ow">in</span> <span class="nb">sorted</span><span class="p">(</span><span class="n">edges</span><span class="p">)}</span>
+
+
 <div class="viewcode-block" id="report_json">
 <a class="viewcode-back" href="../../ntia_conformance_checker.html#ntia_conformance_checker.report.report_json">[docs]</a>
 <span class="k">def</span><span class="w"> </span><span class="nf">report_json</span><span class="p">(</span><span class="n">checker_instance</span><span class="p">:</span> <span class="s2">"BaseChecker"</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">dict</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="n">Any</span><span class="p">]:</span>
-<span class="w">    </span><span class="sd">"""Build the JSON output dictionary."""</span>
+<span class="w">    </span><span class="sd">"""</span>
+<span class="sd">    Build the JSON output dictionary.</span>
+
+<span class="sd">    Lists built from sets or unordered collections are sorted, so the same</span>
+<span class="sd">    SBOM always gives the same output.</span>
+
+<span class="sd">    Args:</span>
+<span class="sd">        checker_instance: The checker with results to report.</span>
+
+<span class="sd">    Returns:</span>
+<span class="sd">        dict[str, Any]: The report, with JSON types only.</span>
+<span class="sd">    """</span>
     <span class="n">result</span><span class="p">:</span> <span class="nb">dict</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="n">Any</span><span class="p">]</span> <span class="o">=</span> <span class="p">{</span>
         <span class="s2">"isConformant"</span><span class="p">:</span> <span class="nb">getattr</span><span class="p">(</span><span class="n">checker_instance</span><span class="p">,</span> <span class="s2">"compliant"</span><span class="p">,</span> <span class="kc">False</span><span class="p">),</span>
         <span class="s2">"isNtiaConformant"</span><span class="p">:</span> <span class="nb">getattr</span><span class="p">(</span>
@@ -568,8 +595,8 @@
                 <span class="s2">"hasUnknownPointers"</span><span class="p">:</span> <span class="nb">getattr</span><span class="p">(</span>
                     <span class="n">checker_instance</span><span class="p">,</span> <span class="s2">"has_unknown_pointers"</span><span class="p">,</span> <span class="kc">False</span>
                 <span class="p">),</span>
-                <span class="s2">"unknownPointerEdges"</span><span class="p">:</span> <span class="nb">getattr</span><span class="p">(</span>
-                    <span class="n">checker_instance</span><span class="p">,</span> <span class="s2">"unknown_pointer_edges"</span><span class="p">,</span> <span class="p">{}</span>
+                <span class="s2">"unknownPointerEdges"</span><span class="p">:</span> <span class="n">_sorted_edges</span><span class="p">(</span>
+                    <span class="nb">getattr</span><span class="p">(</span><span class="n">checker_instance</span><span class="p">,</span> <span class="s2">"unknown_pointer_edges"</span><span class="p">,</span> <span class="p">{})</span>
                 <span class="p">),</span>
                 <span class="s2">"missingElementIds"</span><span class="p">:</span> <span class="nb">sorted</span><span class="p">(</span>
                     <span class="nb">getattr</span><span class="p">(</span><span class="n">checker_instance</span><span class="p">,</span> <span class="s2">"missing_element_ids"</span><span class="p">,</span> <span class="nb">set</span><span class="p">())</span>
@@ -579,7 +606,7 @@
                 <span class="s2">"floatingComponentCount"</span><span class="p">:</span> <span class="nb">len</span><span class="p">(</span>
                     <span class="nb">getattr</span><span class="p">(</span><span class="n">checker_instance</span><span class="p">,</span> <span class="s2">"floating_component_ids"</span><span class="p">,</span> <span class="nb">set</span><span class="p">())</span>
                 <span class="p">),</span>
-                <span class="s2">"floatingComponentIds"</span><span class="p">:</span> <span class="nb">list</span><span class="p">(</span>
+                <span class="s2">"floatingComponentIds"</span><span class="p">:</span> <span class="nb">sorted</span><span class="p">(</span>
                     <span class="nb">getattr</span><span class="p">(</span><span class="n">checker_instance</span><span class="p">,</span> <span class="s2">"floating_component_ids"</span><span class="p">,</span> <span class="nb">set</span><span class="p">())</span>
                 <span class="p">),</span>
             <span class="p">},</span>

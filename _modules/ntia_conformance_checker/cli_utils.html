@@ -48,6 +48,7 @@
 <span class="kn">from</span><span class="w"> </span><span class="nn">importlib.metadata</span><span class="w"> </span><span class="kn">import</span> <span class="n">version</span>
 <span class="kn">from</span><span class="w"> </span><span class="nn">typing</span><span class="w"> </span><span class="kn">import</span> <span class="n">TYPE_CHECKING</span><span class="p">,</span> <span class="n">Any</span>
 
+<span class="kn">import</span><span class="w"> </span><span class="nn">rfc8785</span>
 <span class="kn">from</span><span class="w"> </span><span class="nn">spdx_tools.spdx.parser.error</span><span class="w"> </span><span class="kn">import</span> <span class="n">SPDXParsingError</span>
 <span class="kn">from</span><span class="w"> </span><span class="nn">spdx_tools.spdx.parser.parse_anything</span><span class="w"> </span><span class="kn">import</span> <span class="n">parse_file</span> <span class="k">as</span> <span class="n">parse_spdx2_file</span>
 
@@ -348,7 +349,18 @@
 <span class="k">def</span><span class="w"> </span><span class="nf">print_output</span><span class="p">(</span>
     <span class="n">sbom</span><span class="p">:</span> <span class="n">BaseChecker</span><span class="p">,</span> <span class="o">*</span><span class="p">,</span> <span class="n">output_type</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span> <span class="n">output_file</span><span class="p">:</span> <span class="nb">str</span> <span class="o">|</span> <span class="kc">None</span><span class="p">,</span> <span class="n">verbose</span><span class="p">:</span> <span class="nb">bool</span>
 <span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
-<span class="w">    </span><span class="sd">"""Print or save the output report."""</span>
+<span class="w">    </span><span class="sd">"""</span>
+<span class="sd">    Print or save the output report.</span>
+
+<span class="sd">    A JSON report saved to a file is RFC 8785 canonical. A JSON report</span>
+<span class="sd">    printed to stdout is indented, with keys sorted.</span>
+
+<span class="sd">    Args:</span>
+<span class="sd">        sbom: The checker with results to report.</span>
+<span class="sd">        output_type: The report format, e.g. ``json`` or ``html``.</span>
+<span class="sd">        output_file: The file to save the report to, or None to print it.</span>
+<span class="sd">        verbose: Whether to include more details in a printed report.</span>
+<span class="sd">    """</span>
     <span class="k">match</span> <span class="n">output_type</span><span class="p">:</span>
         <span class="k">case</span> <span class="s2">"print"</span><span class="p">:</span>
             <span class="n">sbom</span><span class="o">.</span><span class="n">print_table_output</span><span class="p">(</span><span class="n">verbose</span><span class="o">=</span><span class="n">verbose</span><span class="p">)</span>
@@ -359,12 +371,13 @@
             <span class="n">result_dict</span><span class="p">:</span> <span class="nb">dict</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="n">Any</span><span class="p">]</span> <span class="o">=</span> <span class="n">sbom</span><span class="o">.</span><span class="n">output_json</span><span class="p">()</span>
             <span class="k">if</span> <span class="n">output_file</span><span class="p">:</span>
                 <span class="k">try</span><span class="p">:</span>
-                    <span class="k">with</span> <span class="nb">open</span><span class="p">(</span><span class="n">output_file</span><span class="p">,</span> <span class="s2">"w"</span><span class="p">,</span> <span class="n">encoding</span><span class="o">=</span><span class="s2">"utf-8"</span><span class="p">)</span> <span class="k">as</span> <span class="n">outfile</span><span class="p">:</span>
-                        <span class="n">json</span><span class="o">.</span><span class="n">dump</span><span class="p">(</span><span class="n">result_dict</span><span class="p">,</span> <span class="n">outfile</span><span class="p">)</span>
-                <span class="k">except</span> <span class="ne">OSError</span> <span class="k">as</span> <span class="n">exc</span><span class="p">:</span>
+                    <span class="n">canonical</span> <span class="o">=</span> <span class="n">rfc8785</span><span class="o">.</span><span class="n">dumps</span><span class="p">(</span><span class="n">result_dict</span><span class="p">)</span>
+                    <span class="k">with</span> <span class="nb">open</span><span class="p">(</span><span class="n">output_file</span><span class="p">,</span> <span class="s2">"wb"</span><span class="p">)</span> <span class="k">as</span> <span class="n">outfile</span><span class="p">:</span>
+                        <span class="n">outfile</span><span class="o">.</span><span class="n">write</span><span class="p">(</span><span class="n">canonical</span><span class="p">)</span>
+                <span class="k">except</span> <span class="p">(</span><span class="ne">OSError</span><span class="p">,</span> <span class="n">rfc8785</span><span class="o">.</span><span class="n">CanonicalizationError</span><span class="p">)</span> <span class="k">as</span> <span class="n">exc</span><span class="p">:</span>
                     <span class="n">logging</span><span class="o">.</span><span class="n">error</span><span class="p">(</span><span class="s2">"Could not write JSON output file: </span><span class="si">%s</span><span class="s2">"</span><span class="p">,</span> <span class="n">exc</span><span class="p">)</span>
             <span class="k">else</span><span class="p">:</span>
-                <span class="nb">print</span><span class="p">(</span><span class="n">json</span><span class="o">.</span><span class="n">dumps</span><span class="p">(</span><span class="n">result_dict</span><span class="p">,</span> <span class="n">indent</span><span class="o">=</span><span class="mi">2</span><span class="p">))</span>
+                <span class="nb">print</span><span class="p">(</span><span class="n">json</span><span class="o">.</span><span class="n">dumps</span><span class="p">(</span><span class="n">result_dict</span><span class="p">,</span> <span class="n">indent</span><span class="o">=</span><span class="mi">2</span><span class="p">,</span> <span class="n">sort_keys</span><span class="o">=</span><span class="kc">True</span><span class="p">))</span>
 
         <span class="k">case</span> <span class="s2">"html"</span><span class="p">:</span>
             <span class="n">html_output</span> <span class="o">=</span> <span class="n">sbom</span><span class="o">.</span><span class="n">output_html</span><span class="p">()</span>
