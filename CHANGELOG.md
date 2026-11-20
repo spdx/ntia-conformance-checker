@@ -59,9 +59,9 @@ and this project adheres to [Semantic Versioning][semver].
   fails
 - A root or a relationship that points to a missing element makes the SBOM
   non-compliant in every checker (NTIA, FSCT3, BSI), for SPDX 2 and SPDX 3,
-  with or without validation; see Q7 in `FAQ.md`
+  with or without validation; see Q7 in `FAQ.md` ([#493])
 - README lists where the FSCT3 checks are weaker or stricter than FSCT3
-  "minimum expected", such as the dependency relationship check
+  "minimum expected", such as the dependency relationship check ([#493])
 
 ### Deprecated
 
@@ -74,6 +74,7 @@ and this project adheres to [Semantic Versioning][semver].
 [#481]: https://github.com/spdx/ntia-conformance-checker/issues/481
 [#482]: https://github.com/spdx/ntia-conformance-checker/issues/482
 [#486]: https://github.com/spdx/ntia-conformance-checker/issues/486
+[#493]: https://github.com/spdx/ntia-conformance-checker/pull/493
 
 ## [6.0.0] - 2026-10-05
 
