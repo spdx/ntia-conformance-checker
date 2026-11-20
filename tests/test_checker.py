@@ -631,12 +631,7 @@ def test_missing_relationship_target(test_file: str) -> None:
     spec = "spdx3" if "spdx3" in test_file else "spdx2"
     sbom = sbom_checker.SbomChecker(test_file, sbom_spec=spec)
 
-    # For SPDX 3, unknown pointer graph issues do not fail minimum elements compliance
-    # because we decouple the graph validation from the minimum elements check.
-    if spec == "spdx3":
-        assert sbom.compliant is True
-    else:
-        assert sbom.compliant is False
+    assert sbom.compliant is False
 
     # Test that the SBOM has unknown pointers and that the unknown pointer edges are logged
     assert sbom.has_unknown_pointers is True

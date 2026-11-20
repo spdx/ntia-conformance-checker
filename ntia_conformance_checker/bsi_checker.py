@@ -296,6 +296,7 @@ class BSIChecker(BaseChecker):
                 self.doc_uri,
                 self.dependency_completeness,
                 self._all_provided(self.all_components_without_info),
+                self._all_referenced_elements_defined(),
             ]
         )
 

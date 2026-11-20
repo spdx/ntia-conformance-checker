@@ -57,6 +57,10 @@ and this project adheres to [Semantic Versioning][semver].
 - Releases publish to PyPI only after the SBOM is validated; release files are
   attached, signed and attested after the publish, and can be re-run if that
   fails
+- A root or a relationship that points to a missing element makes the SBOM
+  non-compliant in every checker (NTIA, FSCT3, BSI), for SPDX 2 and SPDX 3,
+  with or without validation; see "The CLI output reports that a relationship
+  points to a missing element" in `FAQ.md`
 
 ### Deprecated
 

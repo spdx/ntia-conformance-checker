@@ -290,6 +290,34 @@ class BaseChecker(ABC):
         """
         return self.components_evaluated and not missing
 
+    def _all_referenced_elements_defined(self) -> bool:
+        """
+        Check if every element that a root or a relationship refers to is defined.
+
+        An element is defined when the SBOM contains it or declares it as
+        external. A missing element breaks the relationship graph that the
+        component checks walk, so every checker requires this for compliance.
+
+        SPDX 2: SPDX 2.3.1 §11.1 "Relationship field", Table 69, Format: each
+        end is an ``SPDXID`` "as described in" §6.3, §7.2 and §8.2,
+        optionally prefixed by a ``DocumentRef-`` reference to an external
+        SPDX document "as described in" §6.6 "External document references
+        field"; the right-hand end may instead be ``NONE`` or ``NOASSERTION``.
+        Table 69 has no RFC 2119 keyword; an ID that identifies no element in
+        the document or in a declared external document does not fit this
+        format, so it is treated as a requirement.
+
+        SPDX 3: SPDX 3.0.1 has no normative text that requires a referenced
+        element to be defined in the serialization. Core/Classes/ExternalMap
+        and Core/Properties/import describe how an SpdxDocument declares an
+        element defined elsewhere, without a requirement keyword. Here the
+        check is the checker's own structural requirement.
+
+        Returns:
+            bool: True if no root or relationship refers to a missing element.
+        """
+        return not self.has_unknown_pointers
+
     def check_doc_version(self) -> bool:
         """Check if the document's specification version exists."""
         return self.adapter.check_doc_version()
