@@ -455,22 +455,11 @@ class BSIChecker(BaseChecker):
         """
         Get components without dependencies with stated completeness.
 
-        BSI TR-03183-2 v2.1.0 §5.2.2 "Required data fields for each
-        component", Table 3, "Dependencies on other components" (MUST):
-        each component enumerates the components it directly depends on or
-        contains, and "the completeness of this enumeration MUST be clearly
-        indicated". §8.2 "Mapping of the individual data fields" maps this
-        to an SPDX 3.0.1 ``Relationship`` from the component, with
-        ``relationshipType`` ``contains`` or ``dependsOn`` and
-        ``completeness`` ``complete``, ``incomplete`` or ``noAssertion``.
-
-        A component fails if it is not the ``from`` of a ``contains`` or
-        ``dependsOn`` relationship, or if any of these relationships has no
-        ``completeness``, as the enumeration they form then does not state
-        its completeness. Any of the three values passes, as §8.2 allows
-        each. A component without dependencies states this with ``to``
-        ``NoneElement`` (SPDX 3.0.1 Core/Individuals/NoneElement) and
-        ``completeness`` ``complete``.
+        BSI TR-03183-2 v2.1.0 clause 5.2.2 Table 3 "Dependencies on other
+        components" (MUST); mapping: clause 8.2, a ``contains`` or
+        ``dependsOn`` relationship with ``completeness``. A component fails if
+        it has no such relationship, or one without ``completeness``. No
+        dependencies: ``to`` ``NoneElement``, ``completeness`` ``complete``.
 
         Returns:
             list[tuple[str, str]]: (name, SPDX ID) of failing components.
