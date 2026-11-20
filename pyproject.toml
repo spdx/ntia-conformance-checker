@@ -55,7 +55,7 @@ keywords = [
 ]
 dependencies = [
     "PyYAML>=6.0",
-    "rfc8785>=0.1.3",
+    "rfc8785>=0.1.4",
     "spdx-python-model==0.0.6",
     "spdx-tools>=0.8.5",
 ]

@@ -1,129 +1,17 @@
 {
   "@context": "https://spdx.org/rdf/3.0.1/spdx-context.jsonld",
   "@graph": [
-    {
-      "@id": "_:creationInfo_0",
-      "type": "CreationInfo",
-      "specVersion": "3.0.1",
-      "createdBy": [
-        "https://example.com/unordered/Person1"
-      ],
-      "created": "2026-11-20T00:00:00Z"
-    },
-    {
-      "spdxId": "https://example.com/unordered/document1",
-      "type": "SpdxDocument",
-      "rootElement": [
-        "https://example.com/unordered/Sbom1"
-      ],
-      "name": "Unordered-Output-Test-SBOM",
-      "creationInfo": "_:creationInfo_0"
-    },
-    {
-      "spdxId": "https://example.com/unordered/Person1",
-      "type": "Person",
-      "name": "Tester",
-      "creationInfo": "_:creationInfo_0"
-    },
-    {
-      "spdxId": "https://example.com/unordered/Sbom1",
-      "type": "software_Sbom",
-      "software_sbomType": [
-        "analyzed"
-      ],
-      "rootElement": [
-        "https://example.com/unordered/Package-A"
-      ],
-      "creationInfo": "_:creationInfo_0"
-    },
-    {
-      "spdxId": "https://example.com/unordered/Package-A",
-      "type": "software_Package",
-      "name": "Package-A",
-      "suppliedBy": "https://example.com/unordered/Person1",
-      "software_packageVersion": "1.0.0",
-      "creationInfo": "_:creationInfo_0"
-    },
-    {
-      "spdxId": "https://example.com/unordered/Package-F5",
-      "type": "software_Package",
-      "name": "Package-F5",
-      "suppliedBy": "https://example.com/unordered/Person1",
-      "software_packageVersion": "1.0.0",
-      "creationInfo": "_:creationInfo_0"
-    },
-    {
-      "spdxId": "https://example.com/unordered/Package-F3",
-      "type": "software_Package",
-      "name": "Package-F3",
-      "suppliedBy": "https://example.com/unordered/Person1",
-      "software_packageVersion": "1.0.0",
-      "creationInfo": "_:creationInfo_0"
-    },
-    {
-      "spdxId": "https://example.com/unordered/Package-F1",
-      "type": "software_Package",
-      "name": "Package-F1",
-      "suppliedBy": "https://example.com/unordered/Person1",
-      "software_packageVersion": "1.0.0",
-      "creationInfo": "_:creationInfo_0"
-    },
-    {
-      "spdxId": "https://example.com/unordered/Package-F6",
-      "type": "software_Package",
-      "name": "Package-F6",
-      "suppliedBy": "https://example.com/unordered/Person1",
-      "software_packageVersion": "1.0.0",
-      "creationInfo": "_:creationInfo_0"
-    },
-    {
-      "spdxId": "https://example.com/unordered/Package-F2",
-      "type": "software_Package",
-      "name": "Package-F2",
-      "suppliedBy": "https://example.com/unordered/Person1",
-      "software_packageVersion": "1.0.0",
-      "creationInfo": "_:creationInfo_0"
-    },
-    {
-      "spdxId": "https://example.com/unordered/Package-F4",
-      "type": "software_Package",
-      "name": "Package-F4",
-      "suppliedBy": "https://example.com/unordered/Person1",
-      "software_packageVersion": "1.0.0",
-      "creationInfo": "_:creationInfo_0"
-    },
-    {
-      "spdxId": "https://example.com/unordered/Rel-1",
-      "type": "Relationship",
-      "relationshipType": "contains",
-      "from": "https://example.com/unordered/Package-A",
-      "to": [
-        "https://example.com/unordered/Missing-3",
-        "https://example.com/unordered/Missing-1",
-        "https://example.com/unordered/Missing-2"
-      ],
-      "creationInfo": "_:creationInfo_0"
-    },
-    {
-      "spdxId": "https://example.com/unordered/Rel-2",
-      "type": "Relationship",
-      "relationshipType": "contains",
-      "from": "https://example.com/unordered/Package-F2",
-      "to": [
-        "https://example.com/unordered/Missing-5",
-        "https://example.com/unordered/Missing-4"
-      ],
-      "creationInfo": "_:creationInfo_0"
-    },
-    {
-      "spdxId": "https://example.com/unordered/Rel-3",
-      "type": "Relationship",
-      "relationshipType": "contains",
-      "from": "https://example.com/unordered/Package-F1",
-      "to": [
-        "https://example.com/unordered/Missing-6"
-      ],
-      "creationInfo": "_:creationInfo_0"
-    }
+    {"type": "CreationInfo", "@id": "_:creationinfo", "specVersion": "3.0.1", "createdBy": ["https://example.com/unordered/Person"], "created": "2026-11-20T00:00:00Z"},
+    {"type": "Person", "spdxId": "https://example.com/unordered/Person", "creationInfo": "_:creationinfo", "name": "Person"},
+    {"type": "SpdxDocument", "spdxId": "https://example.com/unordered/Doc", "creationInfo": "_:creationinfo", "rootElement": ["https://example.com/unordered/Sbom"]},
+    {"type": "software_Sbom", "spdxId": "https://example.com/unordered/Sbom", "creationInfo": "_:creationinfo", "rootElement": ["https://example.com/unordered/A"]},
+    {"type": "software_Package", "spdxId": "https://example.com/unordered/A", "creationInfo": "_:creationinfo", "name": "A"},
+    {"type": "software_Package", "spdxId": "https://example.com/unordered/F3", "creationInfo": "_:creationinfo", "name": "F3"},
+    {"type": "software_Package", "spdxId": "https://example.com/unordered/F1", "creationInfo": "_:creationinfo", "name": "F1"},
+    {"type": "software_Package", "spdxId": "https://example.com/unordered/F5", "creationInfo": "_:creationinfo", "name": "F5"},
+    {"type": "software_Package", "spdxId": "https://example.com/unordered/F2", "creationInfo": "_:creationinfo", "name": "F2"},
+    {"type": "software_Package", "spdxId": "https://example.com/unordered/F4", "creationInfo": "_:creationinfo", "name": "F4"},
+    {"type": "Relationship", "spdxId": "https://example.com/unordered/R1", "creationInfo": "_:creationinfo", "relationshipType": "contains", "from": "https://example.com/unordered/F2", "to": ["https://example.com/unordered/M3"]},
+    {"type": "Relationship", "spdxId": "https://example.com/unordered/R2", "creationInfo": "_:creationinfo", "relationshipType": "contains", "from": "https://example.com/unordered/A", "to": ["https://example.com/unordered/M2", "https://example.com/unordered/M1"]}
   ]
 }
