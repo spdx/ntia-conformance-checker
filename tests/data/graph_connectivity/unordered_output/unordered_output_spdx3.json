@@ -1,0 +1,17 @@
+{
+  "@context": "https://spdx.org/rdf/3.0.1/spdx-context.jsonld",
+  "@graph": [
+    {"type": "CreationInfo", "@id": "_:creationinfo", "specVersion": "3.0.1", "createdBy": ["https://example.com/unordered/Person"], "created": "2026-11-20T00:00:00Z"},
+    {"type": "Person", "spdxId": "https://example.com/unordered/Person", "creationInfo": "_:creationinfo", "name": "Person"},
+    {"type": "SpdxDocument", "spdxId": "https://example.com/unordered/Doc", "creationInfo": "_:creationinfo", "rootElement": ["https://example.com/unordered/Sbom"]},
+    {"type": "software_Sbom", "spdxId": "https://example.com/unordered/Sbom", "creationInfo": "_:creationinfo", "rootElement": ["https://example.com/unordered/A"]},
+    {"type": "software_Package", "spdxId": "https://example.com/unordered/A", "creationInfo": "_:creationinfo", "name": "A"},
+    {"type": "software_Package", "spdxId": "https://example.com/unordered/F3", "creationInfo": "_:creationinfo", "name": "F3"},
+    {"type": "software_Package", "spdxId": "https://example.com/unordered/F1", "creationInfo": "_:creationinfo", "name": "F1"},
+    {"type": "software_Package", "spdxId": "https://example.com/unordered/F5", "creationInfo": "_:creationinfo", "name": "F5"},
+    {"type": "software_Package", "spdxId": "https://example.com/unordered/F2", "creationInfo": "_:creationinfo", "name": "F2"},
+    {"type": "software_Package", "spdxId": "https://example.com/unordered/F4", "creationInfo": "_:creationinfo", "name": "F4"},
+    {"type": "Relationship", "spdxId": "https://example.com/unordered/R1", "creationInfo": "_:creationinfo", "relationshipType": "contains", "from": "https://example.com/unordered/F2", "to": ["https://example.com/unordered/M3"]},
+    {"type": "Relationship", "spdxId": "https://example.com/unordered/R2", "creationInfo": "_:creationinfo", "relationshipType": "contains", "from": "https://example.com/unordered/A", "to": ["https://example.com/unordered/M2", "https://example.com/unordered/M1"]}
+  ]
+}
