@@ -59,8 +59,9 @@ and this project adheres to [Semantic Versioning][semver].
   fails
 - A root or a relationship that points to a missing element makes the SBOM
   non-compliant in every checker (NTIA, FSCT3, BSI), for SPDX 2 and SPDX 3,
-  with or without validation; see "The CLI output reports that a relationship
-  points to a missing element" in `FAQ.md`
+  with or without validation; see Q7 in `FAQ.md`
+- README lists where the FSCT3 checks are weaker or stricter than FSCT3
+  "minimum expected", such as the dependency relationship check
 
 ### Deprecated
 

@@ -49,6 +49,16 @@ maturity_levels:
     title: Aspirational Goal
     description: The ideal, most complete value.
 
+# Citations: FSCT 3rd ed. §<clause> "<title>"; `spec_clause_number` and
+# `spec_clause_name` hold the number and title as in the document.
+#
+# Provision: every rule is a `requirement` (the default).  FSCT uses no
+# RFC 2119 keywords and mixes "must", "should" and "expected" within Minimum
+# Expected text (e.g. §2.2.2.4: an identifier "should be declared").  The
+# strength comes from §2.1 "SBOM Elements": "As a minimum, the Baseline
+# Attributes are required"; §2.2 "Baseline Attributes" makes Minimum Expected
+# the level for an attribute that has no maturity levels.
+
 rules:
   # ---- SBOM Meta-Information (§2.2.1) ----------------------------------
 
@@ -61,7 +71,7 @@ rules:
     element_id: author
     element_description: SBOM author
     competency_question: SBOM author name provided?
-    warning: An SBOM should have an author name.
+    warning: An SBOM must have an author name.
     probe:
       name: require_document_attribute
       params: { attribute: author }
@@ -76,12 +86,15 @@ rules:
     element_id: timestamp
     element_description: SBOM creation timestamp
     competency_question: SBOM creation timestamp provided?
-    warning: An SBOM should have a creation timestamp.
+    warning: An SBOM must have a creation timestamp.
     probe:
       name: require_document_attribute
       params: { attribute: timestamp }
     json_key: timestampProvided
 
+  # Stricter than the clause: §2.2.1.3 calls Type "optional and considered an
+  # aspirational goal", but the FSCT3 checker requires it for conformance, so
+  # the rule records the checker's strength.
   - number: 3
     slug: fsct3-sbom-type-missing
     spec_category: sbom-meta-information
@@ -106,25 +119,26 @@ rules:
     element_id: primary_component
     element_description: primary component (root of dependencies)
     competency_question: Primary component (root of dependencies) provided?
-    warning: An SBOM should identify a primary component.
+    warning: An SBOM must identify a primary component.
     status: catalogue-only
 
-  # SBOM-FSCT3-META-005 is a stop-gap: FSCT §2.2.2.6 ("Relationship") wants a
-  # per-component relationship + completeness assertion, which we treat
-  # as catalogue-only (SBOM-FSCT3-COMP-006).  Until that lands, we fall back to
-  # the NTIA-inherited document-level check "the SBOM declares at least
-  # one dependency relationship".  When SBOM-FSCT3-COMP-006 becomes active,
-  # this META-05 rule should be retired.
+  # Weaker than the clause, and filed under META although §2.2.2.6 is a
+  # Component Attribute: a stop-gap for the catalogue-only
+  # SBOM-FSCT3-COMP-006.  §2.2.2.6 "Relationship" Minimum Expected wants
+  # "Relationships and relationship completeness declared for the Primary
+  # Component and direct Dependencies"; this rule only checks the
+  # NTIA-inherited "the SBOM declares at least one dependency relationship"
+  # and reads no completeness.  Retire it once SBOM-FSCT3-COMP-006 is active.
   - number: 5
     slug: fsct3-dependency-relationships-missing
     spec_category: sbom-meta-information
     spec_clause_number: "2.2.2.6"
-    spec_clause_name: Relationship (NTIA-inherited document-level check)
+    spec_clause_name: Relationship
     spec_clause_uri: https://www.cisa.gov/resources-tools/resources/framing-software-component-transparency-2024
     element_id: dependency_relationship
     element_description: dependency relationships
     competency_question: Dependency relationships provided?
-    warning: An SBOM should declare dependency relationships.
+    warning: An SBOM must declare dependency relationships.
     probe:
       name: require_document_attribute
       params: { attribute: dependency_relationship }
@@ -141,7 +155,7 @@ rules:
     element_id: name
     element_description: component name
     competency_question: All component names provided?
-    warning: An SBOM component should have a name.
+    warning: An SBOM component must have a name.
     probe:
       name: require_component_attribute
       params: { attribute: name }
@@ -156,7 +170,7 @@ rules:
     element_id: version
     element_description: component version
     competency_question: All component versions provided?
-    warning: An SBOM component should have a version.
+    warning: An SBOM component must have a version.
     probe:
       name: require_component_attribute
       params: { attribute: version }
@@ -171,7 +185,7 @@ rules:
     element_id: supplier
     element_description: component supplier
     competency_question: All component suppliers provided?
-    warning: An SBOM component should have a supplier name.
+    warning: An SBOM component must have a supplier name.
     probe:
       name: require_component_attribute
       params: { attribute: supplier }
@@ -186,7 +200,7 @@ rules:
     element_id: unique_identifier
     element_description: component identifier
     competency_question: All component identifiers provided?
-    warning: An SBOM component should have a unique identifier.
+    warning: An SBOM component must have a unique identifier.
     probe:
       name: require_component_attribute
       params: { attribute: unique_identifier }
@@ -201,7 +215,7 @@ rules:
     element_id: cryptographic_hash
     element_description: component cryptographic hash
     competency_question: All component cryptographic hashes provided?
-    warning: An SBOM component should have a cryptographic hash.
+    warning: An SBOM component must have a cryptographic hash or declare it unknown.
     status: catalogue-only
 
   - number: 6
@@ -213,9 +227,12 @@ rules:
     element_id: relationship
     element_description: component relationship and completeness
     competency_question: All component relationships provided?
-    warning: An SBOM component should declare its relationship and completeness.
+    warning: An SBOM must declare relationships and relationship completeness for the primary component and its direct dependencies.
     status: catalogue-only
 
+  # Stricter than the clause: §2.2.2.7 and §2.2.2.8 Minimum Expected ask for
+  # the Primary Component only ("for all listed SBOM Components" is the
+  # Aspirational Goal), but rules 7 and 8 check every component.
   - number: 7
     slug: fsct3-concluded-license-missing
     spec_category: component-attributes
@@ -225,7 +242,7 @@ rules:
     element_id: concluded_license
     element_description: component concluded license
     competency_question: All component concluded license provided?
-    warning: An SBOM component should have a concluded license.
+    warning: An SBOM component must have a concluded license.
     probe:
       name: require_component_attribute
       params: { attribute: concluded_license }
@@ -240,7 +257,7 @@ rules:
     element_id: copyright_notice
     element_description: component copyright text
     competency_question: All component copyright notice provided?
-    warning: An SBOM component should have a copyright notice.
+    warning: An SBOM component must have a copyright notice.
     probe:
       name: require_component_attribute
       params: { attribute: copyright_notice }

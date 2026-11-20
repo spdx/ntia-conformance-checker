@@ -49,7 +49,8 @@ rules:
                                  # external ontologies; one entry per concept.
                                  # may treat each entry as skos:exactMatch.
     competency_question: All component names provided?   # report-table label
-    warning: An SBOM component should have a name.       # diagnostic prose
+    warning: An SBOM component must have a name.         # diagnostic prose;
+                                 # verb matches provision (must|should|may)
     maturity: 0                  # which tier requires it; omitted -> 0
     provision: requirement       # requirement|recommendation|permission
                                  # -> severity error|warning|none; omitted -> requirement
@@ -66,7 +67,7 @@ rules:
     element_id: author
     element_description: SBOM author
     competency_question: SBOM author name provided?
-    warning: An SBOM should have an author name.
+    warning: An SBOM must have an author name.
     probe:
       name: require_document_attribute
       params: { attribute: author }

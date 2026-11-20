@@ -294,10 +294,8 @@ class BaseChecker(ABC):
         """
         Check if every element that a root or a relationship refers to is defined.
 
-        Defined means in the SBOM, or declared as external. SPDX 2: SPDX 2.3.1
-        §11.1 "Relationship field", Table 69; SPDX 3: the checker's own rule.
-        Basis: FAQ.md, "The CLI output reports that a relationship points to
-        a missing element".
+        Defined means in the SBOM, or declared as external.
+        Basis: FAQ.md Q7
 
         Returns:
             bool: True if no root or relationship refers to a missing element.

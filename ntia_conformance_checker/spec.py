@@ -242,7 +242,10 @@ class SpecRule:
     paired with :attr:`SpecTaxonomies.clause` -- a clause taxonomy entry."""
 
     spec_clause_name: str = ""
-    """Human-readable clause title (e.g. ``"License"``)."""
+    """Clause title as in the source spec (e.g. ``"License"``).  When
+    :attr:`spec_clause_number` names a parent section only, the heading path
+    below it (NTIA: ``"IV"`` and ``"Minimum Elements > Data Fields > Supplier
+    Name"``)."""
 
     spec_clause_uri: str = ""
     """Deep link to the exact spec clause.  When empty, consumers fall back
@@ -276,8 +279,11 @@ class SpecRule:
     """Canonical, single-sentence diagnostic prose for the rule, following
     the parallel pattern documented in :file:`RULES.md`:
 
-    * component-level: ``"An SBOM component should have a {X}."``
-    * document-level:  ``"An SBOM should {X}."``
+    * component-level: ``"An SBOM component must have a {X}."``
+    * document-level:  ``"An SBOM must {X}."``
+
+    The verb matches :attr:`provision`: "must" for a requirement, "should"
+    for a recommendation, "may" for a permission.
 
     This string is the source of truth for the user-facing warning text.
     SARIF emits it as the rule's ``shortDescription.text``; CLI / HTML /
