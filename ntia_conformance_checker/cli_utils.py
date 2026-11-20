@@ -326,8 +326,6 @@ def print_output(
         case "json":
             result_dict: dict[str, Any] = sbom.output_json()
             if output_file:
-                # RFC 8785 (JSON Canonicalization Scheme): sorted keys,
-                # no whitespace, UTF-8
                 try:
                     canonical = rfc8785.dumps(result_dict)
                     with open(output_file, "wb") as outfile:

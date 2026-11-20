@@ -161,9 +161,8 @@ To generate the output in machine-readable JSON, run:
 sbomcheck sbom.spdx --output json
 ```
 
-With `--output-file`, the JSON report is written in the
-[RFC 8785](https://www.rfc-editor.org/rfc/rfc8785) JSON Canonicalization
-Scheme, so the same SBOM gives the same bytes on every run.
+With `--output-file`, the JSON is
+[RFC 8785](https://www.rfc-editor.org/rfc/rfc8785) canonical.
 
 To analyze an SPDX 3 JSON file, run:
 
@@ -248,7 +247,7 @@ each with a specific CSS class for easy styling and targeting:
 - [spdx-python-model](https://pypi.org/project/spdx-python-model/)
   used for parsing the SPDX 3 SBOM.
 - [rfc8785](https://pypi.org/project/rfc8785/)
-  used for writing the JSON report file in the JSON Canonicalization Scheme.
+  used for canonical JSON output (RFC 8785).
 
 ## Support
 

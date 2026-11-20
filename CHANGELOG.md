@@ -61,6 +61,7 @@ and this project adheres to [Semantic Versioning][semver].
   the `unknownPointerEdges` targets are sorted; a JSON file written with
   `--output-file` is canonical per [RFC 8785] (JSON Canonicalization Scheme),
   and JSON printed to stdout has sorted keys; adds the `rfc8785` dependency
+  ([#492])
 
 ### Deprecated
 
@@ -73,6 +74,7 @@ and this project adheres to [Semantic Versioning][semver].
 [#481]: https://github.com/spdx/ntia-conformance-checker/issues/481
 [#482]: https://github.com/spdx/ntia-conformance-checker/issues/482
 [#486]: https://github.com/spdx/ntia-conformance-checker/issues/486
+[#492]: https://github.com/spdx/ntia-conformance-checker/pull/492
 [RFC 8785]: https://www.rfc-editor.org/rfc/rfc8785
 
 ## [6.0.0] - 2026-10-05
