@@ -47,7 +47,6 @@
 
 <span class="kn">from</span><span class="w"> </span><span class="nn">ntia_conformance_checker.spdx3_utils</span><span class="w"> </span><span class="kn">import</span> <span class="p">(</span>
     <span class="n">get_all_packages</span><span class="p">,</span>
-    <span class="n">has_package_dependency_relationship</span><span class="p">,</span>
     <span class="n">iter_objects_with_property</span><span class="p">,</span>
     <span class="n">iter_relationships_by_type</span><span class="p">,</span>
 <span class="p">)</span>
@@ -295,13 +294,6 @@
             <span class="p">)</span>
             <span class="k">if</span> <span class="n">_is_blank</span><span class="p">(</span><span class="n">copyright_text</span><span class="p">,</span> <span class="n">noassertion</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
         <span class="p">]</span></div>
-
-
-<div class="viewcode-block" id="Spdx3Adapter.check_dependency_relationships">
-<a class="viewcode-back" href="../../../ntia_conformance_checker.adapters.html#ntia_conformance_checker.adapters.spdx3_adapter.Spdx3Adapter.check_dependency_relationships">[docs]</a>
-    <span class="k">def</span><span class="w"> </span><span class="nf">check_dependency_relationships</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">bool</span><span class="p">:</span>
-<span class="w">        </span><span class="sd">"""In SPDX 3, this checks package-level dependency relationships."""</span>
-        <span class="k">return</span> <span class="n">has_package_dependency_relationship</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">object_set</span><span class="p">)</span></div>
 
 
 <div class="viewcode-block" id="Spdx3Adapter.get_total_number_components">

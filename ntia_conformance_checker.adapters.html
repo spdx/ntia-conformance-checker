@@ -53,12 +53,6 @@
 </dd></dl>
 
 <dl class="py method">
-<dt class="sig sig-object py" id="ntia_conformance_checker.adapters.adapter_interface.SbomAdapter.check_dependency_relationships">
-<span class="property"><span class="k"><span class="pre">abstractmethod</span></span><span class="w"> </span></span><span class="sig-name descname"><span class="pre">check_dependency_relationships</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">bool</span></span></span><a class="reference internal" href="_modules/ntia_conformance_checker/adapters/adapter_interface.html#SbomAdapter.check_dependency_relationships"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#ntia_conformance_checker.adapters.adapter_interface.SbomAdapter.check_dependency_relationships" title="Link to this definition">¶</a></dt>
-<dd><p>Check if the SBOM document declares dependency information.</p>
-</dd></dl>
-
-<dl class="py method">
 <dt class="sig sig-object py" id="ntia_conformance_checker.adapters.adapter_interface.SbomAdapter.check_doc_version">
 <span class="sig-name descname"><span class="pre">check_doc_version</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">bool</span></span></span><a class="reference internal" href="_modules/ntia_conformance_checker/adapters/adapter_interface.html#SbomAdapter.check_doc_version"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#ntia_conformance_checker.adapters.adapter_interface.SbomAdapter.check_doc_version" title="Link to this definition">¶</a></dt>
 <dd><p>Check if the document’s specification version exists.</p>
@@ -243,12 +237,6 @@ statement, so it is not blank.</p>
 </dd></dl>
 
 <dl class="py method">
-<dt class="sig sig-object py" id="ntia_conformance_checker.adapters.null_adapter.NullAdapter.check_dependency_relationships">
-<span class="sig-name descname"><span class="pre">check_dependency_relationships</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">bool</span></span></span><a class="reference internal" href="_modules/ntia_conformance_checker/adapters/null_adapter.html#NullAdapter.check_dependency_relationships"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#ntia_conformance_checker.adapters.null_adapter.NullAdapter.check_dependency_relationships" title="Link to this definition">¶</a></dt>
-<dd><p>Check if the SBOM document declares dependency information.</p>
-</dd></dl>
-
-<dl class="py method">
 <dt class="sig sig-object py" id="ntia_conformance_checker.adapters.null_adapter.NullAdapter.check_timestamp">
 <span class="sig-name descname"><span class="pre">check_timestamp</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">bool</span></span></span><a class="reference internal" href="_modules/ntia_conformance_checker/adapters/null_adapter.html#NullAdapter.check_timestamp"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#ntia_conformance_checker.adapters.null_adapter.NullAdapter.check_timestamp" title="Link to this definition">¶</a></dt>
 <dd><p>Check if the SBOM creation timestamp exists.</p>
@@ -403,12 +391,6 @@ preferred value (name or SPDX ID) as needed.</p>
 </dd></dl>
 
 <dl class="py method">
-<dt class="sig sig-object py" id="ntia_conformance_checker.adapters.spdx2_adapter.Spdx2Adapter.check_dependency_relationships">
-<span class="sig-name descname"><span class="pre">check_dependency_relationships</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">bool</span></span></span><a class="reference internal" href="_modules/ntia_conformance_checker/adapters/spdx2_adapter.html#Spdx2Adapter.check_dependency_relationships"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#ntia_conformance_checker.adapters.spdx2_adapter.Spdx2Adapter.check_dependency_relationships" title="Link to this definition">¶</a></dt>
-<dd><p>In SPDX 2, this checks for a DESCRIBES relationship</p>
-</dd></dl>
-
-<dl class="py method">
 <dt class="sig sig-object py" id="ntia_conformance_checker.adapters.spdx2_adapter.Spdx2Adapter.check_timestamp">
 <span class="sig-name descname"><span class="pre">check_timestamp</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">bool</span></span></span><a class="reference internal" href="_modules/ntia_conformance_checker/adapters/spdx2_adapter.html#Spdx2Adapter.check_timestamp"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#ntia_conformance_checker.adapters.spdx2_adapter.Spdx2Adapter.check_timestamp" title="Link to this definition">¶</a></dt>
 <dd><p>Check if the SBOM creation timestamp exists.</p>
@@ -552,12 +534,6 @@ preferred value (name or SPDX ID) as needed.</p>
 <dt class="sig sig-object py" id="ntia_conformance_checker.adapters.spdx3_adapter.Spdx3Adapter.check_author">
 <span class="sig-name descname"><span class="pre">check_author</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">bool</span></span></span><a class="reference internal" href="_modules/ntia_conformance_checker/adapters/spdx3_adapter.html#Spdx3Adapter.check_author"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#ntia_conformance_checker.adapters.spdx3_adapter.Spdx3Adapter.check_author" title="Link to this definition">¶</a></dt>
 <dd><p>Check if the author of SBOM data exists.</p>
-</dd></dl>
-
-<dl class="py method">
-<dt class="sig sig-object py" id="ntia_conformance_checker.adapters.spdx3_adapter.Spdx3Adapter.check_dependency_relationships">
-<span class="sig-name descname"><span class="pre">check_dependency_relationships</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">bool</span></span></span><a class="reference internal" href="_modules/ntia_conformance_checker/adapters/spdx3_adapter.html#Spdx3Adapter.check_dependency_relationships"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#ntia_conformance_checker.adapters.spdx3_adapter.Spdx3Adapter.check_dependency_relationships" title="Link to this definition">¶</a></dt>
-<dd><p>In SPDX 3, this checks package-level dependency relationships.</p>
 </dd></dl>
 
 <dl class="py method">
@@ -717,12 +693,6 @@ text is blank, <code class="docutils literal notranslate"><span class="pre">NOAS
 </dd></dl>
 
 <dl class="py method">
-<dt class="sig sig-object py" id="ntia_conformance_checker.adapters.NullAdapter.check_dependency_relationships">
-<span class="sig-name descname"><span class="pre">check_dependency_relationships</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">bool</span></span></span><a class="reference internal" href="_modules/ntia_conformance_checker/adapters/null_adapter.html#NullAdapter.check_dependency_relationships"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#ntia_conformance_checker.adapters.NullAdapter.check_dependency_relationships" title="Link to this definition">¶</a></dt>
-<dd><p>Check if the SBOM document declares dependency information.</p>
-</dd></dl>
-
-<dl class="py method">
 <dt class="sig sig-object py" id="ntia_conformance_checker.adapters.NullAdapter.check_timestamp">
 <span class="sig-name descname"><span class="pre">check_timestamp</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">bool</span></span></span><a class="reference internal" href="_modules/ntia_conformance_checker/adapters/null_adapter.html#NullAdapter.check_timestamp"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#ntia_conformance_checker.adapters.NullAdapter.check_timestamp" title="Link to this definition">¶</a></dt>
 <dd><p>Check if the SBOM creation timestamp exists.</p>
@@ -870,12 +840,6 @@ preferred value (name or SPDX ID) as needed.</p>
 <dt class="sig sig-object py" id="ntia_conformance_checker.adapters.SbomAdapter.check_author">
 <span class="property"><span class="k"><span class="pre">abstractmethod</span></span><span class="w"> </span></span><span class="sig-name descname"><span class="pre">check_author</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">bool</span></span></span><a class="reference internal" href="_modules/ntia_conformance_checker/adapters/adapter_interface.html#SbomAdapter.check_author"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#ntia_conformance_checker.adapters.SbomAdapter.check_author" title="Link to this definition">¶</a></dt>
 <dd><p>Check if the author of SBOM data exists.</p>
-</dd></dl>
-
-<dl class="py method">
-<dt class="sig sig-object py" id="ntia_conformance_checker.adapters.SbomAdapter.check_dependency_relationships">
-<span class="property"><span class="k"><span class="pre">abstractmethod</span></span><span class="w"> </span></span><span class="sig-name descname"><span class="pre">check_dependency_relationships</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">bool</span></span></span><a class="reference internal" href="_modules/ntia_conformance_checker/adapters/adapter_interface.html#SbomAdapter.check_dependency_relationships"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#ntia_conformance_checker.adapters.SbomAdapter.check_dependency_relationships" title="Link to this definition">¶</a></dt>
-<dd><p>Check if the SBOM document declares dependency information.</p>
 </dd></dl>
 
 <dl class="py method">
@@ -1035,12 +999,6 @@ preferred value (name or SPDX ID) as needed.</p>
 </dd></dl>
 
 <dl class="py method">
-<dt class="sig sig-object py" id="ntia_conformance_checker.adapters.Spdx2Adapter.check_dependency_relationships">
-<span class="sig-name descname"><span class="pre">check_dependency_relationships</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">bool</span></span></span><a class="reference internal" href="_modules/ntia_conformance_checker/adapters/spdx2_adapter.html#Spdx2Adapter.check_dependency_relationships"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#ntia_conformance_checker.adapters.Spdx2Adapter.check_dependency_relationships" title="Link to this definition">¶</a></dt>
-<dd><p>In SPDX 2, this checks for a DESCRIBES relationship</p>
-</dd></dl>
-
-<dl class="py method">
 <dt class="sig sig-object py" id="ntia_conformance_checker.adapters.Spdx2Adapter.check_timestamp">
 <span class="sig-name descname"><span class="pre">check_timestamp</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">bool</span></span></span><a class="reference internal" href="_modules/ntia_conformance_checker/adapters/spdx2_adapter.html#Spdx2Adapter.check_timestamp"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#ntia_conformance_checker.adapters.Spdx2Adapter.check_timestamp" title="Link to this definition">¶</a></dt>
 <dd><p>Check if the SBOM creation timestamp exists.</p>
@@ -1180,12 +1138,6 @@ preferred value (name or SPDX ID) as needed.</p>
 <dt class="sig sig-object py" id="ntia_conformance_checker.adapters.Spdx3Adapter.check_author">
 <span class="sig-name descname"><span class="pre">check_author</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">bool</span></span></span><a class="reference internal" href="_modules/ntia_conformance_checker/adapters/spdx3_adapter.html#Spdx3Adapter.check_author"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#ntia_conformance_checker.adapters.Spdx3Adapter.check_author" title="Link to this definition">¶</a></dt>
 <dd><p>Check if the author of SBOM data exists.</p>
-</dd></dl>
-
-<dl class="py method">
-<dt class="sig sig-object py" id="ntia_conformance_checker.adapters.Spdx3Adapter.check_dependency_relationships">
-<span class="sig-name descname"><span class="pre">check_dependency_relationships</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">bool</span></span></span><a class="reference internal" href="_modules/ntia_conformance_checker/adapters/spdx3_adapter.html#Spdx3Adapter.check_dependency_relationships"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#ntia_conformance_checker.adapters.Spdx3Adapter.check_dependency_relationships" title="Link to this definition">¶</a></dt>
-<dd><p>In SPDX 3, this checks package-level dependency relationships.</p>
 </dd></dl>
 
 <dl class="py method">

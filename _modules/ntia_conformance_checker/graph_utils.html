@@ -47,7 +47,9 @@
 <span class="kn">from</span><span class="w"> </span><span class="nn">spdx_tools.spdx.model.relationship</span><span class="w"> </span><span class="kn">import</span> <span class="n">RelationshipType</span>
 
 <span class="kn">from</span><span class="w"> </span><span class="nn">.constants</span><span class="w"> </span><span class="kn">import</span> <span class="p">(</span>
+    <span class="n">SPDX2_DEPENDENCY_RELATIONSHIP_TYPES</span><span class="p">,</span>
     <span class="n">SPDX2_RELATIONSHIP_TRAVERSAL</span><span class="p">,</span>
+    <span class="n">SPDX3_DEPENDENCY_RELATIONSHIP_TYPES</span><span class="p">,</span>
     <span class="n">SPDX3_RELATIONSHIP_TRAVERSAL</span><span class="p">,</span>
     <span class="n">TraversalDirection</span><span class="p">,</span>
 <span class="p">)</span>
@@ -61,14 +63,17 @@
     <span class="kn">from</span><span class="w"> </span><span class="nn">spdx_tools.spdx.model.document</span><span class="w"> </span><span class="kn">import</span> <span class="n">Document</span>
 
 
-<span class="c1"># SPDX 2 element ID: "SPDXRef-"[idstring], where idstring has letters,</span>
-<span class="c1"># numbers, "." and "-" (SPDX 2.3 clauses 7.2, 8.2, 9.1).</span>
 <span class="c1"># Values that SPDX 2.3 clause 11.1 (Table 69) allows as the related element</span>
 <span class="c1"># of a relationship instead of an element: there are no other relationships</span>
 <span class="c1"># (NONE), or it is not known (NOASSERTION). spdx-tools reads them as</span>
 <span class="c1"># SpdxNone and SpdxNoAssertion, whose str() is the keyword.</span>
 <span class="n">_SPDX2_NO_ELEMENT_VALUES</span> <span class="o">=</span> <span class="nb">frozenset</span><span class="p">({</span><span class="s2">"NONE"</span><span class="p">,</span> <span class="s2">"NOASSERTION"</span><span class="p">})</span>
 
+<span class="c1"># SPDX 3.0.1 NoneElement and NoAssertionElement, the element counterparts.</span>
+<span class="n">_SPDX3_NO_ELEMENT_VALUES</span> <span class="o">=</span> <span class="nb">frozenset</span><span class="p">(</span><span class="n">spdx3</span><span class="o">.</span><span class="n">IndividualElement</span><span class="o">.</span><span class="n">NAMED_INDIVIDUALS</span><span class="o">.</span><span class="n">values</span><span class="p">())</span>
+
+<span class="c1"># SPDX 2 element ID: "SPDXRef-"[idstring], where idstring has letters,</span>
+<span class="c1"># numbers, "." and "-" (SPDX 2.3 clauses 7.2, 8.2, 9.1).</span>
 <span class="n">_SPDX2_SPDXID_PATTERN</span> <span class="o">=</span> <span class="n">re</span><span class="o">.</span><span class="n">compile</span><span class="p">(</span><span class="sa">r</span><span class="s2">"SPDXRef-[A-Za-z0-9.\-]+"</span><span class="p">)</span>
 
 
@@ -201,7 +206,7 @@
 <span class="sd">    Find relationships, as written, with a missing element at either end.</span>
 
 <span class="sd">    This checks the graph shape, not the traversal. Either end can be an</span>
-<span class="sd">    element ID (SPDX 2.3 §11.1 Table 69), so either can be missing; the</span>
+<span class="sd">    element ID (SPDX 2.3 clause 11.1, Table 69), so either can be missing; the</span>
 <span class="sd">    missing element IDs tell which.</span>
 
 <span class="sd">    Args:</span>
@@ -259,6 +264,80 @@
     <span class="k">return</span> <span class="k">lambda</span> <span class="n">_</span><span class="p">:</span> <span class="kc">False</span><span class="p">,</span> <span class="nb">set</span><span class="p">()</span>
 
 
+<span class="nd">@dataclass</span>
+<span class="k">class</span><span class="w"> </span><span class="nc">_Graph</span><span class="p">:</span>
+<span class="w">    </span><span class="sd">"""</span>
+<span class="sd">    A relationship graph built from an SBOM.</span>
+
+<span class="sd">    Attributes:</span>
+<span class="sd">        roots: Root element IDs.</span>
+<span class="sd">        traversal_edges: Parent to children, as the checker walks the graph.</span>
+<span class="sd">        written_relationships: Followed and root relationships as written,</span>
+<span class="sd">            (source, target); checked for missing elements.</span>
+<span class="sd">        dependency_links: Relationships of a counted dependency type, as</span>
+<span class="sd">            (parent, child); the child may be a none or no-assertion value.</span>
+<span class="sd">        collection_ids: Documents and other collections, never an end of a</span>
+<span class="sd">            dependency relationship.</span>
+<span class="sd">    """</span>
+
+    <span class="n">roots</span><span class="p">:</span> <span class="nb">list</span><span class="p">[</span><span class="nb">str</span><span class="p">]</span> <span class="o">=</span> <span class="n">field</span><span class="p">(</span><span class="n">default_factory</span><span class="o">=</span><span class="nb">list</span><span class="p">)</span>
+    <span class="n">traversal_edges</span><span class="p">:</span> <span class="nb">dict</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="nb">list</span><span class="p">[</span><span class="nb">str</span><span class="p">]]</span> <span class="o">=</span> <span class="n">field</span><span class="p">(</span><span class="n">default_factory</span><span class="o">=</span><span class="nb">dict</span><span class="p">)</span>
+    <span class="n">written_relationships</span><span class="p">:</span> <span class="nb">list</span><span class="p">[</span><span class="nb">tuple</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="nb">str</span><span class="p">]]</span> <span class="o">=</span> <span class="n">field</span><span class="p">(</span><span class="n">default_factory</span><span class="o">=</span><span class="nb">list</span><span class="p">)</span>
+    <span class="n">dependency_links</span><span class="p">:</span> <span class="nb">list</span><span class="p">[</span><span class="nb">tuple</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="nb">str</span><span class="p">]]</span> <span class="o">=</span> <span class="n">field</span><span class="p">(</span><span class="n">default_factory</span><span class="o">=</span><span class="nb">list</span><span class="p">)</span>
+    <span class="n">collection_ids</span><span class="p">:</span> <span class="nb">set</span><span class="p">[</span><span class="nb">str</span><span class="p">]</span> <span class="o">=</span> <span class="n">field</span><span class="p">(</span><span class="n">default_factory</span><span class="o">=</span><span class="nb">set</span><span class="p">)</span>
+
+    <span class="k">def</span><span class="w"> </span><span class="nf">add_dependency_link</span><span class="p">(</span>
+        <span class="bp">self</span><span class="p">,</span> <span class="n">source_id</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span> <span class="n">target_id</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span> <span class="n">direction</span><span class="p">:</span> <span class="n">TraversalDirection</span>
+    <span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
+<span class="w">        </span><span class="sd">"""Add a dependency relationship written from source to target."""</span>
+        <span class="k">if</span> <span class="n">direction</span> <span class="ow">is</span> <span class="n">TraversalDirection</span><span class="o">.</span><span class="n">ALONG</span><span class="p">:</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">dependency_links</span><span class="o">.</span><span class="n">append</span><span class="p">((</span><span class="n">source_id</span><span class="p">,</span> <span class="n">target_id</span><span class="p">))</span>
+        <span class="k">else</span><span class="p">:</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">dependency_links</span><span class="o">.</span><span class="n">append</span><span class="p">((</span><span class="n">target_id</span><span class="p">,</span> <span class="n">source_id</span><span class="p">))</span>
+
+
+<span class="k">def</span><span class="w"> </span><span class="nf">_has_dependency_relationship</span><span class="p">(</span>
+    <span class="n">graph</span><span class="p">:</span> <span class="n">_Graph</span><span class="p">,</span>
+    <span class="n">reachable_node_ids</span><span class="p">:</span> <span class="nb">set</span><span class="p">[</span><span class="nb">str</span><span class="p">],</span>
+    <span class="n">is_known</span><span class="p">:</span> <span class="n">Callable</span><span class="p">[[</span><span class="nb">str</span><span class="p">],</span> <span class="nb">bool</span><span class="p">],</span>
+    <span class="n">no_element_values</span><span class="p">:</span> <span class="nb">frozenset</span><span class="p">[</span><span class="nb">str</span><span class="p">],</span>
+<span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">bool</span><span class="p">:</span>
+<span class="w">    </span><span class="sd">"""</span>
+<span class="sd">    Check whether a reachable element declares a dependency relationship.</span>
+
+<span class="sd">    Both ends are different elements that exist, here or external or</span>
+<span class="sd">    imported; any element counts, files included, but not a document or</span>
+<span class="sd">    collection. The parent is reachable. A none or no-assertion child also</span>
+<span class="sd">    counts: it states that there are no further dependencies, or that they</span>
+<span class="sd">    are unknown. This reading is meant for any minimum elements standard;</span>
+<span class="sd">    FAQ.md cites NTIA 2021 and CISA 2026 for it.</span>
+
+<span class="sd">    Args:</span>
+<span class="sd">        graph: The relationship graph.</span>
+<span class="sd">        reachable_node_ids: Element IDs reachable from the roots.</span>
+<span class="sd">        is_known: Whether an element ID refers to an element that exists.</span>
+<span class="sd">        no_element_values: The none and no-assertion values of the format.</span>
+
+<span class="sd">    Returns:</span>
+<span class="sd">        bool: True if such a relationship exists.</span>
+<span class="sd">    """</span>
+
+    <span class="k">for</span> <span class="n">parent_id</span><span class="p">,</span> <span class="n">child_id</span> <span class="ow">in</span> <span class="n">graph</span><span class="o">.</span><span class="n">dependency_links</span><span class="p">:</span>
+        <span class="k">if</span> <span class="p">(</span>
+            <span class="n">parent_id</span> <span class="o">==</span> <span class="n">child_id</span>
+            <span class="ow">or</span> <span class="n">parent_id</span> <span class="ow">not</span> <span class="ow">in</span> <span class="n">reachable_node_ids</span>
+            <span class="ow">or</span> <span class="n">parent_id</span> <span class="ow">in</span> <span class="n">no_element_values</span>
+            <span class="ow">or</span> <span class="ow">not</span> <span class="n">is_known</span><span class="p">(</span><span class="n">parent_id</span><span class="p">)</span>
+            <span class="ow">or</span> <span class="n">parent_id</span> <span class="ow">in</span> <span class="n">graph</span><span class="o">.</span><span class="n">collection_ids</span>
+        <span class="p">):</span>
+            <span class="k">continue</span>
+        <span class="k">if</span> <span class="n">child_id</span> <span class="ow">in</span> <span class="n">no_element_values</span> <span class="ow">or</span> <span class="p">(</span>
+            <span class="n">is_known</span><span class="p">(</span><span class="n">child_id</span><span class="p">)</span> <span class="ow">and</span> <span class="n">child_id</span> <span class="ow">not</span> <span class="ow">in</span> <span class="n">graph</span><span class="o">.</span><span class="n">collection_ids</span>
+        <span class="p">):</span>
+            <span class="k">return</span> <span class="kc">True</span>
+    <span class="k">return</span> <span class="kc">False</span>
+
+
 <div class="viewcode-block" id="GraphConnectivity">
 <a class="viewcode-back" href="../../ntia_conformance_checker.html#ntia_conformance_checker.graph_utils.GraphConnectivity">[docs]</a>
 <span class="nd">@dataclass</span><span class="p">(</span><span class="n">frozen</span><span class="o">=</span><span class="kc">True</span><span class="p">)</span>
@@ -273,12 +352,15 @@
 <span class="sd">            source ID to target IDs (see ``_find_unknown_pointer_edges``).</span>
 <span class="sd">        missing_element_ids: IDs of the missing elements, at either end of</span>
 <span class="sd">            those relationships.</span>
+<span class="sd">        has_dependency_relationship: Whether a reachable element declares a</span>
+<span class="sd">            dependency relationship (see ``_has_dependency_relationship``).</span>
 <span class="sd">    """</span>
 
     <span class="n">reachable_component_ids</span><span class="p">:</span> <span class="nb">set</span><span class="p">[</span><span class="nb">str</span><span class="p">]</span> <span class="o">=</span> <span class="n">field</span><span class="p">(</span><span class="n">default_factory</span><span class="o">=</span><span class="nb">set</span><span class="p">)</span>
     <span class="n">floating_component_ids</span><span class="p">:</span> <span class="nb">set</span><span class="p">[</span><span class="nb">str</span><span class="p">]</span> <span class="o">=</span> <span class="n">field</span><span class="p">(</span><span class="n">default_factory</span><span class="o">=</span><span class="nb">set</span><span class="p">)</span>
     <span class="n">unknown_pointer_edges</span><span class="p">:</span> <span class="nb">dict</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="nb">list</span><span class="p">[</span><span class="nb">str</span><span class="p">]]</span> <span class="o">=</span> <span class="n">field</span><span class="p">(</span><span class="n">default_factory</span><span class="o">=</span><span class="nb">dict</span><span class="p">)</span>
     <span class="n">missing_element_ids</span><span class="p">:</span> <span class="nb">set</span><span class="p">[</span><span class="nb">str</span><span class="p">]</span> <span class="o">=</span> <span class="n">field</span><span class="p">(</span><span class="n">default_factory</span><span class="o">=</span><span class="nb">set</span><span class="p">)</span>
+    <span class="n">has_dependency_relationship</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">False</span>
 
     <span class="nd">@property</span>
     <span class="k">def</span><span class="w"> </span><span class="nf">has_unknown_pointers</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">bool</span><span class="p">:</span>
@@ -301,20 +383,22 @@
 
 <span class="sd">    Returns:</span>
 <span class="sd">        GraphConnectivity: Reachable and floating components, links to</span>
-<span class="sd">            missing elements and the missing element IDs.</span>
+<span class="sd">            missing elements, the missing element IDs, and whether a</span>
+<span class="sd">            dependency relationship is declared.</span>
 <span class="sd">    """</span>
-    <span class="k">if</span> <span class="ow">not</span> <span class="n">parsed_data</span> <span class="ow">or</span> <span class="p">(</span><span class="n">sbom_spec</span> <span class="o">==</span> <span class="s2">"spdx3"</span> <span class="ow">and</span> <span class="ow">not</span> <span class="n">spdx3_doc</span><span class="p">):</span>
+    <span class="n">reached</span> <span class="o">=</span> <span class="n">_reach</span><span class="p">(</span><span class="n">sbom_spec</span><span class="p">,</span> <span class="n">parsed_data</span><span class="p">,</span> <span class="n">spdx3_doc</span><span class="p">)</span>
+    <span class="k">if</span> <span class="n">reached</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
         <span class="k">return</span> <span class="n">GraphConnectivity</span><span class="p">()</span>
-
-    <span class="n">reachable_node_ids</span><span class="p">,</span> <span class="n">_</span><span class="p">,</span> <span class="n">written_relationships</span> <span class="o">=</span> <span class="n">_reach</span><span class="p">(</span>
-        <span class="n">sbom_spec</span><span class="p">,</span> <span class="n">parsed_data</span><span class="p">,</span> <span class="n">spdx3_doc</span>
-    <span class="p">)</span>
+    <span class="n">reachable_node_ids</span><span class="p">,</span> <span class="n">graph</span> <span class="o">=</span> <span class="n">reached</span>
 
     <span class="n">is_known</span><span class="p">,</span> <span class="n">all_package_ids</span> <span class="o">=</span> <span class="n">_get_known_predicate_and_package_ids</span><span class="p">(</span>
         <span class="n">sbom_spec</span><span class="p">,</span> <span class="n">parsed_data</span>
     <span class="p">)</span>
     <span class="n">unknown_pointer_edges</span><span class="p">,</span> <span class="n">missing_element_ids</span> <span class="o">=</span> <span class="n">_find_unknown_pointer_edges</span><span class="p">(</span>
-        <span class="n">written_relationships</span><span class="p">,</span> <span class="n">is_known</span>
+        <span class="n">graph</span><span class="o">.</span><span class="n">written_relationships</span><span class="p">,</span> <span class="n">is_known</span>
+    <span class="p">)</span>
+    <span class="n">no_element_values</span> <span class="o">=</span> <span class="p">(</span>
+        <span class="n">_SPDX2_NO_ELEMENT_VALUES</span> <span class="k">if</span> <span class="n">sbom_spec</span> <span class="o">==</span> <span class="s2">"spdx2"</span> <span class="k">else</span> <span class="n">_SPDX3_NO_ELEMENT_VALUES</span>
     <span class="p">)</span>
 
     <span class="n">reachable_component_ids</span> <span class="o">=</span> <span class="n">reachable_node_ids</span> <span class="o">&amp;</span> <span class="n">all_package_ids</span>
@@ -323,6 +407,9 @@
         <span class="n">floating_component_ids</span><span class="o">=</span><span class="n">all_package_ids</span> <span class="o">-</span> <span class="n">reachable_component_ids</span><span class="p">,</span>
         <span class="n">unknown_pointer_edges</span><span class="o">=</span><span class="n">unknown_pointer_edges</span><span class="p">,</span>
         <span class="n">missing_element_ids</span><span class="o">=</span><span class="n">missing_element_ids</span><span class="p">,</span>
+        <span class="n">has_dependency_relationship</span><span class="o">=</span><span class="n">_has_dependency_relationship</span><span class="p">(</span>
+            <span class="n">graph</span><span class="p">,</span> <span class="n">reachable_node_ids</span><span class="p">,</span> <span class="n">is_known</span><span class="p">,</span> <span class="n">no_element_values</span>
+        <span class="p">),</span>
     <span class="p">)</span>
 
     <span class="k">if</span> <span class="ow">not</span> <span class="n">result</span><span class="o">.</span><span class="n">has_unknown_pointers</span> <span class="ow">and</span> <span class="ow">not</span> <span class="nb">all</span><span class="p">(</span><span class="nb">map</span><span class="p">(</span><span class="n">is_known</span><span class="p">,</span> <span class="n">reachable_node_ids</span><span class="p">)):</span>
@@ -363,91 +450,85 @@
 
 
 
-<span class="k">def</span><span class="w"> </span><span class="nf">_build_spdx2_graph</span><span class="p">(</span>
-    <span class="n">spdx2_doc</span><span class="p">:</span> <span class="s2">"Document"</span><span class="p">,</span>
-<span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">tuple</span><span class="p">[</span><span class="nb">list</span><span class="p">[</span><span class="nb">str</span><span class="p">],</span> <span class="nb">dict</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="nb">list</span><span class="p">[</span><span class="nb">str</span><span class="p">]],</span> <span class="nb">list</span><span class="p">[</span><span class="nb">tuple</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="nb">str</span><span class="p">]]]:</span>
+<span class="k">def</span><span class="w"> </span><span class="nf">_get_spdx2_root_id</span><span class="p">(</span>
+    <span class="n">rel_type</span><span class="p">:</span> <span class="n">RelationshipType</span><span class="p">,</span> <span class="n">source_id</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span> <span class="n">target_id</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span> <span class="n">doc_ids</span><span class="p">:</span> <span class="nb">set</span><span class="p">[</span><span class="nb">str</span><span class="p">]</span>
+<span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">str</span> <span class="o">|</span> <span class="kc">None</span><span class="p">:</span>
 <span class="w">    </span><span class="sd">"""</span>
-<span class="sd">    Build the roots, traversal edges and written relationships for SPDX 2.</span>
+<span class="sd">    Return the root that a relationship marks, if any.</span>
 
-<span class="sd">    Roots are the elements that the document describes: ``SPDXRef-DOCUMENT</span>
-<span class="sd">    DESCRIBES A`` or ``A DESCRIBED_BY SPDXRef-DOCUMENT`` (SPDX 2.3 clause 11.1,</span>
-<span class="sd">    Table 68; the document ID is from clause 6.3).</span>
+<span class="sd">    ``SPDXRef-DOCUMENT DESCRIBES A`` and ``A DESCRIBED_BY SPDXRef-DOCUMENT``</span>
+<span class="sd">    both mark A (SPDX 2.3 clause 11.1, Table 68).</span>
+<span class="sd">    """</span>
+    <span class="k">if</span> <span class="n">rel_type</span> <span class="o">==</span> <span class="n">RelationshipType</span><span class="o">.</span><span class="n">DESCRIBES</span> <span class="ow">and</span> <span class="n">source_id</span> <span class="ow">in</span> <span class="n">doc_ids</span><span class="p">:</span>
+        <span class="k">return</span> <span class="n">target_id</span>
+    <span class="k">if</span> <span class="n">rel_type</span> <span class="o">==</span> <span class="n">RelationshipType</span><span class="o">.</span><span class="n">DESCRIBED_BY</span> <span class="ow">and</span> <span class="n">target_id</span> <span class="ow">in</span> <span class="n">doc_ids</span><span class="p">:</span>
+        <span class="k">return</span> <span class="n">source_id</span>
+    <span class="k">return</span> <span class="kc">None</span>
 
-<span class="sd">    Edges point from parent to child. ``A CONTAINS B`` is walked along its</span>
-<span class="sd">    written direction and adds an edge from A to B. A reverse relationship</span>
-<span class="sd">    type, written from the child's side, such as ``B CONTAINED_BY A`` or</span>
-<span class="sd">    ``B BUILD_DEPENDENCY_OF A``, is walked against it and also adds an edge</span>
-<span class="sd">    from A to B. ``SPDX2_RELATIONSHIP_TRAVERSAL`` holds the direction of each</span>
-<span class="sd">    type.</span>
 
-<span class="sd">    ``NONE`` and ``NOASSERTION`` state that there are no relationships or</span>
-<span class="sd">    that it is not known (Table 69). They are not elements, so they add no</span>
-<span class="sd">    edge, but a followed relationship to them is still a written relationship,</span>
-<span class="sd">    so that its ``spdxElementId`` is checked.</span>
+<span class="k">def</span><span class="w"> </span><span class="nf">_build_spdx2_graph</span><span class="p">(</span><span class="n">spdx2_doc</span><span class="p">:</span> <span class="s2">"Document"</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">_Graph</span><span class="p">:</span>
+<span class="w">    </span><span class="sd">"""</span>
+<span class="sd">    Build the relationship graph for SPDX 2.</span>
+
+<span class="sd">    Roots are the described elements (see ``_get_spdx2_root_id``). Edges go</span>
+<span class="sd">    from parent to child, in the direction in ``SPDX2_RELATIONSHIP_TRAVERSAL``:</span>
+<span class="sd">    ``A CONTAINS B`` and ``B CONTAINED_BY A`` both give A to B. ``NONE`` and</span>
+<span class="sd">    ``NOASSERTION`` (SPDX 2.3 clause 11.1, Table 69) are not elements: they add no</span>
+<span class="sd">    edge, but are kept in written relationships and dependency links.</span>
 
 <span class="sd">    Returns:</span>
-<span class="sd">        tuple: (queue, traversal_edges, written_relationships), where</span>
-<span class="sd">            traversal_edges go from parent to child and written_relationships</span>
-<span class="sd">            are the followed and root relationships as written:</span>
+<span class="sd">        _Graph: The graph; written relationships are</span>
 <span class="sd">            (spdxElementId, relatedSpdxElement).</span>
 <span class="sd">    """</span>
-    <span class="n">queue</span><span class="p">:</span> <span class="nb">list</span><span class="p">[</span><span class="nb">str</span><span class="p">]</span> <span class="o">=</span> <span class="p">[]</span>
-    <span class="n">traversal_edges</span><span class="p">:</span> <span class="nb">dict</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="nb">list</span><span class="p">[</span><span class="nb">str</span><span class="p">]]</span> <span class="o">=</span> <span class="p">{}</span>
-    <span class="n">written_relationships</span><span class="p">:</span> <span class="nb">list</span><span class="p">[</span><span class="nb">tuple</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="nb">str</span><span class="p">]]</span> <span class="o">=</span> <span class="p">[]</span>
-
     <span class="n">doc_ids</span> <span class="o">=</span> <span class="n">_get_spdx2_doc_ids</span><span class="p">(</span><span class="n">spdx2_doc</span><span class="p">)</span>
+    <span class="c1"># This document, and each declared external document (SPDX 2.3 clause 6.6)</span>
+    <span class="n">external_doc_ids</span> <span class="o">=</span> <span class="p">{</span>
+        <span class="sa">f</span><span class="s2">"</span><span class="si">{</span><span class="n">ref_id</span><span class="si">}</span><span class="s2">:SPDXRef-DOCUMENT"</span>
+        <span class="k">for</span> <span class="n">ref_id</span> <span class="ow">in</span> <span class="n">_collect_spdx2_external_document_ref_ids</span><span class="p">(</span><span class="n">spdx2_doc</span><span class="p">)</span>
+    <span class="p">}</span>
+    <span class="n">graph</span> <span class="o">=</span> <span class="n">_Graph</span><span class="p">(</span><span class="n">collection_ids</span><span class="o">=</span><span class="n">doc_ids</span> <span class="o">|</span> <span class="n">external_doc_ids</span><span class="p">)</span>
 
     <span class="k">for</span> <span class="n">rel</span> <span class="ow">in</span> <span class="n">spdx2_doc</span><span class="o">.</span><span class="n">relationships</span> <span class="ow">or</span> <span class="p">[]:</span>
         <span class="n">source_id</span> <span class="o">=</span> <span class="n">rel</span><span class="o">.</span><span class="n">spdx_element_id</span>
         <span class="n">target_id</span> <span class="o">=</span> <span class="n">rel</span><span class="o">.</span><span class="n">related_spdx_element_id</span>
+        <span class="n">rel_name</span> <span class="o">=</span> <span class="n">rel</span><span class="o">.</span><span class="n">relationship_type</span><span class="o">.</span><span class="n">name</span>
+        <span class="n">direction</span> <span class="o">=</span> <span class="n">SPDX2_RELATIONSHIP_TRAVERSAL</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="n">rel_name</span><span class="p">)</span>
+        <span class="n">is_dependency</span> <span class="o">=</span> <span class="n">rel_name</span> <span class="ow">in</span> <span class="n">SPDX2_DEPENDENCY_RELATIONSHIP_TYPES</span>
 
         <span class="c1"># spdx_element_id is always an ID; related_spdx_element_id can also</span>
         <span class="c1"># be NONE or NOASSERTION</span>
         <span class="k">if</span> <span class="ow">not</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">target_id</span><span class="p">,</span> <span class="nb">str</span><span class="p">):</span>
             <span class="c1"># NONE or NOASSERTION: no element to link to, but the source must</span>
             <span class="c1"># exist, as in SPDX 3 for a relationship to NoneElement</span>
-            <span class="k">if</span> <span class="n">rel</span><span class="o">.</span><span class="n">relationship_type</span><span class="o">.</span><span class="n">name</span> <span class="ow">in</span> <span class="n">SPDX2_RELATIONSHIP_TRAVERSAL</span><span class="p">:</span>
-                <span class="n">written_relationships</span><span class="o">.</span><span class="n">append</span><span class="p">((</span><span class="n">source_id</span><span class="p">,</span> <span class="nb">str</span><span class="p">(</span><span class="n">target_id</span><span class="p">)))</span>
+            <span class="k">if</span> <span class="n">direction</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
+                <span class="n">graph</span><span class="o">.</span><span class="n">written_relationships</span><span class="o">.</span><span class="n">append</span><span class="p">((</span><span class="n">source_id</span><span class="p">,</span> <span class="nb">str</span><span class="p">(</span><span class="n">target_id</span><span class="p">)))</span>
+            <span class="c1"># Only "A &lt;type&gt; NONE" walked along says what A depends on</span>
+            <span class="k">if</span> <span class="n">is_dependency</span> <span class="ow">and</span> <span class="n">direction</span> <span class="ow">is</span> <span class="n">TraversalDirection</span><span class="o">.</span><span class="n">ALONG</span><span class="p">:</span>
+                <span class="n">graph</span><span class="o">.</span><span class="n">dependency_links</span><span class="o">.</span><span class="n">append</span><span class="p">((</span><span class="n">source_id</span><span class="p">,</span> <span class="nb">str</span><span class="p">(</span><span class="n">target_id</span><span class="p">)))</span>
             <span class="k">continue</span>
 
-        <span class="c1"># Get the root elements</span>
-        <span class="n">is_root_link</span> <span class="o">=</span> <span class="kc">False</span>
-        <span class="k">if</span> <span class="n">rel</span><span class="o">.</span><span class="n">relationship_type</span> <span class="o">==</span> <span class="n">RelationshipType</span><span class="o">.</span><span class="n">DESCRIBES</span> <span class="ow">and</span> <span class="n">source_id</span> <span class="ow">in</span> <span class="n">doc_ids</span><span class="p">:</span>
-            <span class="n">queue</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">target_id</span><span class="p">)</span>
-            <span class="n">is_root_link</span> <span class="o">=</span> <span class="kc">True</span>
-        <span class="c1"># DESCRIBED_BY is DESCRIBES written from the described element's side</span>
-        <span class="k">elif</span> <span class="p">(</span>
-            <span class="n">rel</span><span class="o">.</span><span class="n">relationship_type</span> <span class="o">==</span> <span class="n">RelationshipType</span><span class="o">.</span><span class="n">DESCRIBED_BY</span>
-            <span class="ow">and</span> <span class="n">target_id</span> <span class="ow">in</span> <span class="n">doc_ids</span>
-        <span class="p">):</span>
-            <span class="n">queue</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">source_id</span><span class="p">)</span>
-            <span class="n">is_root_link</span> <span class="o">=</span> <span class="kc">True</span>
+        <span class="n">root_id</span> <span class="o">=</span> <span class="n">_get_spdx2_root_id</span><span class="p">(</span>
+            <span class="n">rel</span><span class="o">.</span><span class="n">relationship_type</span><span class="p">,</span> <span class="n">source_id</span><span class="p">,</span> <span class="n">target_id</span><span class="p">,</span> <span class="n">doc_ids</span>
+        <span class="p">)</span>
+        <span class="n">is_root_link</span> <span class="o">=</span> <span class="n">root_id</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span>
+        <span class="k">if</span> <span class="n">root_id</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
+            <span class="n">graph</span><span class="o">.</span><span class="n">roots</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">root_id</span><span class="p">)</span>
 
         <span class="c1"># Build the graph connection map</span>
-        <span class="n">direction</span> <span class="o">=</span> <span class="n">SPDX2_RELATIONSHIP_TRAVERSAL</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="n">rel</span><span class="o">.</span><span class="n">relationship_type</span><span class="o">.</span><span class="n">name</span><span class="p">)</span>
         <span class="k">if</span> <span class="n">direction</span> <span class="ow">is</span> <span class="n">TraversalDirection</span><span class="o">.</span><span class="n">ALONG</span><span class="p">:</span>
-            <span class="n">traversal_edges</span><span class="o">.</span><span class="n">setdefault</span><span class="p">(</span><span class="n">source_id</span><span class="p">,</span> <span class="p">[])</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">target_id</span><span class="p">)</span>
+            <span class="n">graph</span><span class="o">.</span><span class="n">traversal_edges</span><span class="o">.</span><span class="n">setdefault</span><span class="p">(</span><span class="n">source_id</span><span class="p">,</span> <span class="p">[])</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">target_id</span><span class="p">)</span>
         <span class="k">elif</span> <span class="n">direction</span> <span class="ow">is</span> <span class="n">TraversalDirection</span><span class="o">.</span><span class="n">AGAINST</span><span class="p">:</span>
-            <span class="n">traversal_edges</span><span class="o">.</span><span class="n">setdefault</span><span class="p">(</span><span class="n">target_id</span><span class="p">,</span> <span class="p">[])</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">source_id</span><span class="p">)</span>
+            <span class="n">graph</span><span class="o">.</span><span class="n">traversal_edges</span><span class="o">.</span><span class="n">setdefault</span><span class="p">(</span><span class="n">target_id</span><span class="p">,</span> <span class="p">[])</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">source_id</span><span class="p">)</span>
 
         <span class="k">if</span> <span class="n">is_root_link</span> <span class="ow">or</span> <span class="n">direction</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
-            <span class="n">written_relationships</span><span class="o">.</span><span class="n">append</span><span class="p">((</span><span class="n">source_id</span><span class="p">,</span> <span class="n">target_id</span><span class="p">))</span>
-    <span class="k">return</span> <span class="n">queue</span><span class="p">,</span> <span class="n">traversal_edges</span><span class="p">,</span> <span class="n">written_relationships</span>
+            <span class="n">graph</span><span class="o">.</span><span class="n">written_relationships</span><span class="o">.</span><span class="n">append</span><span class="p">((</span><span class="n">source_id</span><span class="p">,</span> <span class="n">target_id</span><span class="p">))</span>
+        <span class="k">if</span> <span class="n">is_dependency</span> <span class="ow">and</span> <span class="n">direction</span> <span class="ow">is</span> <span class="ow">not</span> <span class="kc">None</span><span class="p">:</span>
+            <span class="n">graph</span><span class="o">.</span><span class="n">add_dependency_link</span><span class="p">(</span><span class="n">source_id</span><span class="p">,</span> <span class="n">target_id</span><span class="p">,</span> <span class="n">direction</span><span class="p">)</span>
+    <span class="k">return</span> <span class="n">graph</span>
 
 
-<span class="k">def</span><span class="w"> </span><span class="nf">_extract_spdx3_relationship_edges</span><span class="p">(</span>
-    <span class="n">obj</span><span class="p">:</span> <span class="n">spdx3</span><span class="o">.</span><span class="n">Relationship</span><span class="p">,</span>
-    <span class="n">traversal_edges</span><span class="p">:</span> <span class="nb">dict</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="nb">list</span><span class="p">[</span><span class="nb">str</span><span class="p">]],</span>
-    <span class="n">written_relationships</span><span class="p">:</span> <span class="nb">list</span><span class="p">[</span><span class="nb">tuple</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="nb">str</span><span class="p">]],</span>
-<span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
-<span class="w">    </span><span class="sd">"""</span>
-<span class="sd">    Helper to extract explicit relationship edges.</span>
-
-<span class="sd">    ``traversal_edges`` gets edges from parent to child (see</span>
-<span class="sd">    ``SPDX3_RELATIONSHIP_TRAVERSAL``). ``written_relationships`` gets the</span>
-<span class="sd">    relationship as written, ``from`` to each ``to``, to check for missing</span>
-<span class="sd">    elements.</span>
-<span class="sd">    """</span>
+<span class="k">def</span><span class="w"> </span><span class="nf">_extract_spdx3_relationship_edges</span><span class="p">(</span><span class="n">obj</span><span class="p">:</span> <span class="n">spdx3</span><span class="o">.</span><span class="n">Relationship</span><span class="p">,</span> <span class="n">graph</span><span class="p">:</span> <span class="n">_Graph</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
+<span class="w">    </span><span class="sd">"""Add a followed relationship's edges, written pairs and dependency links."""</span>
     <span class="n">rel_type_iri</span> <span class="o">=</span> <span class="nb">getattr</span><span class="p">(</span><span class="n">obj</span><span class="p">,</span> <span class="s2">"relationshipType"</span><span class="p">,</span> <span class="s2">""</span><span class="p">)</span>
     <span class="k">if</span> <span class="ow">not</span> <span class="n">rel_type_iri</span><span class="p">:</span>
         <span class="k">return</span>
@@ -465,7 +546,10 @@
 
     <span class="n">to_ids</span> <span class="o">=</span> <span class="p">[</span><span class="n">t</span> <span class="k">for</span> <span class="n">t</span> <span class="ow">in</span> <span class="nb">map</span><span class="p">(</span><span class="n">get_spdx3_element_id</span><span class="p">,</span> <span class="nb">getattr</span><span class="p">(</span><span class="n">obj</span><span class="p">,</span> <span class="s2">"to"</span><span class="p">,</span> <span class="p">[]))</span> <span class="k">if</span> <span class="n">t</span><span class="p">]</span>
 
-    <span class="n">written_relationships</span><span class="o">.</span><span class="n">extend</span><span class="p">((</span><span class="n">from_id</span><span class="p">,</span> <span class="n">to_id</span><span class="p">)</span> <span class="k">for</span> <span class="n">to_id</span> <span class="ow">in</span> <span class="n">to_ids</span><span class="p">)</span>
+    <span class="n">graph</span><span class="o">.</span><span class="n">written_relationships</span><span class="o">.</span><span class="n">extend</span><span class="p">((</span><span class="n">from_id</span><span class="p">,</span> <span class="n">to_id</span><span class="p">)</span> <span class="k">for</span> <span class="n">to_id</span> <span class="ow">in</span> <span class="n">to_ids</span><span class="p">)</span>
+    <span class="k">if</span> <span class="n">rel_name</span> <span class="ow">in</span> <span class="n">SPDX3_DEPENDENCY_RELATIONSHIP_TYPES</span><span class="p">:</span>
+        <span class="k">for</span> <span class="n">to_id</span> <span class="ow">in</span> <span class="n">to_ids</span><span class="p">:</span>
+            <span class="n">graph</span><span class="o">.</span><span class="n">add_dependency_link</span><span class="p">(</span><span class="n">from_id</span><span class="p">,</span> <span class="n">to_id</span><span class="p">,</span> <span class="n">direction</span><span class="p">)</span>
 
     <span class="c1"># None and no-assertion values (SPDX3_NONE_AND_NOASSERTION_IRIS) are not</span>
     <span class="c1"># elements, and unrelated relationships share them, so they get no</span>
@@ -475,24 +559,16 @@
         <span class="k">return</span>
     <span class="n">to_ids</span> <span class="o">=</span> <span class="p">[</span><span class="n">t</span> <span class="k">for</span> <span class="n">t</span> <span class="ow">in</span> <span class="n">to_ids</span> <span class="k">if</span> <span class="n">t</span> <span class="ow">not</span> <span class="ow">in</span> <span class="n">SPDX3_NONE_AND_NOASSERTION_IRIS</span><span class="p">]</span>
     <span class="k">if</span> <span class="n">direction</span> <span class="ow">is</span> <span class="n">TraversalDirection</span><span class="o">.</span><span class="n">ALONG</span><span class="p">:</span>
-        <span class="n">traversal_edges</span><span class="o">.</span><span class="n">setdefault</span><span class="p">(</span><span class="n">from_id</span><span class="p">,</span> <span class="p">[])</span><span class="o">.</span><span class="n">extend</span><span class="p">(</span><span class="n">to_ids</span><span class="p">)</span>
+        <span class="n">graph</span><span class="o">.</span><span class="n">traversal_edges</span><span class="o">.</span><span class="n">setdefault</span><span class="p">(</span><span class="n">from_id</span><span class="p">,</span> <span class="p">[])</span><span class="o">.</span><span class="n">extend</span><span class="p">(</span><span class="n">to_ids</span><span class="p">)</span>
     <span class="k">else</span><span class="p">:</span>
         <span class="k">for</span> <span class="n">to_id</span> <span class="ow">in</span> <span class="n">to_ids</span><span class="p">:</span>
-            <span class="n">traversal_edges</span><span class="o">.</span><span class="n">setdefault</span><span class="p">(</span><span class="n">to_id</span><span class="p">,</span> <span class="p">[])</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">from_id</span><span class="p">)</span>
+            <span class="n">graph</span><span class="o">.</span><span class="n">traversal_edges</span><span class="o">.</span><span class="n">setdefault</span><span class="p">(</span><span class="n">to_id</span><span class="p">,</span> <span class="p">[])</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">from_id</span><span class="p">)</span>
 
 
 <span class="k">def</span><span class="w"> </span><span class="nf">_extract_spdx3_collection_edges</span><span class="p">(</span>
-    <span class="n">obj</span><span class="p">:</span> <span class="n">spdx3</span><span class="o">.</span><span class="n">ElementCollection</span><span class="p">,</span>
-    <span class="n">traversal_edges</span><span class="p">:</span> <span class="nb">dict</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="nb">list</span><span class="p">[</span><span class="nb">str</span><span class="p">]],</span>
-    <span class="n">written_relationships</span><span class="p">:</span> <span class="nb">list</span><span class="p">[</span><span class="nb">tuple</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="nb">str</span><span class="p">]],</span>
+    <span class="n">obj</span><span class="p">:</span> <span class="n">spdx3</span><span class="o">.</span><span class="n">ElementCollection</span><span class="p">,</span> <span class="n">graph</span><span class="p">:</span> <span class="n">_Graph</span>
 <span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
-<span class="w">    </span><span class="sd">"""</span>
-<span class="sd">    Helper to extract implicit collection edges (e.g. Sbom, Document).</span>
-
-<span class="sd">    ``traversal_edges`` gets an edge from the collection to each of its</span>
-<span class="sd">    ``rootElement``. ``written_relationships`` gets the same</span>
-<span class="sd">    (collection, root element) pairs, to check for missing elements.</span>
-<span class="sd">    """</span>
+<span class="w">    </span><span class="sd">"""Add edges from a collection (e.g. Sbom) to its ``rootElement``."""</span>
     <span class="n">col_id</span> <span class="o">=</span> <span class="n">get_spdx3_element_id</span><span class="p">(</span><span class="n">obj</span><span class="p">)</span>
     <span class="k">if</span> <span class="ow">not</span> <span class="n">col_id</span><span class="p">:</span>
         <span class="k">return</span>
@@ -500,34 +576,33 @@
     <span class="n">root_ids</span> <span class="o">=</span> <span class="p">[</span>
         <span class="n">r</span> <span class="k">for</span> <span class="n">r</span> <span class="ow">in</span> <span class="nb">map</span><span class="p">(</span><span class="n">get_spdx3_element_id</span><span class="p">,</span> <span class="nb">getattr</span><span class="p">(</span><span class="n">obj</span><span class="p">,</span> <span class="s2">"rootElement"</span><span class="p">,</span> <span class="p">[]))</span> <span class="k">if</span> <span class="n">r</span>
     <span class="p">]</span>
-    <span class="n">traversal_edges</span><span class="o">.</span><span class="n">setdefault</span><span class="p">(</span><span class="n">col_id</span><span class="p">,</span> <span class="p">[])</span><span class="o">.</span><span class="n">extend</span><span class="p">(</span><span class="n">root_ids</span><span class="p">)</span>
-    <span class="n">written_relationships</span><span class="o">.</span><span class="n">extend</span><span class="p">((</span><span class="n">col_id</span><span class="p">,</span> <span class="n">root_id</span><span class="p">)</span> <span class="k">for</span> <span class="n">root_id</span> <span class="ow">in</span> <span class="n">root_ids</span><span class="p">)</span>
+    <span class="n">graph</span><span class="o">.</span><span class="n">collection_ids</span><span class="o">.</span><span class="n">add</span><span class="p">(</span><span class="n">col_id</span><span class="p">)</span>
+    <span class="n">graph</span><span class="o">.</span><span class="n">traversal_edges</span><span class="o">.</span><span class="n">setdefault</span><span class="p">(</span><span class="n">col_id</span><span class="p">,</span> <span class="p">[])</span><span class="o">.</span><span class="n">extend</span><span class="p">(</span><span class="n">root_ids</span><span class="p">)</span>
+    <span class="n">graph</span><span class="o">.</span><span class="n">written_relationships</span><span class="o">.</span><span class="n">extend</span><span class="p">((</span><span class="n">col_id</span><span class="p">,</span> <span class="n">root_id</span><span class="p">)</span> <span class="k">for</span> <span class="n">root_id</span> <span class="ow">in</span> <span class="n">root_ids</span><span class="p">)</span>
 
 
 <span class="k">def</span><span class="w"> </span><span class="nf">_build_spdx3_graph</span><span class="p">(</span>
     <span class="n">object_set</span><span class="p">:</span> <span class="n">spdx3</span><span class="o">.</span><span class="n">SHACLObjectSet</span><span class="p">,</span> <span class="n">spdx3_doc</span><span class="p">:</span> <span class="n">spdx3</span><span class="o">.</span><span class="n">SpdxDocument</span> <span class="o">|</span> <span class="kc">None</span>
-<span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">tuple</span><span class="p">[</span><span class="nb">list</span><span class="p">[</span><span class="nb">str</span><span class="p">],</span> <span class="nb">dict</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="nb">list</span><span class="p">[</span><span class="nb">str</span><span class="p">]],</span> <span class="nb">list</span><span class="p">[</span><span class="nb">tuple</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="nb">str</span><span class="p">]]]:</span>
+<span class="p">)</span> <span class="o">-&gt;</span> <span class="n">_Graph</span><span class="p">:</span>
 <span class="w">    </span><span class="sd">"""</span>
-<span class="sd">    Build the roots, traversal edges and written relationships for SPDX 3.</span>
+<span class="sd">    Build the relationship graph for SPDX 3.</span>
 
-<span class="sd">    Roots are the ``rootElement`` of the ``SpdxDocument`` and the targets of</span>
-<span class="sd">    relationships of any type from the ``SpdxDocument``. Each collection,</span>
-<span class="sd">    such as an ``Sbom``, links to its own ``rootElement``.</span>
+<span class="sd">    Roots are the ``SpdxDocument`` ``rootElement`` and the ``to`` of any</span>
+<span class="sd">    relationship from it; each collection links to its own ``rootElement``.</span>
 
 <span class="sd">    Returns:</span>
-<span class="sd">        tuple: (queue, traversal_edges, written_relationships), where</span>
-<span class="sd">            traversal_edges go from parent to child and written_relationships</span>
-<span class="sd">            are the followed relationships, the relationships from the</span>
-<span class="sd">            document and the collection roots, as written: (from, to).</span>
+<span class="sd">        _Graph: The graph; written relationships are (from, to).</span>
 <span class="sd">    """</span>
-    <span class="n">queue</span><span class="p">:</span> <span class="nb">list</span><span class="p">[</span><span class="nb">str</span><span class="p">]</span> <span class="o">=</span> <span class="p">[]</span>
-    <span class="n">traversal_edges</span><span class="p">:</span> <span class="nb">dict</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="nb">list</span><span class="p">[</span><span class="nb">str</span><span class="p">]]</span> <span class="o">=</span> <span class="p">{}</span>
-    <span class="n">written_relationships</span><span class="p">:</span> <span class="nb">list</span><span class="p">[</span><span class="nb">tuple</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="nb">str</span><span class="p">]]</span> <span class="o">=</span> <span class="p">[]</span>
+    <span class="n">graph</span> <span class="o">=</span> <span class="n">_Graph</span><span class="p">()</span>
 
     <span class="n">doc_id</span> <span class="o">=</span> <span class="n">get_spdx3_element_id</span><span class="p">(</span><span class="n">spdx3_doc</span><span class="p">)</span> <span class="k">if</span> <span class="n">spdx3_doc</span> <span class="k">else</span> <span class="s2">""</span>
+    <span class="k">if</span> <span class="n">doc_id</span><span class="p">:</span>
+        <span class="n">graph</span><span class="o">.</span><span class="n">collection_ids</span><span class="o">.</span><span class="n">add</span><span class="p">(</span><span class="n">doc_id</span><span class="p">)</span>
 
     <span class="k">if</span> <span class="n">spdx3_doc</span> <span class="ow">and</span> <span class="nb">getattr</span><span class="p">(</span><span class="n">spdx3_doc</span><span class="p">,</span> <span class="s2">"rootElement"</span><span class="p">,</span> <span class="kc">None</span><span class="p">):</span>
-        <span class="n">queue</span><span class="o">.</span><span class="n">extend</span><span class="p">(</span><span class="n">r</span> <span class="k">for</span> <span class="n">r</span> <span class="ow">in</span> <span class="nb">map</span><span class="p">(</span><span class="n">get_spdx3_element_id</span><span class="p">,</span> <span class="n">spdx3_doc</span><span class="o">.</span><span class="n">rootElement</span><span class="p">)</span> <span class="k">if</span> <span class="n">r</span><span class="p">)</span>
+        <span class="n">graph</span><span class="o">.</span><span class="n">roots</span><span class="o">.</span><span class="n">extend</span><span class="p">(</span>
+            <span class="n">r</span> <span class="k">for</span> <span class="n">r</span> <span class="ow">in</span> <span class="nb">map</span><span class="p">(</span><span class="n">get_spdx3_element_id</span><span class="p">,</span> <span class="n">spdx3_doc</span><span class="o">.</span><span class="n">rootElement</span><span class="p">)</span> <span class="k">if</span> <span class="n">r</span>
+        <span class="p">)</span>
 
     <span class="c1"># Build the graph connection map</span>
     <span class="k">for</span> <span class="n">obj</span> <span class="ow">in</span> <span class="n">object_set</span><span class="o">.</span><span class="n">objects</span><span class="p">:</span>
@@ -541,40 +616,27 @@
                 <span class="n">to_ids</span> <span class="o">=</span> <span class="p">[</span>
                     <span class="n">t</span> <span class="k">for</span> <span class="n">t</span> <span class="ow">in</span> <span class="nb">map</span><span class="p">(</span><span class="n">get_spdx3_element_id</span><span class="p">,</span> <span class="nb">getattr</span><span class="p">(</span><span class="n">obj</span><span class="p">,</span> <span class="s2">"to"</span><span class="p">,</span> <span class="p">[]))</span> <span class="k">if</span> <span class="n">t</span>
                 <span class="p">]</span>
-                <span class="n">queue</span><span class="o">.</span><span class="n">extend</span><span class="p">(</span><span class="n">to_ids</span><span class="p">)</span>
-                <span class="n">written_relationships</span><span class="o">.</span><span class="n">extend</span><span class="p">((</span><span class="n">doc_id</span><span class="p">,</span> <span class="n">to_id</span><span class="p">)</span> <span class="k">for</span> <span class="n">to_id</span> <span class="ow">in</span> <span class="n">to_ids</span><span class="p">)</span>
+                <span class="n">graph</span><span class="o">.</span><span class="n">roots</span><span class="o">.</span><span class="n">extend</span><span class="p">(</span><span class="n">to_ids</span><span class="p">)</span>
+                <span class="n">graph</span><span class="o">.</span><span class="n">written_relationships</span><span class="o">.</span><span class="n">extend</span><span class="p">((</span><span class="n">doc_id</span><span class="p">,</span> <span class="n">to_id</span><span class="p">)</span> <span class="k">for</span> <span class="n">to_id</span> <span class="ow">in</span> <span class="n">to_ids</span><span class="p">)</span>
 
             <span class="c1"># Normal relationships between packages build the map</span>
             <span class="k">else</span><span class="p">:</span>
-                <span class="n">_extract_spdx3_relationship_edges</span><span class="p">(</span>
-                    <span class="n">obj</span><span class="p">,</span> <span class="n">traversal_edges</span><span class="p">,</span> <span class="n">written_relationships</span>
-                <span class="p">)</span>
+                <span class="n">_extract_spdx3_relationship_edges</span><span class="p">(</span><span class="n">obj</span><span class="p">,</span> <span class="n">graph</span><span class="p">)</span>
 
         <span class="c1"># Capture implicit relationships from Collections (like Sbom, Bom, etc.)</span>
         <span class="k">if</span> <span class="nb">isinstance</span><span class="p">(</span><span class="n">obj</span><span class="p">,</span> <span class="n">spdx3</span><span class="o">.</span><span class="n">ElementCollection</span><span class="p">):</span>
-            <span class="n">_extract_spdx3_collection_edges</span><span class="p">(</span><span class="n">obj</span><span class="p">,</span> <span class="n">traversal_edges</span><span class="p">,</span> <span class="n">written_relationships</span><span class="p">)</span>
+            <span class="n">_extract_spdx3_collection_edges</span><span class="p">(</span><span class="n">obj</span><span class="p">,</span> <span class="n">graph</span><span class="p">)</span>
 
-    <span class="k">return</span> <span class="n">queue</span><span class="p">,</span> <span class="n">traversal_edges</span><span class="p">,</span> <span class="n">written_relationships</span>
+    <span class="k">return</span> <span class="n">graph</span>
 
 
-<span class="k">def</span><span class="w"> </span><span class="nf">_build_graph</span><span class="p">(</span>
-    <span class="n">sbom_spec</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span> <span class="n">parsed_data</span><span class="p">:</span> <span class="n">Any</span><span class="p">,</span> <span class="n">spdx3_doc</span><span class="p">:</span> <span class="n">Any</span> <span class="o">=</span> <span class="kc">None</span>
-<span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">tuple</span><span class="p">[</span><span class="nb">list</span><span class="p">[</span><span class="nb">str</span><span class="p">],</span> <span class="nb">dict</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="nb">list</span><span class="p">[</span><span class="nb">str</span><span class="p">]],</span> <span class="nb">list</span><span class="p">[</span><span class="nb">tuple</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="nb">str</span><span class="p">]]]:</span>
-<span class="w">    </span><span class="sd">"""</span>
-<span class="sd">    Build the roots, the traversal edges and the written relationships.</span>
-
-<span class="sd">    The traversal edges are how the checker walks the graph, from parent to</span>
-<span class="sd">    child. The written relationships are the graph shape, as the SBOM states</span>
-<span class="sd">    it, and are checked for missing elements.</span>
-
-<span class="sd">    Returns:</span>
-<span class="sd">        tuple: (queue, traversal_edges, written_relationships)</span>
-<span class="sd">    """</span>
+<span class="k">def</span><span class="w"> </span><span class="nf">_build_graph</span><span class="p">(</span><span class="n">sbom_spec</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span> <span class="n">parsed_data</span><span class="p">:</span> <span class="n">Any</span><span class="p">,</span> <span class="n">spdx3_doc</span><span class="p">:</span> <span class="n">Any</span> <span class="o">=</span> <span class="kc">None</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="n">_Graph</span><span class="p">:</span>
+<span class="w">    </span><span class="sd">"""Build the relationship graph of an SBOM; empty for an unsupported spec."""</span>
     <span class="k">if</span> <span class="n">sbom_spec</span> <span class="o">==</span> <span class="s2">"spdx2"</span><span class="p">:</span>
         <span class="k">return</span> <span class="n">_build_spdx2_graph</span><span class="p">(</span><span class="n">parsed_data</span><span class="p">)</span>
     <span class="k">if</span> <span class="n">sbom_spec</span> <span class="o">==</span> <span class="s2">"spdx3"</span><span class="p">:</span>
         <span class="k">return</span> <span class="n">_build_spdx3_graph</span><span class="p">(</span><span class="n">parsed_data</span><span class="p">,</span> <span class="n">spdx3_doc</span><span class="p">)</span>
-    <span class="k">return</span> <span class="p">[],</span> <span class="p">{},</span> <span class="p">[]</span>
+    <span class="k">return</span> <span class="n">_Graph</span><span class="p">()</span>
 
 
 <span class="k">def</span><span class="w"> </span><span class="nf">_traverse</span><span class="p">(</span><span class="n">queue</span><span class="p">:</span> <span class="nb">list</span><span class="p">[</span><span class="nb">str</span><span class="p">],</span> <span class="n">traversal_edges</span><span class="p">:</span> <span class="nb">dict</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="nb">list</span><span class="p">[</span><span class="nb">str</span><span class="p">]])</span> <span class="o">-&gt;</span> <span class="nb">set</span><span class="p">[</span><span class="nb">str</span><span class="p">]:</span>
@@ -601,21 +663,19 @@
 
 <span class="k">def</span><span class="w"> </span><span class="nf">_reach</span><span class="p">(</span>
     <span class="n">sbom_spec</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span> <span class="n">parsed_data</span><span class="p">:</span> <span class="n">Any</span><span class="p">,</span> <span class="n">spdx3_doc</span><span class="p">:</span> <span class="n">Any</span> <span class="o">=</span> <span class="kc">None</span>
-<span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">tuple</span><span class="p">[</span><span class="nb">set</span><span class="p">[</span><span class="nb">str</span><span class="p">],</span> <span class="nb">dict</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="nb">list</span><span class="p">[</span><span class="nb">str</span><span class="p">]],</span> <span class="nb">list</span><span class="p">[</span><span class="nb">tuple</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="nb">str</span><span class="p">]]]:</span>
+<span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">tuple</span><span class="p">[</span><span class="nb">set</span><span class="p">[</span><span class="nb">str</span><span class="p">],</span> <span class="n">_Graph</span><span class="p">]</span> <span class="o">|</span> <span class="kc">None</span><span class="p">:</span>
 <span class="w">    </span><span class="sd">"""</span>
-<span class="sd">    Build the graph and find all nodes reachable from the roots.</span>
+<span class="sd">    Build the graph and find the nodes reachable from the roots.</span>
 
 <span class="sd">    Returns:</span>
-<span class="sd">        tuple: (reachable_node_ids, traversal_edges, written_relationships);</span>
-<span class="sd">            all empty when there is no data, or no SPDX 3 document.</span>
+<span class="sd">        tuple | None: (reachable_node_ids, graph); None without data or an</span>
+<span class="sd">            SPDX 3 document.</span>
 <span class="sd">    """</span>
     <span class="k">if</span> <span class="ow">not</span> <span class="n">parsed_data</span> <span class="ow">or</span> <span class="p">(</span><span class="n">sbom_spec</span> <span class="o">==</span> <span class="s2">"spdx3"</span> <span class="ow">and</span> <span class="ow">not</span> <span class="n">spdx3_doc</span><span class="p">):</span>
-        <span class="k">return</span> <span class="nb">set</span><span class="p">(),</span> <span class="p">{},</span> <span class="p">[]</span>
+        <span class="k">return</span> <span class="kc">None</span>
 
-    <span class="n">queue</span><span class="p">,</span> <span class="n">traversal_edges</span><span class="p">,</span> <span class="n">written_relationships</span> <span class="o">=</span> <span class="n">_build_graph</span><span class="p">(</span>
-        <span class="n">sbom_spec</span><span class="p">,</span> <span class="n">parsed_data</span><span class="p">,</span> <span class="n">spdx3_doc</span>
-    <span class="p">)</span>
-    <span class="k">return</span> <span class="n">_traverse</span><span class="p">(</span><span class="n">queue</span><span class="p">,</span> <span class="n">traversal_edges</span><span class="p">),</span> <span class="n">traversal_edges</span><span class="p">,</span> <span class="n">written_relationships</span>
+    <span class="n">graph</span> <span class="o">=</span> <span class="n">_build_graph</span><span class="p">(</span><span class="n">sbom_spec</span><span class="p">,</span> <span class="n">parsed_data</span><span class="p">,</span> <span class="n">spdx3_doc</span><span class="p">)</span>
+    <span class="k">return</span> <span class="n">_traverse</span><span class="p">(</span><span class="n">graph</span><span class="o">.</span><span class="n">roots</span><span class="p">,</span> <span class="n">graph</span><span class="o">.</span><span class="n">traversal_edges</span><span class="p">),</span> <span class="n">graph</span>
 
 
 <div class="viewcode-block" id="get_reachable_nodes">
@@ -634,8 +694,11 @@
 <span class="sd">            SPDX 2 ``A CONTAINED_BY B`` or SPDX 3 ``A generates B`` (from B</span>
 <span class="sd">            to A).</span>
 <span class="sd">    """</span>
-    <span class="n">reachable_node_ids</span><span class="p">,</span> <span class="n">traversal_edges</span><span class="p">,</span> <span class="n">_</span> <span class="o">=</span> <span class="n">_reach</span><span class="p">(</span><span class="n">sbom_spec</span><span class="p">,</span> <span class="n">parsed_data</span><span class="p">,</span> <span class="n">spdx3_doc</span><span class="p">)</span>
-    <span class="k">return</span> <span class="n">reachable_node_ids</span><span class="p">,</span> <span class="n">traversal_edges</span></div>
+    <span class="n">reached</span> <span class="o">=</span> <span class="n">_reach</span><span class="p">(</span><span class="n">sbom_spec</span><span class="p">,</span> <span class="n">parsed_data</span><span class="p">,</span> <span class="n">spdx3_doc</span><span class="p">)</span>
+    <span class="k">if</span> <span class="n">reached</span> <span class="ow">is</span> <span class="kc">None</span><span class="p">:</span>
+        <span class="k">return</span> <span class="nb">set</span><span class="p">(),</span> <span class="p">{}</span>
+    <span class="n">reachable_node_ids</span><span class="p">,</span> <span class="n">graph</span> <span class="o">=</span> <span class="n">reached</span>
+    <span class="k">return</span> <span class="n">reachable_node_ids</span><span class="p">,</span> <span class="n">graph</span><span class="o">.</span><span class="n">traversal_edges</span></div>
 
 </pre></div>
 

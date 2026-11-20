@@ -146,7 +146,7 @@
 <span class="p">}</span>
 
 <span class="c1"># SPDX 2 types not derived from the table. SPDX 2 has no rootElement, so</span>
-<span class="c1"># DESCRIBES and DESCRIBED_BY mark roots (SPDX 2.3 §11.1 Table 68) and,</span>
+<span class="c1"># DESCRIBES and DESCRIBED_BY mark roots (SPDX 2.3 clause 11.1, Table 68) and,</span>
 <span class="c1"># between other elements, are walked from describer to described; SPDX 3</span>
 <span class="c1"># does not follow describes.</span>
 <span class="n">SPDX2_RELATIONSHIP_TRAVERSAL_OVERRIDES</span><span class="p">:</span> <span class="nb">dict</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="n">TraversalDirection</span><span class="p">]</span> <span class="o">=</span> <span class="p">{</span>
@@ -182,6 +182,35 @@
 <span class="c1"># SPDX 2 relationship types the traversal follows, with their direction.</span>
 <span class="n">SPDX2_RELATIONSHIP_TRAVERSAL</span><span class="p">:</span> <span class="nb">dict</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="n">TraversalDirection</span><span class="p">]</span> <span class="o">=</span> <span class="p">(</span>
     <span class="n">_derive_spdx2_relationship_traversal</span><span class="p">()</span>
+<span class="p">)</span>
+
+<span class="c1"># SPDX 3 relationship types that count as a dependency relationship, a</span>
+<span class="c1"># subset of SPDX3_RELATIONSHIP_TRAVERSAL: composition, dependency and</span>
+<span class="c1"># linking, not tools, provenance or training data. NTIA 2021 (IV. Minimum</span>
+<span class="c1"># Elements &gt; Data Fields &gt; Dependency Relationship): "an upstream component X</span>
+<span class="c1"># is included in software Y". CISA 2026, which replaces NTIA 2021, agrees</span>
+<span class="c1"># (Data Fields &gt; Component Data &gt; Component Dependency Relationship): "one</span>
+<span class="c1"># component is necessary for the operation of the other", and the element</span>
+<span class="c1"># "reflects that a component includes another component".</span>
+<span class="n">SPDX3_DEPENDENCY_RELATIONSHIP_TYPES</span><span class="p">:</span> <span class="nb">frozenset</span><span class="p">[</span><span class="nb">str</span><span class="p">]</span> <span class="o">=</span> <span class="nb">frozenset</span><span class="p">(</span>
+    <span class="p">{</span>
+        <span class="s2">"contains"</span><span class="p">,</span>
+        <span class="s2">"dependsOn"</span><span class="p">,</span>
+        <span class="s2">"hasDynamicLink"</span><span class="p">,</span>
+        <span class="s2">"hasStaticLink"</span><span class="p">,</span>
+        <span class="s2">"hasOptionalDependency"</span><span class="p">,</span>
+        <span class="s2">"hasProvidedDependency"</span><span class="p">,</span>
+        <span class="s2">"hasPrerequisite"</span><span class="p">,</span>
+    <span class="p">}</span>
+<span class="p">)</span>
+
+<span class="c1"># SPDX 2 relationship types that count as a dependency relationship: those</span>
+<span class="c1"># whose SPDX 3 translation counts, written either way.</span>
+<span class="n">SPDX2_DEPENDENCY_RELATIONSHIP_TYPES</span><span class="p">:</span> <span class="nb">frozenset</span><span class="p">[</span><span class="nb">str</span><span class="p">]</span> <span class="o">=</span> <span class="nb">frozenset</span><span class="p">(</span>
+    <span class="n">spdx2_type</span>
+    <span class="k">for</span> <span class="n">spdx2_type</span><span class="p">,</span> <span class="p">(</span><span class="n">spdx3_type</span><span class="p">,</span> <span class="n">_</span><span class="p">)</span> <span class="ow">in</span> <span class="n">SPDX2_TO_SPDX3_RELATIONSHIP_TYPES</span><span class="o">.</span><span class="n">items</span><span class="p">()</span>
+    <span class="k">if</span> <span class="n">spdx3_type</span> <span class="ow">in</span> <span class="n">SPDX3_DEPENDENCY_RELATIONSHIP_TYPES</span>
+    <span class="ow">and</span> <span class="n">spdx2_type</span> <span class="ow">in</span> <span class="n">SPDX2_RELATIONSHIP_TRAVERSAL</span>
 <span class="p">)</span>
 
 <span class="c1"># Deprecated: the types 6.0.0 followed, unchanged and unused. Use</span>

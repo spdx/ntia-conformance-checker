@@ -298,6 +298,7 @@
 
         <span class="c1"># "Pointers" refers to relationship edges targeting unknown/missing elements in the graph.</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">has_unknown_pointers</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">False</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_has_dependency_relationship</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">False</span>
 
     <span class="k">def</span><span class="w"> </span><span class="nf">_init_result_lists</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
 <span class="w">        </span><span class="sd">"""</span>
@@ -344,8 +345,8 @@
 <div class="viewcode-block" id="BaseChecker.check_dependency_relationships">
 <a class="viewcode-back" href="../../ntia_conformance_checker.html#ntia_conformance_checker.base_checker.BaseChecker.check_dependency_relationships">[docs]</a>
     <span class="k">def</span><span class="w"> </span><span class="nf">check_dependency_relationships</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">bool</span><span class="p">:</span>
-<span class="w">        </span><span class="sd">"""Check if the SBOM document declares dependency information."""</span>
-        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">adapter</span><span class="o">.</span><span class="n">check_dependency_relationships</span><span class="p">()</span></div>
+<span class="w">        </span><span class="sd">"""Check if a reachable element declares a dependency relationship."""</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_has_dependency_relationship</span></div>
 
 
 <div class="viewcode-block" id="BaseChecker.check_timestamp">
@@ -658,6 +659,7 @@
         <span class="bp">self</span><span class="o">.</span><span class="n">unknown_pointer_edges</span> <span class="o">=</span> <span class="n">result</span><span class="o">.</span><span class="n">unknown_pointer_edges</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">missing_element_ids</span> <span class="o">=</span> <span class="n">result</span><span class="o">.</span><span class="n">missing_element_ids</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">has_unknown_pointers</span> <span class="o">=</span> <span class="n">result</span><span class="o">.</span><span class="n">has_unknown_pointers</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">_has_dependency_relationship</span> <span class="o">=</span> <span class="n">result</span><span class="o">.</span><span class="n">has_dependency_relationship</span>
 
         <span class="k">if</span> <span class="bp">self</span><span class="o">.</span><span class="n">floating_component_ids</span><span class="p">:</span>
             <span class="n">logging</span><span class="o">.</span><span class="n">warning</span><span class="p">(</span>
