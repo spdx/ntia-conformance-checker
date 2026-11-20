@@ -53,7 +53,7 @@ def test_link_target_compliance(
                 "relationshipType": "dependsOn",
                 "from": by_type["software_Sbom"]["rootElement"][0],
                 "to": [target],
-                "completeness": "complete",  # required by BSI
+                "completeness": "complete",
             }
         )
         by_type["SpdxDocument"]["import"] = [

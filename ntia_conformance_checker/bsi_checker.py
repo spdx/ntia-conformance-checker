@@ -62,23 +62,10 @@ class BSIChecker(BaseChecker):
     """
     Content requirements check according to BSI TR-03183-2 v2.1.0.
 
-    Citations are to BSI TR-03183-2 v2.1.0; the SPDX 3.0.1 encoding of each
-    data field follows §8.2 "Mapping of the individual data fields".  BSI uses
-    RFC 2119 keywords in capitals only (§2 "Requirements language"):
-
-    * §5.2.1 Table 2 and §5.2.2 Table 3, required data fields: MUST.  A
-      missing field fails conformance.  Fields checked by
-      :class:`BaseChecker`: Table 2 "Timestamp", Table 3 "Component name" and
-      "Component version".  Table 3 "Dependencies on other components":
-      :meth:`check_dependency_completeness`.
-    * §5.2.3 Table 4 and §5.2.4 Table 5, additional data fields: MUST be
-      included "if it exists".  A missing Table 4 "SBOM-URI" fails
-      conformance (see :meth:`check_sbom_uri`).
-      Whether a Table 5 field exists for a component cannot be told from the
-      SBOM, so a missing one is a warning and does not fail conformance.
-    * §5.2.5 Table 6, optional data fields, and §8.2 Table 12 "References to
-      another BOM": MAY.  Reported for information; a missing field does not
-      fail conformance.
+    Clauses below are of that document; SPDX 3.0.1 mappings are in clause 8.2.
+    Clauses 5.2.1-5.2.2 (MUST) fail conformance; 5.2.4 (MUST, if it exists)
+    gives warnings, as whether a field exists cannot be told from the SBOM;
+    5.2.5 (MAY) is informational.
 
     See:
         https://www.bsi.bund.de/SharedDocs/Downloads/EN/BSI/Publications/TechGuidelines/TR03183/BSI-TR-03183-2_v2_1_0.html
@@ -348,8 +335,7 @@ class BSIChecker(BaseChecker):
         """
         Check if the document creator has a valid email or URL.
 
-        §5.2.1 Table 2 "Creator of the SBOM" (MUST); SPDX mapping §8.2
-        Table 8 "Creator of the SBOM".
+        Clause 5.2.1 Table 2 (MUST); mapping: clause 8.2 Table 8.
         """
         if not isinstance(self.doc, spdx3.SHACLObjectSet):
             return False
@@ -375,12 +361,9 @@ class BSIChecker(BaseChecker):
         """
         Check if the SBOM-URI exists.
 
-        §5.2.3 Table 4 "SBOM-URI" (MUST, if it exists); SPDX mapping §8.2
-        Table 10 "SBOM-URI", the ``spdxId`` of the root ``software_Sbom``.
-        SPDX 3.0.1 Software/Classes/Sbom must be identified by an IRI
-        (``sh:nodeKind sh:IRI`` in the model), so the URI exists whenever the
-        SBOM does, and a missing one fails conformance.  A root
-        ``software_Package`` with an ``spdxId`` is also accepted.
+        Clause 5.2.3 Table 4 (MUST, if it exists); mapping: clause 8.2
+        Table 10. Fails conformance, as an SPDX 3 ``software_Sbom`` always
+        has an IRI.
         """
         if not isinstance(self.doc, spdx3.SHACLObjectSet):
             return False
@@ -406,8 +389,7 @@ class BSIChecker(BaseChecker):
         """
         Check if each component creator has a valid email or URL.
 
-        §5.2.2 Table 3 "Component creator" (MUST); SPDX mapping §8.2 Table 9
-        "Component creator".
+        Clause 5.2.2 Table 3 (MUST); mapping: clause 8.2 Table 9.
         """
         missing: list[tuple[str, str]] = []
         if not isinstance(self.doc, spdx3.SHACLObjectSet):
@@ -434,8 +416,7 @@ class BSIChecker(BaseChecker):
         """
         Check if each package has a linked software_File with a valid name.
 
-        §5.2.2 Table 3 "Filename of the component" (MUST); SPDX mapping §8.2
-        Table 9 "Filename of the component" (``hasDistributionArtifact``).
+        Clause 5.2.2 Table 3 (MUST); mapping: clause 8.2 Table 9.
         """
         missing: list[tuple[str, str]] = []
         if not isinstance(self.doc, spdx3.SHACLObjectSet):
@@ -480,11 +461,8 @@ class BSIChecker(BaseChecker):
         """
         Check if each component has a distribution licence.
 
-        §5.2.2 Table 3 "Distribution licences" (MUST); SPDX mapping §8.2
-        Table 9 "Distribution licences": a ``hasConcludedLicense``
-        relationship to a non-blank ``simplelicensing_LicenseExpression``.
-        The identifier rules of §6.1 "Licence identifiers and expressions"
-        are not checked.
+        Clause 5.2.2 Table 3 (MUST); mapping: clause 8.2 Table 9. Clause 6.1
+        identifier rules are not checked.
         """
         missing: list[tuple[str, str]] = []
         if not isinstance(self.doc, spdx3.SHACLObjectSet):
@@ -507,10 +485,7 @@ class BSIChecker(BaseChecker):
         """
         Check if the deployable component has a SHA-512 hash.
 
-        §5.2.2 Table 3 "Hash value of the deployable component" (MUST); SPDX
-        mapping §8.2 Table 9 "Hash value of the deployable component".  A
-        component with no linked file is left to
-        :meth:`get_components_without_filenames`.
+        Clause 5.2.2 Table 3 (MUST); mapping: clause 8.2 Table 9.
         """
         missing: list[tuple[str, str]] = []
         if not isinstance(self.doc, spdx3.SHACLObjectSet):
@@ -542,10 +517,8 @@ class BSIChecker(BaseChecker):
         """
         Check the executable property; always passes.
 
-        §5.2.2 Table 3 "Executable property" (MUST; see §8.1.4).  SPDX
-        mapping §8.2 Table 9 "Executable property": ``executable`` in
-        ``software_additionalPurpose`` if executable, otherwise absent.  As
-        absence means "non-executable", no component can lack the property.
+        Clause 5.2.2 Table 3 (MUST); mapping: clause 8.2 Table 9, where
+        absence means "non-executable".
         """
         return []
 
@@ -553,10 +526,8 @@ class BSIChecker(BaseChecker):
         """
         Check the archive property; always passes.
 
-        §5.2.2 Table 3 "Archive property" (MUST; see §8.1.5).  SPDX mapping
-        §8.2 Table 9 "Archive property": ``archive`` in
-        ``software_additionalPurpose`` if an archive, otherwise absent.  As
-        absence means "no archive", no component can lack the property.
+        Clause 5.2.2 Table 3 (MUST); mapping: clause 8.2 Table 9, where
+        absence means "no archive".
         """
         return []
 
@@ -564,11 +535,7 @@ class BSIChecker(BaseChecker):
         """
         Check if the component declares a structured property.
 
-        §5.2.2 Table 3 "Structured property" (MUST; see §8.1.6).  SPDX mapping
-        §8.2 Table 9 "Structured property": ``container`` (structured) or
-        ``firmware`` (unstructured) in ``software_additionalPurpose``.  A
-        component with no linked file is left to
-        :meth:`get_components_without_filenames`.
+        Clause 5.2.2 Table 3 (MUST); mapping: clause 8.2 Table 9.
         """
         missing: list[tuple[str, str]] = []
         if not isinstance(self.doc, spdx3.SHACLObjectSet):
@@ -604,8 +571,7 @@ class BSIChecker(BaseChecker):
         """
         Check if the component has a source code URI.
 
-        §5.2.4 Table 5 "Source code URI" (MUST, if it exists; a warning); SPDX
-        mapping §8.2 Table 11 "Source code URI".
+        Clause 5.2.4 Table 5 (warning); mapping: clause 8.2 Table 11.
         """
         missing: list[tuple[str, str]] = []
         if not isinstance(self.doc, spdx3.SHACLObjectSet):
@@ -656,9 +622,7 @@ class BSIChecker(BaseChecker):
         """
         Check if the component has a URI of the deployable form.
 
-        §5.2.4 Table 5 "URI of the deployable form of the component" (MUST,
-        if it exists; a warning); SPDX mapping §8.2 Table 11 "URI of the
-        deployable form of the component".
+        Clause 5.2.4 Table 5 (warning); mapping: clause 8.2 Table 11.
         """
         missing: list[tuple[str, str]] = []
         if not isinstance(self.doc, spdx3.SHACLObjectSet):
@@ -694,8 +658,7 @@ class BSIChecker(BaseChecker):
         """
         Check if the component has other unique identifiers (CPE, SWID, PURL).
 
-        §5.2.4 Table 5 "Other unique identifiers" (MUST, if they exist; a
-        warning); SPDX mapping §8.2 Table 11 "Other unique identifiers".
+        Clause 5.2.4 Table 5 (warning); mapping: clause 8.2 Table 11.
         """
         missing: list[tuple[str, str]] = []
         if not isinstance(self.doc, spdx3.SHACLObjectSet):
@@ -730,9 +693,7 @@ class BSIChecker(BaseChecker):
         """
         Check if original licences are included.
 
-        §5.2.4 Table 5 "Original licences" (MUST, if they exist; a warning);
-        SPDX mapping §8.2 Table 11 "Original licences"
-        (``hasDeclaredLicense``).
+        Clause 5.2.4 Table 5 (warning); mapping: clause 8.2 Table 11.
         """
         missing: list[tuple[str, str]] = []
         if not isinstance(self.doc, spdx3.SHACLObjectSet):
@@ -752,8 +713,7 @@ class BSIChecker(BaseChecker):
         """
         Check if the effective licence is included.
 
-        §5.2.5 Table 6 "Effective licence" (MAY); SPDX mapping §8.2 Table 12
-        "Effective licence".
+        Clause 5.2.5 Table 6 (MAY); mapping: clause 8.2 Table 12.
         """
         missing: list[tuple[str, str]] = []
         if not isinstance(self.doc, spdx3.SHACLObjectSet):
@@ -790,9 +750,7 @@ class BSIChecker(BaseChecker):
         """
         Check if the source code of the component has a SHA-512 hash.
 
-        §5.2.5 Table 6 "Hash value of the source code of the component" (MAY);
-        SPDX mapping §8.2 Table 12 "Hash value of the source code of the
-        component".
+        Clause 5.2.5 Table 6 (MAY); mapping: clause 8.2 Table 12.
         """
         missing: list[tuple[str, str]] = []
         if not isinstance(self.doc, spdx3.SHACLObjectSet):
@@ -841,8 +799,7 @@ class BSIChecker(BaseChecker):
         """
         Check if the component contains a URL to security.txt.
 
-        §5.2.5 Table 6 "URL of the security.txt" (MAY); SPDX mapping §8.2
-        Table 12 "URL of the security.txt".
+        Clause 5.2.5 Table 6 (MAY); mapping: clause 8.2 Table 12.
         """
         missing: list[tuple[str, str]] = []
         if not isinstance(self.doc, spdx3.SHACLObjectSet):
@@ -869,10 +826,8 @@ class BSIChecker(BaseChecker):
         """
         Check if the component references another BOM.
 
-        Not a §5.2 data field: the SPDX mapping is §8.2 Table 12 "References
-        to another BOM" (see §8.1.16 "References to another BOM").  Optional
-        under §5.1 "Level of detail": "SBOMs of used components MAY be
-        referenced instead of being merged".
+        Not a clause 5.2 field; mapping: clause 8.2 Table 12. Optional (MAY)
+        per clause 5.1.
         """
         missing: list[tuple[str, str]] = []
         if not isinstance(self.doc, spdx3.SHACLObjectSet):
