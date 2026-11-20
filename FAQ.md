@@ -186,31 +186,17 @@ Not missing:
 External documents are not fetched; the declaration is trusted. External
 elements are neither checked for conformance nor reported as floating.
 
-A missing element makes the SBOM non-compliant in every checker (NTIA, FSCT3,
-BSI), for SPDX 2 and SPDX 3, whether or not validation is on. The report
-labels it ERROR. The basis:
+A missing element makes the SBOM non-compliant in every checker, for SPDX 2
+and SPDX 3, with or without validation. Basis:
 
-- SPDX 2: [SPDX 2.3.1 §11.1 "Relationship field"][spdx-2.3.1-rel], Table 69,
-  Format: each end is an `SPDXID` as described in §6.3, §7.2 and §8.2,
-  optionally prefixed by a `DocumentRef-` reference to an external SPDX
-  document as described in §6.6 "External document references field"; the
-  right-hand end may instead be `NONE` or `NOASSERTION`. Table 69 has no
-  RFC 2119 keyword; an ID that identifies no element in the document or in a
-  declared external document does not fit this format, so the checker treats
-  it as a requirement. With validation on, spdx-tools also reports
-  `did not find the referenced spdx_id`.
-- SPDX 3: SPDX 3.0.1 has no normative text that requires a referenced element
-  to be defined in the serialization. [ExternalMap][spdx-3.0.1-externalmap]
-  and `import` describe how an `SpdxDocument` declares an element defined
-  elsewhere, without a requirement keyword. The check is the checker's own
-  structural requirement: the checker cannot evaluate an element that the
-  SBOM does not define, nor the components that element links to.
-
-The result table does not list this check; like validation errors, it has its
-own section in the report and `graphValidation` in the JSON output.
+- SPDX 2: [SPDX 2.3.1 §11.1][spdx-2.3.1-rel] Table 69 writes each end as an
+  `SPDXID`, optionally prefixed by a declared `DocumentRef-` (§6.6). It has
+  no RFC 2119 keyword; the checker treats an ID that identifies no element as
+  failing this format. Validation also reports it.
+- SPDX 3: SPDX 3.0.1 has no such rule. The checker requires it, as it cannot
+  evaluate an element the SBOM does not define.
 
 [spdx-2.3.1-rel]: https://spdx.github.io/spdx-spec/v2.3.1/relationships-between-SPDX-elements/
-[spdx-3.0.1-externalmap]: https://spdx.github.io/spdx-spec/v3.0.1/model/Core/Classes/ExternalMap/
 [spdx-2.3]: https://spdx.github.io/spdx-spec/v2.3.1/
 [spdx-2.3-to-3.0]: https://github.com/spdx/using/blob/80eba34d23f48e242a54a78b584e7a87ad2b9afa/docs/diff/v2.3-v3.0.md#translating-from-23-to-30-8
 [spdx-3.0.1-reltype]: https://spdx.github.io/spdx-spec/v3.0.1/model/Core/Vocabularies/RelationshipType/
