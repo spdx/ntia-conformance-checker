@@ -68,3 +68,14 @@ def test_link_target_compliance(
     )
 
     assert checker.compliant is compliant
+
+
+def test_missing_root_element(tmp_path: Path) -> None:
+    """A missing SpdxDocument rootElement fails, even next to a valid one."""
+    data = json.loads(SPDX3.read_text(encoding="utf-8"))
+    doc = next(e for e in data["@graph"] if e["type"] == "SpdxDocument")
+    doc["rootElement"].append("https://example.org/missing")
+    sbom_file = tmp_path / "sbom.json"
+    sbom_file.write_text(json.dumps(data), encoding="utf-8")
+
+    assert SbomChecker(str(sbom_file), sbom_spec="spdx3").compliant is False
