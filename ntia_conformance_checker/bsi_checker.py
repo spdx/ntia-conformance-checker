@@ -13,7 +13,7 @@ from spdx_python_model.bindings import v3_0_1 as spdx3
 from .adapters.spdx3_adapter import is_blank_license_expression
 from .base_checker import BaseChecker
 from .spdx3_utils import (
-    get_dependency_relationships_completeness,
+    get_dependency_relationships_stated_completeness,
     get_distribution_artifacts_map,
     has_sha512_hash,
     iter_objects_with_property,
@@ -76,6 +76,7 @@ class BSIChecker(BaseChecker):
         "executable_property",
         "archive_property",
         "structured_property",
+        "dependency_completeness",
     ]
 
     _COMPONENTS_WITHOUT_INFO = {
@@ -108,6 +109,10 @@ class BSIChecker(BaseChecker):
             "components_without_structured_prop",
             "Components missing structured property",
         ),
+        "dependency_completeness": (
+            "components_without_dependency_completeness",
+            "Components missing dependencies with stated completeness",
+        ),
     }
 
     def __init__(
@@ -136,6 +141,7 @@ class BSIChecker(BaseChecker):
         self.components_without_executable_prop: list[tuple[str, str]] = []
         self.components_without_archive_prop: list[tuple[str, str]] = []
         self.components_without_structured_prop: list[tuple[str, str]] = []
+        self.components_without_dependency_completeness: list[tuple[str, str]] = []
 
         # Initialize Additional/Optional lists (Warnings)
         self.components_without_source_code_uris: list[tuple[str, str]] = []
@@ -237,7 +243,12 @@ class BSIChecker(BaseChecker):
         self.doc_timestamp = self.check_timestamp()
 
         # Execute Component-Level Checks
-        self.dependency_completeness = self.check_dependency_completeness()
+        self.components_without_dependency_completeness = (
+            self.get_components_without_dependency_completeness()
+        )
+        self.dependency_completeness = self._all_provided(
+            self.components_without_dependency_completeness
+        )
         self.components_without_names = self.get_components_without_names()
         self.components_without_versions = self.get_components_without_versions()
 
@@ -427,19 +438,57 @@ class BSIChecker(BaseChecker):
 
     def check_dependency_completeness(self) -> bool:
         """
-        Check if dependency enumerations clearly indicate their completeness.
+        Check if all components enumerate dependencies with stated completeness.
+
+        See :meth:`get_components_without_dependency_completeness` for the
+        rule.
+
+        Returns:
+            bool: True if components were evaluated and none of them fails.
         """
         if not isinstance(self.doc, spdx3.SHACLObjectSet):
             return False
 
-        completeness_map = get_dependency_relationships_completeness(self.doc)
+        return self._all_provided(self.get_components_without_dependency_completeness())
 
-        for _, completeness_list in completeness_map.items():
-            for completeness_val in completeness_list:
-                if completeness_val not in ("complete", "incomplete", "noAssertion"):
-                    return False
+    def get_components_without_dependency_completeness(self) -> list[tuple[str, str]]:
+        """
+        Get components without dependencies with stated completeness.
 
-        return True
+        BSI TR-03183-2 v2.1.0 §5.2.2 "Required data fields for each
+        component", Table 3, "Dependencies on other components" (MUST):
+        each component enumerates the components it directly depends on or
+        contains, and "the completeness of this enumeration MUST be clearly
+        indicated". §8.2 "Mapping of the individual data fields" maps this
+        to an SPDX 3.0.1 ``Relationship`` from the component, with
+        ``relationshipType`` ``contains`` or ``dependsOn`` and
+        ``completeness`` ``complete``, ``incomplete`` or ``noAssertion``.
+
+        A component fails if it is not the ``from`` of a ``contains`` or
+        ``dependsOn`` relationship, or if any of these relationships has no
+        ``completeness``, as the enumeration they form then does not state
+        its completeness. Any of the three values passes, as §8.2 allows
+        each. A component without dependencies states this with ``to``
+        ``NoneElement`` (SPDX 3.0.1 Core/Individuals/NoneElement) and
+        ``completeness`` ``complete``.
+
+        Returns:
+            list[tuple[str, str]]: (name, SPDX ID) of failing components.
+        """
+        missing: list[tuple[str, str]] = []
+        if not isinstance(self.doc, spdx3.SHACLObjectSet):
+            return missing
+
+        completeness_map = get_dependency_relationships_stated_completeness(self.doc)
+
+        for name, spdx_id, _ in iter_objects_with_property(
+            self.doc, spdx3.software_Package, "spdxId", self.reachable_component_ids
+        ):
+            values = completeness_map.get(spdx_id, [])
+            if not values or None in values:
+                missing.append((name, spdx_id))
+
+        return missing
 
     def get_components_without_concluded_licenses(self) -> list[tuple[str, str]]:
         """
