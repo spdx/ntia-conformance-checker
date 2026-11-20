@@ -2,7 +2,7 @@
 # SPDX-FileType: SOURCE
 # SPDX-License-Identifier: Apache-2.0
 
-"""BSI TR-03183-2 content requirements checking functionality."""
+"""BSI Minimum Elements checking functionality."""
 
 from __future__ import annotations
 
@@ -60,12 +60,7 @@ def _ids_with_license_expression(
 # pylint: disable=too-many-instance-attributes
 class BSIChecker(BaseChecker):
     """
-    Content requirements check according to BSI TR-03183-2 v2.1.0.
-
-    Clauses below are of that document; SPDX 3.0.1 mappings are in clause 8.2.
-    Clauses 5.2.1-5.2.2 (MUST) fail conformance; 5.2.4 (MUST, if it exists)
-    gives warnings, as whether a field exists cannot be told from the SBOM;
-    5.2.5 (MAY) is informational.
+    BSI Minimum Elements check according to BSI TR-03183-2 v2.1.0.
 
     See:
         https://www.bsi.bund.de/SharedDocs/Downloads/EN/BSI/Publications/TechGuidelines/TR03183/BSI-TR-03183-2_v2_1_0.html
@@ -334,8 +329,6 @@ class BSIChecker(BaseChecker):
     def check_doc_creator(self) -> bool:
         """
         Check if the document creator has a valid email or URL.
-
-        Clause 5.2.1 Table 2 (MUST); mapping: clause 8.2 Table 8.
         """
         if not isinstance(self.doc, spdx3.SHACLObjectSet):
             return False
@@ -360,10 +353,6 @@ class BSIChecker(BaseChecker):
     def check_sbom_uri(self) -> bool:
         """
         Check if the SBOM-URI exists.
-
-        Clause 5.2.3 Table 4 (MUST, if it exists); mapping: clause 8.2
-        Table 10. Fails conformance, as an SPDX 3 ``software_Sbom`` always
-        has an IRI.
         """
         if not isinstance(self.doc, spdx3.SHACLObjectSet):
             return False
@@ -388,8 +377,6 @@ class BSIChecker(BaseChecker):
     def get_components_without_creators(self) -> list[tuple[str, str]]:
         """
         Check if each component creator has a valid email or URL.
-
-        Clause 5.2.2 Table 3 (MUST); mapping: clause 8.2 Table 9.
         """
         missing: list[tuple[str, str]] = []
         if not isinstance(self.doc, spdx3.SHACLObjectSet):
@@ -415,8 +402,6 @@ class BSIChecker(BaseChecker):
     def get_components_without_filenames(self) -> list[tuple[str, str]]:
         """
         Check if each package has a linked software_File with a valid name.
-
-        Clause 5.2.2 Table 3 (MUST); mapping: clause 8.2 Table 9.
         """
         missing: list[tuple[str, str]] = []
         if not isinstance(self.doc, spdx3.SHACLObjectSet):
@@ -459,10 +444,9 @@ class BSIChecker(BaseChecker):
 
     def get_components_without_concluded_licenses(self) -> list[tuple[str, str]]:
         """
-        Check if each component has a distribution licence.
-
-        Clause 5.2.2 Table 3 (MUST); mapping: clause 8.2 Table 9. Clause 6.1
-        identifier rules are not checked.
+        Overrides BaseChecker to enforce BSI document Table 9 and Section 6.1 rules:
+        1. Target MUST be simplelicensing_LicenseExpression.
+        2. Must use valid SPDX license expressions, Scancode, or custom LicenseRefs.
         """
         missing: list[tuple[str, str]] = []
         if not isinstance(self.doc, spdx3.SHACLObjectSet):
@@ -484,8 +468,6 @@ class BSIChecker(BaseChecker):
     def get_components_without_sha512_hashes(self) -> list[tuple[str, str]]:
         """
         Check if the deployable component has a SHA-512 hash.
-
-        Clause 5.2.2 Table 3 (MUST); mapping: clause 8.2 Table 9.
         """
         missing: list[tuple[str, str]] = []
         if not isinstance(self.doc, spdx3.SHACLObjectSet):
@@ -515,27 +497,24 @@ class BSIChecker(BaseChecker):
 
     def get_components_without_executable_prop(self) -> list[tuple[str, str]]:
         """
-        Check the executable property; always passes.
-
-        Clause 5.2.2 Table 3 (MUST); mapping: clause 8.2 Table 9, where
-        absence means "non-executable".
+        BSI Requirement: Omit 'executable' if non-executable.
+        Since omission represents 'False', a static checker cannot fail a component
+        for missing this tag. Always compliant.
         """
         return []
 
     def get_components_without_archive_prop(self) -> list[tuple[str, str]]:
         """
-        Check the archive property; always passes.
-
-        Clause 5.2.2 Table 3 (MUST); mapping: clause 8.2 Table 9, where
-        absence means "no archive".
+        BSI Requirement: Omit 'archive' if non-archive.
+        Since omission represents 'False', a static checker cannot fail a component
+        for missing this tag. Always compliant.
         """
         return []
 
     def get_components_without_structured_prop(self) -> list[tuple[str, str]]:
         """
         Check if the component declares a structured property.
-
-        Clause 5.2.2 Table 3 (MUST); mapping: clause 8.2 Table 9.
+        BSI Requirement: MUST indicate 'container' (structured) or 'firmware' (unstructured).
         """
         missing: list[tuple[str, str]] = []
         if not isinstance(self.doc, spdx3.SHACLObjectSet):
@@ -569,9 +548,8 @@ class BSIChecker(BaseChecker):
 
     def get_components_without_source_code_uris(self) -> list[tuple[str, str]]:
         """
-        Check if the component has a source code URI.
-
-        Clause 5.2.4 Table 5 (warning); mapping: clause 8.2 Table 11.
+        Check if the component has a Source code URI.
+        BSI Requirement: MUST be included IF it exists (Additional Data Field).
         """
         missing: list[tuple[str, str]] = []
         if not isinstance(self.doc, spdx3.SHACLObjectSet):
@@ -621,8 +599,7 @@ class BSIChecker(BaseChecker):
     def get_components_without_deployable_uris(self) -> list[tuple[str, str]]:
         """
         Check if the component has a URI of the deployable form.
-
-        Clause 5.2.4 Table 5 (warning); mapping: clause 8.2 Table 11.
+        BSI Requirement: MUST be included IF it exists (Additional Data Field).
         """
         missing: list[tuple[str, str]] = []
         if not isinstance(self.doc, spdx3.SHACLObjectSet):
@@ -656,9 +633,8 @@ class BSIChecker(BaseChecker):
 
     def get_components_without_unique_identifiers(self) -> list[tuple[str, str]]:
         """
-        Check if the component has other unique identifiers (CPE, SWID, PURL).
-
-        Clause 5.2.4 Table 5 (warning); mapping: clause 8.2 Table 11.
+        Check if the component has additional unique identifiers (CPE, SWID, PURL).
+        BSI Requirement: MUST be included IF they exist (Additional Data Field).
         """
         missing: list[tuple[str, str]] = []
         if not isinstance(self.doc, spdx3.SHACLObjectSet):
@@ -692,8 +668,7 @@ class BSIChecker(BaseChecker):
     def get_components_without_original_licenses(self) -> list[tuple[str, str]]:
         """
         Check if original licences are included.
-
-        Clause 5.2.4 Table 5 (warning); mapping: clause 8.2 Table 11.
+        BSI Requirement: MUST be included IF they exist (Additional Data Field).
         """
         missing: list[tuple[str, str]] = []
         if not isinstance(self.doc, spdx3.SHACLObjectSet):
@@ -712,8 +687,7 @@ class BSIChecker(BaseChecker):
     def get_components_without_effective_licenses(self) -> list[tuple[str, str]]:
         """
         Check if the effective licence is included.
-
-        Clause 5.2.5 Table 6 (MAY); mapping: clause 8.2 Table 12.
+        BSI Requirement: MAY be included (Optional Data Field).
         """
         missing: list[tuple[str, str]] = []
         if not isinstance(self.doc, spdx3.SHACLObjectSet):
@@ -749,8 +723,7 @@ class BSIChecker(BaseChecker):
     def get_components_without_source_code_hashes(self) -> list[tuple[str, str]]:
         """
         Check if the source code of the component has a SHA-512 hash.
-
-        Clause 5.2.5 Table 6 (MAY); mapping: clause 8.2 Table 12.
+        BSI Requirement: MAY be included (Optional Data Field).
         """
         missing: list[tuple[str, str]] = []
         if not isinstance(self.doc, spdx3.SHACLObjectSet):
@@ -798,8 +771,7 @@ class BSIChecker(BaseChecker):
     def get_components_without_security_txt(self) -> list[tuple[str, str]]:
         """
         Check if the component contains a URL to security.txt.
-
-        Clause 5.2.5 Table 6 (MAY); mapping: clause 8.2 Table 12.
+        BSI Requirement: MAY be included (Optional Data Field).
         """
         missing: list[tuple[str, str]] = []
         if not isinstance(self.doc, spdx3.SHACLObjectSet):
@@ -825,9 +797,7 @@ class BSIChecker(BaseChecker):
     def get_components_without_bom_references(self) -> list[tuple[str, str]]:
         """
         Check if the component references another BOM.
-
-        Not a clause 5.2 field; mapping: clause 8.2 Table 12. Optional (MAY)
-        per clause 5.1.
+        BSI Requirement: MAY be included (Optional Data Field).
         """
         missing: list[tuple[str, str]] = []
         if not isinstance(self.doc, spdx3.SHACLObjectSet):
