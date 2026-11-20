@@ -110,7 +110,7 @@ SPDX2_TO_SPDX3_RELATIONSHIP_TYPES: dict[str, tuple[str, bool]] = {
 }
 
 # SPDX 2 types not derived from the table. SPDX 2 has no rootElement, so
-# DESCRIBES and DESCRIBED_BY mark roots (SPDX 2.3 §11.1 Table 68) and,
+# DESCRIBES and DESCRIBED_BY mark roots (SPDX 2.3 clause 11.1, Table 68) and,
 # between other elements, are walked from describer to described; SPDX 3
 # does not follow describes.
 SPDX2_RELATIONSHIP_TRAVERSAL_OVERRIDES: dict[str, TraversalDirection] = {
@@ -146,6 +146,35 @@ def _derive_spdx2_relationship_traversal() -> dict[str, TraversalDirection]:
 # SPDX 2 relationship types the traversal follows, with their direction.
 SPDX2_RELATIONSHIP_TRAVERSAL: dict[str, TraversalDirection] = (
     _derive_spdx2_relationship_traversal()
+)
+
+# SPDX 3 relationship types that count as a dependency relationship, a
+# subset of SPDX3_RELATIONSHIP_TRAVERSAL: composition, dependency and
+# linking, not tools, provenance or training data. NTIA 2021 (IV. Minimum
+# Elements > Data Fields > Dependency Relationship): "an upstream component X
+# is included in software Y". CISA 2026, which replaces NTIA 2021, agrees
+# (Data Fields > Component Data > Component Dependency Relationship): "one
+# component is necessary for the operation of the other", and the element
+# "reflects that a component includes another component".
+SPDX3_DEPENDENCY_RELATIONSHIP_TYPES: frozenset[str] = frozenset(
+    {
+        "contains",
+        "dependsOn",
+        "hasDynamicLink",
+        "hasStaticLink",
+        "hasOptionalDependency",
+        "hasProvidedDependency",
+        "hasPrerequisite",
+    }
+)
+
+# SPDX 2 relationship types that count as a dependency relationship: those
+# whose SPDX 3 translation counts, written either way.
+SPDX2_DEPENDENCY_RELATIONSHIP_TYPES: frozenset[str] = frozenset(
+    spdx2_type
+    for spdx2_type, (spdx3_type, _) in SPDX2_TO_SPDX3_RELATIONSHIP_TYPES.items()
+    if spdx3_type in SPDX3_DEPENDENCY_RELATIONSHIP_TYPES
+    and spdx2_type in SPDX2_RELATIONSHIP_TRAVERSAL
 )
 
 # Deprecated: the types 6.0.0 followed, unchanged and unused. Use

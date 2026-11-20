@@ -1,0 +1,60 @@
+{
+  "SPDXID": "SPDXRef-DOCUMENT",
+  "spdxVersion": "SPDX-2.3",
+  "name": "SPDX2-Floating-Packages-Linked-Test",
+  "dataLicense": "CC0-1.0",
+  "documentNamespace": "https://example.com/spdxdocs/floating-packages-linked",
+  "creationInfo": {
+    "creators": [
+      "Tool: ntia-conformance-checker-tests"
+    ],
+    "created": "2026-11-18T00:00:00Z"
+  },
+  "packages": [
+    {
+      "name": "Valid-Root-Package",
+      "SPDXID": "SPDXRef-Package-Valid",
+      "versionInfo": "1.0.0",
+      "supplier": "Organization: Test Supplier",
+      "downloadLocation": "NOASSERTION",
+      "filesAnalyzed": false,
+      "licenseConcluded": "NOASSERTION",
+      "licenseDeclared": "NOASSERTION",
+      "copyrightText": "NOASSERTION"
+    },
+    {
+      "name": "Floating-Package-A",
+      "SPDXID": "SPDXRef-Package-Float-A",
+      "versionInfo": "1.0.0",
+      "supplier": "Organization: Test Supplier",
+      "downloadLocation": "NOASSERTION",
+      "filesAnalyzed": false,
+      "licenseConcluded": "NOASSERTION",
+      "licenseDeclared": "NOASSERTION",
+      "copyrightText": "NOASSERTION"
+    },
+    {
+      "name": "Floating-Package-B",
+      "SPDXID": "SPDXRef-Package-Float-B",
+      "versionInfo": "1.0.0",
+      "supplier": "Organization: Test Supplier",
+      "downloadLocation": "NOASSERTION",
+      "filesAnalyzed": false,
+      "licenseConcluded": "NOASSERTION",
+      "licenseDeclared": "NOASSERTION",
+      "copyrightText": "NOASSERTION"
+    }
+  ],
+  "relationships": [
+    {
+      "spdxElementId": "SPDXRef-DOCUMENT",
+      "relationshipType": "DESCRIBES",
+      "relatedSpdxElement": "SPDXRef-Package-Valid"
+    },
+    {
+      "spdxElementId": "SPDXRef-Package-Float-A",
+      "relationshipType": "DEPENDS_ON",
+      "relatedSpdxElement": "SPDXRef-Package-Float-B"
+    }
+  ]
+}

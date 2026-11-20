@@ -15,7 +15,6 @@ DEFAULTS: dict[str, object] = {
     "check_doc_version": False,
     "check_author": False,
     "check_timestamp": False,
-    "check_dependency_relationships": False,
     "get_doc_spec_version": None,
     "get_sbom_name": "",
     "get_sbom_types": [],

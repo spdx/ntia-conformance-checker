@@ -54,9 +54,6 @@ class NullAdapter(SbomAdapter):
     ) -> list[tuple[str, str]]:
         return []
 
-    def check_dependency_relationships(self) -> bool:
-        return False
-
     def get_total_number_components(self) -> int:
         return 0
 

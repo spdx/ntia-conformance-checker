@@ -25,7 +25,6 @@ from ntia_conformance_checker.report import (
 from ntia_conformance_checker.spdx3_utils import (
     get_boms_from_spdx_document,
     get_packages_from_bom,
-    has_package_dependency_relationship,
     validate_spdx3_data,
 )
 
@@ -42,19 +41,6 @@ def _component_names(tuples_list: list[tuple[str, str]]) -> list[str]:
 
 
 SPDX3_RELATIONSHIP_TYPE_BASE = "https://spdx.org/rdf/3.0.1/terms/Core/RelationshipType"
-
-
-def _spdx3_package_dependency_object_set() -> spdx3.SHACLObjectSet:
-    test_file = (
-        Path(__file__).parent
-        / "data"
-        / "spdx3"
-        / "package_dependency_relationship.json"
-    )
-    sbom = sbom_checker.SbomChecker(str(test_file), sbom_spec="spdx3")
-    assert sbom.doc is not None
-    assert isinstance(sbom.doc, spdx3.SHACLObjectSet)
-    return sbom.doc
 
 
 ### Test no element missing
@@ -304,7 +290,7 @@ def test_sbomchecker_bom_alpine_example() -> None:
 
 
 def test_sbomchecker_chainguard_example() -> None:
-    """Check that SBOM for alpine has component with missing version."""
+    """Chainguard OCI image index: only DESCRIBES and VARIANT_OF, no dependency."""
     test_file = os.path.join(
         os.path.dirname(__file__),
         "data",
@@ -312,7 +298,10 @@ def test_sbomchecker_chainguard_example() -> None:
         "chainguard.spdx.json",
     )
     sbom = sbom_checker.SbomChecker(test_file)
-    assert sbom.compliant
+    assert sbom.doc_author and sbom.doc_timestamp
+    assert not sbom.all_components_without_info
+    assert not sbom.dependency_relationships
+    assert not sbom.compliant
 
 
 def test_sbomchecker_alpine_no_package_supplier_name_example() -> None:
@@ -404,40 +393,6 @@ def test_sbomchecker_spdx3_package_dependency_relationship() -> None:
     assert len(sbom.validation_messages) == 0
     assert sbom.dependency_relationships
     assert sbom.compliant
-
-
-@pytest.mark.parametrize(
-    ("relationship_type", "expected"),
-    [
-        ("dependsOn", True),
-        ("hasDynamicLink", True),
-        ("hasStaticLink", True),
-        ("contains", True),
-    ],
-)
-def test_spdx3_dependency_relationship_types(
-    relationship_type: str, expected: bool
-) -> None:
-    object_set = _spdx3_package_dependency_object_set()
-    relationship = next(object_set.foreach_type(spdx3.Relationship))
-    relationship.relationshipType = (
-        f"{SPDX3_RELATIONSHIP_TYPE_BASE}/{relationship_type}"
-    )
-    assert has_package_dependency_relationship(object_set) is expected
-
-
-def test_spdx3_dependency_relationship_accepts_element_endpoints() -> None:
-    object_set = _spdx3_package_dependency_object_set()
-    relationship = next(object_set.foreach_type(spdx3.Relationship))
-    sbom = object_set.find_by_id("https://spdx.org/spdxdocs/SBOM-package-dependency")
-    package = object_set.find_by_id("https://spdx.org/spdxdocs/Package-library")
-    assert isinstance(sbom, spdx3.Element)
-    assert isinstance(package, spdx3.Element)
-
-    relationship.from_ = sbom
-    relationship.to = [package]
-
-    assert has_package_dependency_relationship(object_set)
 
 
 def test_sbomchecker_spdx3_missing_supplier_name() -> None:
@@ -719,8 +674,8 @@ def test_disconnected_component(test_file: str) -> None:
     spec = "spdx3" if "spdx3" in test_file else "spdx2"
     sbom = sbom_checker.SbomChecker(test_file, sbom_spec=spec)
 
-    # Disconnected components do not fail minimum elements compliance
-    assert sbom.compliant is True
+    # The floating orphan, which has no name, is not evaluated
+    assert not sbom.all_components_without_info
 
     # Assert the valid root package was successfully reached
     assert any(

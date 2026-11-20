@@ -43,13 +43,6 @@ SPDX3_INDIVIDUAL_ELEMENT_IRIS: frozenset[str] = (
     | frozenset(spdx3.Organization.NAMED_INDIVIDUALS.values())
 )
 
-SPDX3_PACKAGE_DEPENDENCY_RELATIONSHIP_TYPES = (
-    "contains",
-    "dependsOn",
-    "hasDynamicLink",
-    "hasStaticLink",
-)
-
 
 def get_spdx3_element_id(value: Any) -> str:
     """
@@ -315,20 +308,6 @@ def get_all_element_ids(
         )
         if spdx_id
     }
-
-
-def has_package_dependency_relationship(object_set: spdx3.SHACLObjectSet) -> bool:
-    """Return True if a dependency relationship connects SPDX 3 Elements."""
-    element_ids = get_all_element_ids(object_set)
-    if len(element_ids) < 2:
-        return False
-
-    for rel_type in SPDX3_PACKAGE_DEPENDENCY_RELATIONSHIP_TYPES:
-        for from_id, to_ids in iter_relationships_by_type(object_set, rel_type):
-            if from_id in element_ids and any(to_id in element_ids for to_id in to_ids):
-                return True
-
-    return False
 
 
 def get_distribution_artifacts_map(

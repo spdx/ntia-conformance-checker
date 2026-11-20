@@ -1,0 +1,48 @@
+{
+  "SPDXID": "SPDXRef-DOCUMENT",
+  "spdxVersion": "SPDX-2.3",
+  "name": "SPDX2-Disconnected-With-Dependency-Test",
+  "dataLicense": "CC0-1.0",
+  "documentNamespace": "https://example.com/spdxdocs/disconnected-with-dependency",
+  "creationInfo": {
+    "creators": [
+      "Tool: ntia-conformance-checker-tests"
+    ],
+    "created": "2026-11-18T00:00:00Z"
+  },
+  "packages": [
+    {
+      "name": "Valid-Root-Package",
+      "SPDXID": "SPDXRef-Package-Valid",
+      "versionInfo": "1.0.0",
+      "supplier": "Organization: Test Supplier",
+      "downloadLocation": "NOASSERTION",
+      "filesAnalyzed": false,
+      "licenseConcluded": "NOASSERTION",
+      "licenseDeclared": "NOASSERTION",
+      "copyrightText": "NOASSERTION"
+    },
+    {
+      "name": "",
+      "SPDXID": "SPDXRef-Package-Orphan",
+      "versionInfo": "9.9.9",
+      "downloadLocation": "NOASSERTION",
+      "filesAnalyzed": false,
+      "licenseConcluded": "NOASSERTION",
+      "licenseDeclared": "NOASSERTION",
+      "copyrightText": "NOASSERTION"
+    }
+  ],
+  "relationships": [
+    {
+      "spdxElementId": "SPDXRef-DOCUMENT",
+      "relationshipType": "DESCRIBES",
+      "relatedSpdxElement": "SPDXRef-Package-Valid"
+    },
+    {
+      "spdxElementId": "SPDXRef-Package-Valid",
+      "relationshipType": "DEPENDS_ON",
+      "relatedSpdxElement": "NONE"
+    }
+  ]
+}

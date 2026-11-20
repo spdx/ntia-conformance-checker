@@ -60,21 +60,21 @@ Followed relationships:
 
 <!-- markdownlint-disable MD013 -->
 
-| SPDX 3 type | SPDX 2, walked A to B | SPDX 2, walked B to A | Parent to child |
-| --- | --- | --- | --- |
-| `contains` | `CONTAINS` | `CONTAINED_BY` | Whole to part |
-| `hasOptionalComponent` | | `OPTIONAL_COMPONENT_OF` | Whole to part |
-| `packagedBy` | | `PACKAGE_OF` | Element to its package |
-| `dependsOn` | `DEPENDS_ON` | `DEPENDENCY_OF`, `BUILD_`, `DEV_`, `RUNTIME_`, `TEST_DEPENDENCY_OF` | Dependent to dependency |
-| `hasOptionalDependency` | | `OPTIONAL_DEPENDENCY_OF` | Dependent to dependency |
-| `hasProvidedDependency` | | `PROVIDED_DEPENDENCY_OF` | Dependent to dependency |
-| `hasPrerequisite` | `HAS_PREREQUISITE` | `PREREQUISITE_FOR` | Dependent to prerequisite |
-| `hasDynamicLink` | `DYNAMIC_LINK` | | Linker to linked |
-| `hasStaticLink` | `STATIC_LINK` | | Linker to linked |
-| `trainedOn`, `testedOn` | | | Model to dataset |
-| `usesTool` | | `BUILD_TOOL_OF`, `DEV_TOOL_OF`, `TEST_TOOL_OF` | Product to tool |
-| `generates` (walked B to A) | `GENERATED_FROM` | `GENERATES` | Product to source |
-| (SPDX 2 only) | `DESCRIBES` | `DESCRIBED_BY` | Describer to described |
+| SPDX 3 type | SPDX 2, walked A to B | SPDX 2, walked B to A | Parent to child | Dependency |
+| --- | --- | --- | --- | --- |
+| `contains` | `CONTAINS` | `CONTAINED_BY` | Whole to part | Yes |
+| `hasOptionalComponent` | | `OPTIONAL_COMPONENT_OF` | Whole to part | No |
+| `packagedBy` | | `PACKAGE_OF` | Element to its package | No |
+| `dependsOn` | `DEPENDS_ON` | `DEPENDENCY_OF`, `BUILD_`, `DEV_`, `RUNTIME_`, `TEST_DEPENDENCY_OF` | Dependent to dependency | Yes |
+| `hasOptionalDependency` | | `OPTIONAL_DEPENDENCY_OF` | Dependent to dependency | Yes |
+| `hasProvidedDependency` | | `PROVIDED_DEPENDENCY_OF` | Dependent to dependency | Yes |
+| `hasPrerequisite` | `HAS_PREREQUISITE` | `PREREQUISITE_FOR` | Dependent to prerequisite | Yes |
+| `hasDynamicLink` | `DYNAMIC_LINK` | | Linker to linked | Yes |
+| `hasStaticLink` | `STATIC_LINK` | | Linker to linked | Yes |
+| `trainedOn`, `testedOn` | | | Model to dataset | No |
+| `usesTool` | | `BUILD_TOOL_OF`, `DEV_TOOL_OF`, `TEST_TOOL_OF` | Product to tool | No |
+| `generates` (walked B to A) | `GENERATED_FROM` | `GENERATES` | Product to source | No |
+| (SPDX 2 only) | `DESCRIBES` | `DESCRIBED_BY` | Describer to described | No |
 
 <!-- markdownlint-enable MD013 -->
 
@@ -100,6 +100,55 @@ table says "Swap to and from? Y". For example, `A BUILD_DEPENDENCY_OF B` is
 `B dependsOn A`, so the checker goes from B to A. The one override:
 `DESCRIBES` and `DESCRIBED_BY` are followed between any SPDX 2 elements;
 SPDX 3 marks roots with `rootElement` instead.
+
+**Q: How does the checker decide "Dependency relationships provided?"?**
+
+A: A reachable element must declare a relationship of a type marked
+"Dependency" in the table above, in either SPDX 2 form. Both ends must be
+different elements that exist (here, or in a declared external or imported
+document), or the other end must be "none" or "no assertion" (SPDX 2 `NONE`,
+`NOASSERTION`; SPDX 3 `NoneElement`, `NoAssertionElement`). The rule is the
+same for SPDX 2 and SPDX 3.
+
+Any element counts, files and snippets included, as a relationship may link
+any two elements (SPDX 2.3.1 clause 11.1). Documents and collections, such as
+an `Sbom`, do not, so `SPDXRef-DOCUMENT DESCRIBES A` alone does not count.
+
+Why elements here, but packages for the component checks? The graph, and
+this check, cover all elements: they are about how the parts relate. The
+component checks (name, version, supplier, identifier) cover packages only,
+as these are package fields (SPDX 2.3.1 clause 7); the reachable and floating
+component lists say which packages get them.
+
+Basis:
+
+- The relationship is between components. NTIA 2021: "an upstream component
+  X is included in software Y" (IV. Minimum Elements > Data Fields >
+  Dependency Relationship). CISA 2026, which replaces NTIA 2021: "one
+  component is necessary for the operation of the other" (Data Fields >
+  Component Data > Component Dependency Relationship).
+- Dependencies may be in another document. CISA 2026 (same element): "an
+  SBOM document can link to separate SBOM documents for each of the target
+  component's dependencies".
+- "No dependencies" counts. NTIA 2021: the author "should affirmatively
+  state ... when a component has no further dependencies", which "is
+  implemented in the dependency relationship data field" (IV. Minimum
+  Elements > Practices and Processes > Known Unknowns). So
+  `A DEPENDS_ON NONE` counts. CISA 2026 replaced this with "Explicitly
+  Identifying Unknown Information", a practice rather than a data field, so
+  this point rests on NTIA 2021.
+- SPDX 2.3.1 Annex L.1.2, which is informative, maps the NTIA element to
+  `CONTAINS` and `DESCRIBES`; the checker is stricter and does not accept
+  `DESCRIBES` alone. Annex L.2.2 maps the CISA 2026 element to `DEPENDS_ON`.
+
+Tools, sources and training data are followed but are not dependency
+relationships: they are inputs, not included components.
+
+Limitation: the checker does not read external or imported documents. An
+SPDX 3 import (`ExternalMap`) gives only the element's ID, not its type, so
+any imported element counts as the other end, even a document or `Sbom`. An
+SPDX 2 external document itself, `DocumentRef-x:SPDXRef-DOCUMENT`, is
+recognized by its ID and excluded.
 
 **Q: The CLI output reports that a relationship points to a missing element.
 What does this mean?**

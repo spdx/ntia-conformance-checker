@@ -36,6 +36,11 @@ and this project adheres to [Semantic Versioning][semver].
 
 ### Changed
 
+- "Dependency relationships provided?" needs a reachable element that
+  declares a dependency relationship, with the same rule for SPDX 2 and
+  SPDX 3; `SPDXRef-DOCUMENT DESCRIBES A` alone no longer counts, and
+  `A DEPENDS_ON NONE` does; see "How does the checker decide 'Dependency
+  relationships provided?'" in `FAQ.md` ([#410])
 - Relationship directions follow the SPDX 2.3 to 3.0 translation table, and tool
   and provenance relationships are followed, so more components may be
   checked; see "Which relationships connect an element to the tree?" in
@@ -59,6 +64,7 @@ and this project adheres to [Semantic Versioning][semver].
   `VALID_SPDX3_COMPOSITION_RELATIONSHIPS`; use `SPDX2_RELATIONSHIP_TRAVERSAL`
   and `SPDX3_RELATIONSHIP_TRAVERSAL`
 
+[#410]: https://github.com/spdx/ntia-conformance-checker/issues/410
 [#478]: https://github.com/spdx/ntia-conformance-checker/pull/478
 [#481]: https://github.com/spdx/ntia-conformance-checker/issues/481
 [#482]: https://github.com/spdx/ntia-conformance-checker/issues/482

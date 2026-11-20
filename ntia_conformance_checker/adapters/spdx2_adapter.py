@@ -5,7 +5,6 @@
 """SPDX 2.x specific data extraction adapter."""
 
 from spdx_tools.spdx.model.document import Document
-from spdx_tools.spdx.model.relationship import RelationshipType
 from spdx_tools.spdx.model.spdx_no_assertion import SpdxNoAssertion
 from spdx_tools.spdx.validation.validation_message import ValidationMessage
 
@@ -125,27 +124,6 @@ class Spdx2Adapter(SbomAdapter):
             if package.spdx_id in reachable_ids
             and _is_blank(package.copyright_text, noassertion=True)
         ]
-
-    def check_dependency_relationships(self) -> bool:
-        """In SPDX 2, this checks for a DESCRIBES relationship"""
-        if not getattr(self.doc, "relationships", []):
-            return False
-
-        describes_relationships = [
-            rel
-            for rel in self.doc.relationships
-            if rel.relationship_type == RelationshipType.DESCRIBES
-        ]
-        # A set of all package spdx_ids for quick lookup
-        spdx_id_set = {package.spdx_id for package in getattr(self.doc, "packages", [])}
-
-        # Check if any of the "DESCRIBES" relationships describe a Package
-        describes_package = any(
-            rel.related_spdx_element_id in spdx_id_set
-            for rel in describes_relationships
-        )
-
-        return describes_package
 
     def get_total_number_components(self) -> int:
         """In SPDX 2, this returns the total count of packages."""
