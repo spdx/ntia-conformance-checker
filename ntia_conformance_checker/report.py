@@ -482,8 +482,35 @@ def report_html(
     return "\n".join(report)
 
 
+def _sorted_edges(edges: dict[str, list[str]]) -> dict[str, list[str]]:
+    """
+    Return edges with sources and their targets sorted.
+
+    Relationships may be collected from an unordered set of SPDX 3 objects,
+    so sorting keeps the JSON output the same across runs.
+
+    Args:
+        edges: Source ID to target IDs.
+
+    Returns:
+        dict[str, list[str]]: Source ID to sorted target IDs, by source ID.
+    """
+    return {source: sorted(edges[source]) for source in sorted(edges)}
+
+
 def report_json(checker_instance: "BaseChecker") -> dict[str, Any]:
-    """Build the JSON output dictionary."""
+    """
+    Build the JSON output dictionary.
+
+    Lists built from sets or unordered collections are sorted, so the same
+    SBOM always gives the same output.
+
+    Args:
+        checker_instance: The checker with results to report.
+
+    Returns:
+        dict[str, Any]: The report, with JSON types only.
+    """
     result: dict[str, Any] = {
         "isConformant": getattr(checker_instance, "compliant", False),
         "isNtiaConformant": getattr(
@@ -512,8 +539,8 @@ def report_json(checker_instance: "BaseChecker") -> dict[str, Any]:
                 "hasUnknownPointers": getattr(
                     checker_instance, "has_unknown_pointers", False
                 ),
-                "unknownPointerEdges": getattr(
-                    checker_instance, "unknown_pointer_edges", {}
+                "unknownPointerEdges": _sorted_edges(
+                    getattr(checker_instance, "unknown_pointer_edges", {})
                 ),
                 "missingElementIds": sorted(
                     getattr(checker_instance, "missing_element_ids", set())
@@ -523,7 +550,7 @@ def report_json(checker_instance: "BaseChecker") -> dict[str, Any]:
                 "floatingComponentCount": len(
                     getattr(checker_instance, "floating_component_ids", set())
                 ),
-                "floatingComponentIds": list(
+                "floatingComponentIds": sorted(
                     getattr(checker_instance, "floating_component_ids", set())
                 ),
             },

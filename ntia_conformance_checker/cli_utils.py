@@ -15,6 +15,7 @@ import sys
 from importlib.metadata import version
 from typing import TYPE_CHECKING, Any
 
+import rfc8785
 from spdx_tools.spdx.parser.error import SPDXParsingError
 from spdx_tools.spdx.parser.parse_anything import parse_file as parse_spdx2_file
 
@@ -304,7 +305,18 @@ def get_sbom_spec(file: str, sbom_spec: str) -> str:
 def print_output(
     sbom: BaseChecker, *, output_type: str, output_file: str | None, verbose: bool
 ) -> None:
-    """Print or save the output report."""
+    """
+    Print or save the output report.
+
+    A JSON report saved to a file is RFC 8785 canonical. A JSON report
+    printed to stdout is indented, with keys sorted.
+
+    Args:
+        sbom: The checker with results to report.
+        output_type: The report format, e.g. ``json`` or ``html``.
+        output_file: The file to save the report to, or None to print it.
+        verbose: Whether to include more details in a printed report.
+    """
     match output_type:
         case "print":
             sbom.print_table_output(verbose=verbose)
@@ -314,13 +326,16 @@ def print_output(
         case "json":
             result_dict: dict[str, Any] = sbom.output_json()
             if output_file:
+                # RFC 8785 (JSON Canonicalization Scheme): sorted keys,
+                # no whitespace, UTF-8
                 try:
-                    with open(output_file, "w", encoding="utf-8") as outfile:
-                        json.dump(result_dict, outfile)
-                except OSError as exc:
+                    canonical = rfc8785.dumps(result_dict)
+                    with open(output_file, "wb") as outfile:
+                        outfile.write(canonical)
+                except (OSError, rfc8785.CanonicalizationError) as exc:
                     logging.error("Could not write JSON output file: %s", exc)
             else:
-                print(json.dumps(result_dict, indent=2))
+                print(json.dumps(result_dict, indent=2, sort_keys=True))
 
         case "html":
             html_output = sbom.output_html()
