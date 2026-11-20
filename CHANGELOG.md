@@ -25,6 +25,9 @@ and this project adheres to [Semantic Versioning][semver].
   are no longer reported as missing ([#482])
 - SPDX 3 datasets linked to a model by `trainedOn` or `testedOn` are no
   longer reported as floating and skipped by the component checks ([#486])
+- BSI "Dependency Completeness" checks each component (BSI TR-03183-2 v2.1.0
+  clause 5.2.2): it needs a `contains` or `dependsOn` relationship, each with
+  `completeness`; a component without dependencies uses `to` `NoneElement`
 
 ### Added
 

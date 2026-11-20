@@ -354,18 +354,26 @@ def has_sha512_hash(file_obj: spdx3.SHACLObject) -> bool:
     return False
 
 
-def get_dependency_relationships_completeness(
+def get_dependency_relationships_stated_completeness(
     object_set: spdx3.SHACLObjectSet,
-) -> dict[str, list[str]]:
+) -> dict[str, list[str | None]]:
     """
-    Extract the completeness attribute for all dependency
-    relationships ('contains', 'dependsOn') in the SPDX 3 document.
+    Get the stated completeness of each dependency relationship.
+
+    Dependency relationships are those of type ``contains`` or ``dependsOn``.
+    Unlike :func:`get_dependency_relationships_completeness`, an absent
+    ``completeness`` is kept as None.
+
+    Args:
+        object_set: The SPDX 3 object set.
 
     Returns:
-        dict[str, list[str]]: A dictionary mapping all relationship's
-        from_id to a list of all completeness attributes.
+        dict[str, list[str | None]]: A dictionary mapping each relationship's
+        ``from`` SPDX ID to the ``completeness`` of each of its dependency
+        relationships (``complete``, ``incomplete`` or ``noAssertion``), or
+        None where ``completeness`` is absent.
     """
-    completeness_map: dict[str, list[str]] = {}
+    completeness_map: dict[str, list[str | None]] = {}
 
     for obj in object_set.foreach_type(spdx3.Relationship):
         rel_type = getattr(obj, "relationshipType", "")
@@ -374,20 +382,40 @@ def get_dependency_relationships_completeness(
 
         # Remove the IRI prefix of entry name before compare
         rel_type_name = rel_type.rsplit("/", maxsplit=1)[-1]
-        if rel_type_name in ("contains", "dependsOn"):
-            from_id = get_spdx3_element_id(getattr(obj, "from_", None))
+        if rel_type_name not in ("contains", "dependsOn"):
+            continue
 
-            if from_id:
-                completeness_iri = getattr(obj, "completeness", None)
-                completeness_val = (
-                    completeness_iri.rsplit("/", maxsplit=1)[-1]
-                    if completeness_iri
-                    else "noAssertion"
-                )
-                if completeness_val:
-                    completeness_map.setdefault(from_id, []).append(completeness_val)
+        from_id = get_spdx3_element_id(getattr(obj, "from_", None))
+        if from_id:
+            completeness_iri = getattr(obj, "completeness", None)
+            completeness_map.setdefault(from_id, []).append(
+                completeness_iri.rsplit("/", maxsplit=1)[-1]
+                if completeness_iri
+                else None
+            )
 
     return completeness_map
+
+
+def get_dependency_relationships_completeness(
+    object_set: spdx3.SHACLObjectSet,
+) -> dict[str, list[str]]:
+    """
+    Extract the completeness attribute for all dependency
+    relationships ('contains', 'dependsOn') in the SPDX 3 document.
+
+    An absent ``completeness`` is reported as ``noAssertion``.
+
+    Returns:
+        dict[str, list[str]]: A dictionary mapping all relationship's
+        from_id to a list of all completeness attributes.
+    """
+    return {
+        from_id: [value or "noAssertion" for value in values]
+        for from_id, values in get_dependency_relationships_stated_completeness(
+            object_set
+        ).items()
+    }
 
 
 def parse_spdx3_file(file_path: str) -> tuple[spdx3.SHACLObjectSet | None, list[str]]:

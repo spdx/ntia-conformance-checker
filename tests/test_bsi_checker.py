@@ -226,3 +226,42 @@ def test_bsichecker_blank_license_expression(
 
     assert bool(sbom.components_without_concluded_licenses) is missing
     assert bool(sbom.components_without_original_licenses) is missing
+
+
+@pytest.mark.parametrize(
+    ("completeness", "missing"),
+    [
+        ([], True),
+        ([None], True),
+        (["complete", None], True),
+        (["complete"], False),
+    ],
+)
+def test_bsichecker_dependency_completeness(
+    tmp_path: Path, completeness: list[str | None], missing: bool
+) -> None:
+    """A component needs dependency relationships, all with completeness."""
+    sbom_json = json.loads(
+        Path(BSI_DATA_DIR, "compliant_bsi_spdx3.json").read_text(encoding="utf-8")
+    )
+    graph = [o for o in sbom_json["@graph"] if o.get("relationshipType") != "dependsOn"]
+    graph += [
+        {
+            "type": "Relationship",
+            "spdxId": f"https://example.com/spdx/rel-dep-{i}",
+            "creationInfo": "_:creationinfo",
+            "from": "https://example.com/spdx/package-01",
+            "relationshipType": "dependsOn",
+            "to": ["NoneElement"],
+            **({"completeness": c} if c else {}),
+        }
+        for i, c in enumerate(completeness)
+    ]
+    sbom_json["@graph"] = graph
+    test_file = tmp_path / "sbom.json"
+    test_file.write_text(json.dumps(sbom_json), encoding="utf-8")
+
+    sbom = BSIChecker(str(test_file), compliance="bsi", sbom_spec="spdx3")
+
+    assert bool(sbom.components_without_dependency_completeness) is missing
+    assert sbom.compliant is not missing
