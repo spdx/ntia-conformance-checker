@@ -39,15 +39,14 @@ and this project adheres to [Semantic Versioning][semver].
 - "Dependency relationships provided?" needs a reachable element that
   declares a dependency relationship, with the same rule for SPDX 2 and
   SPDX 3; `SPDXRef-DOCUMENT DESCRIBES A` alone no longer counts, and
-  `A DEPENDS_ON NONE` does; see "How does the checker decide 'Dependency
-  relationships provided?'" in `FAQ.md` ([#410])
-- Relationship directions follow the SPDX 2.3 to 3.0 translation table, and tool
-  and provenance relationships are followed, so more components may be
-  checked; see "Which relationships connect an element to the tree?" in
-  `FAQ.md`
+  `A DEPENDS_ON NONE` does; see Q6 in `FAQ.md` ([#410])
+- Relationship directions follow the SPDX 2.3 to 3.0 translation table, and
+  tool and provenance relationships are followed, so more components may be
+  checked; see Q5 in `FAQ.md`
 - Missing elements are checked at both ends of a relationship and at the
-  roots, and reported as written; see "The CLI output reports that a
-  relationship points to a missing element" in `FAQ.md`
+  roots, and reported as written; a missing element makes the SBOM
+  non-compliant in every checker (NTIA, FSCT3, BSI), for SPDX 2 and SPDX 3,
+  with or without validation; see Q7 in `FAQ.md` ([#493])
 - `get_reachable_nodes` returns edges from parent to child
 - Reports call floating packages "components", as in minimum elements, and
   relationship ends "elements", as in SPDX: "Found X disconnected 'floating'
@@ -57,9 +56,11 @@ and this project adheres to [Semantic Versioning][semver].
 - Releases publish to PyPI only after the SBOM is validated; release files are
   attached, signed and attested after the publish, and can be re-run if that
   fails
-- A root or a relationship that points to a missing element makes the SBOM
-  non-compliant in every checker (NTIA, FSCT3, BSI), for SPDX 2 and SPDX 3,
-  with or without validation; see Q7 in `FAQ.md` ([#493])
+- JSON output is deterministic: lists such as `floatingComponentIds` and
+  the `unknownPointerEdges` targets are sorted; a JSON file written with
+  `--output-file` is canonical per [RFC 8785] (JSON Canonicalization Scheme),
+  and JSON printed to stdout has sorted keys; adds the `rfc8785` dependency
+  ([#492])
 - README lists where the FSCT3 checks are weaker or stricter than FSCT3
   "minimum expected", such as the dependency relationship check ([#493])
 
@@ -74,7 +75,9 @@ and this project adheres to [Semantic Versioning][semver].
 [#481]: https://github.com/spdx/ntia-conformance-checker/issues/481
 [#482]: https://github.com/spdx/ntia-conformance-checker/issues/482
 [#486]: https://github.com/spdx/ntia-conformance-checker/issues/486
+[#492]: https://github.com/spdx/ntia-conformance-checker/pull/492
 [#493]: https://github.com/spdx/ntia-conformance-checker/pull/493
+[RFC 8785]: https://www.rfc-editor.org/rfc/rfc8785
 
 ## [6.0.0] - 2026-10-05
 
