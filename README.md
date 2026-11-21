@@ -51,6 +51,18 @@ FSCT3 requires these Baseline Attributes as part of its "minimum expected":
 - License
 - Copyright Holder (inside Copyright Notice)
 
+Where the FSCT3 checks differ from FSCT3 "minimum expected":
+
+- Weaker: "Dependency relationships provided?" checks that the SBOM declares
+  at least one dependency relationship. FSCT 3rd ed. clause 2.2.2.6
+  "Relationship" expects relationships and relationship completeness for the
+  primary component and its direct dependencies; completeness is not checked.
+- Stricter: license and copyright notice are checked for every component;
+  clause 2.2.2.7 "License" and clause 2.2.2.8 "Copyright Notice" expect them
+  for the primary component only.
+- Stricter: SBOM type is required; clause 2.2.1.3 "Type" calls it optional and
+  an aspirational goal.
+
 BSI TR-03183-2 introduces stricter requirements for component files and relationships, including:
 - SHA-512 Hashes for deployable components
 - Structured component properties (e.g., container, firmware)

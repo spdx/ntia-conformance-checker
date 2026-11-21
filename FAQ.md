@@ -1,11 +1,11 @@
 # Frequently asked questions
 
-**Q: I am having trouble installing the Python modules. What gives?**
+**Q1: I am having trouble installing the Python modules. What gives?**
 
 A: It could be due to using an OS package manager (like `apt`) to install
 modules rather than using `pip`. Please try using `pip`.
 
-**Q: Why does my SPDX 3 SBOM fail the BSI compliance check for "deployable form
+**Q2: Why does my SPDX 3 SBOM fail the BSI compliance check for "deployable form
 URIs" when I copied the example from the BSI document?**
 
 A: The BSI TR-03183-2 document contains an example where `binaryArtifact` is
@@ -13,7 +13,7 @@ used as a direct property on a file. However, the official SPDX 3.0.1
 specification strictly defines `binaryArtifact` as an `ExternalRefType`.
 To pass compliance, you must define it inside an `externalRef` array.
 
-**Q: I am getting a "NotImplementedError: software_SoftwareArtifact is abstract
+**Q3: I am getting a "NotImplementedError: software_SoftwareArtifact is abstract
 and cannot be implemented" when parsing my SPDX 3 SBOM. How do I fix this?**
 
 A: You are likely using `software_SoftwareArtifact` as the `"type"` for
@@ -22,7 +22,7 @@ Source Code URIs). Because it is an abstract class in the SPDX model,
 it cannot be instantiated directly. You must change the type to a concrete
 subclass, such as `software_File`, `software_Package`, or `software_Snippet`.
 
-**Q: The CLI output warns me that it "Found X disconnected 'floating'
+**Q4: The CLI output warns me that it "Found X disconnected 'floating'
 components." What does this mean?**
 
 A: A floating component is a package that no root reaches when the checker
@@ -30,16 +30,16 @@ walks the relationship graph. It is ignored for compliance, but often means
 the SBOM generator left unlinked data. Only packages, the components that
 minimum elements apply to, are reported as floating.
 
-**Q: Which relationships connect an element to the tree?**
+**Q5: Which relationships connect an element to the tree?**
 
 A: The graph shape is what the SBOM states; the traversal is how the checker
 walks it.
 
 *Graph shape.* `A <type> B` is written from A to B: SPDX 2 `spdxElementId` to
 `relatedSpdxElement`, SPDX 3 `from` to `to`. Either end can be any element
-type ([SPDX 2.3][spdx-2.3] §11.1.1). SPDX 2 also has reverse types, written
-from the child's side, such as `CONTAINED_BY` (§11.1 Table 68); SPDX 3 has
-none. Missing elements are checked on the graph shape (next question).
+type ([SPDX 2.3][spdx-2.3] clause 11.1.1). SPDX 2 also has reverse types,
+written from the child's side, such as `CONTAINED_BY` (clause 11.1, Table
+68); SPDX 3 has none. Missing elements are checked on the graph shape (Q7).
 
 *Traversal.* From the roots, the checker goes from parent to child, walking
 each followed type along its written direction (A to B) or against it (B to
@@ -50,8 +50,8 @@ are never walked through; `SpdxOrganization` is.
 Roots:
 
 - SPDX 2: `SPDXRef-DOCUMENT DESCRIBES A` or `A DESCRIBED_BY SPDXRef-DOCUMENT`
-  (§11.1 Table 68); `SPDXRef-DOCUMENT` is accepted even if the document has
-  another ID (§6.3).
+  (clause 11.1, Table 68); `SPDXRef-DOCUMENT` is accepted even if the document
+  has another ID (clause 6.3).
 - SPDX 3: the `SpdxDocument` `rootElement` and the `to` of any relationship
   from it; each collection, such as an `Sbom`, also links to its
   `rootElement`.
@@ -101,7 +101,7 @@ table says "Swap to and from? Y". For example, `A BUILD_DEPENDENCY_OF B` is
 `DESCRIBES` and `DESCRIBED_BY` are followed between any SPDX 2 elements;
 SPDX 3 marks roots with `rootElement` instead.
 
-**Q: How does the checker decide "Dependency relationships provided?"?**
+**Q6: How does the checker decide "Dependency relationships provided?"?**
 
 A: A reachable element must declare a relationship of a type marked
 "Dependency" in the table above, in either SPDX 2 form. Both ends must be
@@ -150,7 +150,7 @@ any imported element counts as the other end, even a document or `Sbom`. An
 SPDX 2 external document itself, `DocumentRef-x:SPDXRef-DOCUMENT`, is
 recognized by its ID and excluded.
 
-**Q: The CLI output reports that a relationship points to a missing element.
+**Q7: The CLI output reports that a relationship points to a missing element.
 What does this mean?**
 
 A: A root or a followed relationship refers to an element that the SBOM does
@@ -177,15 +177,26 @@ Not missing:
   `NoneElement` or `SpdxOrganization`; the other end is still checked.
 - An SPDX 2 element in another document, `DocumentRef-<id>:SPDXRef-<idstring>`
   (Table 69), when `DocumentRef-<id>` is declared in an `ExternalDocumentRef`
-  (§6.6). The document itself is `DocumentRef-<id>:SPDXRef-DOCUMENT` (§6.3.1).
-  An undeclared prefix, a bare `DocumentRef-<id>` or any other form is
-  missing.
+  (clause 6.6). The document itself is `DocumentRef-<id>:SPDXRef-DOCUMENT`
+  (clause 6.3.1). An undeclared prefix, a bare `DocumentRef-<id>` or any
+  other form is missing.
 - An SPDX 3 element in the `externalSpdxId` of an `ExternalMap` in an
   `import`.
 
 External documents are not fetched; the declaration is trusted. External
 elements are neither checked for conformance nor reported as floating.
 
+A missing element makes the SBOM non-compliant in every checker, for SPDX 2
+and SPDX 3, with or without validation. Basis:
+
+- SPDX 2: [SPDX 2.3.1 clause 11.1][spdx-2.3.1-rel], Table 69 writes each end
+  as an `SPDXID`, optionally prefixed by a declared `DocumentRef-` (clause
+  6.6). It has no RFC 2119 keyword; the checker treats an ID that identifies
+  no element as failing this format. Validation also reports it.
+- SPDX 3: SPDX 3.0.1 has no such rule. The checker requires it, as it cannot
+  evaluate an element the SBOM does not define.
+
+[spdx-2.3.1-rel]: https://spdx.github.io/spdx-spec/v2.3.1/relationships-between-SPDX-elements/
 [spdx-2.3]: https://spdx.github.io/spdx-spec/v2.3.1/
 [spdx-2.3-to-3.0]: https://github.com/spdx/using/blob/80eba34d23f48e242a54a78b584e7a87ad2b9afa/docs/diff/v2.3-v3.0.md#translating-from-23-to-30-8
 [spdx-3.0.1-reltype]: https://spdx.github.io/spdx-spec/v3.0.1/model/Core/Vocabularies/RelationshipType/
