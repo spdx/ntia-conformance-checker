@@ -1,0 +1,199 @@
+{
+  "@context": "https://spdx.org/rdf/3.0.1/spdx-context.jsonld",
+  "@graph": [
+    {
+      "type": "CreationInfo",
+      "@id": "_:creationinfo",
+      "specVersion": "3.0.1",
+      "createdBy": [
+        "https://example.com/spdx/cisa2026/baseline/Organization-example-software-company"
+      ],
+      "createdUsing": [
+        "https://example.com/spdx/cisa2026/baseline/Tool-example-sbom-generator"
+      ],
+      "created": "2026-11-25T00:00:00Z"
+    },
+    {
+      "type": "Organization",
+      "spdxId": "https://example.com/spdx/cisa2026/baseline/Organization-example-software-company",
+      "creationInfo": "_:creationinfo",
+      "name": "Example Software Company"
+    },
+    {
+      "type": "Organization",
+      "spdxId": "https://example.com/spdx/cisa2026/baseline/Organization-example-distribution-vendor",
+      "creationInfo": "_:creationinfo",
+      "name": "Example Distribution Vendor"
+    },
+    {
+      "type": "Organization",
+      "spdxId": "https://example.com/spdx/cisa2026/baseline/Organization-example-parser-project",
+      "creationInfo": "_:creationinfo",
+      "name": "Example Parser Project"
+    },
+    {
+      "type": "Organization",
+      "spdxId": "https://example.com/spdx/cisa2026/baseline/Organization-example-tls-foundation",
+      "creationInfo": "_:creationinfo",
+      "name": "Example TLS Foundation"
+    },
+    {
+      "type": "Tool",
+      "spdxId": "https://example.com/spdx/cisa2026/baseline/Tool-example-sbom-generator",
+      "creationInfo": "_:creationinfo",
+      "name": "ExampleSbomGenerator"
+    },
+    {
+      "type": "SpdxDocument",
+      "spdxId": "https://example.com/spdx/cisa2026/baseline/Document",
+      "creationInfo": "_:creationinfo",
+      "name": "cisa2026-baseline",
+      "profileConformance": [
+        "core",
+        "software",
+        "simpleLicensing"
+      ],
+      "rootElement": [
+        "https://example.com/spdx/cisa2026/baseline/Sbom"
+      ]
+    },
+    {
+      "type": "software_Sbom",
+      "spdxId": "https://example.com/spdx/cisa2026/baseline/Sbom",
+      "creationInfo": "_:creationinfo",
+      "profileConformance": [
+        "core",
+        "software",
+        "simpleLicensing"
+      ],
+      "software_sbomType": [
+        "build"
+      ],
+      "rootElement": [
+        "https://example.com/spdx/cisa2026/baseline/Package-example-app"
+      ]
+    },
+    {
+      "type": "software_Package",
+      "spdxId": "https://example.com/spdx/cisa2026/baseline/Package-example-app",
+      "creationInfo": "_:creationinfo",
+      "name": "example-app",
+      "software_packageVersion": "2.1.0",
+      "suppliedBy": "https://example.com/spdx/cisa2026/baseline/Organization-example-software-company",
+      "originatedBy": [
+        "https://example.com/spdx/cisa2026/baseline/Organization-example-software-company"
+      ],
+      "software_primaryPurpose": "application",
+      "software_packageUrl": "pkg:generic/example-app@2.1.0",
+      "software_copyrightText": "Copyright 2026 Example Software Company",
+      "verifiedUsing": [
+        {
+          "type": "Hash",
+          "algorithm": "sha256",
+          "hashValue": "943546e474b15f92903643e18d4f7016b716c14c8a476f7c3c113bc497623624"
+        }
+      ]
+    },
+    {
+      "type": "software_Package",
+      "spdxId": "https://example.com/spdx/cisa2026/baseline/Package-example-json-parser",
+      "creationInfo": "_:creationinfo",
+      "name": "example-json-parser",
+      "software_packageVersion": "1.8.3",
+      "suppliedBy": "https://example.com/spdx/cisa2026/baseline/Organization-example-distribution-vendor",
+      "originatedBy": [
+        "https://example.com/spdx/cisa2026/baseline/Organization-example-parser-project"
+      ],
+      "software_primaryPurpose": "library",
+      "software_packageUrl": "pkg:generic/example-json-parser@1.8.3",
+      "software_copyrightText": "Copyright 2026 Example Parser Project",
+      "verifiedUsing": [
+        {
+          "type": "Hash",
+          "algorithm": "sha256",
+          "hashValue": "5dc7d7bc28d82766551eb1a2a30807321e18ec4d3e6ac8c7bdd4c08272291850"
+        }
+      ]
+    },
+    {
+      "type": "software_Package",
+      "spdxId": "https://example.com/spdx/cisa2026/baseline/Package-example-tls-library",
+      "creationInfo": "_:creationinfo",
+      "name": "example-tls-library",
+      "software_packageVersion": "3.2.1",
+      "suppliedBy": "https://example.com/spdx/cisa2026/baseline/Organization-example-tls-foundation",
+      "originatedBy": [
+        "https://example.com/spdx/cisa2026/baseline/Organization-example-tls-foundation"
+      ],
+      "software_primaryPurpose": "library",
+      "software_packageUrl": "pkg:generic/example-tls-library@3.2.1",
+      "software_copyrightText": "Copyright 2026 Example TLS Foundation",
+      "verifiedUsing": [
+        {
+          "type": "Hash",
+          "algorithm": "sha256",
+          "hashValue": "e7f1ed516b1283b6bc9030c68548613b6bd7c807f837e9e7beb27bbd12115eb9"
+        }
+      ]
+    },
+    {
+      "type": "simplelicensing_LicenseExpression",
+      "spdxId": "https://example.com/spdx/cisa2026/baseline/License-example-app",
+      "creationInfo": "_:creationinfo",
+      "simplelicensing_licenseExpression": "Apache-2.0"
+    },
+    {
+      "type": "Relationship",
+      "spdxId": "https://example.com/spdx/cisa2026/baseline/Relationship-license-example-app",
+      "creationInfo": "_:creationinfo",
+      "from": "https://example.com/spdx/cisa2026/baseline/Package-example-app",
+      "relationshipType": "hasConcludedLicense",
+      "to": [
+        "https://example.com/spdx/cisa2026/baseline/License-example-app"
+      ]
+    },
+    {
+      "type": "simplelicensing_LicenseExpression",
+      "spdxId": "https://example.com/spdx/cisa2026/baseline/License-example-json-parser",
+      "creationInfo": "_:creationinfo",
+      "simplelicensing_licenseExpression": "MIT"
+    },
+    {
+      "type": "Relationship",
+      "spdxId": "https://example.com/spdx/cisa2026/baseline/Relationship-license-example-json-parser",
+      "creationInfo": "_:creationinfo",
+      "from": "https://example.com/spdx/cisa2026/baseline/Package-example-json-parser",
+      "relationshipType": "hasConcludedLicense",
+      "to": [
+        "https://example.com/spdx/cisa2026/baseline/License-example-json-parser"
+      ]
+    },
+    {
+      "type": "simplelicensing_LicenseExpression",
+      "spdxId": "https://example.com/spdx/cisa2026/baseline/License-example-tls-library",
+      "creationInfo": "_:creationinfo",
+      "simplelicensing_licenseExpression": "BSD-3-Clause"
+    },
+    {
+      "type": "Relationship",
+      "spdxId": "https://example.com/spdx/cisa2026/baseline/Relationship-license-example-tls-library",
+      "creationInfo": "_:creationinfo",
+      "from": "https://example.com/spdx/cisa2026/baseline/Package-example-tls-library",
+      "relationshipType": "hasConcludedLicense",
+      "to": [
+        "https://example.com/spdx/cisa2026/baseline/License-example-tls-library"
+      ]
+    },
+    {
+      "type": "Relationship",
+      "spdxId": "https://example.com/spdx/cisa2026/baseline/Relationship-dependencies-example-app",
+      "creationInfo": "_:creationinfo",
+      "from": "https://example.com/spdx/cisa2026/baseline/Package-example-app",
+      "relationshipType": "dependsOn",
+      "to": [
+        "https://example.com/spdx/cisa2026/baseline/Package-example-json-parser",
+        "https://example.com/spdx/cisa2026/baseline/Package-example-tls-library"
+      ]
+    }
+  ]
+}

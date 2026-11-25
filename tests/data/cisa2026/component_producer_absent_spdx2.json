@@ -1,0 +1,108 @@
+{
+  "SPDXID": "SPDXRef-DOCUMENT",
+  "spdxVersion": "SPDX-2.3",
+  "name": "cisa2026-component-producer-absent",
+  "dataLicense": "CC0-1.0",
+  "documentNamespace": "https://example.com/spdxdocs/cisa2026/component-producer-absent",
+  "creationInfo": {
+    "creators": [
+      "Organization: Example Software Company",
+      "Tool: ExampleSbomGenerator-1.4.2"
+    ],
+    "created": "2026-11-25T00:00:00Z",
+    "comment": "Build"
+  },
+  "packages": [
+    {
+      "name": "example-app",
+      "SPDXID": "SPDXRef-Package-example-app",
+      "versionInfo": "2.1.0",
+      "supplier": "Organization: Example Software Company",
+      "originator": "Organization: Example Software Company",
+      "downloadLocation": "https://example.com/downloads/example-app-2.1.0.tar.gz",
+      "filesAnalyzed": false,
+      "checksums": [
+        {
+          "algorithm": "SHA256",
+          "checksumValue": "943546e474b15f92903643e18d4f7016b716c14c8a476f7c3c113bc497623624"
+        }
+      ],
+      "licenseConcluded": "Apache-2.0",
+      "licenseDeclared": "Apache-2.0",
+      "copyrightText": "Copyright 2026 Example Software Company",
+      "externalRefs": [
+        {
+          "referenceCategory": "PACKAGE-MANAGER",
+          "referenceType": "purl",
+          "referenceLocator": "pkg:generic/example-app@2.1.0"
+        }
+      ]
+    },
+    {
+      "name": "example-json-parser",
+      "SPDXID": "SPDXRef-Package-example-json-parser",
+      "versionInfo": "1.8.3",
+      "supplier": "Organization: Example Distribution Vendor",
+      "downloadLocation": "https://example.com/downloads/example-json-parser-1.8.3.tar.gz",
+      "filesAnalyzed": false,
+      "checksums": [
+        {
+          "algorithm": "SHA256",
+          "checksumValue": "5dc7d7bc28d82766551eb1a2a30807321e18ec4d3e6ac8c7bdd4c08272291850"
+        }
+      ],
+      "licenseConcluded": "MIT",
+      "licenseDeclared": "MIT",
+      "copyrightText": "Copyright 2026 Example Parser Project",
+      "externalRefs": [
+        {
+          "referenceCategory": "PACKAGE-MANAGER",
+          "referenceType": "purl",
+          "referenceLocator": "pkg:generic/example-json-parser@1.8.3"
+        }
+      ]
+    },
+    {
+      "name": "example-tls-library",
+      "SPDXID": "SPDXRef-Package-example-tls-library",
+      "versionInfo": "3.2.1",
+      "supplier": "Organization: Example TLS Foundation",
+      "originator": "Organization: Example TLS Foundation",
+      "downloadLocation": "https://example.com/downloads/example-tls-library-3.2.1.tar.gz",
+      "filesAnalyzed": false,
+      "checksums": [
+        {
+          "algorithm": "SHA256",
+          "checksumValue": "e7f1ed516b1283b6bc9030c68548613b6bd7c807f837e9e7beb27bbd12115eb9"
+        }
+      ],
+      "licenseConcluded": "BSD-3-Clause",
+      "licenseDeclared": "BSD-3-Clause",
+      "copyrightText": "Copyright 2026 Example TLS Foundation",
+      "externalRefs": [
+        {
+          "referenceCategory": "PACKAGE-MANAGER",
+          "referenceType": "purl",
+          "referenceLocator": "pkg:generic/example-tls-library@3.2.1"
+        }
+      ]
+    }
+  ],
+  "relationships": [
+    {
+      "spdxElementId": "SPDXRef-DOCUMENT",
+      "relationshipType": "DESCRIBES",
+      "relatedSpdxElement": "SPDXRef-Package-example-app"
+    },
+    {
+      "spdxElementId": "SPDXRef-Package-example-app",
+      "relationshipType": "DEPENDS_ON",
+      "relatedSpdxElement": "SPDXRef-Package-example-json-parser"
+    },
+    {
+      "spdxElementId": "SPDXRef-Package-example-app",
+      "relationshipType": "DEPENDS_ON",
+      "relatedSpdxElement": "SPDXRef-Package-example-tls-library"
+    }
+  ]
+}
