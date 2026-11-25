@@ -328,6 +328,18 @@
 <span class="sd">        """</span>
         <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">components_evaluated</span> <span class="ow">and</span> <span class="ow">not</span> <span class="n">missing</span>
 
+    <span class="k">def</span><span class="w"> </span><span class="nf">_all_referenced_elements_defined</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">bool</span><span class="p">:</span>
+<span class="w">        </span><span class="sd">"""</span>
+<span class="sd">        Check if every element that a root or a relationship refers to is defined.</span>
+
+<span class="sd">        Defined means in the SBOM, or declared as external.</span>
+<span class="sd">        Basis: FAQ.md Q7</span>
+
+<span class="sd">        Returns:</span>
+<span class="sd">            bool: True if no root or relationship refers to a missing element.</span>
+<span class="sd">        """</span>
+        <span class="k">return</span> <span class="ow">not</span> <span class="bp">self</span><span class="o">.</span><span class="n">has_unknown_pointers</span>
+
 <div class="viewcode-block" id="BaseChecker.check_doc_version">
 <a class="viewcode-back" href="../../ntia_conformance_checker.html#ntia_conformance_checker.base_checker.BaseChecker.check_doc_version">[docs]</a>
     <span class="k">def</span><span class="w"> </span><span class="nf">check_doc_version</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">bool</span><span class="p">:</span>
