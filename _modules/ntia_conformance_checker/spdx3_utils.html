@@ -420,6 +420,52 @@
 
 
 
+<div class="viewcode-block" id="get_dependency_relationships_stated_completeness">
+<a class="viewcode-back" href="../../ntia_conformance_checker.html#ntia_conformance_checker.spdx3_utils.get_dependency_relationships_stated_completeness">[docs]</a>
+<span class="k">def</span><span class="w"> </span><span class="nf">get_dependency_relationships_stated_completeness</span><span class="p">(</span>
+    <span class="n">object_set</span><span class="p">:</span> <span class="n">spdx3</span><span class="o">.</span><span class="n">SHACLObjectSet</span><span class="p">,</span>
+<span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">dict</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="nb">list</span><span class="p">[</span><span class="nb">str</span> <span class="o">|</span> <span class="kc">None</span><span class="p">]]:</span>
+<span class="w">    </span><span class="sd">"""</span>
+<span class="sd">    Get the stated completeness of each dependency relationship.</span>
+
+<span class="sd">    Dependency relationships are those of type ``contains`` or ``dependsOn``.</span>
+<span class="sd">    Unlike :func:`get_dependency_relationships_completeness`, an absent</span>
+<span class="sd">    ``completeness`` is kept as None.</span>
+
+<span class="sd">    Args:</span>
+<span class="sd">        object_set: The SPDX 3 object set.</span>
+
+<span class="sd">    Returns:</span>
+<span class="sd">        dict[str, list[str | None]]: A dictionary mapping each relationship's</span>
+<span class="sd">        ``from`` SPDX ID to the ``completeness`` of each of its dependency</span>
+<span class="sd">        relationships (``complete``, ``incomplete`` or ``noAssertion``), or</span>
+<span class="sd">        None where ``completeness`` is absent.</span>
+<span class="sd">    """</span>
+    <span class="n">completeness_map</span><span class="p">:</span> <span class="nb">dict</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="nb">list</span><span class="p">[</span><span class="nb">str</span> <span class="o">|</span> <span class="kc">None</span><span class="p">]]</span> <span class="o">=</span> <span class="p">{}</span>
+
+    <span class="k">for</span> <span class="n">obj</span> <span class="ow">in</span> <span class="n">object_set</span><span class="o">.</span><span class="n">foreach_type</span><span class="p">(</span><span class="n">spdx3</span><span class="o">.</span><span class="n">Relationship</span><span class="p">):</span>
+        <span class="n">rel_type</span> <span class="o">=</span> <span class="nb">getattr</span><span class="p">(</span><span class="n">obj</span><span class="p">,</span> <span class="s2">"relationshipType"</span><span class="p">,</span> <span class="s2">""</span><span class="p">)</span>
+        <span class="k">if</span> <span class="ow">not</span> <span class="n">rel_type</span><span class="p">:</span>
+            <span class="k">continue</span>
+
+        <span class="c1"># Remove the IRI prefix of entry name before compare</span>
+        <span class="n">rel_type_name</span> <span class="o">=</span> <span class="n">rel_type</span><span class="o">.</span><span class="n">rsplit</span><span class="p">(</span><span class="s2">"/"</span><span class="p">,</span> <span class="n">maxsplit</span><span class="o">=</span><span class="mi">1</span><span class="p">)[</span><span class="o">-</span><span class="mi">1</span><span class="p">]</span>
+        <span class="k">if</span> <span class="n">rel_type_name</span> <span class="ow">not</span> <span class="ow">in</span> <span class="p">(</span><span class="s2">"contains"</span><span class="p">,</span> <span class="s2">"dependsOn"</span><span class="p">):</span>
+            <span class="k">continue</span>
+
+        <span class="n">from_id</span> <span class="o">=</span> <span class="n">get_spdx3_element_id</span><span class="p">(</span><span class="nb">getattr</span><span class="p">(</span><span class="n">obj</span><span class="p">,</span> <span class="s2">"from_"</span><span class="p">,</span> <span class="kc">None</span><span class="p">))</span>
+        <span class="k">if</span> <span class="n">from_id</span><span class="p">:</span>
+            <span class="n">completeness_iri</span> <span class="o">=</span> <span class="nb">getattr</span><span class="p">(</span><span class="n">obj</span><span class="p">,</span> <span class="s2">"completeness"</span><span class="p">,</span> <span class="kc">None</span><span class="p">)</span>
+            <span class="n">completeness_map</span><span class="o">.</span><span class="n">setdefault</span><span class="p">(</span><span class="n">from_id</span><span class="p">,</span> <span class="p">[])</span><span class="o">.</span><span class="n">append</span><span class="p">(</span>
+                <span class="n">completeness_iri</span><span class="o">.</span><span class="n">rsplit</span><span class="p">(</span><span class="s2">"/"</span><span class="p">,</span> <span class="n">maxsplit</span><span class="o">=</span><span class="mi">1</span><span class="p">)[</span><span class="o">-</span><span class="mi">1</span><span class="p">]</span>
+                <span class="k">if</span> <span class="n">completeness_iri</span>
+                <span class="k">else</span> <span class="kc">None</span>
+            <span class="p">)</span>
+
+    <span class="k">return</span> <span class="n">completeness_map</span></div>
+
+
+
 <div class="viewcode-block" id="get_dependency_relationships_completeness">
 <a class="viewcode-back" href="../../ntia_conformance_checker.html#ntia_conformance_checker.spdx3_utils.get_dependency_relationships_completeness">[docs]</a>
 <span class="k">def</span><span class="w"> </span><span class="nf">get_dependency_relationships_completeness</span><span class="p">(</span>
@@ -429,33 +475,18 @@
 <span class="sd">    Extract the completeness attribute for all dependency</span>
 <span class="sd">    relationships ('contains', 'dependsOn') in the SPDX 3 document.</span>
 
+<span class="sd">    An absent ``completeness`` is reported as ``noAssertion``.</span>
+
 <span class="sd">    Returns:</span>
 <span class="sd">        dict[str, list[str]]: A dictionary mapping all relationship's</span>
 <span class="sd">        from_id to a list of all completeness attributes.</span>
 <span class="sd">    """</span>
-    <span class="n">completeness_map</span><span class="p">:</span> <span class="nb">dict</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="nb">list</span><span class="p">[</span><span class="nb">str</span><span class="p">]]</span> <span class="o">=</span> <span class="p">{}</span>
-
-    <span class="k">for</span> <span class="n">obj</span> <span class="ow">in</span> <span class="n">object_set</span><span class="o">.</span><span class="n">foreach_type</span><span class="p">(</span><span class="n">spdx3</span><span class="o">.</span><span class="n">Relationship</span><span class="p">):</span>
-        <span class="n">rel_type</span> <span class="o">=</span> <span class="nb">getattr</span><span class="p">(</span><span class="n">obj</span><span class="p">,</span> <span class="s2">"relationshipType"</span><span class="p">,</span> <span class="s2">""</span><span class="p">)</span>
-        <span class="k">if</span> <span class="ow">not</span> <span class="n">rel_type</span><span class="p">:</span>
-            <span class="k">continue</span>
-
-        <span class="c1"># Remove the IRI prefix of entry name before compare</span>
-        <span class="n">rel_type_name</span> <span class="o">=</span> <span class="n">rel_type</span><span class="o">.</span><span class="n">rsplit</span><span class="p">(</span><span class="s2">"/"</span><span class="p">,</span> <span class="n">maxsplit</span><span class="o">=</span><span class="mi">1</span><span class="p">)[</span><span class="o">-</span><span class="mi">1</span><span class="p">]</span>
-        <span class="k">if</span> <span class="n">rel_type_name</span> <span class="ow">in</span> <span class="p">(</span><span class="s2">"contains"</span><span class="p">,</span> <span class="s2">"dependsOn"</span><span class="p">):</span>
-            <span class="n">from_id</span> <span class="o">=</span> <span class="n">get_spdx3_element_id</span><span class="p">(</span><span class="nb">getattr</span><span class="p">(</span><span class="n">obj</span><span class="p">,</span> <span class="s2">"from_"</span><span class="p">,</span> <span class="kc">None</span><span class="p">))</span>
-
-            <span class="k">if</span> <span class="n">from_id</span><span class="p">:</span>
-                <span class="n">completeness_iri</span> <span class="o">=</span> <span class="nb">getattr</span><span class="p">(</span><span class="n">obj</span><span class="p">,</span> <span class="s2">"completeness"</span><span class="p">,</span> <span class="kc">None</span><span class="p">)</span>
-                <span class="n">completeness_val</span> <span class="o">=</span> <span class="p">(</span>
-                    <span class="n">completeness_iri</span><span class="o">.</span><span class="n">rsplit</span><span class="p">(</span><span class="s2">"/"</span><span class="p">,</span> <span class="n">maxsplit</span><span class="o">=</span><span class="mi">1</span><span class="p">)[</span><span class="o">-</span><span class="mi">1</span><span class="p">]</span>
-                    <span class="k">if</span> <span class="n">completeness_iri</span>
-                    <span class="k">else</span> <span class="s2">"noAssertion"</span>
-                <span class="p">)</span>
-                <span class="k">if</span> <span class="n">completeness_val</span><span class="p">:</span>
-                    <span class="n">completeness_map</span><span class="o">.</span><span class="n">setdefault</span><span class="p">(</span><span class="n">from_id</span><span class="p">,</span> <span class="p">[])</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">completeness_val</span><span class="p">)</span>
-
-    <span class="k">return</span> <span class="n">completeness_map</span></div>
+    <span class="k">return</span> <span class="p">{</span>
+        <span class="n">from_id</span><span class="p">:</span> <span class="p">[</span><span class="n">value</span> <span class="ow">or</span> <span class="s2">"noAssertion"</span> <span class="k">for</span> <span class="n">value</span> <span class="ow">in</span> <span class="n">values</span><span class="p">]</span>
+        <span class="k">for</span> <span class="n">from_id</span><span class="p">,</span> <span class="n">values</span> <span class="ow">in</span> <span class="n">get_dependency_relationships_stated_completeness</span><span class="p">(</span>
+            <span class="n">object_set</span>
+        <span class="p">)</span><span class="o">.</span><span class="n">items</span><span class="p">()</span>
+    <span class="p">}</span></div>
 
 
 

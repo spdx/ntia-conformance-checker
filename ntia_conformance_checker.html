@@ -596,7 +596,7 @@ Subclasses may override this method to provide custom behavior.</p>
 </dl>
 <dl class="py attribute">
 <dt class="sig sig-object py" id="ntia_conformance_checker.bsi_checker.BSIChecker.MIN_ELEMENTS">
-<span class="sig-name descname"><span class="pre">MIN_ELEMENTS</span></span><span class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">['creator',</span> <span class="pre">'name',</span> <span class="pre">'version',</span> <span class="pre">'filename',</span> <span class="pre">'distribution_licenses',</span> <span class="pre">'sha512_hash',</span> <span class="pre">'executable_property',</span> <span class="pre">'archive_property',</span> <span class="pre">'structured_property']</span></span><a class="headerlink" href="#ntia_conformance_checker.bsi_checker.BSIChecker.MIN_ELEMENTS" title="Link to this definition">¶</a></dt>
+<span class="sig-name descname"><span class="pre">MIN_ELEMENTS</span></span><span class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">['creator',</span> <span class="pre">'name',</span> <span class="pre">'version',</span> <span class="pre">'filename',</span> <span class="pre">'distribution_licenses',</span> <span class="pre">'sha512_hash',</span> <span class="pre">'executable_property',</span> <span class="pre">'archive_property',</span> <span class="pre">'structured_property',</span> <span class="pre">'dependency_completeness']</span></span><a class="headerlink" href="#ntia_conformance_checker.bsi_checker.BSIChecker.MIN_ELEMENTS" title="Link to this definition">¶</a></dt>
 <dd></dd></dl>
 
 <dl class="py method">
@@ -608,7 +608,17 @@ Subclasses may override this method to provide custom behavior.</p>
 <dl class="py method">
 <dt class="sig sig-object py" id="ntia_conformance_checker.bsi_checker.BSIChecker.check_dependency_completeness">
 <span class="sig-name descname"><span class="pre">check_dependency_completeness</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">bool</span></span></span><a class="reference internal" href="_modules/ntia_conformance_checker/bsi_checker.html#BSIChecker.check_dependency_completeness"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#ntia_conformance_checker.bsi_checker.BSIChecker.check_dependency_completeness" title="Link to this definition">¶</a></dt>
-<dd><p>Check if dependency enumerations clearly indicate their completeness.</p>
+<dd><p>Check if all components enumerate dependencies with stated completeness.</p>
+<p>See <a class="reference internal" href="#ntia_conformance_checker.bsi_checker.BSIChecker.get_components_without_dependency_completeness" title="ntia_conformance_checker.bsi_checker.BSIChecker.get_components_without_dependency_completeness"><code class="xref py py-meth docutils literal notranslate"><span class="pre">get_components_without_dependency_completeness()</span></code></a> for the
+rule.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Returns<span class="colon">:</span></dt>
+<dd class="field-odd"><p>True if components were evaluated and none of them fails.</p>
+</dd>
+<dt class="field-even">Return type<span class="colon">:</span></dt>
+<dd class="field-even"><p>bool</p>
+</dd>
+</dl>
 </dd></dl>
 
 <dl class="py method">
@@ -650,6 +660,25 @@ BSI Requirement: MAY be included (Optional Data Field).</p>
 <dt class="sig sig-object py" id="ntia_conformance_checker.bsi_checker.BSIChecker.get_components_without_creators">
 <span class="sig-name descname"><span class="pre">get_components_without_creators</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">list</span><span class="p"><span class="pre">[</span></span><span class="pre">tuple</span><span class="p"><span class="pre">[</span></span><span class="pre">str</span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="pre">str</span><span class="p"><span class="pre">]</span></span><span class="p"><span class="pre">]</span></span></span></span><a class="reference internal" href="_modules/ntia_conformance_checker/bsi_checker.html#BSIChecker.get_components_without_creators"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#ntia_conformance_checker.bsi_checker.BSIChecker.get_components_without_creators" title="Link to this definition">¶</a></dt>
 <dd><p>Check if each component creator has a valid email or URL.</p>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="ntia_conformance_checker.bsi_checker.BSIChecker.get_components_without_dependency_completeness">
+<span class="sig-name descname"><span class="pre">get_components_without_dependency_completeness</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">list</span><span class="p"><span class="pre">[</span></span><span class="pre">tuple</span><span class="p"><span class="pre">[</span></span><span class="pre">str</span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="pre">str</span><span class="p"><span class="pre">]</span></span><span class="p"><span class="pre">]</span></span></span></span><a class="reference internal" href="_modules/ntia_conformance_checker/bsi_checker.html#BSIChecker.get_components_without_dependency_completeness"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#ntia_conformance_checker.bsi_checker.BSIChecker.get_components_without_dependency_completeness" title="Link to this definition">¶</a></dt>
+<dd><p>Get components without dependencies with stated completeness.</p>
+<p>BSI TR-03183-2 v2.1.0 clause 5.2.2 Table 3 “Dependencies on other
+components” (MUST); mapping: clause 8.2, a <code class="docutils literal notranslate"><span class="pre">contains</span></code> or
+<code class="docutils literal notranslate"><span class="pre">dependsOn</span></code> relationship with <code class="docutils literal notranslate"><span class="pre">completeness</span></code>. A component fails if
+it has no such relationship, or one without <code class="docutils literal notranslate"><span class="pre">completeness</span></code>. No
+dependencies: <code class="docutils literal notranslate"><span class="pre">to</span></code> <code class="docutils literal notranslate"><span class="pre">NoneElement</span></code>, <code class="docutils literal notranslate"><span class="pre">completeness</span></code> <code class="docutils literal notranslate"><span class="pre">complete</span></code>.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Returns<span class="colon">:</span></dt>
+<dd class="field-odd"><p>(name, SPDX ID) of failing components.</p>
+</dd>
+<dt class="field-even">Return type<span class="colon">:</span></dt>
+<dd class="field-even"><p>list[tuple[str, str]]</p>
+</dd>
+</dl>
 </dd></dl>
 
 <dl class="py method">
@@ -1471,6 +1500,7 @@ such as ai_AIPackage and dataset_DatasetPackage.</p>
 <span class="sig-prename descclassname"><span class="pre">ntia_conformance_checker.spdx3_utils.</span></span><span class="sig-name descname"><span class="pre">get_dependency_relationships_completeness</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">object_set</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">SHACLObjectSet</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">dict</span><span class="p"><span class="pre">[</span></span><span class="pre">str</span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="pre">list</span><span class="p"><span class="pre">[</span></span><span class="pre">str</span><span class="p"><span class="pre">]</span></span><span class="p"><span class="pre">]</span></span></span></span><a class="reference internal" href="_modules/ntia_conformance_checker/spdx3_utils.html#get_dependency_relationships_completeness"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#ntia_conformance_checker.spdx3_utils.get_dependency_relationships_completeness" title="Link to this definition">¶</a></dt>
 <dd><p>Extract the completeness attribute for all dependency
 relationships (‘contains’, ‘dependsOn’) in the SPDX 3 document.</p>
+<p>An absent <code class="docutils literal notranslate"><span class="pre">completeness</span></code> is reported as <code class="docutils literal notranslate"><span class="pre">noAssertion</span></code>.</p>
 <dl class="field-list simple">
 <dt class="field-odd">Returns<span class="colon">:</span></dt>
 <dd class="field-odd"><p>A dictionary mapping all relationship’s
@@ -1478,6 +1508,29 @@ from_id to a list of all completeness attributes.</p>
 </dd>
 <dt class="field-even">Return type<span class="colon">:</span></dt>
 <dd class="field-even"><p>dict[str, list[str]]</p>
+</dd>
+</dl>
+</dd></dl>
+
+<dl class="py function">
+<dt class="sig sig-object py" id="ntia_conformance_checker.spdx3_utils.get_dependency_relationships_stated_completeness">
+<span class="sig-prename descclassname"><span class="pre">ntia_conformance_checker.spdx3_utils.</span></span><span class="sig-name descname"><span class="pre">get_dependency_relationships_stated_completeness</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">object_set</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">SHACLObjectSet</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">dict</span><span class="p"><span class="pre">[</span></span><span class="pre">str</span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="pre">list</span><span class="p"><span class="pre">[</span></span><span class="pre">str</span><span class="w"> </span><span class="p"><span class="pre">|</span></span><span class="w"> </span><span class="pre">None</span><span class="p"><span class="pre">]</span></span><span class="p"><span class="pre">]</span></span></span></span><a class="reference internal" href="_modules/ntia_conformance_checker/spdx3_utils.html#get_dependency_relationships_stated_completeness"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#ntia_conformance_checker.spdx3_utils.get_dependency_relationships_stated_completeness" title="Link to this definition">¶</a></dt>
+<dd><p>Get the stated completeness of each dependency relationship.</p>
+<p>Dependency relationships are those of type <code class="docutils literal notranslate"><span class="pre">contains</span></code> or <code class="docutils literal notranslate"><span class="pre">dependsOn</span></code>.
+Unlike <a class="reference internal" href="#ntia_conformance_checker.spdx3_utils.get_dependency_relationships_completeness" title="ntia_conformance_checker.spdx3_utils.get_dependency_relationships_completeness"><code class="xref py py-func docutils literal notranslate"><span class="pre">get_dependency_relationships_completeness()</span></code></a>, an absent
+<code class="docutils literal notranslate"><span class="pre">completeness</span></code> is kept as None.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><p><strong>object_set</strong> – The SPDX 3 object set.</p>
+</dd>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
+<dd class="field-even"><p>A dictionary mapping each relationship’s
+<code class="docutils literal notranslate"><span class="pre">from</span></code> SPDX ID to the <code class="docutils literal notranslate"><span class="pre">completeness</span></code> of each of its dependency
+relationships (<code class="docutils literal notranslate"><span class="pre">complete</span></code>, <code class="docutils literal notranslate"><span class="pre">incomplete</span></code> or <code class="docutils literal notranslate"><span class="pre">noAssertion</span></code>), or
+None where <code class="docutils literal notranslate"><span class="pre">completeness</span></code> is absent.</p>
+</dd>
+<dt class="field-odd">Return type<span class="colon">:</span></dt>
+<dd class="field-odd"><p>dict[str, list[str | None]]</p>
 </dd>
 </dl>
 </dd></dl>
@@ -2235,7 +2288,7 @@ expected schema.</p>
 </dl>
 <dl class="py attribute">
 <dt class="sig sig-object py" id="ntia_conformance_checker.BSIChecker.MIN_ELEMENTS">
-<span class="sig-name descname"><span class="pre">MIN_ELEMENTS</span></span><span class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">['creator',</span> <span class="pre">'name',</span> <span class="pre">'version',</span> <span class="pre">'filename',</span> <span class="pre">'distribution_licenses',</span> <span class="pre">'sha512_hash',</span> <span class="pre">'executable_property',</span> <span class="pre">'archive_property',</span> <span class="pre">'structured_property']</span></span><a class="headerlink" href="#ntia_conformance_checker.BSIChecker.MIN_ELEMENTS" title="Link to this definition">¶</a></dt>
+<span class="sig-name descname"><span class="pre">MIN_ELEMENTS</span></span><span class="property"><span class="w"> </span><span class="p"><span class="pre">=</span></span><span class="w"> </span><span class="pre">['creator',</span> <span class="pre">'name',</span> <span class="pre">'version',</span> <span class="pre">'filename',</span> <span class="pre">'distribution_licenses',</span> <span class="pre">'sha512_hash',</span> <span class="pre">'executable_property',</span> <span class="pre">'archive_property',</span> <span class="pre">'structured_property',</span> <span class="pre">'dependency_completeness']</span></span><a class="headerlink" href="#ntia_conformance_checker.BSIChecker.MIN_ELEMENTS" title="Link to this definition">¶</a></dt>
 <dd></dd></dl>
 
 <dl class="py method">
@@ -2247,7 +2300,17 @@ expected schema.</p>
 <dl class="py method">
 <dt class="sig sig-object py" id="ntia_conformance_checker.BSIChecker.check_dependency_completeness">
 <span class="sig-name descname"><span class="pre">check_dependency_completeness</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">bool</span></span></span><a class="reference internal" href="_modules/ntia_conformance_checker/bsi_checker.html#BSIChecker.check_dependency_completeness"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#ntia_conformance_checker.BSIChecker.check_dependency_completeness" title="Link to this definition">¶</a></dt>
-<dd><p>Check if dependency enumerations clearly indicate their completeness.</p>
+<dd><p>Check if all components enumerate dependencies with stated completeness.</p>
+<p>See <a class="reference internal" href="#ntia_conformance_checker.BSIChecker.get_components_without_dependency_completeness" title="ntia_conformance_checker.BSIChecker.get_components_without_dependency_completeness"><code class="xref py py-meth docutils literal notranslate"><span class="pre">get_components_without_dependency_completeness()</span></code></a> for the
+rule.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Returns<span class="colon">:</span></dt>
+<dd class="field-odd"><p>True if components were evaluated and none of them fails.</p>
+</dd>
+<dt class="field-even">Return type<span class="colon">:</span></dt>
+<dd class="field-even"><p>bool</p>
+</dd>
+</dl>
 </dd></dl>
 
 <dl class="py method">
@@ -2275,6 +2338,11 @@ expected schema.</p>
 <dl class="py attribute">
 <dt class="sig sig-object py" id="ntia_conformance_checker.BSIChecker.components_without_creators">
 <span class="sig-name descname"><span class="pre">components_without_creators</span></span><span class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="pre">list</span><span class="p"><span class="pre">[</span></span><span class="pre">tuple</span><span class="p"><span class="pre">[</span></span><span class="pre">str</span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="pre">str</span><span class="p"><span class="pre">]</span></span><span class="p"><span class="pre">]</span></span></span><a class="headerlink" href="#ntia_conformance_checker.BSIChecker.components_without_creators" title="Link to this definition">¶</a></dt>
+<dd></dd></dl>
+
+<dl class="py attribute">
+<dt class="sig sig-object py" id="ntia_conformance_checker.BSIChecker.components_without_dependency_completeness">
+<span class="sig-name descname"><span class="pre">components_without_dependency_completeness</span></span><span class="property"><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="pre">list</span><span class="p"><span class="pre">[</span></span><span class="pre">tuple</span><span class="p"><span class="pre">[</span></span><span class="pre">str</span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="pre">str</span><span class="p"><span class="pre">]</span></span><span class="p"><span class="pre">]</span></span></span><a class="headerlink" href="#ntia_conformance_checker.BSIChecker.components_without_dependency_completeness" title="Link to this definition">¶</a></dt>
 <dd></dd></dl>
 
 <dl class="py attribute">
@@ -2374,6 +2442,25 @@ BSI Requirement: MAY be included (Optional Data Field).</p>
 <dt class="sig sig-object py" id="ntia_conformance_checker.BSIChecker.get_components_without_creators">
 <span class="sig-name descname"><span class="pre">get_components_without_creators</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">list</span><span class="p"><span class="pre">[</span></span><span class="pre">tuple</span><span class="p"><span class="pre">[</span></span><span class="pre">str</span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="pre">str</span><span class="p"><span class="pre">]</span></span><span class="p"><span class="pre">]</span></span></span></span><a class="reference internal" href="_modules/ntia_conformance_checker/bsi_checker.html#BSIChecker.get_components_without_creators"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#ntia_conformance_checker.BSIChecker.get_components_without_creators" title="Link to this definition">¶</a></dt>
 <dd><p>Check if each component creator has a valid email or URL.</p>
+</dd></dl>
+
+<dl class="py method">
+<dt class="sig sig-object py" id="ntia_conformance_checker.BSIChecker.get_components_without_dependency_completeness">
+<span class="sig-name descname"><span class="pre">get_components_without_dependency_completeness</span></span><span class="sig-paren">(</span><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">list</span><span class="p"><span class="pre">[</span></span><span class="pre">tuple</span><span class="p"><span class="pre">[</span></span><span class="pre">str</span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="pre">str</span><span class="p"><span class="pre">]</span></span><span class="p"><span class="pre">]</span></span></span></span><a class="reference internal" href="_modules/ntia_conformance_checker/bsi_checker.html#BSIChecker.get_components_without_dependency_completeness"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#ntia_conformance_checker.BSIChecker.get_components_without_dependency_completeness" title="Link to this definition">¶</a></dt>
+<dd><p>Get components without dependencies with stated completeness.</p>
+<p>BSI TR-03183-2 v2.1.0 clause 5.2.2 Table 3 “Dependencies on other
+components” (MUST); mapping: clause 8.2, a <code class="docutils literal notranslate"><span class="pre">contains</span></code> or
+<code class="docutils literal notranslate"><span class="pre">dependsOn</span></code> relationship with <code class="docutils literal notranslate"><span class="pre">completeness</span></code>. A component fails if
+it has no such relationship, or one without <code class="docutils literal notranslate"><span class="pre">completeness</span></code>. No
+dependencies: <code class="docutils literal notranslate"><span class="pre">to</span></code> <code class="docutils literal notranslate"><span class="pre">NoneElement</span></code>, <code class="docutils literal notranslate"><span class="pre">completeness</span></code> <code class="docutils literal notranslate"><span class="pre">complete</span></code>.</p>
+<dl class="field-list simple">
+<dt class="field-odd">Returns<span class="colon">:</span></dt>
+<dd class="field-odd"><p>(name, SPDX ID) of failing components.</p>
+</dd>
+<dt class="field-even">Return type<span class="colon">:</span></dt>
+<dd class="field-even"><p>list[tuple[str, str]]</p>
+</dd>
+</dl>
 </dd></dl>
 
 <dl class="py method">

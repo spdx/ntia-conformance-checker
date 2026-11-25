@@ -46,7 +46,7 @@
 <span class="kn">from</span><span class="w"> </span><span class="nn">.adapters.spdx3_adapter</span><span class="w"> </span><span class="kn">import</span> <span class="n">is_blank_license_expression</span>
 <span class="kn">from</span><span class="w"> </span><span class="nn">.base_checker</span><span class="w"> </span><span class="kn">import</span> <span class="n">BaseChecker</span>
 <span class="kn">from</span><span class="w"> </span><span class="nn">.spdx3_utils</span><span class="w"> </span><span class="kn">import</span> <span class="p">(</span>
-    <span class="n">get_dependency_relationships_completeness</span><span class="p">,</span>
+    <span class="n">get_dependency_relationships_stated_completeness</span><span class="p">,</span>
     <span class="n">get_distribution_artifacts_map</span><span class="p">,</span>
     <span class="n">has_sha512_hash</span><span class="p">,</span>
     <span class="n">iter_objects_with_property</span><span class="p">,</span>
@@ -111,6 +111,7 @@
         <span class="s2">"executable_property"</span><span class="p">,</span>
         <span class="s2">"archive_property"</span><span class="p">,</span>
         <span class="s2">"structured_property"</span><span class="p">,</span>
+        <span class="s2">"dependency_completeness"</span><span class="p">,</span>
     <span class="p">]</span>
 
     <span class="n">_COMPONENTS_WITHOUT_INFO</span> <span class="o">=</span> <span class="p">{</span>
@@ -143,6 +144,10 @@
             <span class="s2">"components_without_structured_prop"</span><span class="p">,</span>
             <span class="s2">"Components missing structured property"</span><span class="p">,</span>
         <span class="p">),</span>
+        <span class="s2">"dependency_completeness"</span><span class="p">:</span> <span class="p">(</span>
+            <span class="s2">"components_without_dependency_completeness"</span><span class="p">,</span>
+            <span class="s2">"Components missing dependencies with stated completeness"</span><span class="p">,</span>
+        <span class="p">),</span>
     <span class="p">}</span>
 
     <span class="k">def</span><span class="w"> </span><span class="fm">__init__</span><span class="p">(</span>
@@ -171,6 +176,7 @@
         <span class="bp">self</span><span class="o">.</span><span class="n">components_without_executable_prop</span><span class="p">:</span> <span class="nb">list</span><span class="p">[</span><span class="nb">tuple</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="nb">str</span><span class="p">]]</span> <span class="o">=</span> <span class="p">[]</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">components_without_archive_prop</span><span class="p">:</span> <span class="nb">list</span><span class="p">[</span><span class="nb">tuple</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="nb">str</span><span class="p">]]</span> <span class="o">=</span> <span class="p">[]</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">components_without_structured_prop</span><span class="p">:</span> <span class="nb">list</span><span class="p">[</span><span class="nb">tuple</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="nb">str</span><span class="p">]]</span> <span class="o">=</span> <span class="p">[]</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">components_without_dependency_completeness</span><span class="p">:</span> <span class="nb">list</span><span class="p">[</span><span class="nb">tuple</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="nb">str</span><span class="p">]]</span> <span class="o">=</span> <span class="p">[]</span>
 
         <span class="c1"># Initialize Additional/Optional lists (Warnings)</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">components_without_source_code_uris</span><span class="p">:</span> <span class="nb">list</span><span class="p">[</span><span class="nb">tuple</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="nb">str</span><span class="p">]]</span> <span class="o">=</span> <span class="p">[]</span>
@@ -274,7 +280,12 @@
         <span class="bp">self</span><span class="o">.</span><span class="n">doc_timestamp</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">check_timestamp</span><span class="p">()</span>
 
         <span class="c1"># Execute Component-Level Checks</span>
-        <span class="bp">self</span><span class="o">.</span><span class="n">dependency_completeness</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">check_dependency_completeness</span><span class="p">()</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">components_without_dependency_completeness</span> <span class="o">=</span> <span class="p">(</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">get_components_without_dependency_completeness</span><span class="p">()</span>
+        <span class="p">)</span>
+        <span class="bp">self</span><span class="o">.</span><span class="n">dependency_completeness</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">_all_provided</span><span class="p">(</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">components_without_dependency_completeness</span>
+        <span class="p">)</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">components_without_names</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">get_components_without_names</span><span class="p">()</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">components_without_versions</span> <span class="o">=</span> <span class="bp">self</span><span class="o">.</span><span class="n">get_components_without_versions</span><span class="p">()</span>
 
@@ -479,19 +490,49 @@
 <a class="viewcode-back" href="../../ntia_conformance_checker.html#ntia_conformance_checker.bsi_checker.BSIChecker.check_dependency_completeness">[docs]</a>
     <span class="k">def</span><span class="w"> </span><span class="nf">check_dependency_completeness</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">bool</span><span class="p">:</span>
 <span class="w">        </span><span class="sd">"""</span>
-<span class="sd">        Check if dependency enumerations clearly indicate their completeness.</span>
+<span class="sd">        Check if all components enumerate dependencies with stated completeness.</span>
+
+<span class="sd">        See :meth:`get_components_without_dependency_completeness` for the</span>
+<span class="sd">        rule.</span>
+
+<span class="sd">        Returns:</span>
+<span class="sd">            bool: True if components were evaluated and none of them fails.</span>
 <span class="sd">        """</span>
         <span class="k">if</span> <span class="ow">not</span> <span class="nb">isinstance</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">doc</span><span class="p">,</span> <span class="n">spdx3</span><span class="o">.</span><span class="n">SHACLObjectSet</span><span class="p">):</span>
             <span class="k">return</span> <span class="kc">False</span>
 
-        <span class="n">completeness_map</span> <span class="o">=</span> <span class="n">get_dependency_relationships_completeness</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">doc</span><span class="p">)</span>
+        <span class="k">return</span> <span class="bp">self</span><span class="o">.</span><span class="n">_all_provided</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">get_components_without_dependency_completeness</span><span class="p">())</span></div>
 
-        <span class="k">for</span> <span class="n">_</span><span class="p">,</span> <span class="n">completeness_list</span> <span class="ow">in</span> <span class="n">completeness_map</span><span class="o">.</span><span class="n">items</span><span class="p">():</span>
-            <span class="k">for</span> <span class="n">completeness_val</span> <span class="ow">in</span> <span class="n">completeness_list</span><span class="p">:</span>
-                <span class="k">if</span> <span class="n">completeness_val</span> <span class="ow">not</span> <span class="ow">in</span> <span class="p">(</span><span class="s2">"complete"</span><span class="p">,</span> <span class="s2">"incomplete"</span><span class="p">,</span> <span class="s2">"noAssertion"</span><span class="p">):</span>
-                    <span class="k">return</span> <span class="kc">False</span>
 
-        <span class="k">return</span> <span class="kc">True</span></div>
+<div class="viewcode-block" id="BSIChecker.get_components_without_dependency_completeness">
+<a class="viewcode-back" href="../../ntia_conformance_checker.html#ntia_conformance_checker.bsi_checker.BSIChecker.get_components_without_dependency_completeness">[docs]</a>
+    <span class="k">def</span><span class="w"> </span><span class="nf">get_components_without_dependency_completeness</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">list</span><span class="p">[</span><span class="nb">tuple</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="nb">str</span><span class="p">]]:</span>
+<span class="w">        </span><span class="sd">"""</span>
+<span class="sd">        Get components without dependencies with stated completeness.</span>
+
+<span class="sd">        BSI TR-03183-2 v2.1.0 clause 5.2.2 Table 3 "Dependencies on other</span>
+<span class="sd">        components" (MUST); mapping: clause 8.2, a ``contains`` or</span>
+<span class="sd">        ``dependsOn`` relationship with ``completeness``. A component fails if</span>
+<span class="sd">        it has no such relationship, or one without ``completeness``. No</span>
+<span class="sd">        dependencies: ``to`` ``NoneElement``, ``completeness`` ``complete``.</span>
+
+<span class="sd">        Returns:</span>
+<span class="sd">            list[tuple[str, str]]: (name, SPDX ID) of failing components.</span>
+<span class="sd">        """</span>
+        <span class="n">missing</span><span class="p">:</span> <span class="nb">list</span><span class="p">[</span><span class="nb">tuple</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="nb">str</span><span class="p">]]</span> <span class="o">=</span> <span class="p">[]</span>
+        <span class="k">if</span> <span class="ow">not</span> <span class="nb">isinstance</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">doc</span><span class="p">,</span> <span class="n">spdx3</span><span class="o">.</span><span class="n">SHACLObjectSet</span><span class="p">):</span>
+            <span class="k">return</span> <span class="n">missing</span>
+
+        <span class="n">completeness_map</span> <span class="o">=</span> <span class="n">get_dependency_relationships_stated_completeness</span><span class="p">(</span><span class="bp">self</span><span class="o">.</span><span class="n">doc</span><span class="p">)</span>
+
+        <span class="k">for</span> <span class="n">name</span><span class="p">,</span> <span class="n">spdx_id</span><span class="p">,</span> <span class="n">_</span> <span class="ow">in</span> <span class="n">iter_objects_with_property</span><span class="p">(</span>
+            <span class="bp">self</span><span class="o">.</span><span class="n">doc</span><span class="p">,</span> <span class="n">spdx3</span><span class="o">.</span><span class="n">software_Package</span><span class="p">,</span> <span class="s2">"spdxId"</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">reachable_component_ids</span>
+        <span class="p">):</span>
+            <span class="n">values</span> <span class="o">=</span> <span class="n">completeness_map</span><span class="o">.</span><span class="n">get</span><span class="p">(</span><span class="n">spdx_id</span><span class="p">,</span> <span class="p">[])</span>
+            <span class="k">if</span> <span class="ow">not</span> <span class="n">values</span> <span class="ow">or</span> <span class="kc">None</span> <span class="ow">in</span> <span class="n">values</span><span class="p">:</span>
+                <span class="n">missing</span><span class="o">.</span><span class="n">append</span><span class="p">((</span><span class="n">name</span><span class="p">,</span> <span class="n">spdx_id</span><span class="p">))</span>
+
+        <span class="k">return</span> <span class="n">missing</span></div>
 
 
 <div class="viewcode-block" id="BSIChecker.get_components_without_concluded_licenses">
