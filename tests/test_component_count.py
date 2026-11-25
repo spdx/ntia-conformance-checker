@@ -246,3 +246,19 @@ def test_spdx3_missing_spdxdocument_node_still_initializes_adapter() -> None:
 
     validation_texts = [msg.validation_message for msg in checker.validation_messages]
     assert any("No SpdxDocument object found" in msg for msg in validation_texts)
+
+
+def test_spdx3_skip_validation_records_no_validation_messages() -> None:
+    """
+    Test that validate=False skips SPDX 3 validation, as it does for SPDX 2,
+    while the adapter is still initialized.
+    """
+    filepath = os.path.join(
+        os.path.dirname(__file__), "data", "spdx3", "missing_spdxdocument_node.json"
+    )
+
+    checker = NTIAChecker(filepath, validate=False, sbom_spec="spdx3")
+
+    assert isinstance(checker.adapter, Spdx3Adapter)
+    assert checker.get_total_number_components() == 1
+    assert not checker.validation_messages
