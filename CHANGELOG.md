@@ -80,9 +80,9 @@ and this project adheres to [Semantic Versioning][semver].
 [#481]: https://github.com/spdx/ntia-conformance-checker/issues/481
 [#482]: https://github.com/spdx/ntia-conformance-checker/issues/482
 [#486]: https://github.com/spdx/ntia-conformance-checker/issues/486
-[#495]: https://github.com/spdx/ntia-conformance-checker/issues/495
 [#492]: https://github.com/spdx/ntia-conformance-checker/pull/492
 [#493]: https://github.com/spdx/ntia-conformance-checker/pull/493
+[#495]: https://github.com/spdx/ntia-conformance-checker/issues/495
 [RFC 8785]: https://www.rfc-editor.org/rfc/rfc8785
 
 ## [6.0.0] - 2026-10-05
