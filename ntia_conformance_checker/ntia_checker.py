@@ -81,6 +81,7 @@ class NTIAChecker(BaseChecker):
                 self._all_provided(self.components_without_identifiers),
                 self._all_provided(self.components_without_suppliers),
                 not self.validation_messages,
+                self._all_referenced_elements_defined(),
             ]
         )
 

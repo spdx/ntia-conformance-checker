@@ -290,6 +290,18 @@ class BaseChecker(ABC):
         """
         return self.components_evaluated and not missing
 
+    def _all_referenced_elements_defined(self) -> bool:
+        """
+        Check if every element that a root or a relationship refers to is defined.
+
+        Defined means in the SBOM, or declared as external.
+        Basis: FAQ.md Q7
+
+        Returns:
+            bool: True if no root or relationship refers to a missing element.
+        """
+        return not self.has_unknown_pointers
+
     def check_doc_version(self) -> bool:
         """Check if the document's specification version exists."""
         return self.adapter.check_doc_version()
