@@ -377,6 +377,11 @@ def test_loader_rejects_non_utf8_file(tmp_path: Path) -> None:
         load_spec(path)
 
 
+@pytest.mark.xfail(
+    yaml.__version__ == "6.0.4",
+    reason="PyYAML 6.0.4 merge-key precedence bug (yaml/pyyaml#953, #1013)",
+    strict=True,
+)
 def test_unique_key_loader_allows_chained_merge_keys() -> None:
     text = "base: &B {x: 1}\nouter:\n  mid: &A {<<: *B, x: 2}\ntop: {<<: *A}\n"
     loaded = yaml.load(text, Loader=_UniqueKeyLoader)  # nosec B506
