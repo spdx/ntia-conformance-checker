@@ -64,6 +64,15 @@
       "relationshipType": "hasDistributionArtifact",
       "to": ["https://example.com/spdx/file-01"],
       "completeness": "complete"
+    },
+    {
+      "type": "Relationship",
+      "spdxId": "https://example.com/spdx/rel-dependency-01",
+      "creationInfo": "_:creationinfo",
+      "from": "https://example.com/spdx/package-01",
+      "relationshipType": "dependsOn",
+      "to": ["NoneElement"],
+      "completeness": "complete"
     }
   ]
 }
