@@ -28,6 +28,8 @@ and this project adheres to [Semantic Versioning][semver].
 - BSI "Dependency Completeness" checks each component (BSI TR-03183-2 v2.1.0
   clause 5.2.2): it needs a `contains` or `dependsOn` relationship, each with
   `completeness`; a component without dependencies uses `to` `NoneElement`
+- `validate=False` (`--skip-validation`) now also skips validation for SPDX 3
+  SBOMs, so no validation messages are reported ([#495])
 
 ### Added
 
@@ -78,6 +80,7 @@ and this project adheres to [Semantic Versioning][semver].
 [#481]: https://github.com/spdx/ntia-conformance-checker/issues/481
 [#482]: https://github.com/spdx/ntia-conformance-checker/issues/482
 [#486]: https://github.com/spdx/ntia-conformance-checker/issues/486
+[#495]: https://github.com/spdx/ntia-conformance-checker/issues/495
 [#492]: https://github.com/spdx/ntia-conformance-checker/pull/492
 [#493]: https://github.com/spdx/ntia-conformance-checker/pull/493
 [RFC 8785]: https://www.rfc-editor.org/rfc/rfc8785

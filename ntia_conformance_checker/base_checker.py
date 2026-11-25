@@ -200,9 +200,10 @@ class BaseChecker(ABC):
                 else:
                     self.doc = object_set
                     self.__spdx3_doc, _val_msgs = validate_spdx3_data(object_set)
-                    if not self.__spdx3_doc or _val_msgs:
-                        logging.error("SpdxDocument not found or invalid.")
-                    self._validation_messages.extend(_val_msgs)
+                    if validate:
+                        if not self.__spdx3_doc or _val_msgs:
+                            logging.error("SpdxDocument not found or invalid.")
+                        self._validation_messages.extend(_val_msgs)
             case _:
                 # We can add a heuristic to detect the spec from the file content here,
                 # in case sbom_spec is not provided or invalid.
