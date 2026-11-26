@@ -406,9 +406,13 @@ def get_dependency_relationships_completeness(
 
     An absent ``completeness`` is reported as ``noAssertion``.
 
+    Args:
+        object_set: The SPDX 3 object set.
+
     Returns:
-        dict[str, list[str]]: A dictionary mapping all relationship's
-        from_id to a list of all completeness attributes.
+        dict[str, list[str]]: A dictionary mapping each relationship's
+        ``from`` SPDX ID to the ``completeness`` of each of its dependency
+        relationships (``complete``, ``incomplete`` or ``noAssertion``).
     """
     return {
         from_id: [value or "noAssertion" for value in values]

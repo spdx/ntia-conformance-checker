@@ -348,7 +348,7 @@ def test_spdx2_relationship_to_missing_element(
     relationship: tuple[str, RelationshipType, str],
     expected_unknown_edges: dict[str, list[str]],
 ) -> None:
-    """A composition relationship with a missing end is an unknown pointer."""
+    """A followed relationship with a missing end links to a missing element."""
     doc = _make_spdx2_doc(
         ["SPDXRef-A"],
         [

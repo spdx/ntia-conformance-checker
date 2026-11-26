@@ -259,7 +259,8 @@ class BaseChecker(ABC):
         # but that the SBOM does not define.
         self.missing_element_ids: set[str] = set()
 
-        # "Pointers" refers to relationship edges targeting unknown/missing elements in the graph.
+        # True if a root or a followed relationship has a missing element at
+        # either end (FAQ.md Q7).
         self.has_unknown_pointers: bool = False
         self._has_dependency_relationship: bool = False
 
@@ -565,7 +566,12 @@ class BaseChecker(ABC):
         return report_json(self)
 
     def _evaluate_graph_connectivity(self) -> None:
-        """Evaluate graph connectivity to isolate floating nodes and unknown pointers."""
+        """
+        Analyze the relationship graph.
+
+        Finds reachable and floating components, links to missing elements,
+        and whether a dependency relationship is declared.
+        """
 
         result = analyze_graph(
             self.sbom_spec, self.doc, getattr(self, "_BaseChecker__spdx3_doc", None)

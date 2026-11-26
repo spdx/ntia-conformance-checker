@@ -277,7 +277,7 @@ def _has_dependency_relationship(
     collection. The parent is reachable. A none or no-assertion child also
     counts: it states that there are no further dependencies, or that they
     are unknown. This reading is meant for any minimum elements standard;
-    FAQ.md cites NTIA 2021 and CISA 2026 for it.
+    FAQ.md Q6 cites NTIA 2021 and CISA 2026 for it.
 
     Args:
         graph: The relationship graph.
@@ -343,6 +343,11 @@ def analyze_graph(
     components represent the primary unit of software conformance in
     minimum elements standards.
 
+    Args:
+        sbom_spec: The SBOM specification, ``spdx2`` or ``spdx3``.
+        parsed_data: The parsed SBOM document.
+        spdx3_doc: The SPDX 3 ``SpdxDocument``; required for ``spdx3``.
+
     Returns:
         GraphConnectivity: Reachable and floating components, links to
             missing elements, the missing element IDs, and whether a
@@ -387,10 +392,16 @@ def analyze_graph_connectivity(
     sbom_spec: str, parsed_data: Any, spdx3_doc: Any = None
 ) -> tuple[set[str], set[str], dict[str, list[str]], bool]:
     """
-    Analyze graph connectivity to find reachable components and unknown pointers.
+    Analyze graph connectivity to find reachable components and links to
+    missing elements.
 
     Kept for compatibility; ``analyze_graph`` also returns the missing
     element IDs.
+
+    Args:
+        sbom_spec: The SBOM specification, ``spdx2`` or ``spdx3``.
+        parsed_data: The parsed SBOM document.
+        spdx3_doc: The SPDX 3 ``SpdxDocument``; required for ``spdx3``.
 
     Returns:
         tuple: (reachable_component_ids, floating_component_ids,
@@ -577,7 +588,7 @@ def _build_spdx3_graph(
                 graph.roots.extend(to_ids)
                 graph.written_relationships.extend((doc_id, to_id) for to_id in to_ids)
 
-            # Normal relationships between packages build the map
+            # Other relationships, between any elements, build the map
             else:
                 _extract_spdx3_relationship_edges(obj, graph)
 
@@ -641,6 +652,11 @@ def get_reachable_nodes(
 ) -> tuple[set[str], dict[str, list[str]]]:
     """
     Get all nodes connected to the root by using Breadth-First Search.
+
+    Args:
+        sbom_spec: The SBOM specification, ``spdx2`` or ``spdx3``.
+        parsed_data: The parsed SBOM document.
+        spdx3_doc: The SPDX 3 ``SpdxDocument``; required for ``spdx3``.
 
     Returns:
         tuple: (reachable_node_ids, traversal_edges), where
