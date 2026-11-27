@@ -344,7 +344,11 @@ def print_output(
             html_output = sbom.output_html()
             if output_file:
                 try:
-                    with open(output_file, "w", encoding="utf-8") as outfile:
+                    # A lone surrogate from the SBOM is not valid UTF-8; write
+                    # it as a backslash escape instead of failing.
+                    with open(
+                        output_file, "w", encoding="utf-8", errors="backslashreplace"
+                    ) as outfile:
                         # Put a simple HTML wrapper around the HTML report snippet
                         outfile.write(
                             "<!DOCTYPE html>\n"

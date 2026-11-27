@@ -190,9 +190,10 @@ sbomcheck -h
 
 ### Exit codes
 
-- `0`: the SBOM conforms.
-- `1`: the SBOM does not conform, or the file cannot be read or parsed (the
-  report says why).
+- `0`: the SBOM conforms, or help or the version was shown.
+- `1`: the SBOM does not conform or cannot be parsed (the report says why),
+  or the file cannot be found or its SPDX version cannot be detected (an
+  error is logged, with no report).
 - `2`: a usage error, or a report file (`--output-file`) that cannot be
   written.
 

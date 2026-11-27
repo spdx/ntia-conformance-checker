@@ -7,6 +7,7 @@ failure exits with 2."""
 
 from __future__ import annotations
 
+import json
 import sys
 from pathlib import Path
 
@@ -83,12 +84,25 @@ def test_report_write_failure(tmp_path: Path, output_type: str) -> None:
 
 def test_html_file_escapes_filename(tmp_path: Path) -> None:
     """The file name in the HTML page is escaped."""
-    sbom = tmp_path / f"{BAD.replace('/', '_')}.json"
+    sbom = tmp_path / "a&b.json"  # no < or >: not allowed in Windows file names
     sbom.write_bytes(Path(SBOM_FILE).read_bytes())
     out = tmp_path / "report.html"
     checker = SbomChecker(str(sbom), sbom_spec="spdx3")
     assert print_output(
         checker, output_type="html", output_file=str(out), verbose=False
     )
-    assert "&lt;script&gt;" in out.read_text(encoding="utf-8")
-    assert "<script>" not in out.read_text(encoding="utf-8")
+    assert "a&amp;b.json" in out.read_text(encoding="utf-8")
+
+
+def test_html_file_lone_surrogate(tmp_path: Path) -> None:
+    """A name that is not valid UTF-8 is written as an escape, not a crash."""
+    doc = json.loads(Path(SBOM_FILE).read_text(encoding="utf-8"))
+    pkg = next(e for e in doc["@graph"] if e["type"] == "dataset_DatasetPackage")
+    pkg["name"] = "\ud800"
+    pkg.pop("software_packageVersion", None)
+    sbom = tmp_path / "sbom.json"
+    sbom.write_text(json.dumps(doc), encoding="utf-8")
+    out = tmp_path / "report.html"
+    checker = SbomChecker(str(sbom), sbom_spec="spdx3")
+    assert print_output(checker, output_type="html", output_file=str(out), verbose=True)
+    assert "\\ud800" in out.read_text(encoding="utf-8")
