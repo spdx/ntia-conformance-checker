@@ -54,11 +54,35 @@ SPDX3_CASES: dict[str, tuple[dict[str, Any], bool]] = {
         {"externalIdentifier": [_ext_id("cpe23", "cpe:2.3:a:x:y:1:*:*:*:*:*:*:*")]},
         True,
     ),
+    "cpe22 external identifier": (
+        {"externalIdentifier": [_ext_id("cpe22", "cpe:/a:x:y:1")]},
+        True,
+    ),
+    "swid external identifier": (
+        {"externalIdentifier": [_ext_id("swid", "swid:example.com-y-1")]},
+        True,
+    ),
+    "swhid external identifier": (
+        {"externalIdentifier": [_ext_id("swhid", "swh:1:cnt:" + "0" * 40)]},
+        True,
+    ),
+    "gitoid external identifier": (
+        {"externalIdentifier": [_ext_id("gitoid", "gitoid:blob:sha1:" + "0" * 40)]},
+        True,
+    ),
+    "other external identifier (UUID)": (
+        {"externalIdentifier": [_ext_id("other", "urn:uuid:" + "0" * 32)]},
+        True,
+    ),
     "only the spdxId": ({}, False),
     "blank package URL": ({"software_packageUrl": "  "}, False),
     "NOASSERTION package URL": ({"software_packageUrl": "NOASSERTION"}, False),
     "email external identifier": (
         {"externalIdentifier": [_ext_id("email", "a@example.com")]},
+        False,
+    ),
+    "cve external identifier": (
+        {"externalIdentifier": [_ext_id("cve", "CVE-2026-0001")]},
         False,
     ),
     "urlScheme external identifier": (
@@ -92,6 +116,22 @@ def test_spdx3_unique_identifier(name: str) -> None:
     expected: list[tuple[str, str]] = [] if identified else [("pkg", _BASE + "pkg")]
     assert adapter.get_components_without_identifiers({_BASE + "pkg"}) == expected
     assert adapter.get_components_without_identifiers(set()) == []  # unreachable
+
+
+@pytest.mark.parametrize("cls", [spdx3.ai_AIPackage, spdx3.dataset_DatasetPackage])
+def test_spdx3_unique_identifier_subclass(cls: type[spdx3.software_Package]) -> None:
+    """Package subclasses are checked too."""
+    object_set = spdx3.SHACLObjectSet()
+    for name, purl in (("with", "pkg:pypi/a@1"), ("without", None)):
+        pkg = cls(_id=_BASE + name, creationInfo=_CREATION_INFO, name=name)
+        if purl:
+            pkg.software_packageUrl = purl
+        object_set.add(pkg)
+    adapter = Spdx3Adapter(object_set, None)
+    reachable = {_BASE + "with", _BASE + "without"}
+    assert adapter.get_components_without_identifiers(reachable) == [
+        ("without", _BASE + "without")
+    ]
 
 
 def test_get_components_without_identifiers_spdx2() -> None:

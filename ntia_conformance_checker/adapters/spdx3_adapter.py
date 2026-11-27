@@ -21,10 +21,14 @@ from ntia_conformance_checker.spdx3_utils import (
 
 from .adapter_interface import SbomAdapter, is_blank_string
 
-# External identifier types that identify a component (not an email, a CVE, or a
-# urlScheme, which names a resource rather than the component).
+# External identifier types that identify a component. FSCT 3rd ed. §2.2.2.4
+# "Unique Identifier" gives CPE, PURL, SWID, UUID, SWHID and OmniBOR (gitoid)
+# as examples; SPDX 3.0.1 has no UUID type, so a UUID is "other". Not cve,
+# email, securityOther or urlScheme: they name a vulnerability, a person or a
+# resource, not the component (SPDX 3.0.1 Core/Vocabularies/
+# ExternalIdentifierType).
 _IDENTIFIER_TYPES = frozenset(
-    {"packageUrl", "cpe22", "cpe23", "swid", "swhid", "gitoid"}
+    {"packageUrl", "cpe22", "cpe23", "swid", "swhid", "gitoid", "other"}
 )
 
 _ELEMENT_INDIVIDUALS = spdx3.IndividualElement.NAMED_INDIVIDUALS
@@ -179,7 +183,16 @@ class Spdx3Adapter(SbomAdapter):
         """
         Reachable packages with no identifier of their own: a package URL,
         a content identifier, or an external identifier of an identifying type.
-        The ``spdxId`` every SPDX 3 element has does not count.
+
+        The ``spdxId`` every SPDX 3 element has does not count: it references
+        the element within the graph, but does not identify the component
+        elsewhere. NTIA 2021 (IV. Minimum Elements > Data Fields > Other Unique
+        Identifiers): "used to identify a component, or serve as a look-up key
+        for relevant databases". FSCT 3rd ed. §2.2.2.4 "Unique Identifier":
+        identifiers "provide additional information to help uniquely define a
+        Component". SPDX 2.3.1 Annex L.1.2, which is informative, maps the
+        NTIA element to the SPDX identifier; the normative text is followed.
+        A hash is not counted; FSCT has it as its own attribute (§2.2.2.5).
         """
         identified = self._identified_package_ids()
         return [
@@ -197,6 +210,7 @@ class Spdx3Adapter(SbomAdapter):
         """IDs of the packages that carry a package URL, a content identifier
         or an identifying external identifier."""
 
+        # A property value is a string or a list proxy, by property: Any.
         def ids(prop: str, carries: Callable[[Any], bool]) -> set[str]:
             return {
                 spdx_id
@@ -206,7 +220,7 @@ class Spdx3Adapter(SbomAdapter):
                 if carries(value)
             }
 
-        def is_identifying(ext: Any) -> bool:
+        def is_identifying(ext: object) -> bool:
             kind = str(getattr(ext, "externalIdentifierType", ""))
             return kind.rsplit("/", 1)[-1] in _IDENTIFIER_TYPES and not _is_blank(
                 getattr(ext, "identifier", None), noassertion=True
