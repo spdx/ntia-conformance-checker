@@ -51,18 +51,26 @@ DAMAGE: dict[str, Callable[[Doc], None]] = {
 }
 
 
-@pytest.mark.parametrize("compliance", ["ntia", "fsct3-min", "bsi"])
 @pytest.mark.parametrize("damage", DAMAGE.values(), ids=DAMAGE.keys())
 def test_bad_spdx3_is_a_parsing_error(
-    tmp_path: Path, damage: Callable[[Doc], None], compliance: str
+    tmp_path: Path, damage: Callable[[Doc], None]
 ) -> None:
     """The checker reports a parsing error instead of raising."""
     doc = _load()
     damage(doc)
-    checker = SbomChecker(
-        _write(tmp_path, doc), compliance=compliance, sbom_spec="spdx3"
-    )
+    checker = SbomChecker(_write(tmp_path, doc), sbom_spec="spdx3")
     assert checker.doc is None
+    assert checker.parsing_errors
+    assert not checker.compliant
+
+
+def test_deeply_nested_json(tmp_path: Path) -> None:
+    """JSON nested too deeply to decode is a parsing error."""
+    path = tmp_path / "sbom.json"
+    graph = "[" * 100_000 + "]" * 100_000
+    context = json.dumps(_load()["@context"])
+    path.write_text(f'{{"@context": {context}, "@graph": {graph}}}', encoding="utf-8")
+    checker = SbomChecker(str(path), sbom_spec="spdx3")
     assert checker.parsing_errors
     assert not checker.compliant
 

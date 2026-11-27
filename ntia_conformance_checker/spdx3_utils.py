@@ -450,9 +450,11 @@ def parse_spdx3_file(file_path: str) -> tuple[spdx3.SHACLObjectSet | None, list[
         TypeError,
         AttributeError,
         NotImplementedError,
+        RecursionError,
     ) as err:
-        # json.JSONDecodeError is a ValueError. JSON that is not SPDX 3 JSON-LD
-        # raises the others, e.g. NotImplementedError for an abstract type.
+        # json.JSONDecodeError is a ValueError; RecursionError is deeply nested
+        # JSON. JSON that is not SPDX 3 JSON-LD raises the others, e.g.
+        # NotImplementedError for an abstract type.
         logging.warning("SPDX3 deserialization failed: %s", err)
         parsing_errors.append(str(err))
         return None, parsing_errors
