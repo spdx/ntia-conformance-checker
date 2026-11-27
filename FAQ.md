@@ -129,7 +129,11 @@ Basis:
   Component Data > Component Dependency Relationship).
 - An optional component is still included, so `hasOptionalComponent` counts
   like `contains`: "Every `to` Element is an optional component of the
-  `from` Element" (SPDX 3.0.1 Core/Vocabularies/RelationshipType).
+  `from` Element" (SPDX 3.0.1 Core/Vocabularies/RelationshipType). This
+  follows NTIA 2021 ("included in") and FSCT 3rd ed. §2.2.2.6.2 ("the
+  inclusion of or dependency on"); CISA 2026's "necessary for the operation"
+  fits an optional part less well, as it does `hasOptionalDependency`, which
+  also counts.
 - Dependencies may be in another document. CISA 2026 (same element): "an
   SBOM document can link to separate SBOM documents for each of the target
   component's dependencies".

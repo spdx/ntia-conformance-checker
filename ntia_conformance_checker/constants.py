@@ -155,9 +155,12 @@ SPDX2_RELATIONSHIP_TRAVERSAL: dict[str, TraversalDirection] = (
 # is included in software Y". CISA 2026, which replaces NTIA 2021, agrees
 # (Data Fields > Component Data > Component Dependency Relationship): "one
 # component is necessary for the operation of the other", and the element
-# "reflects that a component includes another component". An optional
-# component is still included (SPDX 3.0.1 Core/Vocabularies/RelationshipType
-# > hasOptionalComponent: "an optional component of the `from` Element").
+# "reflects that a component includes another component". FSCT 3rd ed.
+# §2.2.2.6.2 "Included In" Relationship: "the inclusion of or dependency on a
+# separate upstream Component". An optional component is still included
+# (SPDX 3.0.1 Core/Vocabularies/RelationshipType > hasOptionalComponent: "an
+# optional component of the `from` Element"), though CISA 2026's "necessary
+# for the operation" fits it less well; hasOptionalDependency counts likewise.
 SPDX3_DEPENDENCY_RELATIONSHIP_TYPES: frozenset[str] = frozenset(
     {
         "contains",
