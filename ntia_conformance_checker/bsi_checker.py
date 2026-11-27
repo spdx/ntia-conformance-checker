@@ -423,9 +423,14 @@ class BSIChecker(BaseChecker):
         for name, spdx_id, _ in iter_objects_with_property(
             self.doc, spdx3.software_Package, "spdxId", self.reachable_component_ids
         ):
-            has_filename = False
             linked_files = artifacts_map.get(spdx_id, [])
 
+            # No linked file: a logical component, which needs no filename
+            # (BSI TR-03183-2 v2.1.0 §3.2.2 "Logical component").
+            if not linked_files:
+                continue
+
+            has_filename = False
             for file_obj in linked_files:
                 file_name = getattr(file_obj, "name", "")
                 if file_name and isinstance(file_name, str) and file_name.strip():

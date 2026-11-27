@@ -112,18 +112,40 @@ def test_bsichecker_missing_structured_property() -> None:
     )
 
 
-def test_bsichecker_missing_distribution_filename() -> None:
-    """Test that a component missing a distribution filename fails compliance."""
-    test_file = os.path.join(BSI_DATA_DIR, "missing_distribution_filename.json")
-    if not os.path.exists(test_file):
-        pytest.skip(f"Test file {test_file} not found.")
-
-    sbom = BSIChecker(test_file, compliance="bsi", sbom_spec="spdx3")
-
-    assert not sbom.compliant
-    TestCase().assertCountEqual(
-        _component_names(sbom.components_without_filenames), ["example-component"]
+@pytest.mark.parametrize(
+    ("distribution_file", "missing"),
+    [
+        ("named", False),
+        ("unnamed", True),
+        ("absent", False),  # logical component, §3.2.2
+    ],
+)
+def test_bsichecker_distribution_filename(
+    tmp_path: Path, distribution_file: str, missing: bool
+) -> None:
+    """A linked distribution file needs a name; no linked file is skipped."""
+    file_id = "https://example.com/spdx/file-01"
+    sbom_json = json.loads(
+        Path(BSI_DATA_DIR, "compliant_bsi_spdx3.json").read_text(encoding="utf-8")
     )
+    graph = sbom_json["@graph"]
+    if distribution_file == "unnamed":
+        next(o for o in graph if o.get("spdxId") == file_id).pop("name")
+    if distribution_file == "absent":
+        graph[:] = [
+            o
+            for o in graph
+            if o.get("spdxId") != file_id and file_id not in o.get("to", [])
+        ]
+    test_file = tmp_path / "sbom.json"
+    test_file.write_text(json.dumps(sbom_json), encoding="utf-8")
+
+    sbom = BSIChecker(str(test_file), compliance="bsi", sbom_spec="spdx3")
+
+    assert _component_names(sbom.components_without_filenames) == (
+        ["example-component"] if missing else []
+    )
+    assert sbom.compliant is not missing
 
 
 def test_bsichecker_missing_concluded_license() -> None:
