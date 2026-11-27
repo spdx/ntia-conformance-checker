@@ -11,6 +11,7 @@ Some of the code here was originally in the BaseChecker class.
 from __future__ import annotations
 
 from dataclasses import dataclass
+from html import escape
 from typing import TYPE_CHECKING, Any
 
 from .constants import (
@@ -54,6 +55,11 @@ _NOT_EVALUATED = (
 def _safe_attr(obj: object, name: str) -> str:
     val = getattr(obj, name, None)
     return str(val) if val not in (None, "") else "N/A"
+
+
+def _esc(value: object) -> str:
+    """Return ``value`` as text safe to put in HTML element content."""
+    return escape(str(value))
 
 
 def print_validation_messages(
@@ -120,15 +126,17 @@ def get_validation_messages_html(
             continue
         html += "<li>\n"
         html += "<p class='conformance-val-msg-label'>Validation message:</p>\n"
-        html += f"<p class='conformance-val-msg'>{msg.validation_message}</p>\n"
+        html += f"<p class='conformance-val-msg'>{_esc(msg.validation_message)}</p>\n"
         if verbose and getattr(msg, "context", None):
             ctx = msg.context
             if ctx:
                 html += "<p class='conformance-val-ctx-label'>Validation context:</p>\n"
                 html += "<ul class='conformance-val-ctx'>\n"
-                html += f"<li>SPDX ID: {_safe_attr(ctx, 'spdx_id')}</li>\n"
-                html += f"<li>Parent ID: {_safe_attr(ctx, 'parent_id')}</li>\n"
-                html += f"<li>Element type: {_safe_attr(ctx, 'element_type')}</li>\n"
+                html += f"<li>SPDX ID: {_esc(_safe_attr(ctx, 'spdx_id'))}</li>\n"
+                html += f"<li>Parent ID: {_esc(_safe_attr(ctx, 'parent_id'))}</li>\n"
+                html += (
+                    f"<li>Element type: {_esc(_safe_attr(ctx, 'element_type'))}</li>\n"
+                )
                 html += "</ul>\n"
         html += "</li>\n"
     html += "</ul>"
@@ -345,8 +353,8 @@ def _generate_graph_html_report(rc: ReportContext) -> list[str]:
         graph_issues_report.append("<ul class='conformance-err-list'>")
         for source_label, source, target_label, target in _iter_missing_links(rc):
             graph_issues_report.append(
-                f"<li>{source_label} '<b>{source}</b>' links to {target_label} "
-                f"'<b>{target}</b>'</li>"
+                f"<li>{source_label} '<b>{_esc(source)}</b>' links to {target_label} "
+                f"'<b>{_esc(target)}</b>'</li>"
             )
         graph_issues_report.append("</ul>")
 
@@ -359,7 +367,7 @@ def _generate_graph_html_report(rc: ReportContext) -> list[str]:
         )
         graph_issues_report.append("<ul class='conformance-msg-list'>")
         for spdx_id in floating_ids[:10]:
-            graph_issues_report.append(f"<li>{spdx_id}</li>")
+            graph_issues_report.append(f"<li>{_esc(spdx_id)}</li>")
         if len(floating_ids) > 10:
             graph_issues_report.append(
                 f"<li>... and {len(floating_ids) - 10} more items.</li>"
@@ -397,7 +405,7 @@ def report_html(
         )
         report.append("<ul class='conformance-err-list'>")
         for err in rc.parsing_errors:
-            report.append(f"<li>{err}</li>")
+            report.append(f"<li>{_esc(err)}</li>")
         report.append("</ul>")
         report.append("</div>")
         return "\n".join(report)
@@ -407,7 +415,7 @@ def report_html(
         report.append(
             "<div class='conformance-err'>"
             "<p class='conformance-err-label'>"
-            f"Unsupported compliance standard {rc.compliance_standard!r}"
+            f"Unsupported compliance standard {_esc(repr(rc.compliance_standard))}"
             "</p>"
             "</div>"
         )
@@ -437,7 +445,7 @@ def report_html(
         report.append("<ul class='conformance-mis-list'>")
         for info_name, components in rc.components_without_info:
             component_names = [
-                name if name not in (None, "") else id for name, id in components
+                _esc(name if name not in (None, "") else id) for name, id in components
             ]
             report.append(
                 f"<li>{info_name} ({len(components)}): "
@@ -452,7 +460,7 @@ def report_html(
         report.append(
             "<p class='conformance-val-label'>"
             "The document is not valid according to the SBOM specification"
-            f' ("{rc.sbom_spec}").<br />'
+            f' ("{_esc(rc.sbom_spec)}").<br />'
             "The following violations were found:"
             "</p>"
         )

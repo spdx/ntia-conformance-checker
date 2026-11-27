@@ -15,6 +15,14 @@ and this project adheres to [Semantic Versioning][semver].
 
 ## [Unreleased]
 
+### Fixed
+
+- The HTML report escapes text from the SBOM and the command line, such as
+  names, IDs, file names and error messages
+- A report file that cannot be written (`--output-file`) exits with 2, not
+  0 or 1; `print_output` returns False when that happens
+- README lists the exit codes
+
 ## [6.1.0] - 2026-11-26
 
 This minor release improves relationship traversal and missing element

@@ -12,6 +12,7 @@ import logging
 import os
 import re
 import sys
+from html import escape
 from importlib.metadata import version
 from typing import TYPE_CHECKING, Any
 
@@ -304,7 +305,7 @@ def get_sbom_spec(file: str, sbom_spec: str) -> str:
 
 def print_output(
     sbom: BaseChecker, *, output_type: str, output_file: str | None, verbose: bool
-) -> None:
+) -> bool:
     """
     Print or save the output report.
 
@@ -316,6 +317,9 @@ def print_output(
         output_type: The report format, e.g. ``json`` or ``html``.
         output_file: The file to save the report to, or None to print it.
         verbose: Whether to include more details in a printed report.
+
+    Returns:
+        bool: False if the report file could not be written, otherwise True.
     """
     match output_type:
         case "print":
@@ -332,6 +336,7 @@ def print_output(
                         outfile.write(canonical)
                 except (OSError, rfc8785.CanonicalizationError) as exc:
                     logging.error("Could not write JSON output file: %s", exc)
+                    return False
             else:
                 print(json.dumps(result_dict, indent=2, sort_keys=True))
 
@@ -351,12 +356,14 @@ def print_output(
                             "<body>\n"
                             "<h1>SBOM Conformance Report</h1>\n"
                         )
-                        outfile.write(f"<p>Filename: {sbom.file}</p>\n")
+                        outfile.write(f"<p>Filename: {escape(sbom.file)}</p>\n")
                         outfile.write(html_output)
                         outfile.write("\n</body>\n</html>\n")
                 except OSError as exc:
                     logging.error("Could not write HTML output file: %s", exc)
+                    return False
             else:
                 print(html_output)
 
     # "none" (and its alias "quiet") emit no report.
+    return True
