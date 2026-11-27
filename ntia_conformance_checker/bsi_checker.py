@@ -9,6 +9,10 @@ from __future__ import annotations
 from typing import Any
 
 from spdx_python_model.bindings import v3_0_1 as spdx3
+from spdx_tools.spdx.validation.validation_message import (
+    ValidationContext,
+    ValidationMessage,
+)
 
 from .adapters.spdx3_adapter import is_blank_license_expression
 from .base_checker import BaseChecker
@@ -55,6 +59,16 @@ def _ids_with_license_expression(
         for from_id, to_ids in iter_relationships_by_type(object_set, rel_type)
         if any(_is_license_expression(object_set.find_by_id(t)) for t in to_ids)
     }
+
+
+# BSI TR-03183-2 v2.1.0 §4 "SBOM formats": an SBOM MUST be valid "System
+# Package Data Exchange (SPDX), version 3.0.1 or higher" (or CycloneDX 1.6+,
+# which this tool does not read). The SPDX 3 parser reads 3.0.1 only.
+SBOM_FORMAT_LABEL = "SBOM Format (SPDX 3.0.1 or higher)"
+SBOM_FORMAT_MESSAGE = (
+    'BSI TR-03183-2 v2.1.0 §4 "SBOM formats" requires SPDX version 3.0.1 '
+    "or higher; SPDX 2 is not accepted. Other requirements were not checked."
+)
 
 
 # pylint: disable=too-many-instance-attributes
@@ -161,10 +175,16 @@ class BSIChecker(BaseChecker):
             file=file, validate=validate, compliance=compliance, sbom_spec=sbom_spec
         )
 
+        self.sbom_format: bool = self.sbom_spec == "spdx3"
+        if not self.sbom_format:
+            self._report_unsupported_format()
+            return
+
         if self.doc:
             self.compliant = self.check_compliance()
 
         self.table_elements = [
+            (SBOM_FORMAT_LABEL, self.sbom_format),
             ("Creator of the SBOM", self.doc_creator),
             ("Timestamp", self.doc_timestamp),
             ("Dependency Completeness", self.dependency_completeness),
@@ -302,6 +322,7 @@ class BSIChecker(BaseChecker):
 
         return all(
             [
+                self.sbom_format,
                 self.doc_creator,
                 self.doc_timestamp,
                 self.doc_uri,
@@ -310,6 +331,20 @@ class BSIChecker(BaseChecker):
                 self._all_referenced_elements_defined(),
             ]
         )
+
+    def _report_unsupported_format(self) -> None:
+        """
+        Report an SBOM format that BSI TR-03183-2 v2.1.0 §4 does not accept.
+
+        The SBOM is non-compliant whatever its content, so the field checks
+        are skipped and the format is the only reported requirement.
+        """
+        self.compliant = False
+        self.all_components_without_info = []
+        self._conformance_messages.append(
+            ValidationMessage(SBOM_FORMAT_MESSAGE, ValidationContext())
+        )
+        self.table_elements = [(SBOM_FORMAT_LABEL, False)]
 
     @staticmethod
     def _is_valid_creator(
