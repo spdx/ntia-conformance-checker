@@ -61,7 +61,7 @@ def _ids_with_license_expression(
     }
 
 
-# pylint: disable=too-many-instance-attributes
+# pylint: disable=too-many-instance-attributes,too-many-public-methods
 class BSIChecker(BaseChecker):
     """
     BSI Minimum Elements check according to BSI TR-03183-2 v2.1.0.
