@@ -15,6 +15,19 @@ and this project adheres to [Semantic Versioning][semver].
 
 ## [Unreleased]
 
+### Changed
+
+- SPDX 3 unique identifier (NTIA, FSCT3): a reachable package needs a package
+  URL, a content identifier or an external identifier of type packageUrl,
+  cpe22, cpe23, swid, swhid, gitoid or other (e.g. a UUID); the bare
+  `spdxId` every element has no longer counts, so an SBOM that relied on it
+  now reports the package as missing an identifier. NTIA 2021 asks for an
+  identifier "used to identify a component, or serve as a look-up key for
+  relevant databases"; FSCT 3rd ed. §2.2.2.4 lists CPE, PURL, SWID, UUID,
+  SWHID and OmniBOR as examples ([#504])
+
+[#504]: https://github.com/spdx/ntia-conformance-checker/pull/504
+
 ## [6.1.0] - 2026-11-26
 
 This minor release improves relationship traversal and missing element

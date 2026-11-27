@@ -62,6 +62,7 @@
       "spdxId": "https://swinslow.net/spdx-examples/SPDXRef-Package-Valid",
       "creationInfo": "_:creationinfo",
       "name": "Valid-Root-Package",
+      "software_packageUrl": "pkg:generic/valid-root-package",
       "software_packageVersion": "1.0.0",
       "suppliedBy": "https://swinslow.net/spdx-examples/SPDXRef-Supplier"
     },
@@ -76,6 +77,7 @@
       "type": "software_Package",
       "spdxId": "https://swinslow.net/spdx-examples/SPDXRef-Package-Sub",
       "name": "Valid-Sub-Package",
+      "software_packageUrl": "pkg:generic/valid-sub-package",
       "software_packageVersion": "2.0",
       "suppliedBy": "https://swinslow.net/spdx-examples/SPDXRef-Supplier",
       "creationInfo": "_:creationinfo"

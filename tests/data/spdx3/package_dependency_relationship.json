@@ -55,6 +55,7 @@
       "spdxId": "https://spdx.org/spdxdocs/Package-application",
       "creationInfo": "_:creationinfo",
       "name": "application",
+      "software_packageUrl": "pkg:generic/application",
       "software_packageVersion": "1.0.0",
       "suppliedBy": "https://spdx.org/spdxdocs/Organization-test-supplier",
       "software_primaryPurpose": "application"
@@ -64,6 +65,7 @@
       "spdxId": "https://spdx.org/spdxdocs/Package-library",
       "creationInfo": "_:creationinfo",
       "name": "library",
+      "software_packageUrl": "pkg:generic/library",
       "software_packageVersion": "2.0.0",
       "suppliedBy": "https://spdx.org/spdxdocs/Organization-test-supplier",
       "software_primaryPurpose": "library"

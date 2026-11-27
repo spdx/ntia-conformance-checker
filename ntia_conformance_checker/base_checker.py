@@ -367,7 +367,7 @@ class BaseChecker(ABC):
 
     def get_components_without_identifiers(self) -> list[tuple[str, str]]:
         """
-        Retrieve components missing unique identifiers (SPDX IDs).
+        Retrieve components missing unique identifiers (see the adapter).
 
         Returns:
             list[tuple[str, str]]: A list of tuples of the form

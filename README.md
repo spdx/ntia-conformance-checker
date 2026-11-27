@@ -41,6 +41,11 @@ The minimum elements include:
 - Author of SBOM Data
 - Timestamp
 
+On SPDX 3, a component's unique identifier is a package URL, a content
+identifier, or an external identifier of type packageUrl, cpe22, cpe23, swid,
+swhid or gitoid; the `spdxId` every element has does not count. On SPDX 2 it
+is the SPDXID.
+
 As defined by the NTIA, the minimum elements are
 "the essential pieces that support basic SBOM functionality and will serve as
 the foundation for an evolving approach to software transparency."
