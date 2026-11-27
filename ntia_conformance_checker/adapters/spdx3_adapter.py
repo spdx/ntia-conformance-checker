@@ -250,8 +250,12 @@ class Spdx3Adapter(SbomAdapter):
 
         sbom_types: list[str] = []
 
-        # Assuming only one rootElement per document
-        root_elem = root_elements[0]
+        # A document may have several roots (SPDX 3.0.1 Core/Properties/
+        # rootElement has no maximum count); use the SBOM if one is a root.
+        root_elem = next(
+            (r for r in root_elements if isinstance(r, spdx3.software_Sbom)),
+            root_elements[0],
+        )
         if not isinstance(root_elem, spdx3.software_Sbom):
             doc_id = getattr(self.spdx3_doc, "spdxId", None)
             root_elem_id = getattr(root_elem, "spdxId", None)

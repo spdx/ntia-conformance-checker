@@ -417,10 +417,11 @@ def test_sbomchecker_spdx3_missing_unique_identifiers() -> None:
     test_file = (
         Path(__file__).parent / "data" / "spdx3" / "missing_unique_identifiers.json"
     )
-    # SPDX 3 does not allow any element without a unique identifier,
-    # so we expect a ValueError to be raised.
-    with pytest.raises(ValueError):
-        sbom_checker.SbomChecker(str(test_file), sbom_spec="spdx3")
+    # SPDX 3 does not allow any element without a unique identifier: the file
+    # is a parsing error.
+    sbom = sbom_checker.SbomChecker(str(test_file), sbom_spec="spdx3")
+    assert sbom.parsing_errors
+    assert not sbom.compliant
 
 
 ### Other tests

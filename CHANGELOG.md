@@ -15,6 +15,15 @@ and this project adheres to [Semantic Versioning][semver].
 
 ## [Unreleased]
 
+### Fixed
+
+- SPDX 3 content that is JSON but not valid SPDX 3 JSON-LD, such as an
+  element without `spdxId`, an unknown or abstract type, or a `@graph` that
+  is not a list, is reported as a parsing error, not raised as an exception
+- SPDX 3 SBOM type (FSCT3 "SBOM generation context") is read from the root
+  that is an `Sbom`, not only from the first root; a document may have
+  several roots
+
 ## [6.1.0] - 2026-11-26
 
 This minor release improves relationship traversal and missing element
