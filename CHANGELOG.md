@@ -21,7 +21,9 @@ and this project adheres to [Semantic Versioning][semver].
   URL, a content identifier or an external identifier of type packageUrl,
   cpe22, cpe23, swid, swhid or gitoid; the bare `spdxId` every element has no
   longer counts, so an SBOM that relied on it now reports the package as
-  missing an identifier
+  missing an identifier ([#504])
+
+[#504]: https://github.com/spdx/ntia-conformance-checker/pull/504
 
 ## [6.1.0] - 2026-11-26
 
