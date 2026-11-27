@@ -98,7 +98,7 @@ jobs:
   # page never carries files that were not published.
   attach-release:
     name: Attach files to GitHub Release
-    needs: publish
+    needs: [build, publish]
     runs-on: ubuntu-latest
     permissions:
       contents: write  # gh release upload
@@ -127,7 +127,7 @@ jobs:
 
   sign-and-attest:
     name: Sign artifacts and attach provenance
-    needs: publish
+    needs: [build, publish]
     runs-on: ubuntu-latest
     permissions:
       contents: write  # gh release upload, for the signature bundles
