@@ -15,6 +15,14 @@ and this project adheres to [Semantic Versioning][semver].
 
 ## [Unreleased]
 
+### Changed
+
+- "Dependency relationships provided?" counts `hasOptionalComponent` (SPDX 2
+  `OPTIONAL_COMPONENT_OF`) as a dependency relationship, like `contains`; see
+  Q6 in `FAQ.md` ([#505])
+
+[#505]: https://github.com/spdx/ntia-conformance-checker/pull/505
+
 ## [6.1.0] - 2026-11-26
 
 This minor release improves relationship traversal and missing element
