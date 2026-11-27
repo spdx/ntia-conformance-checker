@@ -146,6 +146,12 @@ def test_bsichecker_distribution_filename(
         ["example-component"] if missing else []
     )
     assert sbom.compliant is not missing
+    logical = distribution_file == "absent"
+    assert _component_names(sbom.components_without_distribution_files) == (
+        ["example-component"] if logical else []
+    )
+    messages = [m.validation_message for m in sbom.conformance_messages]
+    assert any("treated as logical components" in m for m in messages) is logical
 
 
 def test_bsichecker_missing_concluded_license() -> None:
