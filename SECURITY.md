@@ -1,24 +1,33 @@
-# Security Policy
+---
+SPDX-FileCopyrightText: 2024-present SPDX contributors
+SPDX-FileType: DOCUMENTATION
+SPDX-License-Identifier: Apache-2.0
+---
 
-## Supported Versions
+# Security policy
+
+## Supported versions
 
 | Version | Supported          |
 | ------- | ------------------ |
-| 6.x   | :white_check_mark: |
-| 5.x   | :white_check_mark: |
-| 4.x   | :x: |
-| 3.x   | :x: |
-| 2.x   | :x: |
-| 1.x   | :x: |
-| 0.x   | :x: |
+| 6.x     | :white_check_mark: |
+| 5.x     | :white_check_mark: |
+| 4.x     | :x:                |
+| 3.x     | :x:                |
+| 2.x     | :x:                |
+| 1.x     | :x:                |
+| 0.x     | :x:                |
 
-## Reporting a Vulnerability
+## Reporting a vulnerability
 
-This repository has private reporting enabled. You can follow [these instructions](https://docs.github.com/en/code-security/security-advisories/guidance-on-reporting-and-writing-information-about-vulnerabilities/privately-reporting-a-security-vulnerability#privately-reporting-a-security-vulnerability) to report a vulnerability to the maintainers of this project. The maintainers will make a best-effort attempt to respond within two weeks.
+This repository has private reporting enabled. Follow
+[GitHub's instructions][private-reporting] to report a vulnerability to the
+maintainers. The maintainers will make a best-effort attempt to respond within
+two weeks.
 
 ## Verify release files
 
-Releases after 6.0.0 attach these files to each
+Releases from 6.1.1 attach these files to each
 [GitHub release](https://github.com/spdx/ntia-conformance-checker/releases):
 
 - the wheel and the source distribution (sdist), as published on PyPI;
@@ -46,7 +55,9 @@ gh attestation verify <file> -R spdx/ntia-conformance-checker \
 
 `<file>` is the wheel, the sdist, or the SBOM.
 
-Version 6.0.0 and earlier have no release SBOM, signatures or attestations.
+Version 6.1.0 and earlier have no files, signatures or attestations on the
+GitHub release. From 6.0.0, the wheel on PyPI embeds its SBOM.
 
+[private-reporting]: https://docs.github.com/en/code-security/security-advisories/guidance-on-reporting-and-writing-information-about-vulnerabilities/privately-reporting-a-security-vulnerability#privately-reporting-a-security-vulnerability
 [PEP 770]: https://peps.python.org/pep-0770/
 [Sigstore]: https://www.sigstore.dev/
