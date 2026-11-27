@@ -15,6 +15,16 @@ and this project adheres to [Semantic Versioning][semver].
 
 ## [Unreleased]
 
+## [6.1.1] - 2026-11-27
+
+### Fixed
+
+- Release workflow: the jobs that attach, sign and attest release files could
+  not read the SBOM file name and failed, so 6.1.0 has no release files
+  ([#501])
+
+[#501]: https://github.com/spdx/ntia-conformance-checker/pull/501
+
 ## [6.1.0] - 2026-11-26
 
 This minor release improves relationship traversal and missing element
@@ -535,7 +545,8 @@ Thanks to @goneall, @licquia, and @kestewart for mentoring @linynjosh.
 [keepachangelog]: https://keepachangelog.com/en/1.1.0/
 [semver]: https://semver.org/spec/v2.0.0.html
 
-[Unreleased]: https://github.com/spdx/ntia-conformance-checker/compare/v6.1.0...HEAD
+[Unreleased]: https://github.com/spdx/ntia-conformance-checker/compare/v6.1.1...HEAD
+[6.1.1]: https://github.com/spdx/ntia-conformance-checker/releases/tag/v6.1.1
 [6.1.0]: https://github.com/spdx/ntia-conformance-checker/releases/tag/v6.1.0
 [6.0.0]: https://github.com/spdx/ntia-conformance-checker/releases/tag/v6.0.0
 [5.0.3]: https://github.com/spdx/ntia-conformance-checker/releases/tag/v5.0.3
