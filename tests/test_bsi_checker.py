@@ -12,6 +12,7 @@ from unittest import TestCase
 import pytest
 
 from ntia_conformance_checker import BSIChecker
+from ntia_conformance_checker.bsi_checker import SBOM_FORMAT_LABEL, SBOM_FORMAT_MESSAGE
 
 
 def _component_names(tuples_list: list[tuple[str, str]]) -> list[str]:
@@ -265,3 +266,50 @@ def test_bsichecker_dependency_completeness(
 
     assert bool(sbom.components_without_dependency_completeness) is missing
     assert sbom.compliant is not missing
+
+
+@pytest.mark.parametrize(
+    ("sbom_spec", "path", "accepted"),
+    [
+        ("spdx3", "bsi/compliant_bsi_spdx3.json", True),
+        ("spdx2", "no_elements_missing/SPDXJSONExample-v2.3.spdx.json", False),
+        ("spdx2", "no_elements_missing/SPDXTagExample-v2.3.spdx", False),
+    ],
+)
+def test_bsichecker_sbom_format(
+    sbom_spec: str, path: str, accepted: bool, capsys: pytest.CaptureFixture[str]
+) -> None:
+    """BSI TR-03183-2 v2.1.0 §4 "SBOM formats" accepts SPDX 3.0.1+ only."""
+    data_dir = Path(__file__).parent / "data"
+    sbom = BSIChecker(str(data_dir / path), compliance="bsi", sbom_spec=sbom_spec)
+    sbom.print_table_output()
+    messages = [m["message"] for m in sbom.output_json()["conformanceMessages"]]
+
+    assert sbom.compliant is accepted
+    assert sbom.table_elements[0] == (SBOM_FORMAT_LABEL, accepted)
+    assert (SBOM_FORMAT_MESSAGE in messages) is not accepted
+    assert (SBOM_FORMAT_MESSAGE in capsys.readouterr().out) is not accepted
+    if not accepted:
+        assert len(sbom.table_elements) == 1
+        assert not sbom.all_components_without_info
+
+
+@pytest.mark.parametrize(
+    ("spec_version", "accepted"),
+    [("3.0.1", True), ("3.1.0", True), ("3.0.0", False)],
+)
+def test_bsichecker_spdx3_spec_version(
+    tmp_path: Path, spec_version: str, accepted: bool
+) -> None:
+    """§4 "SBOM formats" needs SPDX 3.0.1 or higher, read from specVersion."""
+    source = Path(__file__).parent / "data" / "bsi" / "compliant_bsi_spdx3.json"
+    doc = json.loads(source.read_text(encoding="utf-8"))
+    for element in doc["@graph"]:
+        if element.get("type") == "CreationInfo":
+            element["specVersion"] = spec_version
+    path = tmp_path / "sbom.json"
+    path.write_text(json.dumps(doc), encoding="utf-8")
+    sbom = BSIChecker(str(path), compliance="bsi", sbom_spec="spdx3")
+
+    assert sbom.table_elements[0] == (SBOM_FORMAT_LABEL, accepted)
+    assert sbom.compliant is accepted
