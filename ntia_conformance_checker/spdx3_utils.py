@@ -6,7 +6,6 @@
 
 from __future__ import annotations
 
-import json
 import logging
 import os
 from typing import TYPE_CHECKING, Any, Union
@@ -444,7 +443,18 @@ def parse_spdx3_file(file_path: str) -> tuple[spdx3.SHACLObjectSet | None, list[
     try:
         with open(file_path, "rb") as f:
             spdx3.JSONLDDeserializer().read(f, object_set)
-    except (OSError, json.JSONDecodeError) as err:
+    except (
+        OSError,
+        ValueError,
+        KeyError,
+        TypeError,
+        AttributeError,
+        NotImplementedError,
+        RecursionError,
+    ) as err:
+        # json.JSONDecodeError is a ValueError; RecursionError is deeply nested
+        # JSON. JSON that is not SPDX 3 JSON-LD raises the others, e.g.
+        # NotImplementedError for an abstract type.
         logging.warning("SPDX3 deserialization failed: %s", err)
         parsing_errors.append(str(err))
         return None, parsing_errors
