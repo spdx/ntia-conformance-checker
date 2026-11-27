@@ -64,12 +64,13 @@ def main() -> None:
             )
         logging.debug("SBOM name: %s", sbom.sbom_name)
 
-    print_output(
+    if not print_output(
         sbom,
         output_type=args.output,
         output_file=args.output_file,
         verbose=verbose,
-    )
+    ):
+        sys.exit(2)
 
     sys.exit(0 if sbom.compliant else 1)  # 0 indicates success
 
