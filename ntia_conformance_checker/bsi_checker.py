@@ -6,6 +6,7 @@
 
 from __future__ import annotations
 
+import re
 from typing import Any
 
 from spdx_python_model.bindings import v3_0_1 as spdx3
@@ -63,12 +64,21 @@ def _ids_with_license_expression(
 
 # BSI TR-03183-2 v2.1.0 §4 "SBOM formats": an SBOM MUST be valid "System
 # Package Data Exchange (SPDX), version 3.0.1 or higher" (or CycloneDX 1.6+,
-# which this tool does not read). The SPDX 3 parser reads 3.0.1 only.
+# which this tool does not read). The version is the document's specVersion.
 SBOM_FORMAT_LABEL = "SBOM Format (SPDX 3.0.1 or higher)"
 SBOM_FORMAT_MESSAGE = (
     'BSI TR-03183-2 v2.1.0 §4 "SBOM formats" requires SPDX version 3.0.1 '
     "or higher; SPDX 2 is not accepted. Other requirements were not checked."
 )
+_MIN_SPDX_VERSION = (3, 0, 1)
+
+
+def _is_accepted_spdx_version(spec_version: str | None) -> bool:
+    """Whether an SPDX 3 specVersion is 3.0.1 or higher (BSI TR-03183-2 §4)."""
+    match = re.match(r"(\d+)\.(\d+)\.(\d+)", spec_version or "")
+    if not match:
+        return False
+    return tuple(int(part) for part in match.groups()) >= _MIN_SPDX_VERSION
 
 
 # pylint: disable=too-many-instance-attributes
@@ -170,15 +180,26 @@ class BSIChecker(BaseChecker):
         self.doc_creator: bool = False
         self.doc_uri: bool = False
         self.dependency_completeness: bool = False
+        self.sbom_format: bool = False
 
         super().__init__(
             file=file, validate=validate, compliance=compliance, sbom_spec=sbom_spec
         )
 
-        self.sbom_format: bool = self.sbom_spec == "spdx3"
-        if not self.sbom_format:
+        if self.sbom_spec != "spdx3":
             self._report_unsupported_format()
             return
+
+        self.sbom_format = _is_accepted_spdx_version(self.get_doc_spec_version())
+        if self.doc and not self.sbom_format:
+            self._conformance_messages.append(
+                ValidationMessage(
+                    'BSI TR-03183-2 v2.1.0 §4 "SBOM formats" requires SPDX '
+                    "version 3.0.1 or higher; found specVersion "
+                    f"{self.get_doc_spec_version()!r}.",
+                    ValidationContext(),
+                )
+            )
 
         if self.doc:
             self.compliant = self.check_compliance()

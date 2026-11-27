@@ -292,3 +292,24 @@ def test_bsichecker_sbom_format(
     if not accepted:
         assert len(sbom.table_elements) == 1
         assert not sbom.all_components_without_info
+
+
+@pytest.mark.parametrize(
+    ("spec_version", "accepted"),
+    [("3.0.1", True), ("3.1.0", True), ("3.0.0", False)],
+)
+def test_bsichecker_spdx3_spec_version(
+    tmp_path: Path, spec_version: str, accepted: bool
+) -> None:
+    """§4 "SBOM formats" needs SPDX 3.0.1 or higher, read from specVersion."""
+    source = Path(__file__).parent / "data" / "bsi" / "compliant_bsi_spdx3.json"
+    doc = json.loads(source.read_text(encoding="utf-8"))
+    for element in doc["@graph"]:
+        if element.get("type") == "CreationInfo":
+            element["specVersion"] = spec_version
+    path = tmp_path / "sbom.json"
+    path.write_text(json.dumps(doc), encoding="utf-8")
+    sbom = BSIChecker(str(path), compliance="bsi", sbom_spec="spdx3")
+
+    assert sbom.table_elements[0] == (SBOM_FORMAT_LABEL, accepted)
+    assert sbom.compliant is accepted
