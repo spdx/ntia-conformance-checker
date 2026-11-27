@@ -297,7 +297,8 @@
         <span class="c1"># but that the SBOM does not define.</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">missing_element_ids</span><span class="p">:</span> <span class="nb">set</span><span class="p">[</span><span class="nb">str</span><span class="p">]</span> <span class="o">=</span> <span class="nb">set</span><span class="p">()</span>
 
-        <span class="c1"># "Pointers" refers to relationship edges targeting unknown/missing elements in the graph.</span>
+        <span class="c1"># True if a root or a followed relationship has a missing element at</span>
+        <span class="c1"># either end (FAQ.md Q7).</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">has_unknown_pointers</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">False</span>
         <span class="bp">self</span><span class="o">.</span><span class="n">_has_dependency_relationship</span><span class="p">:</span> <span class="nb">bool</span> <span class="o">=</span> <span class="kc">False</span>
 
@@ -660,7 +661,12 @@
 
 
     <span class="k">def</span><span class="w"> </span><span class="nf">_evaluate_graph_connectivity</span><span class="p">(</span><span class="bp">self</span><span class="p">)</span> <span class="o">-&gt;</span> <span class="kc">None</span><span class="p">:</span>
-<span class="w">        </span><span class="sd">"""Evaluate graph connectivity to isolate floating nodes and unknown pointers."""</span>
+<span class="w">        </span><span class="sd">"""</span>
+<span class="sd">        Analyze the relationship graph.</span>
+
+<span class="sd">        Finds reachable and floating components, links to missing elements,</span>
+<span class="sd">        and whether a dependency relationship is declared.</span>
+<span class="sd">        """</span>
 
         <span class="n">result</span> <span class="o">=</span> <span class="n">analyze_graph</span><span class="p">(</span>
             <span class="bp">self</span><span class="o">.</span><span class="n">sbom_spec</span><span class="p">,</span> <span class="bp">self</span><span class="o">.</span><span class="n">doc</span><span class="p">,</span> <span class="nb">getattr</span><span class="p">(</span><span class="bp">self</span><span class="p">,</span> <span class="s2">"_BaseChecker__spdx3_doc"</span><span class="p">,</span> <span class="kc">None</span><span class="p">)</span>

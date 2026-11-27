@@ -477,9 +477,13 @@
 
 <span class="sd">    An absent ``completeness`` is reported as ``noAssertion``.</span>
 
+<span class="sd">    Args:</span>
+<span class="sd">        object_set: The SPDX 3 object set.</span>
+
 <span class="sd">    Returns:</span>
-<span class="sd">        dict[str, list[str]]: A dictionary mapping all relationship's</span>
-<span class="sd">        from_id to a list of all completeness attributes.</span>
+<span class="sd">        dict[str, list[str]]: A dictionary mapping each relationship's</span>
+<span class="sd">        ``from`` SPDX ID to the ``completeness`` of each of its dependency</span>
+<span class="sd">        relationships (``complete``, ``incomplete`` or ``noAssertion``).</span>
 <span class="sd">    """</span>
     <span class="k">return</span> <span class="p">{</span>
         <span class="n">from_id</span><span class="p">:</span> <span class="p">[</span><span class="n">value</span> <span class="ow">or</span> <span class="s2">"noAssertion"</span> <span class="k">for</span> <span class="n">value</span> <span class="ow">in</span> <span class="n">values</span><span class="p">]</span>

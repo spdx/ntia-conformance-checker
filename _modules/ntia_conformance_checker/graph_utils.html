@@ -310,7 +310,7 @@
 <span class="sd">    collection. The parent is reachable. A none or no-assertion child also</span>
 <span class="sd">    counts: it states that there are no further dependencies, or that they</span>
 <span class="sd">    are unknown. This reading is meant for any minimum elements standard;</span>
-<span class="sd">    FAQ.md cites NTIA 2021 and CISA 2026 for it.</span>
+<span class="sd">    FAQ.md Q6 cites NTIA 2021 and CISA 2026 for it.</span>
 
 <span class="sd">    Args:</span>
 <span class="sd">        graph: The relationship graph.</span>
@@ -381,6 +381,11 @@
 <span class="sd">    components represent the primary unit of software conformance in</span>
 <span class="sd">    minimum elements standards.</span>
 
+<span class="sd">    Args:</span>
+<span class="sd">        sbom_spec: The SBOM specification, ``spdx2`` or ``spdx3``.</span>
+<span class="sd">        parsed_data: The parsed SBOM document.</span>
+<span class="sd">        spdx3_doc: The SPDX 3 ``SpdxDocument``; required for ``spdx3``.</span>
+
 <span class="sd">    Returns:</span>
 <span class="sd">        GraphConnectivity: Reachable and floating components, links to</span>
 <span class="sd">            missing elements, the missing element IDs, and whether a</span>
@@ -428,10 +433,16 @@
     <span class="n">sbom_spec</span><span class="p">:</span> <span class="nb">str</span><span class="p">,</span> <span class="n">parsed_data</span><span class="p">:</span> <span class="n">Any</span><span class="p">,</span> <span class="n">spdx3_doc</span><span class="p">:</span> <span class="n">Any</span> <span class="o">=</span> <span class="kc">None</span>
 <span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">tuple</span><span class="p">[</span><span class="nb">set</span><span class="p">[</span><span class="nb">str</span><span class="p">],</span> <span class="nb">set</span><span class="p">[</span><span class="nb">str</span><span class="p">],</span> <span class="nb">dict</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="nb">list</span><span class="p">[</span><span class="nb">str</span><span class="p">]],</span> <span class="nb">bool</span><span class="p">]:</span>
 <span class="w">    </span><span class="sd">"""</span>
-<span class="sd">    Analyze graph connectivity to find reachable components and unknown pointers.</span>
+<span class="sd">    Analyze graph connectivity to find reachable components and links to</span>
+<span class="sd">    missing elements.</span>
 
 <span class="sd">    Kept for compatibility; ``analyze_graph`` also returns the missing</span>
 <span class="sd">    element IDs.</span>
+
+<span class="sd">    Args:</span>
+<span class="sd">        sbom_spec: The SBOM specification, ``spdx2`` or ``spdx3``.</span>
+<span class="sd">        parsed_data: The parsed SBOM document.</span>
+<span class="sd">        spdx3_doc: The SPDX 3 ``SpdxDocument``; required for ``spdx3``.</span>
 
 <span class="sd">    Returns:</span>
 <span class="sd">        tuple: (reachable_component_ids, floating_component_ids,</span>
@@ -619,7 +630,7 @@
                 <span class="n">graph</span><span class="o">.</span><span class="n">roots</span><span class="o">.</span><span class="n">extend</span><span class="p">(</span><span class="n">to_ids</span><span class="p">)</span>
                 <span class="n">graph</span><span class="o">.</span><span class="n">written_relationships</span><span class="o">.</span><span class="n">extend</span><span class="p">((</span><span class="n">doc_id</span><span class="p">,</span> <span class="n">to_id</span><span class="p">)</span> <span class="k">for</span> <span class="n">to_id</span> <span class="ow">in</span> <span class="n">to_ids</span><span class="p">)</span>
 
-            <span class="c1"># Normal relationships between packages build the map</span>
+            <span class="c1"># Other relationships, between any elements, build the map</span>
             <span class="k">else</span><span class="p">:</span>
                 <span class="n">_extract_spdx3_relationship_edges</span><span class="p">(</span><span class="n">obj</span><span class="p">,</span> <span class="n">graph</span><span class="p">)</span>
 
@@ -685,6 +696,11 @@
 <span class="p">)</span> <span class="o">-&gt;</span> <span class="nb">tuple</span><span class="p">[</span><span class="nb">set</span><span class="p">[</span><span class="nb">str</span><span class="p">],</span> <span class="nb">dict</span><span class="p">[</span><span class="nb">str</span><span class="p">,</span> <span class="nb">list</span><span class="p">[</span><span class="nb">str</span><span class="p">]]]:</span>
 <span class="w">    </span><span class="sd">"""</span>
 <span class="sd">    Get all nodes connected to the root by using Breadth-First Search.</span>
+
+<span class="sd">    Args:</span>
+<span class="sd">        sbom_spec: The SBOM specification, ``spdx2`` or ``spdx3``.</span>
+<span class="sd">        parsed_data: The parsed SBOM document.</span>
+<span class="sd">        spdx3_doc: The SPDX 3 ``SpdxDocument``; required for ``spdx3``.</span>
 
 <span class="sd">    Returns:</span>
 <span class="sd">        tuple: (reachable_node_ids, traversal_edges), where</span>

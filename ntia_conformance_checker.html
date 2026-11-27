@@ -985,16 +985,23 @@ dependency relationship (see <code class="docutils literal notranslate"><span cl
 components represent the primary unit of software conformance in
 minimum elements standards.</p>
 <dl class="field-list simple">
-<dt class="field-odd">Returns<span class="colon">:</span></dt>
-<dd class="field-odd"><p><dl class="simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>sbom_spec</strong> – The SBOM specification, <code class="docutils literal notranslate"><span class="pre">spdx2</span></code> or <code class="docutils literal notranslate"><span class="pre">spdx3</span></code>.</p></li>
+<li><p><strong>parsed_data</strong> – The parsed SBOM document.</p></li>
+<li><p><strong>spdx3_doc</strong> – The SPDX 3 <code class="docutils literal notranslate"><span class="pre">SpdxDocument</span></code>; required for <code class="docutils literal notranslate"><span class="pre">spdx3</span></code>.</p></li>
+</ul>
+</dd>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
+<dd class="field-even"><p><dl class="simple">
 <dt>Reachable and floating components, links to</dt><dd><p>missing elements, the missing element IDs, and whether a
 dependency relationship is declared.</p>
 </dd>
 </dl>
 </p>
 </dd>
-<dt class="field-even">Return type<span class="colon">:</span></dt>
-<dd class="field-even"><p><a class="reference internal" href="#ntia_conformance_checker.graph_utils.GraphConnectivity" title="ntia_conformance_checker.graph_utils.GraphConnectivity">GraphConnectivity</a></p>
+<dt class="field-odd">Return type<span class="colon">:</span></dt>
+<dd class="field-odd"><p><a class="reference internal" href="#ntia_conformance_checker.graph_utils.GraphConnectivity" title="ntia_conformance_checker.graph_utils.GraphConnectivity">GraphConnectivity</a></p>
 </dd>
 </dl>
 </dd></dl>
@@ -1002,12 +1009,20 @@ dependency relationship is declared.</p>
 <dl class="py function">
 <dt class="sig sig-object py" id="ntia_conformance_checker.graph_utils.analyze_graph_connectivity">
 <span class="sig-prename descclassname"><span class="pre">ntia_conformance_checker.graph_utils.</span></span><span class="sig-name descname"><span class="pre">analyze_graph_connectivity</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">sbom_spec</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">parsed_data</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Any</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">spdx3_doc</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Any</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">tuple</span><span class="p"><span class="pre">[</span></span><span class="pre">set</span><span class="p"><span class="pre">[</span></span><span class="pre">str</span><span class="p"><span class="pre">]</span></span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="pre">set</span><span class="p"><span class="pre">[</span></span><span class="pre">str</span><span class="p"><span class="pre">]</span></span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="pre">dict</span><span class="p"><span class="pre">[</span></span><span class="pre">str</span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="pre">list</span><span class="p"><span class="pre">[</span></span><span class="pre">str</span><span class="p"><span class="pre">]</span></span><span class="p"><span class="pre">]</span></span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="pre">bool</span><span class="p"><span class="pre">]</span></span></span></span><a class="reference internal" href="_modules/ntia_conformance_checker/graph_utils.html#analyze_graph_connectivity"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#ntia_conformance_checker.graph_utils.analyze_graph_connectivity" title="Link to this definition">¶</a></dt>
-<dd><p>Analyze graph connectivity to find reachable components and unknown pointers.</p>
+<dd><p>Analyze graph connectivity to find reachable components and links to
+missing elements.</p>
 <p>Kept for compatibility; <code class="docutils literal notranslate"><span class="pre">analyze_graph</span></code> also returns the missing
 element IDs.</p>
 <dl class="field-list simple">
-<dt class="field-odd">Returns<span class="colon">:</span></dt>
-<dd class="field-odd"><p><dl class="simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>sbom_spec</strong> – The SBOM specification, <code class="docutils literal notranslate"><span class="pre">spdx2</span></code> or <code class="docutils literal notranslate"><span class="pre">spdx3</span></code>.</p></li>
+<li><p><strong>parsed_data</strong> – The parsed SBOM document.</p></li>
+<li><p><strong>spdx3_doc</strong> – The SPDX 3 <code class="docutils literal notranslate"><span class="pre">SpdxDocument</span></code>; required for <code class="docutils literal notranslate"><span class="pre">spdx3</span></code>.</p></li>
+</ul>
+</dd>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
+<dd class="field-even"><p><dl class="simple">
 <dt>(reachable_component_ids, floating_component_ids,</dt><dd><p>unknown_pointer_edges, has_unknown_pointers), where
 unknown_pointer_edges maps a source ID to target IDs, for
 relationships with a missing end, as written (see
@@ -1016,8 +1031,8 @@ relationships with a missing end, as written (see
 </dl>
 </p>
 </dd>
-<dt class="field-even">Return type<span class="colon">:</span></dt>
-<dd class="field-even"><p>tuple</p>
+<dt class="field-odd">Return type<span class="colon">:</span></dt>
+<dd class="field-odd"><p>tuple</p>
 </dd>
 </dl>
 </dd></dl>
@@ -1027,8 +1042,15 @@ relationships with a missing end, as written (see
 <span class="sig-prename descclassname"><span class="pre">ntia_conformance_checker.graph_utils.</span></span><span class="sig-name descname"><span class="pre">get_reachable_nodes</span></span><span class="sig-paren">(</span><em class="sig-param"><span class="n"><span class="pre">sbom_spec</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">str</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">parsed_data</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Any</span></span></em>, <em class="sig-param"><span class="n"><span class="pre">spdx3_doc</span></span><span class="p"><span class="pre">:</span></span><span class="w"> </span><span class="n"><span class="pre">Any</span></span><span class="w"> </span><span class="o"><span class="pre">=</span></span><span class="w"> </span><span class="default_value"><span class="pre">None</span></span></em><span class="sig-paren">)</span> <span class="sig-return"><span class="sig-return-icon">&#x2192;</span> <span class="sig-return-typehint"><span class="pre">tuple</span><span class="p"><span class="pre">[</span></span><span class="pre">set</span><span class="p"><span class="pre">[</span></span><span class="pre">str</span><span class="p"><span class="pre">]</span></span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="pre">dict</span><span class="p"><span class="pre">[</span></span><span class="pre">str</span><span class="p"><span class="pre">,</span></span><span class="w"> </span><span class="pre">list</span><span class="p"><span class="pre">[</span></span><span class="pre">str</span><span class="p"><span class="pre">]</span></span><span class="p"><span class="pre">]</span></span><span class="p"><span class="pre">]</span></span></span></span><a class="reference internal" href="_modules/ntia_conformance_checker/graph_utils.html#get_reachable_nodes"><span class="viewcode-link"><span class="pre">[source]</span></span></a><a class="headerlink" href="#ntia_conformance_checker.graph_utils.get_reachable_nodes" title="Link to this definition">¶</a></dt>
 <dd><p>Get all nodes connected to the root by using Breadth-First Search.</p>
 <dl class="field-list simple">
-<dt class="field-odd">Returns<span class="colon">:</span></dt>
-<dd class="field-odd"><p><dl class="simple">
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><ul class="simple">
+<li><p><strong>sbom_spec</strong> – The SBOM specification, <code class="docutils literal notranslate"><span class="pre">spdx2</span></code> or <code class="docutils literal notranslate"><span class="pre">spdx3</span></code>.</p></li>
+<li><p><strong>parsed_data</strong> – The parsed SBOM document.</p></li>
+<li><p><strong>spdx3_doc</strong> – The SPDX 3 <code class="docutils literal notranslate"><span class="pre">SpdxDocument</span></code>; required for <code class="docutils literal notranslate"><span class="pre">spdx3</span></code>.</p></li>
+</ul>
+</dd>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
+<dd class="field-even"><p><dl class="simple">
 <dt>(reachable_node_ids, traversal_edges), where</dt><dd><p>traversal_edges holds edges in traversal direction, from
 parent to child. A relationship walked against its written
 direction is an edge from its target to its source, such as
@@ -1038,8 +1060,8 @@ to A).</p>
 </dl>
 </p>
 </dd>
-<dt class="field-even">Return type<span class="colon">:</span></dt>
-<dd class="field-even"><p>tuple</p>
+<dt class="field-odd">Return type<span class="colon">:</span></dt>
+<dd class="field-odd"><p>tuple</p>
 </dd>
 </dl>
 </dd></dl>
@@ -1502,12 +1524,16 @@ such as ai_AIPackage and dataset_DatasetPackage.</p>
 relationships (‘contains’, ‘dependsOn’) in the SPDX 3 document.</p>
 <p>An absent <code class="docutils literal notranslate"><span class="pre">completeness</span></code> is reported as <code class="docutils literal notranslate"><span class="pre">noAssertion</span></code>.</p>
 <dl class="field-list simple">
-<dt class="field-odd">Returns<span class="colon">:</span></dt>
-<dd class="field-odd"><p>A dictionary mapping all relationship’s
-from_id to a list of all completeness attributes.</p>
+<dt class="field-odd">Parameters<span class="colon">:</span></dt>
+<dd class="field-odd"><p><strong>object_set</strong> – The SPDX 3 object set.</p>
 </dd>
-<dt class="field-even">Return type<span class="colon">:</span></dt>
-<dd class="field-even"><p>dict[str, list[str]]</p>
+<dt class="field-even">Returns<span class="colon">:</span></dt>
+<dd class="field-even"><p>A dictionary mapping each relationship’s
+<code class="docutils literal notranslate"><span class="pre">from</span></code> SPDX ID to the <code class="docutils literal notranslate"><span class="pre">completeness</span></code> of each of its dependency
+relationships (<code class="docutils literal notranslate"><span class="pre">complete</span></code>, <code class="docutils literal notranslate"><span class="pre">incomplete</span></code> or <code class="docutils literal notranslate"><span class="pre">noAssertion</span></code>).</p>
+</dd>
+<dt class="field-odd">Return type<span class="colon">:</span></dt>
+<dd class="field-odd"><p>dict[str, list[str]]</p>
 </dd>
 </dl>
 </dd></dl>

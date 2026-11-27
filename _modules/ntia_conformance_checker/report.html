@@ -247,7 +247,7 @@
         <span class="n">graph_issues_report</span><span class="o">.</span><span class="n">append</span><span class="p">(</span>
             <span class="s2">"Unknown elements detected! A relationship points to a missing element."</span>
         <span class="p">)</span>
-        <span class="n">graph_issues_report</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="s2">"  -&gt; Broken dependency linkages found:"</span><span class="p">)</span>
+        <span class="n">graph_issues_report</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="s2">"  -&gt; Links to missing elements:"</span><span class="p">)</span>
         <span class="k">for</span> <span class="n">source_label</span><span class="p">,</span> <span class="n">source</span><span class="p">,</span> <span class="n">target_label</span><span class="p">,</span> <span class="n">target</span> <span class="ow">in</span> <span class="n">_iter_missing_links</span><span class="p">(</span><span class="n">rc</span><span class="p">):</span>
             <span class="n">graph_issues_report</span><span class="o">.</span><span class="n">append</span><span class="p">(</span>
                 <span class="sa">f</span><span class="s2">"    * </span><span class="si">{</span><span class="n">source_label</span><span class="si">}</span><span class="s2"> '</span><span class="si">{</span><span class="n">source</span><span class="si">}</span><span class="s2">' links to </span><span class="si">{</span><span class="n">target_label</span><span class="si">}</span><span class="s2"> '</span><span class="si">{</span><span class="n">target</span><span class="si">}</span><span class="s2">'"</span>
