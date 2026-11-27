@@ -15,6 +15,16 @@ and this project adheres to [Semantic Versioning][semver].
 
 ## [Unreleased]
 
+## [6.1.0] - 2026-11-26
+
+This minor release improves relationship traversal and missing element
+checks, so more components may be checked and new findings may appear.
+Some SBOMs that passed 6.0.0 may now fail: a missing element makes an SBOM
+non-compliant, and `SPDXRef-DOCUMENT DESCRIBES A` alone no longer counts as
+a dependency relationship. Report messages now say "components" and
+"elements"; update any scripts that match the old text. JSON output is
+deterministic. Release files are now signed and attested.
+
 ### Fixed
 
 - A relationship to an SPDX 3 individual such as `NoneElement` is no longer
@@ -55,7 +65,8 @@ and this project adheres to [Semantic Versioning][semver].
 - `get_reachable_nodes` returns edges from parent to child
 - Reports call floating packages "components", as in minimum elements, and
   relationship ends "elements", as in SPDX: "Found X disconnected 'floating'
-  components" and "Unknown elements detected!"
+  components", "Unknown elements detected!" and, in the text report, "Links
+  to missing elements:"
 - Pull request and release builds embed the SBOM with Pitloom 0.20.1 and fail
   on an invalid SBOM; content types are detected with magika
 - Releases publish to PyPI only after the SBOM is validated; release files are
@@ -74,6 +85,12 @@ and this project adheres to [Semantic Versioning][semver].
 - `VALID_SPDX2_COMPOSITION_RELATIONSHIPS` and
   `VALID_SPDX3_COMPOSITION_RELATIONSHIPS`; use `SPDX2_RELATIONSHIP_TRAVERSAL`
   and `SPDX3_RELATIONSHIP_TRAVERSAL`
+
+### Removed
+
+- `check_dependency_relationships` from the SBOM adapters and
+  `spdx3_utils.has_package_dependency_relationship`; the graph analysis
+  decides "Dependency relationships provided?" ([#410])
 
 [#410]: https://github.com/spdx/ntia-conformance-checker/issues/410
 [#478]: https://github.com/spdx/ntia-conformance-checker/pull/478
@@ -518,7 +535,8 @@ Thanks to @goneall, @licquia, and @kestewart for mentoring @linynjosh.
 [keepachangelog]: https://keepachangelog.com/en/1.1.0/
 [semver]: https://semver.org/spec/v2.0.0.html
 
-[Unreleased]: https://github.com/spdx/ntia-conformance-checker/compare/v6.0.0...HEAD
+[Unreleased]: https://github.com/spdx/ntia-conformance-checker/compare/v6.1.0...HEAD
+[6.1.0]: https://github.com/spdx/ntia-conformance-checker/releases/tag/v6.1.0
 [6.0.0]: https://github.com/spdx/ntia-conformance-checker/releases/tag/v6.0.0
 [5.0.3]: https://github.com/spdx/ntia-conformance-checker/releases/tag/v5.0.3
 [5.0.2]: https://github.com/spdx/ntia-conformance-checker/releases/tag/v5.0.2

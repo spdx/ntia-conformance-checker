@@ -48,7 +48,7 @@ SPDX3_RELATIONSHIP_TRAVERSAL: dict[str, TraversalDirection] = {
     "testedOn": TraversalDirection.ALONG,
     # Inputs (tools, sources): walked from the product to the input, as for
     # dependencies. Following them is our reading, not a minimum elements
-    # requirement (see FAQ.md).
+    # requirement (see FAQ.md Q5).
     # "The from Element uses each to Element as a tool": product first.
     "usesTool": TraversalDirection.ALONG,
     # "The from Element generates each to Element": source first, so walked

@@ -726,7 +726,7 @@ def test_generate_graph_text_report_with_issues() -> None:
         "=" * 55,
         "\n************* ERROR *************",
         "Unknown elements detected! A relationship points to a missing element.",
-        "  -> Broken dependency linkages found:",
+        "  -> Links to missing elements:",
         (
             "    * Element 'SPDXRef-Package-Valid' links to"
             " missing element 'SPDXRef-Package-Missing'"

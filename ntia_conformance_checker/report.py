@@ -199,7 +199,7 @@ def _generate_graph_text_report(rc: ReportContext) -> list[str]:
         graph_issues_report.append(
             "Unknown elements detected! A relationship points to a missing element."
         )
-        graph_issues_report.append("  -> Broken dependency linkages found:")
+        graph_issues_report.append("  -> Links to missing elements:")
         for source_label, source, target_label, target in _iter_missing_links(rc):
             graph_issues_report.append(
                 f"    * {source_label} '{source}' links to {target_label} '{target}'"
