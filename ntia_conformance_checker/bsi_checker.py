@@ -9,6 +9,10 @@ from __future__ import annotations
 from typing import Any
 
 from spdx_python_model.bindings import v3_0_1 as spdx3
+from spdx_tools.spdx.validation.validation_message import (
+    ValidationContext,
+    ValidationMessage,
+)
 
 from .adapters.spdx3_adapter import is_blank_license_expression
 from .base_checker import BaseChecker
@@ -57,7 +61,7 @@ def _ids_with_license_expression(
     }
 
 
-# pylint: disable=too-many-instance-attributes
+# pylint: disable=too-many-instance-attributes,too-many-public-methods
 class BSIChecker(BaseChecker):
     """
     BSI Minimum Elements check according to BSI TR-03183-2 v2.1.0.
@@ -142,6 +146,8 @@ class BSIChecker(BaseChecker):
         self.components_without_archive_prop: list[tuple[str, str]] = []
         self.components_without_structured_prop: list[tuple[str, str]] = []
         self.components_without_dependency_completeness: list[tuple[str, str]] = []
+        # Advisory: treated as logical components (no distribution file).
+        self.components_without_distribution_files: list[tuple[str, str]] = []
 
         # Initialize Additional/Optional lists (Warnings)
         self.components_without_source_code_uris: list[tuple[str, str]] = []
@@ -258,6 +264,10 @@ class BSIChecker(BaseChecker):
         )
         self.components_without_creators = self.get_components_without_creators()
         self.components_without_filenames = self.get_components_without_filenames()
+        self.components_without_distribution_files = (
+            self.get_components_without_distribution_files()
+        )
+        self._report_logical_components()
         self.components_without_executable_prop = (
             self.get_components_without_executable_prop()
         )
@@ -423,9 +433,14 @@ class BSIChecker(BaseChecker):
         for name, spdx_id, _ in iter_objects_with_property(
             self.doc, spdx3.software_Package, "spdxId", self.reachable_component_ids
         ):
-            has_filename = False
             linked_files = artifacts_map.get(spdx_id, [])
 
+            # No linked file: a logical component, which needs no filename
+            # (BSI TR-03183-2 v2.1.0 §3.2.2 "Logical component").
+            if not linked_files:
+                continue
+
+            has_filename = False
             for file_obj in linked_files:
                 file_name = getattr(file_obj, "name", "")
                 if file_name and isinstance(file_name, str) and file_name.strip():
@@ -436,6 +451,53 @@ class BSIChecker(BaseChecker):
                 missing.append((name, spdx_id))
 
         return missing
+
+    def get_components_without_distribution_files(self) -> list[tuple[str, str]]:
+        """
+        Reachable packages with no linked distribution file.
+
+        They are treated as logical components (BSI TR-03183-2 v2.1.0 §3.2.2),
+        so the file-level fields (filename, hash, file properties) are not
+        checked for them.
+        """
+        if not isinstance(self.doc, spdx3.SHACLObjectSet):
+            return []
+        artifacts_map = get_distribution_artifacts_map(self.doc)
+        return [
+            (name, spdx_id)
+            for name, spdx_id, _ in iter_objects_with_property(
+                self.doc,
+                spdx3.software_Package,
+                "spdxId",
+                self.reachable_component_ids,
+            )
+            if not artifacts_map.get(spdx_id)
+        ]
+
+    def _report_logical_components(self) -> None:
+        """
+        Add an advisory message for components treated as logical ones.
+
+        Not a failure: §3.2.2 asks no filename of a logical component. But an
+        executable or archive file "MUST be represented as" a component
+        (§3.2.1), so a missing distribution file may be an omission.
+        """
+        if not self.components_without_distribution_files:
+            return
+        names = ", ".join(
+            name or spdx_id
+            for name, spdx_id in self.components_without_distribution_files
+        )
+        self._conformance_messages.append(
+            ValidationMessage(
+                "No distribution file is linked, so these components are treated "
+                "as logical components and their filename, hash and file "
+                "properties are not checked (BSI TR-03183-2 v2.1.0 §3.2.2); "
+                "link the file if one is an executable or archive file "
+                f"(§3.2.1): {names}",
+                ValidationContext(),
+            )
+        )
 
     def check_dependency_completeness(self) -> bool:
         """
